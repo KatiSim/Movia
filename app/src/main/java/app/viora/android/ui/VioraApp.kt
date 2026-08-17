@@ -31,6 +31,7 @@ import app.viora.android.ui.details.DetailsScreen
 import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.library.LibraryScreen
 import app.viora.android.ui.profile.ProfileScreen
+import app.viora.android.ui.player.PlayerScreen
 import app.viora.android.ui.search.SearchScreen
 import app.viora.android.ui.theme.VioraTheme
 
@@ -54,6 +55,15 @@ fun VioraApp() {
         var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
         var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
         var playTitle by rememberSaveable { mutableStateOf<String?>(null) }
+
+        if (playTitle != null) {
+            PlayerScreen(
+                title = playTitle.orEmpty(),
+                onBack = { playTitle = null },
+                modifier = Modifier.fillMaxSize(),
+            )
+            return@VioraTheme
+        }
 
         if (detailsTitle != null) {
             DetailsScreen(
@@ -111,12 +121,6 @@ fun VioraApp() {
                     contentPadding = innerPadding,
                 )
             }
-        }
-
-        // Reserved for the next isolated Media3 step; keeping the state here guarantees
-        // the details screen already exposes a stable play contract.
-        if (playTitle != null) {
-            playTitle = null
         }
     }
 }
