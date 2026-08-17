@@ -69,6 +69,9 @@ fun VioraApp() {
         val scope = rememberCoroutineScope()
         val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(initial = PlaybackPreferences())
         val favorites by preferencesRepository.favorites.collectAsState(initial = emptySet())
+        val watchLater by preferencesRepository.watchLater.collectAsState(initial = emptySet())
+        val downloads by preferencesRepository.downloads.collectAsState(initial = emptySet())
+        val history by preferencesRepository.history.collectAsState(initial = emptyList())
         val lastProgress by preferencesRepository.lastProgress.collectAsState(initial = PlaybackProgress())
 
         var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -104,10 +107,14 @@ fun VioraApp() {
                 onBack = { detailsTitle = null },
                 onPlay = { playTitle = it },
                 favorite = title in favorites,
+                watchLater = title in watchLater,
                 selectedAudio = resolvedAudio,
                 selectedQuality = resolvedQuality,
                 onFavoriteChange = { favorite ->
                     scope.launch { preferencesRepository.setFavorite(title, favorite) }
+                },
+                onWatchLaterChange = { enabled ->
+                    scope.launch { preferencesRepository.setWatchLater(title, enabled) }
                 },
                 onAudioSelected = { audio ->
                     scope.launch { preferencesRepository.setTitleAudio(title, audio) }
@@ -138,6 +145,11 @@ fun VioraApp() {
             return@VioraTheme
         }
 
+        val openDetails: (String) -> Unit = { title ->
+            detailsTitle = title
+            scope.launch { preferencesRepository.addHistory(title) }
+        }
+
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
@@ -164,23 +176,29 @@ fun VioraApp() {
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                     progress = lastProgress,
-                    onOpenDetails = { detailsTitle = it },
+                    onOpenDetails = openDetails,
                     onContinue = { playTitle = it },
                 )
                 1 -> CatalogScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
-                    onOpenDetails = { detailsTitle = it },
+                    onOpenDetails = openDetails,
                 )
                 2 -> SearchScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
-                    onOpenDetails = { detailsTitle = it },
+                    onOpenDetails = openDetails,
                 )
                 3 -> LibraryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                     favorites = favorites,
+                    watchLater = watchLater,
+                    history = history,
+                    downloads = downloads,
+                    hasProgress = lastProgress.title.isNotBlank() && lastProgress.positionMs > 0L,
+                    onOpenDetails = openDetails,
+                    onClearHistory = { scope.launch { preferencesRepository.clearHistory() } },
                 )
                 4 -> ProfileScreen(
                     modifier = Modifier.fillMaxSize(),

@@ -1,5 +1,6 @@
 package app.viora.android.ui.library
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,13 +33,19 @@ fun LibraryScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     favorites: Set<String> = emptySet(),
+    watchLater: Set<String> = emptySet(),
+    history: List<String> = emptyList(),
+    downloads: Set<String> = emptySet(),
+    hasProgress: Boolean = false,
+    onOpenDetails: (String) -> Unit = {},
+    onClearHistory: () -> Unit = {},
 ) {
     val entries = listOf(
-        LibraryEntry("Продолжить просмотр", "2 незавершённых", Icons.Outlined.PlayCircleOutline),
+        LibraryEntry("Продолжить просмотр", if (hasProgress) "Есть незавершённый просмотр" else "Пока пусто", Icons.Outlined.PlayCircleOutline),
         LibraryEntry("Избранное", "${favorites.size} сохранённых", Icons.Outlined.FavoriteBorder),
-        LibraryEntry("Посмотреть позже", "7 позиций", Icons.Outlined.WatchLater),
-        LibraryEntry("История", "Недавние просмотры", Icons.Outlined.History),
-        LibraryEntry("Скачанное", "Доступно офлайн", Icons.Outlined.Download),
+        LibraryEntry("Посмотреть позже", "${watchLater.size} позиций", Icons.Outlined.WatchLater),
+        LibraryEntry("История", "${history.size} недавних", Icons.Outlined.History),
+        LibraryEntry("Скачанное", "${downloads.size} офлайн", Icons.Outlined.Download),
     )
 
     LazyColumn(
@@ -59,10 +67,7 @@ fun LibraryScreen(
 
         items(entries.size) { index ->
             val entry = entries[index]
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            ) {
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 ListItem(
                     headlineContent = { Text(entry.title) },
                     supportingContent = { Text(entry.subtitle) },
@@ -72,14 +77,46 @@ fun LibraryScreen(
         }
 
         if (favorites.isNotEmpty()) {
+            item { CollectionSection("Избранное", favorites.sorted(), onOpenDetails) }
+        }
+        if (watchLater.isNotEmpty()) {
+            item { CollectionSection("Посмотреть позже", watchLater.sorted(), onOpenDetails) }
+        }
+        if (history.isNotEmpty()) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Избранное", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    favorites.sorted().forEach { title ->
-                        Text("• $title", style = MaterialTheme.typography.bodyLarge)
+                    Text("История", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    history.take(10).forEach { title ->
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().clickable { onOpenDetails(title) }.padding(vertical = 8.dp),
+                        )
                     }
+                    TextButton(onClick = onClearHistory) { Text("Очистить историю") }
                 }
             }
+        }
+        if (downloads.isNotEmpty()) {
+            item { CollectionSection("Скачанное", downloads.sorted(), onOpenDetails) }
+        }
+    }
+}
+
+@Composable
+private fun CollectionSection(
+    title: String,
+    items: List<String>,
+    onOpenDetails: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+        Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        items.forEach { item ->
+            Text(
+                text = item,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.fillMaxWidth().clickable { onOpenDetails(item) }.padding(vertical = 8.dp),
+            )
         }
     }
 }

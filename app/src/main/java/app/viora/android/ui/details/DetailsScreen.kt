@@ -47,9 +47,11 @@ fun DetailsScreen(
     onBack: () -> Unit,
     onPlay: (String) -> Unit,
     favorite: Boolean = false,
+    watchLater: Boolean = false,
     selectedAudio: String = "Auto",
     selectedQuality: String = "Auto",
     onFavoriteChange: (Boolean) -> Unit = {},
+    onWatchLaterChange: (Boolean) -> Unit = {},
     onAudioSelected: (String) -> Unit = {},
     onQualitySelected: (String) -> Unit = {},
     audioIsOverride: Boolean = false,
@@ -141,6 +143,10 @@ fun DetailsScreen(
                                 contentDescription = null,
                             )
                         },
+                    )
+                    AssistChip(
+                        onClick = { onWatchLaterChange(!watchLater) },
+                        label = { Text(if (watchLater) "В списке" else "Посмотреть позже") },
                     )
                 }
             }

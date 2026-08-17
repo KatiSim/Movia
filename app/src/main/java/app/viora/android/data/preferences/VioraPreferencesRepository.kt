@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 
 private val Context.vioraDataStore by preferencesDataStore(name = "viora_preferences")
 private const val ENTRY_SEPARATOR = "\u001F"
+private const val LIST_SEPARATOR = "\u001E"
 
 data class PlaybackPreferences(
     val audio: String = "Auto",
@@ -53,6 +54,9 @@ class VioraPreferencesRepository(
         val autoNext = booleanPreferencesKey("playback_auto_next")
         val wifiOnlyDownloads = booleanPreferencesKey("downloads_wifi_only")
         val favorites = stringSetPreferencesKey("library_favorites")
+        val watchLater = stringSetPreferencesKey("library_watch_later")
+        val downloads = stringSetPreferencesKey("library_downloads")
+        val history = stringPreferencesKey("library_history")
         val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
         val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
         val lastTitle = stringPreferencesKey("last_playback_title")
@@ -76,6 +80,21 @@ class VioraPreferencesRepository(
 
     val favorites: Flow<Set<String>> = safeData.map { prefs ->
         prefs[Keys.favorites].orEmpty()
+    }
+
+    val watchLater: Flow<Set<String>> = safeData.map { prefs ->
+        prefs[Keys.watchLater].orEmpty()
+    }
+
+    val downloads: Flow<Set<String>> = safeData.map { prefs ->
+        prefs[Keys.downloads].orEmpty()
+    }
+
+    val history: Flow<List<String>> = safeData.map { prefs ->
+        prefs[Keys.history]
+            ?.split(LIST_SEPARATOR)
+            ?.filter { it.isNotBlank() }
+            .orEmpty()
     }
 
     val lastProgress: Flow<PlaybackProgress> = safeData.map { prefs ->
@@ -114,11 +133,33 @@ class VioraPreferencesRepository(
     }
 
     suspend fun setFavorite(title: String, favorite: Boolean) {
+        updateSet(Keys.favorites, title, favorite)
+    }
+
+    suspend fun setWatchLater(title: String, enabled: Boolean) {
+        updateSet(Keys.watchLater, title, enabled)
+    }
+
+    suspend fun setDownloaded(title: String, enabled: Boolean) {
+        updateSet(Keys.downloads, title, enabled)
+    }
+
+    suspend fun addHistory(title: String) {
+        if (title.isBlank()) return
         context.vioraDataStore.edit { prefs ->
-            val next = prefs[Keys.favorites].orEmpty().toMutableSet()
-            if (favorite) next += title else next -= title
-            prefs[Keys.favorites] = next
+            val current = prefs[Keys.history]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty()
+                .toMutableList()
+            current.remove(title)
+            current.add(0, title)
+            prefs[Keys.history] = current.take(30).joinToString(LIST_SEPARATOR)
         }
+    }
+
+    suspend fun clearHistory() {
+        context.vioraDataStore.edit { it.remove(Keys.history) }
     }
 
     suspend fun setTitleAudio(title: String, value: String?) {
@@ -135,6 +176,19 @@ class VioraPreferencesRepository(
             prefs[Keys.lastTitle] = title
             prefs[Keys.lastPosition] = positionMs
             if (durationMs > 0L) prefs[Keys.lastDuration] = durationMs
+        }
+    }
+
+
+    private suspend fun updateSet(
+        key: Preferences.Key<Set<String>>,
+        title: String,
+        enabled: Boolean,
+    ) {
+        context.vioraDataStore.edit { prefs ->
+            val next = prefs[key].orEmpty().toMutableSet()
+            if (enabled) next += title else next -= title
+            prefs[key] = next
         }
     }
 
