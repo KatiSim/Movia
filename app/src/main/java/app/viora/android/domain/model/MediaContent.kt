@@ -18,4 +18,7 @@ data class MediaContent(
     val durationMinutes: Int,
     val isNew: Boolean = false,
     val popularity: Int = 0,
+    val ageRating: Int = 16,
+    val audioLanguages: Set<String> = setOf("Русский", "Original"),
+    val subtitleLanguages: Set<String> = setOf("Русский", "English"),
 )
