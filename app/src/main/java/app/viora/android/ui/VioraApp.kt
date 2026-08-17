@@ -29,6 +29,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -41,7 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.work.WorkInfo
 import app.viora.android.data.download.DownloadScheduler
+import app.viora.android.data.download.DownloadStatus
 import app.viora.android.data.preferences.AppPreferences
 import app.viora.android.data.preferences.PlaybackPreferences
 import app.viora.android.data.preferences.PlaybackProgress
@@ -62,6 +65,7 @@ import app.viora.android.ui.settings.HelpSettingsScreen
 import app.viora.android.ui.settings.NotificationsSettingsScreen
 import app.viora.android.ui.settings.PlaybackSettingsScreen
 import app.viora.android.ui.theme.VioraTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private data class TopLevelDestination(
@@ -172,6 +176,26 @@ private fun VioraContent(
         val titlePreferences by titlePreferencesFlow.collectAsState(initial = TitlePlaybackPreferences())
         val resolvedAudio = titlePreferences.audio ?: playbackPreferences.audio
         val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
+        var downloadStatus by remember(title) { mutableStateOf(DownloadStatus()) }
+        LaunchedEffect(title) {
+            while (true) {
+                downloadStatus = DownloadScheduler.status(context.applicationContext, title)
+                delay(1_000L)
+            }
+        }
+        val downloadLabel = when {
+            title in downloads -> "Скачано"
+            downloadStatus.state == WorkInfo.State.RUNNING -> "Скачивается ${downloadStatus.progressPercent}%"
+            downloadStatus.state == WorkInfo.State.ENQUEUED || downloadStatus.state == WorkInfo.State.BLOCKED -> "Ожидание"
+            downloadStatus.state == WorkInfo.State.FAILED -> "Ошибка · Повторить"
+            downloadStatus.state == WorkInfo.State.SUCCEEDED -> "Завершено"
+            else -> "Скачать ~65 МБ"
+        }
+        val downloadActionEnabled = title in downloads || downloadStatus.state !in setOf(
+            WorkInfo.State.RUNNING,
+            WorkInfo.State.ENQUEUED,
+            WorkInfo.State.BLOCKED,
+        )
 
         DetailsScreen(
             title = title,
@@ -180,6 +204,8 @@ private fun VioraContent(
             favorite = title in favorites,
             watchLater = title in watchLater,
             downloaded = title in downloads,
+            downloadLabel = downloadLabel,
+            downloadActionEnabled = downloadActionEnabled,
             selectedAudio = resolvedAudio,
             selectedQuality = resolvedQuality,
             onFavoriteChange = { favorite ->

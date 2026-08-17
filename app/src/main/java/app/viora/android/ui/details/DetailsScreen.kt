@@ -54,6 +54,8 @@ fun DetailsScreen(
     favorite: Boolean = false,
     watchLater: Boolean = false,
     downloaded: Boolean = false,
+    downloadLabel: String = "Скачать ~65 МБ",
+    downloadActionEnabled: Boolean = true,
     selectedAudio: String = "Auto",
     selectedQuality: String = "Auto",
     onFavoriteChange: (Boolean) -> Unit = {},
@@ -178,7 +180,8 @@ fun DetailsScreen(
                     }
                     AssistChip(
                         onClick = onDownloadClick,
-                        label = { Text(if (downloaded) "Скачано" else "Скачать ~65 МБ") },
+                        enabled = downloadActionEnabled,
+                        label = { Text(if (downloaded) "Скачано" else downloadLabel) },
                     )
                 }
             }
