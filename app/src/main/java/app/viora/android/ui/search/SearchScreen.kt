@@ -6,16 +6,23 @@ import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,24 +30,28 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
@@ -62,6 +73,7 @@ fun SearchScreen(
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
+    var searchFocused by remember { mutableStateOf(false) }
     val results = DemoCatalogRepository.search(query)
     val people = DemoCatalogRepository.searchPeople(query)
 
@@ -120,27 +132,14 @@ fun SearchScreen(
             )
         }
         item {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text("Фильм, сериал, актёр, режиссёр…") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                trailingIcon = {
-                    Row {
-                        if (query.isNotEmpty()) {
-                            IconButton(onClick = { query = "" }) {
-                                Icon(Icons.Outlined.Close, contentDescription = "Очистить поиск")
-                            }
-                        }
-                        IconButton(onClick = ::startVoiceSearch) {
-                            Icon(Icons.Outlined.Mic, contentDescription = "Голосовой поиск")
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { commitSearch(query) }),
+            VioraSearchField(
+                query = query,
+                onQueryChange = { query = it },
+                focused = searchFocused,
+                onFocusChange = { searchFocused = it },
+                onClear = { query = "" },
+                onVoice = ::startVoiceSearch,
+                onSearch = { commitSearch(query) },
             )
         }
 
@@ -166,12 +165,12 @@ fun SearchScreen(
                         }
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(recentQueries) { recent ->
-                                AssistChip(
+                                SearchSuggestionChip(
+                                    text = recent,
                                     onClick = {
                                         query = recent
                                         commitSearch(recent)
                                     },
-                                    label = { Text(recent) },
                                 )
                             }
                         }
@@ -180,15 +179,15 @@ fun SearchScreen(
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SectionHeader(title = "Популярное в поиске")
+                    SectionHeader(title = "Популярное")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(popularQueries) { popular ->
-                            AssistChip(
+                            SearchSuggestionChip(
+                                text = popular,
                                 onClick = {
                                     query = popular
                                     commitSearch(popular)
                                 },
-                                label = { Text(popular) },
                             )
                         }
                     }
@@ -249,6 +248,121 @@ fun SearchScreen(
 }
 
 @Composable
+private fun VioraSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    focused: Boolean,
+    onFocusChange: (Boolean) -> Unit,
+    onClear: () -> Unit,
+    onVoice: () -> Unit,
+    onSearch: () -> Unit,
+) {
+    val shape = RoundedCornerShape(28.dp)
+    val focusBorder = if (focused) MaterialTheme.colorScheme.primary.copy(alpha = 0.78f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
+
+    BasicTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        singleLine = true,
+        textStyle = TextStyle(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 16.sp,
+            lineHeight = 20.sp,
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape)
+            .border(width = if (focused) 1.5.dp else 1.dp, color = focusBorder, shape = shape)
+            .onFocusChanged { onFocusChange(it.isFocused) },
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(start = 16.dp, end = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    if (query.isEmpty()) {
+                        Text(
+                            text = "Фильм, сериал, актёр или режиссёр",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
+                    }
+                    innerTextField()
+                }
+                if (query.isNotEmpty()) {
+                    IconButton(
+                        onClick = onClear,
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Close,
+                            contentDescription = "Очистить поиск",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = onVoice,
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Mic,
+                            contentDescription = "Голосовой поиск",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun SearchSuggestionChip(
+    text: String,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.heightIn(min = 48.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
 private fun MediaResultSection(
     title: String,
     items: List<MediaContent>,
@@ -299,9 +413,9 @@ private fun PeopleResultSection(
                             Text("Связанный контент: ${person.knownFor.size}")
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 items(person.knownFor) { title ->
-                                    AssistChip(
+                                    SearchSuggestionChip(
+                                        text = title,
                                         onClick = { onKnownForClick(title) },
-                                        label = { Text(title) },
                                     )
                                 }
                             }
