@@ -39,15 +39,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.C
-import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
-private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private val RESIZE_MODES = listOf(
     "Fit" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
@@ -57,42 +54,25 @@ private val RESIZE_MODES = listOf(
 
 @Composable
 fun PlayerScreen(
+    session: PlaybackSession,
     title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    startPositionMs: Long = 0L,
-    sourceUri: String? = null,
     preferredAudio: String = "Auto",
     preferredQuality: String = "Auto",
     subtitlesEnabled: Boolean = false,
     autoNextEnabled: Boolean = true,
     onSubtitlesChanged: (Boolean) -> Unit = {},
     onNextEpisode: () -> Unit = {},
-    onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
+    val player = session.player
     var playbackError by remember { mutableStateOf<String?>(null) }
-    var speed by remember { mutableFloatStateOf(1.0f) }
+    var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
-    val effectiveSource = sourceUri ?: DEMO_VIDEO_URL
-    val offline = sourceUri?.startsWith("file:") == true
+    val offline = session.activeSource?.startsWith("file:") == true
     val resizeMode = RESIZE_MODES[resizeIndex].second
-
-    val player = remember {
-        ExoPlayer.Builder(context).build().apply {
-            repeatMode = Player.REPEAT_MODE_OFF
-            playWhenReady = true
-        }
-    }
-
-    LaunchedEffect(title, startPositionMs, effectiveSource) {
-        playbackError = null
-        player.setMediaItem(MediaItem.fromUri(effectiveSource))
-        player.prepare()
-        if (startPositionMs > 0L) player.seekTo(startPositionMs)
-        player.play()
-    }
 
     LaunchedEffect(speed) {
         player.playbackParameters = PlaybackParameters(speed)
@@ -103,16 +83,6 @@ fun PlayerScreen(
             .buildUpon()
             .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, !subtitlesEnabled)
             .build()
-    }
-
-    LaunchedEffect(player, title) {
-        while (true) {
-            delay(5_000L)
-            val duration = player.duration
-            if (player.currentPosition >= 0L && duration > 0L) {
-                onProgress(player.currentPosition, duration)
-            }
-        }
     }
 
     LaunchedEffect(player, title, autoNextEnabled) {
@@ -126,21 +96,14 @@ fun PlayerScreen(
         }
     }
 
-    DisposableEffect(player) {
+    DisposableEffect(player, title) {
         val listener = object : Player.Listener {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 playbackError = error.errorCodeName
             }
         }
         player.addListener(listener)
-        onDispose {
-            val duration = player.duration
-            if (player.currentPosition >= 0L && duration > 0L) {
-                onProgress(player.currentPosition, duration)
-            }
-            player.removeListener(listener)
-            player.release()
-        }
+        onDispose { player.removeListener(listener) }
     }
 
     BackHandler(onBack = onBack)
@@ -149,7 +112,10 @@ fun PlayerScreen(
         AndroidView(
             factory = { viewContext ->
                 PlayerView(viewContext).apply {
-                    layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
                     useController = true
                     controllerShowTimeoutMs = 3000
                     this.player = player
@@ -163,7 +129,7 @@ fun PlayerScreen(
         )
 
         IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад", tint = Color.White)
+            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Свернуть плеер", tint = Color.White)
         }
 
         IconButton(

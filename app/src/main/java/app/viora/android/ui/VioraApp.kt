@@ -3,11 +3,13 @@ package app.viora.android.ui
 import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -29,6 +31,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +58,8 @@ import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.details.DetailsScreen
 import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.library.LibraryScreen
+import app.viora.android.ui.player.MiniPlayerBar
+import app.viora.android.ui.player.PlaybackSession
 import app.viora.android.ui.player.PlayerScreen
 import app.viora.android.ui.profile.ProfileScreen
 import app.viora.android.ui.search.SearchScreen
@@ -118,6 +124,11 @@ private fun VioraContent(
     appPreferences: AppPreferences,
 ) {
     val scope = rememberCoroutineScope()
+    val playbackSession = remember(context) { PlaybackSession(context.applicationContext) }
+    DisposableEffect(playbackSession) {
+        onDispose { playbackSession.release() }
+    }
+
     val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(initial = PlaybackPreferences())
     val favorites by preferencesRepository.favorites.collectAsState(initial = emptySet())
     val watchLater by preferencesRepository.watchLater.collectAsState(initial = emptySet())
@@ -128,28 +139,68 @@ private fun VioraContent(
 
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
-    var playTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
+    var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
 
-    if (playTitle != null) {
-        val title = playTitle.orEmpty()
+    val persistActiveProgress: () -> Unit = {
+        val title = playbackSession.activeTitle
+        val duration = playbackSession.player.duration
+        val position = playbackSession.player.currentPosition
+        if (!title.isNullOrBlank() && position >= 0L && duration > 0L) {
+            scope.launch { preferencesRepository.saveProgress(title, position, duration) }
+        }
+    }
+
+    val closePlayback: () -> Unit = {
+        persistActiveProgress()
+        playbackSession.stopAndClear()
+        fullPlayerOpen = false
+    }
+
+    val startPlayback: (String) -> Unit = { title ->
+        val baseTitle = title.substringBefore(" · E")
+        val localSource = (
+            DownloadScheduler.localFile(context.applicationContext, title)
+                ?: DownloadScheduler.localFile(context.applicationContext, baseTitle)
+            )?.toURI()?.toString()
+        val startPosition = if (lastProgress.title == title) lastProgress.positionMs else 0L
+        playbackSession.start(
+            title = title,
+            sourceUri = localSource,
+            startPositionMs = startPosition,
+        )
+        fullPlayerOpen = true
+    }
+
+    LaunchedEffect(playbackSession.activeTitle) {
+        while (playbackSession.activeTitle != null) {
+            delay(5_000L)
+            val title = playbackSession.activeTitle ?: break
+            val duration = playbackSession.player.duration
+            val position = playbackSession.player.currentPosition
+            if (position >= 0L && duration > 0L) {
+                preferencesRepository.saveProgress(title, position, duration)
+            }
+        }
+    }
+
+    if (fullPlayerOpen && playbackSession.activeTitle != null) {
+        val title = playbackSession.activeTitle.orEmpty()
         val baseTitle = title.substringBefore(" · E")
         val titlePreferencesFlow = remember(baseTitle, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(baseTitle)
         }
         val titlePreferences by titlePreferencesFlow.collectAsState(initial = TitlePlaybackPreferences())
-        val localSource = (
-            DownloadScheduler.localFile(context.applicationContext, title)
-                ?: DownloadScheduler.localFile(context.applicationContext, baseTitle)
-            )?.toURI()?.toString()
         val resolvedAudio = titlePreferences.audio ?: playbackPreferences.audio
         val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
 
         PlayerScreen(
+            session = playbackSession,
             title = title,
-            onBack = { playTitle = null },
-            startPositionMs = if (lastProgress.title == title) lastProgress.positionMs else 0L,
-            sourceUri = localSource,
+            onBack = {
+                persistActiveProgress()
+                fullPlayerOpen = false
+            },
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,
             subtitlesEnabled = playbackPreferences.subtitlesEnabled,
@@ -158,15 +209,15 @@ private fun VioraContent(
                 scope.launch { preferencesRepository.setSubtitlesEnabled(enabled) }
             },
             onNextEpisode = {
-                nextEpisodeTitle(title)?.let { playTitle = it }
-            },
-            onProgress = { positionMs, durationMs ->
-                scope.launch { preferencesRepository.saveProgress(title, positionMs, durationMs) }
+                nextEpisodeTitle(title)?.let(startPlayback)
             },
             modifier = Modifier.fillMaxSize(),
         )
         return
     }
+
+    val miniVisible = playbackSession.activeTitle != null
+    val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
 
     if (detailsTitle != null) {
         val title = detailsTitle.orEmpty()
@@ -197,96 +248,120 @@ private fun VioraContent(
             WorkInfo.State.BLOCKED,
         )
 
-        DetailsScreen(
-            title = title,
-            onBack = { detailsTitle = null },
-            onPlay = { playTitle = it },
-            favorite = title in favorites,
-            watchLater = title in watchLater,
-            downloaded = title in downloads,
-            downloadLabel = downloadLabel,
-            downloadActionEnabled = downloadActionEnabled,
-            selectedAudio = resolvedAudio,
-            selectedQuality = resolvedQuality,
-            onFavoriteChange = { favorite ->
-                scope.launch { preferencesRepository.setFavorite(title, favorite) }
-            },
-            onWatchLaterChange = { enabled ->
-                scope.launch { preferencesRepository.setWatchLater(title, enabled) }
-            },
-            onDownloadClick = {
-                if (title in downloads) {
-                    if (DownloadScheduler.delete(context.applicationContext, title)) {
-                        scope.launch { preferencesRepository.setDownloaded(title, false) }
+        Box(modifier = Modifier.fillMaxSize()) {
+            DetailsScreen(
+                title = title,
+                onBack = { detailsTitle = null },
+                onPlay = startPlayback,
+                favorite = title in favorites,
+                watchLater = title in watchLater,
+                downloaded = title in downloads,
+                downloadLabel = downloadLabel,
+                downloadActionEnabled = downloadActionEnabled,
+                selectedAudio = resolvedAudio,
+                selectedQuality = resolvedQuality,
+                onFavoriteChange = { favorite ->
+                    scope.launch { preferencesRepository.setFavorite(title, favorite) }
+                },
+                onWatchLaterChange = { enabled ->
+                    scope.launch { preferencesRepository.setWatchLater(title, enabled) }
+                },
+                onDownloadClick = {
+                    if (title in downloads) {
+                        if (DownloadScheduler.delete(context.applicationContext, title)) {
+                            scope.launch { preferencesRepository.setDownloaded(title, false) }
+                        }
+                    } else {
+                        DownloadScheduler.enqueue(
+                            context = context.applicationContext,
+                            title = title,
+                            wifiOnly = playbackPreferences.wifiOnlyDownloads,
+                        )
                     }
-                } else {
-                    DownloadScheduler.enqueue(
-                        context = context.applicationContext,
-                        title = title,
-                        wifiOnly = playbackPreferences.wifiOnlyDownloads,
-                    )
-                }
-            },
-            onAudioSelected = { audio ->
-                scope.launch { preferencesRepository.setTitleAudio(title, audio) }
-            },
-            onQualitySelected = { quality ->
-                scope.launch { preferencesRepository.setTitleQuality(title, quality) }
-            },
-            audioIsOverride = titlePreferences.audio != null,
-            qualityIsOverride = titlePreferences.quality != null,
-            onResetAudio = { scope.launch { preferencesRepository.setTitleAudio(title, null) } },
-            onResetQuality = { scope.launch { preferencesRepository.setTitleQuality(title, null) } },
-            modifier = Modifier.fillMaxSize(),
-        )
+                },
+                onAudioSelected = { audio ->
+                    scope.launch { preferencesRepository.setTitleAudio(title, audio) }
+                },
+                onQualitySelected = { quality ->
+                    scope.launch { preferencesRepository.setTitleQuality(title, quality) }
+                },
+                audioIsOverride = titlePreferences.audio != null,
+                qualityIsOverride = titlePreferences.quality != null,
+                onResetAudio = { scope.launch { preferencesRepository.setTitleAudio(title, null) } },
+                onResetQuality = { scope.launch { preferencesRepository.setTitleQuality(title, null) } },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = contentBottomPadding),
+            )
+            if (miniVisible) {
+                MiniPlayerBar(
+                    session = playbackSession,
+                    onOpen = { fullPlayerOpen = true },
+                    onClose = closePlayback,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
+            }
+        }
         return
     }
 
     settingsRoute?.let { route ->
         val closeSettings = { settingsRoute = null }
-        when (route) {
-            "playback" -> PlaybackSettingsScreen(
-                preferences = playbackPreferences,
-                onBack = closeSettings,
-                onAudioSelected = { value -> scope.launch { preferencesRepository.setAudio(value) } },
-                onQualitySelected = { value -> scope.launch { preferencesRepository.setQuality(value) } },
-                onSubtitlesChanged = { value -> scope.launch { preferencesRepository.setSubtitlesEnabled(value) } },
-                onAutoNextChanged = { value -> scope.launch { preferencesRepository.setAutoNextEnabled(value) } },
-                modifier = Modifier.fillMaxSize(),
-            )
-            "downloads" -> DownloadsSettingsScreen(
-                preferences = playbackPreferences,
-                downloadedCount = downloads.size,
-                onBack = closeSettings,
-                onWifiOnlyChanged = { value -> scope.launch { preferencesRepository.setWifiOnlyDownloads(value) } },
-                onDeleteAll = {
-                    if (DownloadScheduler.deleteAll(context.applicationContext)) {
-                        scope.launch { preferencesRepository.clearDownloaded() }
-                    }
-                },
-                modifier = Modifier.fillMaxSize(),
-            )
-            "notifications" -> NotificationsSettingsScreen(
-                preferences = appPreferences,
-                onBack = closeSettings,
-                onEnabledChanged = { value -> scope.launch { preferencesRepository.setNotificationsEnabled(value) } },
-                modifier = Modifier.fillMaxSize(),
-            )
-            "appearance" -> AppearanceSettingsScreen(
-                preferences = appPreferences,
-                onBack = closeSettings,
-                onThemeModeChanged = { value -> scope.launch { preferencesRepository.setThemeMode(value) } },
-                modifier = Modifier.fillMaxSize(),
-            )
-            "accessibility" -> AccessibilitySettingsScreen(
-                preferences = appPreferences,
-                onBack = closeSettings,
-                onHighContrastChanged = { value -> scope.launch { preferencesRepository.setHighContrast(value) } },
-                modifier = Modifier.fillMaxSize(),
-            )
-            "devices" -> DevicesSettingsScreen(onBack = closeSettings, modifier = Modifier.fillMaxSize())
-            "help" -> HelpSettingsScreen(onBack = closeSettings, modifier = Modifier.fillMaxSize())
-            else -> settingsRoute = null
+        val settingsModifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = contentBottomPadding)
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (route) {
+                "playback" -> PlaybackSettingsScreen(
+                    preferences = playbackPreferences,
+                    onBack = closeSettings,
+                    onAudioSelected = { value -> scope.launch { preferencesRepository.setAudio(value) } },
+                    onQualitySelected = { value -> scope.launch { preferencesRepository.setQuality(value) } },
+                    onSubtitlesChanged = { value -> scope.launch { preferencesRepository.setSubtitlesEnabled(value) } },
+                    onAutoNextChanged = { value -> scope.launch { preferencesRepository.setAutoNextEnabled(value) } },
+                    modifier = settingsModifier,
+                )
+                "downloads" -> DownloadsSettingsScreen(
+                    preferences = playbackPreferences,
+                    downloadedCount = downloads.size,
+                    onBack = closeSettings,
+                    onWifiOnlyChanged = { value -> scope.launch { preferencesRepository.setWifiOnlyDownloads(value) } },
+                    onDeleteAll = {
+                        if (DownloadScheduler.deleteAll(context.applicationContext)) {
+                            scope.launch { preferencesRepository.clearDownloaded() }
+                        }
+                    },
+                    modifier = settingsModifier,
+                )
+                "notifications" -> NotificationsSettingsScreen(
+                    preferences = appPreferences,
+                    onBack = closeSettings,
+                    onEnabledChanged = { value -> scope.launch { preferencesRepository.setNotificationsEnabled(value) } },
+                    modifier = settingsModifier,
+                )
+                "appearance" -> AppearanceSettingsScreen(
+                    preferences = appPreferences,
+                    onBack = closeSettings,
+                    onThemeModeChanged = { value -> scope.launch { preferencesRepository.setThemeMode(value) } },
+                    modifier = settingsModifier,
+                )
+                "accessibility" -> AccessibilitySettingsScreen(
+                    preferences = appPreferences,
+                    onBack = closeSettings,
+                    onHighContrastChanged = { value -> scope.launch { preferencesRepository.setHighContrast(value) } },
+                    modifier = settingsModifier,
+                )
+                "devices" -> DevicesSettingsScreen(onBack = closeSettings, modifier = settingsModifier)
+                "help" -> HelpSettingsScreen(onBack = closeSettings, modifier = settingsModifier)
+            }
+            if (miniVisible) {
+                MiniPlayerBar(
+                    session = playbackSession,
+                    onOpen = { fullPlayerOpen = true },
+                    onClose = closePlayback,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
+            }
         }
         return
     }
@@ -304,7 +379,7 @@ private fun VioraContent(
                 progress = lastProgress,
                 history = history,
                 onOpenDetails = openDetails,
-                onContinue = { playTitle = it },
+                onContinue = startPlayback,
             )
             1 -> CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -357,28 +432,46 @@ private fun VioraContent(
                         )
                     }
                 }
-                Box(modifier = Modifier.weight(1f).fillMaxSize()) {
-                    screenContent(WindowInsets.safeDrawing.asPaddingValues())
+                Column(modifier = Modifier.weight(1f).fillMaxSize()) {
+                    Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                        screenContent(WindowInsets.safeDrawing.asPaddingValues())
+                    }
+                    if (miniVisible) {
+                        MiniPlayerBar(
+                            session = playbackSession,
+                            onOpen = { fullPlayerOpen = true },
+                            onClose = closePlayback,
+                        )
+                    }
                 }
             }
         } else {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 bottomBar = {
-                    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                        topLevelDestinations.forEachIndexed { index, destination ->
-                            val selected = selectedIndex == index
-                            NavigationBarItem(
-                                selected = selected,
-                                onClick = { selectedIndex = index },
-                                icon = {
-                                    Icon(
-                                        imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
-                                        contentDescription = destination.label,
-                                    )
-                                },
-                                label = { Text(destination.label) },
+                    Column {
+                        if (miniVisible) {
+                            MiniPlayerBar(
+                                session = playbackSession,
+                                onOpen = { fullPlayerOpen = true },
+                                onClose = closePlayback,
                             )
+                        }
+                        NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                            topLevelDestinations.forEachIndexed { index, destination ->
+                                val selected = selectedIndex == index
+                                NavigationBarItem(
+                                    selected = selected,
+                                    onClick = { selectedIndex = index },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                                            contentDescription = destination.label,
+                                        )
+                                    },
+                                    label = { Text(destination.label) },
+                                )
+                            }
                         }
                     }
                 },
@@ -387,5 +480,4 @@ private fun VioraContent(
             }
         }
     }
-
 }
