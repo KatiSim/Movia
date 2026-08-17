@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
 
 private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
 
@@ -27,6 +28,8 @@ class PlaybackSession(context: Context) {
 
     var playbackState by mutableStateOf(Player.STATE_IDLE)
         private set
+
+    val mediaSession: MediaSession = MediaSession.Builder(context.applicationContext, player).build()
 
     init {
         player.addListener(object : Player.Listener {
@@ -76,6 +79,7 @@ class PlaybackSession(context: Context) {
     }
 
     fun release() {
+        mediaSession.release()
         player.release()
         activeTitle = null
         activeSource = null
