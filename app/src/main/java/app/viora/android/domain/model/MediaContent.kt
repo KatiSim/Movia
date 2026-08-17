@@ -29,4 +29,5 @@ data class MediaContent(
     val originalTitle: String? = null,
     val director: String? = null,
     val cast: List<String> = emptyList(),
+    val synopsis: String? = null,
 )
