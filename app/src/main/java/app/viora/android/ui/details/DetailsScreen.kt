@@ -30,10 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,11 +45,14 @@ fun DetailsScreen(
     title: String,
     onBack: () -> Unit,
     onPlay: (String) -> Unit,
+    favorite: Boolean = false,
+    selectedAudio: String = "Auto",
+    selectedQuality: String = "Auto",
+    onFavoriteChange: (Boolean) -> Unit = {},
+    onAudioSelected: (String) -> Unit = {},
+    onQualitySelected: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    var favorite by rememberSaveable(title) { mutableStateOf(false) }
-    var selectedAudio by rememberSaveable(title) { mutableStateOf("Auto") }
-    var selectedQuality by rememberSaveable(title) { mutableStateOf("Auto") }
     val isSeries = title == "Нулевая орбита" || title == "Граница миров"
 
     LazyColumn(
@@ -129,7 +128,7 @@ fun DetailsScreen(
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     AssistChip(
-                        onClick = { favorite = !favorite },
+                        onClick = { onFavoriteChange(!favorite) },
                         label = { Text(if (favorite) "В избранном" else "В избранное") },
                         leadingIcon = {
                             Icon(
@@ -147,7 +146,7 @@ fun DetailsScreen(
                 title = "Озвучка",
                 options = audioOptions,
                 selected = selectedAudio,
-                onSelect = { selectedAudio = it },
+                onSelect = onAudioSelected,
             )
         }
 
@@ -156,7 +155,7 @@ fun DetailsScreen(
                 title = "Качество",
                 options = qualityOptions,
                 selected = selectedQuality,
-                onSelect = { selectedQuality = it },
+                onSelect = onQualitySelected,
             )
         }
 

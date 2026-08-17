@@ -1,6 +1,7 @@
 package app.viora.android.ui.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,22 +40,24 @@ data class ProfileEntry(
     val title: String,
     val subtitle: String,
     val icon: ImageVector,
+    val action: String,
 )
 
 private val profileEntries = listOf(
-    ProfileEntry("Воспроизведение", "Качество, язык, субтитры", Icons.Outlined.PlayCircleOutline),
-    ProfileEntry("Загрузки", "Качество и мобильная сеть", Icons.Outlined.Download),
-    ProfileEntry("Уведомления", "Премьеры и новые серии", Icons.Outlined.NotificationsNone),
-    ProfileEntry("Внешний вид", "Тема и отображение", Icons.Outlined.Palette),
-    ProfileEntry("Доступность", "Текст, движение и интерфейс", Icons.Outlined.AccessibilityNew),
-    ProfileEntry("Устройства", "Синхронизация Viora", Icons.Outlined.Devices),
-    ProfileEntry("Помощь", "Справка и обратная связь", Icons.Outlined.HelpOutline),
+    ProfileEntry("Воспроизведение", "Качество, язык, субтитры", Icons.Outlined.PlayCircleOutline, "playback"),
+    ProfileEntry("Загрузки", "Качество и мобильная сеть", Icons.Outlined.Download, "downloads"),
+    ProfileEntry("Уведомления", "Премьеры и новые серии", Icons.Outlined.NotificationsNone, "notifications"),
+    ProfileEntry("Внешний вид", "Тема и отображение", Icons.Outlined.Palette, "appearance"),
+    ProfileEntry("Доступность", "Текст, движение и интерфейс", Icons.Outlined.AccessibilityNew, "accessibility"),
+    ProfileEntry("Устройства", "Синхронизация Viora", Icons.Outlined.Devices, "devices"),
+    ProfileEntry("Помощь", "Справка и обратная связь", Icons.Outlined.HelpOutline, "help"),
 )
 
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onOpenPlaybackSettings: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -79,50 +82,24 @@ fun ProfileScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape,
-                            ),
+                        modifier = Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        Icon(Icons.Outlined.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        Text(
-                            text = "Гость",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
-                            text = "Войдите для синхронизации прогресса",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text("Гость", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text("Войдите для синхронизации прогресса", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Button(onClick = {}) {
-                        Text("Войти")
-                    }
+                    Button(onClick = {}) { Text("Войти") }
                 }
             }
         }
@@ -130,34 +107,25 @@ fun ProfileScreen(
         items(profileEntries.size) { index ->
             val entry = profileEntries[index]
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = entry.action == "playback") {
+                        if (entry.action == "playback") onOpenPlaybackSettings()
+                    },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 ListItem(
                     headlineContent = { Text(entry.title) },
                     supportingContent = { Text(entry.subtitle) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = entry.icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    },
-                    trailingContent = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                        )
-                    },
+                    leadingContent = { Icon(entry.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                    trailingContent = { Icon(Icons.Outlined.ChevronRight, contentDescription = null) },
                 )
             }
         }
 
         item {
             Text(
-                text = "Viora 0.1.0",
+                text = "Viora 0.2.0",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp),

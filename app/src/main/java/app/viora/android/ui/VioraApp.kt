@@ -19,21 +19,29 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import app.viora.android.data.preferences.PlaybackPreferences
+import app.viora.android.data.preferences.VioraPreferencesRepository
 import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.details.DetailsScreen
 import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.library.LibraryScreen
-import app.viora.android.ui.profile.ProfileScreen
 import app.viora.android.ui.player.PlayerScreen
+import app.viora.android.ui.profile.ProfileScreen
 import app.viora.android.ui.search.SearchScreen
+import app.viora.android.ui.settings.PlaybackSettingsScreen
 import app.viora.android.ui.theme.VioraTheme
+import kotlinx.coroutines.launch
 
 private data class TopLevelDestination(
     val label: String,
@@ -52,9 +60,20 @@ private val topLevelDestinations = listOf(
 @Composable
 fun VioraApp() {
     VioraTheme {
+        val context = LocalContext.current
+        val preferencesRepository = remember(context) {
+            VioraPreferencesRepository(context.applicationContext)
+        }
+        val scope = rememberCoroutineScope()
+        val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(
+            initial = PlaybackPreferences(),
+        )
+        val favorites by preferencesRepository.favorites.collectAsState(initial = emptySet())
+
         var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
         var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
         var playTitle by rememberSaveable { mutableStateOf<String?>(null) }
+        var playbackSettingsOpen by rememberSaveable { mutableStateOf(false) }
 
         if (playTitle != null) {
             PlayerScreen(
@@ -66,10 +85,37 @@ fun VioraApp() {
         }
 
         if (detailsTitle != null) {
+            val title = detailsTitle.orEmpty()
             DetailsScreen(
-                title = detailsTitle.orEmpty(),
+                title = title,
                 onBack = { detailsTitle = null },
                 onPlay = { playTitle = it },
+                favorite = title in favorites,
+                selectedAudio = playbackPreferences.audio,
+                selectedQuality = playbackPreferences.quality,
+                onFavoriteChange = { favorite ->
+                    scope.launch { preferencesRepository.setFavorite(title, favorite) }
+                },
+                onAudioSelected = { audio ->
+                    scope.launch { preferencesRepository.setAudio(audio) }
+                },
+                onQualitySelected = { quality ->
+                    scope.launch { preferencesRepository.setQuality(quality) }
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+            return@VioraTheme
+        }
+
+        if (playbackSettingsOpen) {
+            PlaybackSettingsScreen(
+                preferences = playbackPreferences,
+                onBack = { playbackSettingsOpen = false },
+                onAudioSelected = { value -> scope.launch { preferencesRepository.setAudio(value) } },
+                onQualitySelected = { value -> scope.launch { preferencesRepository.setQuality(value) } },
+                onSubtitlesChanged = { value -> scope.launch { preferencesRepository.setSubtitlesEnabled(value) } },
+                onAutoNextChanged = { value -> scope.launch { preferencesRepository.setAutoNextEnabled(value) } },
+                onWifiOnlyDownloadsChanged = { value -> scope.launch { preferencesRepository.setWifiOnlyDownloads(value) } },
                 modifier = Modifier.fillMaxSize(),
             )
             return@VioraTheme
@@ -115,10 +161,12 @@ fun VioraApp() {
                 3 -> LibraryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    favorites = favorites,
                 )
                 4 -> ProfileScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    onOpenPlaybackSettings = { playbackSettingsOpen = true },
                 )
             }
         }

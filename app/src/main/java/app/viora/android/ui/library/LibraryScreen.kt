@@ -24,25 +24,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-data class LibraryEntry(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-)
-
-private val libraryEntries = listOf(
-    LibraryEntry("Продолжить просмотр", "2 незавершённых", Icons.Outlined.PlayCircleOutline),
-    LibraryEntry("Избранное", "12 сохранённых", Icons.Outlined.FavoriteBorder),
-    LibraryEntry("Посмотреть позже", "7 позиций", Icons.Outlined.WatchLater),
-    LibraryEntry("История", "Недавние просмотры", Icons.Outlined.History),
-    LibraryEntry("Скачанное", "Доступно офлайн", Icons.Outlined.Download),
-)
+data class LibraryEntry(val title: String, val subtitle: String, val icon: ImageVector)
 
 @Composable
 fun LibraryScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    favorites: Set<String> = emptySet(),
 ) {
+    val entries = listOf(
+        LibraryEntry("Продолжить просмотр", "2 незавершённых", Icons.Outlined.PlayCircleOutline),
+        LibraryEntry("Избранное", "${favorites.size} сохранённых", Icons.Outlined.FavoriteBorder),
+        LibraryEntry("Посмотреть позже", "7 позиций", Icons.Outlined.WatchLater),
+        LibraryEntry("История", "Недавние просмотры", Icons.Outlined.History),
+        LibraryEntry("Скачанное", "Доступно офлайн", Icons.Outlined.Download),
+    )
+
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -54,43 +51,34 @@ fun LibraryScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Column(
-                modifier = Modifier.padding(bottom = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = "Моё",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-                Text(
-                    text = "Ваш контент и история просмотра",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Column(modifier = Modifier.padding(bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Моё", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                Text("Ваш контент и история просмотра", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
-        items(libraryEntries.size) { index ->
-            val entry = libraryEntries[index]
+        items(entries.size) { index ->
+            val entry = entries[index]
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 ListItem(
                     headlineContent = { Text(entry.title) },
                     supportingContent = { Text(entry.subtitle) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = entry.icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    },
+                    leadingContent = { Icon(entry.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                 )
+            }
+        }
+
+        if (favorites.isNotEmpty()) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Избранное", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    favorites.sorted().forEach { title ->
+                        Text("• $title", style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
             }
         }
     }
