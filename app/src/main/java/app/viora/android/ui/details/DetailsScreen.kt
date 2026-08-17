@@ -48,10 +48,12 @@ fun DetailsScreen(
     onPlay: (String) -> Unit,
     favorite: Boolean = false,
     watchLater: Boolean = false,
+    downloaded: Boolean = false,
     selectedAudio: String = "Auto",
     selectedQuality: String = "Auto",
     onFavoriteChange: (Boolean) -> Unit = {},
     onWatchLaterChange: (Boolean) -> Unit = {},
+    onDownloadClick: () -> Unit = {},
     onAudioSelected: (String) -> Unit = {},
     onQualitySelected: (String) -> Unit = {},
     audioIsOverride: Boolean = false,
@@ -133,20 +135,26 @@ fun DetailsScreen(
                     Spacer(Modifier.width(8.dp))
                     Text(if (isSeries) "Продолжить S01E04" else "Смотреть")
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AssistChip(
+                            onClick = { onFavoriteChange(!favorite) },
+                            label = { Text(if (favorite) "В избранном" else "В избранное") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                    contentDescription = null,
+                                )
+                            },
+                        )
+                        AssistChip(
+                            onClick = { onWatchLaterChange(!watchLater) },
+                            label = { Text(if (watchLater) "В списке" else "Посмотреть позже") },
+                        )
+                    }
                     AssistChip(
-                        onClick = { onFavoriteChange(!favorite) },
-                        label = { Text(if (favorite) "В избранном" else "В избранное") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = null,
-                            )
-                        },
-                    )
-                    AssistChip(
-                        onClick = { onWatchLaterChange(!watchLater) },
-                        label = { Text(if (watchLater) "В списке" else "Посмотреть позже") },
+                        onClick = onDownloadClick,
+                        label = { Text(if (downloaded) "Скачано" else "Скачать ~65 МБ") },
                     )
                 }
             }

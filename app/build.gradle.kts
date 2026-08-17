@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.9.3")
     implementation("androidx.media3:media3-ui:1.9.3")
     implementation("androidx.datastore:datastore-preferences:1.2.1")
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

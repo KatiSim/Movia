@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import app.viora.android.data.download.DownloadScheduler
 import app.viora.android.data.preferences.PlaybackPreferences
 import app.viora.android.data.preferences.PlaybackProgress
 import app.viora.android.data.preferences.TitlePlaybackPreferences
@@ -108,6 +109,7 @@ fun VioraApp() {
                 onPlay = { playTitle = it },
                 favorite = title in favorites,
                 watchLater = title in watchLater,
+                downloaded = title in downloads,
                 selectedAudio = resolvedAudio,
                 selectedQuality = resolvedQuality,
                 onFavoriteChange = { favorite ->
@@ -115,6 +117,19 @@ fun VioraApp() {
                 },
                 onWatchLaterChange = { enabled ->
                     scope.launch { preferencesRepository.setWatchLater(title, enabled) }
+                },
+                onDownloadClick = {
+                    if (title in downloads) {
+                        if (DownloadScheduler.delete(context, title)) {
+                            scope.launch { preferencesRepository.setDownloaded(title, false) }
+                        }
+                    } else {
+                        DownloadScheduler.enqueue(
+                            context = context.applicationContext,
+                            title = title,
+                            wifiOnly = playbackPreferences.wifiOnlyDownloads,
+                        )
+                    }
                 },
                 onAudioSelected = { audio ->
                     scope.launch { preferencesRepository.setTitleAudio(title, audio) }
