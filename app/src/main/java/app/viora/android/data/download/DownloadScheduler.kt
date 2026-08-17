@@ -19,6 +19,7 @@ object DownloadScheduler {
         val request = OneTimeWorkRequestBuilder<OfflineDownloadWorker>()
             .setInputData(workDataOf(OfflineDownloadWorker.KEY_TITLE to title))
             .setConstraints(Constraints.Builder().setRequiredNetworkType(networkType).build())
+            .addTag(DOWNLOAD_TAG)
             .build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(
@@ -36,5 +37,12 @@ object DownloadScheduler {
         return !file.exists() || file.delete()
     }
 
+    fun deleteAll(context: Context): Boolean {
+        WorkManager.getInstance(context).cancelAllWorkByTag(DOWNLOAD_TAG)
+        val directory = File(context.filesDir, "offline")
+        return !directory.exists() || directory.deleteRecursively()
+    }
+
     private fun uniqueWorkName(title: String): String = "viora-download-${title.hashCode()}"
+    private const val DOWNLOAD_TAG = "viora-offline-download"
 }

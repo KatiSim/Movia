@@ -36,33 +36,10 @@ fun PlaybackSettingsScreen(
     onQualitySelected: (String) -> Unit,
     onSubtitlesChanged: (Boolean) -> Unit,
     onAutoNextChanged: (Boolean) -> Unit,
-    onWifiOnlyDownloadsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBack)
-
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, top = 12.dp, end = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
-                }
-                Text(
-                    text = "Воспроизведение",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        }
-
+    SettingsPage(title = "Воспроизведение", onBack = onBack, modifier = modifier) {
         item {
             ChoiceSection(
                 title = "Озвучка по умолчанию",
@@ -71,7 +48,6 @@ fun PlaybackSettingsScreen(
                 onSelected = onAudioSelected,
             )
         }
-
         item {
             ChoiceSection(
                 title = "Качество по умолчанию",
@@ -80,7 +56,6 @@ fun PlaybackSettingsScreen(
                 onSelected = onQualitySelected,
             )
         }
-
         item {
             SettingsSwitch(
                 title = "Субтитры",
@@ -89,7 +64,6 @@ fun PlaybackSettingsScreen(
                 onCheckedChange = onSubtitlesChanged,
             )
         }
-
         item {
             SettingsSwitch(
                 title = "Следующая серия",
@@ -98,22 +72,12 @@ fun PlaybackSettingsScreen(
                 onCheckedChange = onAutoNextChanged,
             )
         }
-
-        item {
-            SettingsSwitch(
-                title = "Загрузки только по Wi‑Fi",
-                subtitle = "Не расходовать мобильный трафик для офлайн-загрузок",
-                checked = preferences.wifiOnlyDownloads,
-                onCheckedChange = onWifiOnlyDownloadsChanged,
-            )
-        }
-
         item { Spacer(Modifier.padding(bottom = 24.dp)) }
     }
 }
 
 @Composable
-private fun ChoiceSection(
+internal fun ChoiceSection(
     title: String,
     options: List<String>,
     selected: String,
@@ -137,16 +101,14 @@ private fun ChoiceSection(
 }
 
 @Composable
-private fun SettingsSwitch(
+internal fun SettingsSwitch(
     title: String,
     subtitle: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -155,5 +117,31 @@ private fun SettingsSwitch(
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+internal fun SettingsPage(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit,
+) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp, top = 12.dp, end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
+                }
+                Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            }
+        }
+        content()
     }
 }

@@ -18,6 +18,14 @@ private val Context.vioraDataStore by preferencesDataStore(name = "viora_prefere
 private const val ENTRY_SEPARATOR = "\u001F"
 private const val LIST_SEPARATOR = "\u001E"
 
+
+data class AppPreferences(
+    val themeMode: String = "DARK",
+    val highContrast: Boolean = false,
+    val reducedMotion: Boolean = false,
+    val notificationsEnabled: Boolean = true,
+)
+
 data class PlaybackPreferences(
     val audio: String = "Auto",
     val quality: String = "Auto",
@@ -53,6 +61,10 @@ class VioraPreferencesRepository(
         val subtitles = booleanPreferencesKey("playback_subtitles")
         val autoNext = booleanPreferencesKey("playback_auto_next")
         val wifiOnlyDownloads = booleanPreferencesKey("downloads_wifi_only")
+        val themeMode = stringPreferencesKey("appearance_theme_mode")
+        val highContrast = booleanPreferencesKey("accessibility_high_contrast")
+        val reducedMotion = booleanPreferencesKey("accessibility_reduced_motion")
+        val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
         val favorites = stringSetPreferencesKey("library_favorites")
         val watchLater = stringSetPreferencesKey("library_watch_later")
         val downloads = stringSetPreferencesKey("library_downloads")
@@ -66,6 +78,15 @@ class VioraPreferencesRepository(
 
     private val safeData: Flow<Preferences> = context.vioraDataStore.data.catch { error ->
         if (error is IOException) emit(emptyPreferences()) else throw error
+    }
+
+    val appPreferences: Flow<AppPreferences> = safeData.map { prefs ->
+        AppPreferences(
+            themeMode = prefs[Keys.themeMode] ?: "DARK",
+            highContrast = prefs[Keys.highContrast] ?: false,
+            reducedMotion = prefs[Keys.reducedMotion] ?: false,
+            notificationsEnabled = prefs[Keys.notificationsEnabled] ?: true,
+        )
     }
 
     val playbackPreferences: Flow<PlaybackPreferences> = safeData.map { prefs ->
@@ -112,6 +133,22 @@ class VioraPreferencesRepository(
         )
     }
 
+    suspend fun setThemeMode(value: String) {
+        context.vioraDataStore.edit { it[Keys.themeMode] = value }
+    }
+
+    suspend fun setHighContrast(value: Boolean) {
+        context.vioraDataStore.edit { it[Keys.highContrast] = value }
+    }
+
+    suspend fun setReducedMotion(value: Boolean) {
+        context.vioraDataStore.edit { it[Keys.reducedMotion] = value }
+    }
+
+    suspend fun setNotificationsEnabled(value: Boolean) {
+        context.vioraDataStore.edit { it[Keys.notificationsEnabled] = value }
+    }
+
     suspend fun setAudio(value: String) {
         context.vioraDataStore.edit { it[Keys.audio] = value }
     }
@@ -142,6 +179,10 @@ class VioraPreferencesRepository(
 
     suspend fun setDownloaded(title: String, enabled: Boolean) {
         updateSet(Keys.downloads, title, enabled)
+    }
+
+    suspend fun clearDownloaded() {
+        context.vioraDataStore.edit { it.remove(Keys.downloads) }
     }
 
     suspend fun addHistory(title: String) {

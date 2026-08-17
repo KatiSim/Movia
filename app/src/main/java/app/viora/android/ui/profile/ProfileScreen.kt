@@ -17,7 +17,7 @@ import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Devices
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PlayCircleOutline
@@ -36,28 +36,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-data class ProfileEntry(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val action: String,
-)
+data class ProfileEntry(val title: String, val subtitle: String, val icon: ImageVector, val route: String)
 
 private val profileEntries = listOf(
     ProfileEntry("Воспроизведение", "Качество, язык, субтитры", Icons.Outlined.PlayCircleOutline, "playback"),
-    ProfileEntry("Загрузки", "Качество и мобильная сеть", Icons.Outlined.Download, "downloads"),
-    ProfileEntry("Уведомления", "Премьеры и новые серии", Icons.Outlined.NotificationsNone, "notifications"),
-    ProfileEntry("Внешний вид", "Тема и отображение", Icons.Outlined.Palette, "appearance"),
-    ProfileEntry("Доступность", "Текст, движение и интерфейс", Icons.Outlined.AccessibilityNew, "accessibility"),
-    ProfileEntry("Устройства", "Синхронизация Viora", Icons.Outlined.Devices, "devices"),
-    ProfileEntry("Помощь", "Справка и обратная связь", Icons.Outlined.HelpOutline, "help"),
+    ProfileEntry("Загрузки", "Офлайн и мобильная сеть", Icons.Outlined.Download, "downloads"),
+    ProfileEntry("Уведомления", "Локальные уведомления", Icons.Outlined.NotificationsNone, "notifications"),
+    ProfileEntry("Внешний вид", "Тёмная, светлая или системная тема", Icons.Outlined.Palette, "appearance"),
+    ProfileEntry("Доступность", "Контраст и требования интерфейса", Icons.Outlined.AccessibilityNew, "accessibility"),
+    ProfileEntry("Устройства", "Текущее устройство и синхронизация", Icons.Outlined.Devices, "devices"),
+    ProfileEntry("Помощь", "Справка по Viora", Icons.AutoMirrored.Outlined.HelpOutline, "help"),
 )
 
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onOpenPlaybackSettings: () -> Unit = {},
+    onOpenSettings: (String) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -70,20 +65,10 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Text(
-                text = "Профиль",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+            Text("Профиль", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
         }
-
         item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            ) {
+            Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -92,26 +77,19 @@ fun ProfileScreen(
                     Box(
                         modifier = Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(Icons.Outlined.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    }
+                    ) { Icon(Icons.Outlined.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Гость", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Войдите для синхронизации прогресса", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Локальный профиль", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text("Прогресс и настройки хранятся на устройстве", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Button(onClick = {}) { Text("Войти") }
+                    Button(onClick = {}, enabled = false) { Text("Без аккаунта") }
                 }
             }
         }
-
         items(profileEntries.size) { index ->
             val entry = profileEntries[index]
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = entry.action == "playback") {
-                        if (entry.action == "playback") onOpenPlaybackSettings()
-                    },
+                modifier = Modifier.fillMaxWidth().clickable { onOpenSettings(entry.route) },
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 ListItem(
@@ -122,14 +100,8 @@ fun ProfileScreen(
                 )
             }
         }
-
         item {
-            Text(
-                text = "Viora 0.2.0",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
-            )
+            Text("Viora 0.2.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
