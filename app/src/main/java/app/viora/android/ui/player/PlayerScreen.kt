@@ -6,14 +6,21 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
+import android.media.AudioManager
+import android.provider.Settings
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,8 +83,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -95,7 +104,9 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import app.viora.android.R
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToInt
 import java.util.Locale
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
@@ -150,6 +161,9 @@ fun PlayerScreen(
     var scrubbing by remember { mutableStateOf(false) }
     var seekFeedbackDirection by remember { mutableIntStateOf(0) }
     var seekFeedbackTick by remember { mutableIntStateOf(0) }
+    var gestureFeedbackLabel by remember { mutableStateOf<String?>(null) }
+    var gestureFeedbackPercent by remember { mutableIntStateOf(0) }
+    var gestureFeedbackTick by remember { mutableIntStateOf(0) }
 
     val resizeMode = RESIZE_MODES[resizeIndex].second
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -259,6 +273,13 @@ fun PlayerScreen(
         if (seekFeedbackTick > 0) {
             delay(650L)
             seekFeedbackDirection = 0
+        }
+    }
+
+    LaunchedEffect(gestureFeedbackTick) {
+        if (gestureFeedbackTick > 0) {
+            delay(850L)
+            gestureFeedbackLabel = null
         }
     }
 
@@ -384,41 +405,137 @@ fun PlayerScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            controlsVisible = !controlsVisible
-                            if (controlsVisible) interactionTick++
-                        },
-                        onDoubleTap = { offset ->
-                            val direction = if (offset.x < size.width / 2f) -1 else 1
-                            val target = (player.currentPosition + direction * 10_000L)
-                                .coerceIn(0L, max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE))
-                            player.seekTo(target)
-                            positionMs = target
-                            seekFeedbackDirection = direction
-                            seekFeedbackTick++
-                            showControls()
-                        },
-                    )
-                },
-        )
+        if (!inPictureInPicture) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(activity) {
+                        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                        var lastTapAt = 0L
+                        var lastTapX = 0f
+                        var lastTapY = 0f
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val startX = down.position.x
+                            val startY = down.position.y
+                            var previousX = startX
+                            var previousY = startY
+                            var totalX = 0f
+                            var totalY = 0f
+                            var verticalDrag = false
+                            val brightnessGesture = startX < size.width / 2f
+
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull() ?: break
+                                val dx = change.position.x - previousX
+                                val dy = change.position.y - previousY
+                                totalX += dx
+                                totalY += dy
+
+                                if (!verticalDrag &&
+                                    abs(totalY) > viewConfiguration.touchSlop &&
+                                    abs(totalY) > abs(totalX)
+                                ) {
+                                    verticalDrag = true
+                                }
+
+                                if (verticalDrag && change.pressed) {
+                                    change.consume()
+                                    val delta = -dy / size.height.toFloat()
+                                    if (brightnessGesture) {
+                                        activity?.let { host ->
+                                            val attrs = host.window.attributes
+                                            val systemBrightness = Settings.System.getInt(
+                                                context.contentResolver,
+                                                Settings.System.SCREEN_BRIGHTNESS,
+                                                128,
+                                            ) / 255f
+                                            val current = attrs.screenBrightness.takeIf { it >= 0f } ?: systemBrightness
+                                            val next = (current + delta * 1.6f).coerceIn(0.02f, 1f)
+                                            attrs.screenBrightness = next
+                                            host.window.attributes = attrs
+                                            gestureFeedbackLabel = "Яркость"
+                                            gestureFeedbackPercent = (next * 100f).roundToInt()
+                                            gestureFeedbackTick++
+                                            showControls()
+                                        }
+                                    } else {
+                                        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                            .coerceAtLeast(1)
+                                        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                                        val next = (currentVolume + delta * maxVolume * 1.8f)
+                                            .roundToInt()
+                                            .coerceIn(0, maxVolume)
+                                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, next, 0)
+                                        gestureFeedbackLabel = "Громкость"
+                                        gestureFeedbackPercent = ((next * 100f) / maxVolume).roundToInt()
+                                        gestureFeedbackTick++
+                                        showControls()
+                                    }
+                                }
+
+                                previousX = change.position.x
+                                previousY = change.position.y
+                                if (!change.pressed) {
+                                    if (!verticalDrag) {
+                                        val now = SystemClock.uptimeMillis()
+                                        val closeToLastTap =
+                                            abs(startX - lastTapX) < size.width * 0.28f &&
+                                                abs(startY - lastTapY) < size.height * 0.22f
+                                        if (now - lastTapAt <= 320L && closeToLastTap) {
+                                            val direction = if (startX < size.width / 2f) -1 else 1
+                                            val target = (player.currentPosition + direction * 10_000L)
+                                                .coerceIn(
+                                                    0L,
+                                                    max(
+                                                        0L,
+                                                        player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE,
+                                                    ),
+                                                )
+                                            player.seekTo(target)
+                                            positionMs = target
+                                            seekFeedbackDirection = direction
+                                            seekFeedbackTick++
+                                            lastTapAt = 0L
+                                            showControls()
+                                        } else {
+                                            controlsVisible = !controlsVisible
+                                            if (controlsVisible) interactionTick++
+                                            lastTapAt = now
+                                            lastTapX = startX
+                                            lastTapY = startY
+                                        }
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    },
+            )
+        }
+
 
         if (!inPictureInPicture && (controlsVisible || settingsOpen)) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.34f)
                     .background(
                         Brush.verticalGradient(
-                            listOf(
-                                Color.Black.copy(alpha = 0.62f),
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.76f),
-                            ),
+                            listOf(Color.Black.copy(alpha = 0.38f), Color.Transparent),
+                        ),
+                    ),
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.36f)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Transparent, Color.Black.copy(alpha = 0.40f)),
                         ),
                     ),
             )
@@ -461,7 +578,7 @@ fun PlayerScreen(
                     .align(Alignment.CenterStart)
                     .padding(start = 48.dp),
             ) {
-                SeekFeedbackBubble(forward = false)
+                SeekFeedbackBubble(forward = false, pulseKey = seekFeedbackTick)
             }
 
             AnimatedVisibility(
@@ -472,7 +589,23 @@ fun PlayerScreen(
                     .align(Alignment.CenterEnd)
                     .padding(end = 48.dp),
             ) {
-                SeekFeedbackBubble(forward = true)
+                SeekFeedbackBubble(forward = true, pulseKey = seekFeedbackTick)
+            }
+
+            gestureFeedbackLabel?.let { label ->
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color.Black.copy(alpha = 0.72f),
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    Text(
+                        text = "$label · $gestureFeedbackPercent%",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    )
+                }
             }
 
             PlayerTimeline(
@@ -691,19 +824,21 @@ private fun PlayerTimeline(
     modifier: Modifier = Modifier,
 ) {
     val safeDuration = max(1L, durationMs)
+    val horizontalSafePadding = if (isLandscape) 24.dp else 16.dp
     Surface(
-        color = Color.Black.copy(alpha = 0.46f),
+        color = Color.Black.copy(alpha = 0.34f),
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+                .padding(horizontal = horizontalSafePadding, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -712,19 +847,30 @@ private fun PlayerTimeline(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Spacer(Modifier.width(14.dp))
+                Text(
+                    text = formatTime(durationMs),
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                contentAlignment = Alignment.Center,
+            ) {
                 Slider(
                     value = positionMs.coerceIn(0L, safeDuration).toFloat(),
                     onValueChange = { onScrub(it.toLong()) },
                     onValueChangeFinished = onScrubFinished,
                     valueRange = 0f..safeDuration.toFloat(),
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(min = 56.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.38f),
+                        inactiveTrackColor = Color.White.copy(alpha = 0.40f),
                     ),
                     thumb = {
                         Box(
@@ -738,18 +884,11 @@ private fun PlayerTimeline(
                             sliderState = sliderState,
                             colors = SliderDefaults.colors(
                                 activeTrackColor = MaterialTheme.colorScheme.primary,
-                                inactiveTrackColor = Color.White.copy(alpha = 0.38f),
+                                inactiveTrackColor = Color.White.copy(alpha = 0.40f),
                             ),
                             drawStopIndicator = null,
                         )
                     },
-                )
-                Spacer(Modifier.width(14.dp))
-                Text(
-                    text = formatTime(durationMs),
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
                 )
             }
 
@@ -758,65 +897,54 @@ private fun PlayerTimeline(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(
-                    shape = RoundedCornerShape(18.dp),
-                    color = Color.White.copy(alpha = 0.12f),
+                IconButton(
+                    onClick = {
+                        onInteraction()
+                        activity?.requestedOrientation = if (isLandscape) {
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        }
+                    },
+                    enabled = activity != null,
+                    modifier = Modifier.size(52.dp),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                    ) {
-                        IconButton(
-                            onClick = {
-                                onInteraction()
-                                activity?.requestedOrientation = if (isLandscape) {
-                                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                                } else {
-                                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                }
-                            },
-                            enabled = activity != null,
-                            modifier = Modifier.size(52.dp),
-                        ) {
-                            Icon(
-                                Icons.Outlined.ScreenRotation,
-                                contentDescription = if (isLandscape) {
-                                    "Переключить в портретный режим"
-                                } else {
-                                    "Развернуть в альбомный режим"
-                                },
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                onInteraction()
-                                onEnterPictureInPicture()
-                            },
-                            enabled = activity != null,
-                            modifier = Modifier.size(52.dp),
-                        ) {
-                            Icon(
-                                Icons.Outlined.PictureInPictureAlt,
-                                contentDescription = "Картинка в картинке",
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                        IconButton(
-                            onClick = onSettings,
-                            modifier = Modifier.size(52.dp),
-                        ) {
-                            Icon(
-                                Icons.Outlined.Settings,
-                                contentDescription = "Настройки плеера",
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        }
-                    }
+                    Icon(
+                        Icons.Outlined.ScreenRotation,
+                        contentDescription = if (isLandscape) {
+                            "Переключить в портретный режим"
+                        } else {
+                            "Развернуть в альбомный режим"
+                        },
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        onInteraction()
+                        onEnterPictureInPicture()
+                    },
+                    enabled = activity != null,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.PictureInPictureAlt,
+                        contentDescription = "Картинка в картинке",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+                IconButton(
+                    onClick = onSettings,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Settings,
+                        contentDescription = "Настройки плеера",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
                 }
             }
         }
@@ -836,7 +964,8 @@ private fun SubtitleSelectorRow(
         color = Color.White.copy(alpha = if (enabled) 0.15f else 0.09f),
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 68.dp),
+            .heightIn(min = 68.dp)
+            .alpha(if (enabled) 1f else 0.38f),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -976,7 +1105,7 @@ private fun ScrollablePlayerSettingRow(
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
         )
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -1035,7 +1164,7 @@ private fun PlayerSettingGrid(
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
         )
         FlowRow(
@@ -1091,19 +1220,49 @@ private fun VioraChoiceChip(
 }
 
 @Composable
-private fun SeekFeedbackBubble(forward: Boolean) {
-    Surface(
-        shape = CircleShape,
-        color = Color.Black.copy(alpha = 0.64f),
-        modifier = Modifier.size(92.dp),
+private fun SeekFeedbackBubble(
+    forward: Boolean,
+    pulseKey: Int,
+) {
+    val rippleScale = remember { Animatable(0.72f) }
+    val rippleAlpha = remember { Animatable(0.60f) }
+    LaunchedEffect(pulseKey) {
+        rippleScale.snapTo(0.72f)
+        rippleAlpha.snapTo(0.60f)
+        rippleScale.animateTo(1.12f, animationSpec = tween(320))
+        rippleAlpha.animateTo(0f, animationSpec = tween(180))
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(116.dp),
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = if (forward) Icons.Filled.Forward10 else Icons.Filled.Replay10,
-                contentDescription = if (forward) "Перемотано вперёд на 10 секунд" else "Перемотано назад на 10 секунд",
-                tint = Color.White,
-                modifier = Modifier.size(42.dp),
-            )
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .graphicsLayer {
+                    scaleX = rippleScale.value
+                    scaleY = rippleScale.value
+                    alpha = rippleAlpha.value
+                }
+                .border(2.dp, Color.White.copy(alpha = 0.52f), CircleShape),
+        )
+        Surface(
+            shape = CircleShape,
+            color = Color.Black.copy(alpha = 0.66f),
+            modifier = Modifier.size(76.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = if (forward) Icons.Filled.Forward10 else Icons.Filled.Replay10,
+                    contentDescription = if (forward) {
+                        "Перемотано вперёд на 10 секунд"
+                    } else {
+                        "Перемотано назад на 10 секунд"
+                    },
+                    tint = Color.White,
+                    modifier = Modifier.size(38.dp),
+                )
+            }
         }
     }
 }
