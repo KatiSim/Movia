@@ -1,7 +1,14 @@
 package app.viora.android.ui
 
 import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -17,6 +24,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import app.viora.android.data.download.DownloadScheduler
 import app.viora.android.data.preferences.AppPreferences
 import app.viora.android.data.preferences.PlaybackPreferences
@@ -231,27 +241,7 @@ private fun VioraContent(
         scope.launch { preferencesRepository.addHistory(title) }
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                topLevelDestinations.forEachIndexed { index, destination ->
-                    val selected = selectedIndex == index
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = { selectedIndex = index },
-                        icon = {
-                            Icon(
-                                imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
-                                contentDescription = destination.label,
-                            )
-                        },
-                        label = { Text(destination.label) },
-                    )
-                }
-            }
-        },
-    ) { innerPadding ->
+    val screenContent: @Composable (PaddingValues) -> Unit = { innerPadding ->
         when (selectedIndex) {
             0 -> HomeScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -288,4 +278,55 @@ private fun VioraContent(
             )
         }
     }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        if (maxWidth >= 600.dp) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                NavigationRail(containerColor = MaterialTheme.colorScheme.surface) {
+                    topLevelDestinations.forEachIndexed { index, destination ->
+                        val selected = selectedIndex == index
+                        NavigationRailItem(
+                            selected = selected,
+                            onClick = { selectedIndex = index },
+                            icon = {
+                                Icon(
+                                    imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                                    contentDescription = destination.label,
+                                )
+                            },
+                            label = { Text(destination.label) },
+                        )
+                    }
+                }
+                Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                    screenContent(WindowInsets.safeDrawing.asPaddingValues())
+                }
+            }
+        } else {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                bottomBar = {
+                    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                        topLevelDestinations.forEachIndexed { index, destination ->
+                            val selected = selectedIndex == index
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = { selectedIndex = index },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                                        contentDescription = destination.label,
+                                    )
+                                },
+                                label = { Text(destination.label) },
+                            )
+                        }
+                    }
+                },
+            ) { innerPadding ->
+                screenContent(innerPadding)
+            }
+        }
+    }
+
 }
