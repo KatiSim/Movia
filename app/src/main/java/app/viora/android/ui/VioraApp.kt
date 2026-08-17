@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.home.HomeScreen
+import app.viora.android.ui.search.SearchScreen
 import app.viora.android.ui.theme.VioraTheme
 
 private data class TopLevelDestination(
@@ -86,6 +87,11 @@ fun VioraApp() {
                 )
 
                 1 -> CatalogScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding,
+                )
+
+                2 -> SearchScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                 )
