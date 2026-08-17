@@ -30,4 +30,5 @@ data class MediaContent(
     val director: String? = null,
     val cast: List<String> = emptyList(),
     val synopsis: String? = null,
+    val seasonEpisodeCounts: List<Int> = emptyList(),
 )

@@ -130,7 +130,7 @@ private fun ContinueWatchingCard(
     onContinue: (String) -> Unit,
 ) {
     val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
-    val title = if (hasRealProgress) progress.title else "Нулевая орбита · E04 · Эпизод 4"
+    val title = if (hasRealProgress) progress.title else "Нулевая орбита · S01E04 · Эпизод 4"
     val fraction = if (hasRealProgress) progress.fraction else 0.62f
     val subtitle = if (hasRealProgress && progress.durationMs > 0L) {
         val remainingMinutes = ((progress.durationMs - progress.positionMs).coerceAtLeast(0L) / 60_000L)

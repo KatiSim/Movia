@@ -59,6 +59,7 @@ import app.viora.android.data.preferences.AppPreferences
 import app.viora.android.data.preferences.PlaybackPreferences
 import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.data.preferences.TitlePlaybackPreferences
+import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.preferences.VioraPreferencesRepository
 import app.viora.android.ui.catalog.CatalogLaunchPreset
 import app.viora.android.ui.catalog.CatalogScreen
@@ -97,10 +98,34 @@ private val topLevelDestinations = listOf(
     TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
 
+internal fun playbackBaseTitle(current: String): String =
+    current.substringBefore(" · S").substringBefore(" · E")
+
 internal fun nextEpisodeTitle(current: String): String? {
-    val match = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
-    val base = match.groupValues[1]
-    val episode = match.groupValues[2].toIntOrNull() ?: return null
+    val seasonMatch = Regex("^(.*) · S(\\d{2})E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current)
+    if (seasonMatch != null) {
+        val base = seasonMatch.groupValues[1]
+        val season = seasonMatch.groupValues[2].toIntOrNull() ?: return null
+        val episode = seasonMatch.groupValues[3].toIntOrNull() ?: return null
+        val seasonEpisodeCounts = DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty()
+        val episodeCount = seasonEpisodeCounts.getOrNull(season - 1) ?: return null
+        return when {
+            episode < episodeCount -> {
+                val next = episode + 1
+                "$base · S${season.toString().padStart(2, '0')}E${next.toString().padStart(2, '0')} · Эпизод $next"
+            }
+            season < seasonEpisodeCounts.size -> {
+                val nextSeason = season + 1
+                "$base · S${nextSeason.toString().padStart(2, '0')}E01 · Эпизод 1"
+            }
+            else -> null
+        }
+    }
+
+    // Legacy titles can still exist in persisted playback history from pre-season builds.
+    val legacyMatch = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
+    val base = legacyMatch.groupValues[1]
+    val episode = legacyMatch.groupValues[2].toIntOrNull() ?: return null
     val next = episode + 1
     if (next > 8) return null
     return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
@@ -182,7 +207,7 @@ private fun VioraContent(
     }
 
     val startPlayback: (String) -> Unit = { title ->
-        val baseTitle = title.substringBefore(" · E")
+        val baseTitle = playbackBaseTitle(title)
         val localSource = (
             DownloadScheduler.localFile(context.applicationContext, title)
                 ?: DownloadScheduler.localFile(context.applicationContext, baseTitle)
@@ -210,7 +235,7 @@ private fun VioraContent(
 
     if (fullPlayerOpen && playbackSession.activeTitle != null) {
         val title = playbackSession.activeTitle.orEmpty()
-        val baseTitle = title.substringBefore(" · E")
+        val baseTitle = playbackBaseTitle(title)
         val titlePreferencesFlow = remember(baseTitle, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(baseTitle)
         }

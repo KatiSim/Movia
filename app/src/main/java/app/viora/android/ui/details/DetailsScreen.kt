@@ -1,6 +1,11 @@
 package app.viora.android.ui.details
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +38,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Tune
@@ -77,21 +84,47 @@ private val audioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
 private val qualityOptions = listOf("Auto", "1080p", "720p", "480p")
 
 private data class EpisodeUiState(
+    val season: Int,
     val number: Int,
     val durationMinutes: Int = 46,
     val progress: Float = 0f,
     val remainingMinutes: Int? = null,
 ) {
-    val code: String = "E${number.toString().padStart(2, '0')}"
+    val code: String = "S${season.toString().padStart(2, '0')}E${number.toString().padStart(2, '0')}"
     val title: String = "$code · Эпизод $number"
 }
 
-private val episodes = (1..8).map { number ->
-    when (number) {
-        1, 2, 3 -> EpisodeUiState(number = number, progress = 1f)
-        4 -> EpisodeUiState(number = number, progress = 0.32f, remainingMinutes = 18)
-        else -> EpisodeUiState(number = number)
+private fun episodesForSeason(season: Int, episodeCount: Int): List<EpisodeUiState> =
+    (1..episodeCount).map { number ->
+        when {
+            season == 1 && number in 1..3 -> EpisodeUiState(season = season, number = number, progress = 1f)
+            season == 1 && number == 4 -> EpisodeUiState(season = season, number = number, progress = 0.32f, remainingMinutes = 18)
+            else -> EpisodeUiState(season = season, number = number)
+        }
     }
+
+private fun seasonCountText(count: Int): String {
+    val mod100 = count % 100
+    val mod10 = count % 10
+    val word = when {
+        mod100 in 11..14 -> "сезонов"
+        mod10 == 1 -> "сезон"
+        mod10 in 2..4 -> "сезона"
+        else -> "сезонов"
+    }
+    return "$count $word"
+}
+
+private fun episodeCountText(count: Int): String {
+    val mod100 = count % 100
+    val mod10 = count % 10
+    val word = when {
+        mod100 in 11..14 -> "серий"
+        mod10 == 1 -> "серия"
+        mod10 in 2..4 -> "серии"
+        else -> "серий"
+    }
+    return "$count $word"
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -121,10 +154,16 @@ fun DetailsScreen(
     val content = remember(title) { DemoCatalogRepository.findByTitle(title) }
     val isSeries = content?.type == ContentType.SERIES
     val isTv = content?.type == ContentType.TV
+    val seasonEpisodeCounts = if (isSeries) {
+        content?.seasonEpisodeCounts?.takeIf { it.isNotEmpty() } ?: listOf(8)
+    } else {
+        emptyList()
+    }
+    var expandedSeasons by remember(content?.id) { mutableStateOf(setOf(1)) }
     val meta = when {
         content == null -> "Демонстрационный контент"
         isTv -> "${content.year} · Прямой эфир · ★ ${content.rating} · ${content.quality}"
-        isSeries -> "${content.year} · ${content.ageRating}+ · 1 сезон · ★ ${content.rating} · ${content.quality}"
+        isSeries -> "${content.year} · ${content.ageRating}+ · ${seasonCountText(seasonEpisodeCounts.size)} · ★ ${content.rating} · ${content.quality}"
         else -> "${content.year} · ${content.ageRating}+ · ${formatDuration(content.durationMinutes)} · ★ ${content.rating} · ${content.quality}"
     }
     val genres = content?.genres?.sorted().orEmpty()
@@ -232,7 +271,7 @@ fun DetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Button(
-                        onClick = { onPlay(if (isSeries) "$title · E04 · Эпизод 4" else title) },
+                        onClick = { onPlay(if (isSeries) "$title · S01E04 · Эпизод 4" else title) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 56.dp),
@@ -328,17 +367,42 @@ fun DetailsScreen(
             }
 
             if (isSeries) {
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        SectionTitle("Сезон 1")
+                seasonEpisodeCounts.forEachIndexed { index, episodeCount ->
+                    val seasonNumber = index + 1
+                    item(key = "season-$seasonNumber") {
+                        val expanded = seasonNumber in expandedSeasons
+                        Column(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            SeasonAccordionHeader(
+                                seasonNumber = seasonNumber,
+                                episodeCount = episodeCount,
+                                expanded = expanded,
+                                onClick = {
+                                    expandedSeasons = if (expanded) {
+                                        expandedSeasons - seasonNumber
+                                    } else {
+                                        expandedSeasons + seasonNumber
+                                    }
+                                },
+                            )
+                            AnimatedVisibility(
+                                visible = expanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut(),
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                                    episodesForSeason(seasonNumber, episodeCount).forEach { episode ->
+                                        EpisodeRow(
+                                            episode = episode,
+                                            onClick = { onPlay("$title · ${episode.title}") },
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-                items(episodes, key = { it.number }) { episode ->
-                    EpisodeRow(
-                        episode = episode,
-                        onClick = { onPlay("$title · ${episode.title}") },
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
                 }
             }
 
@@ -611,6 +675,55 @@ private fun SectionTitle(title: String) {
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurface,
     )
+}
+
+@Composable
+private fun SeasonAccordionHeader(
+    seasonNumber: Int,
+    episodeCount: Int,
+    expanded: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .semantics(mergeDescendants = true) {
+                contentDescription = buildString {
+                    append("Сезон $seasonNumber. ${episodeCountText(episodeCount)}. ")
+                    append(if (expanded) "Развёрнут. Нажмите, чтобы свернуть" else "Свёрнут. Нажмите, чтобы развернуть")
+                }
+            },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Сезон $seasonNumber",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = episodeCountText(episodeCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                contentDescription = null,
+                modifier = Modifier.size(28.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
 }
 
 @Composable
