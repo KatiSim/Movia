@@ -29,7 +29,7 @@ class CatalogRepositoryTest {
                 yearFrom = 2020,
                 yearTo = 2026,
                 minRating = 7.0,
-                quality = "1080p",
+                resolution = "1080p",
             ),
         )
 

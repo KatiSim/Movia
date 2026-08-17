@@ -437,7 +437,8 @@ private fun VioraContent(
                 watchLater = watchLater,
                 history = history,
                 downloads = downloads,
-                hasProgress = lastProgress.title.isNotBlank() && lastProgress.positionMs > 0L,
+                progress = lastProgress,
+                onContinuePlayback = startPlayback,
                 onOpenDetails = openDetails,
                 onClearHistory = { snapshot ->
                     scope.launch {

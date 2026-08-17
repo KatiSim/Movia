@@ -47,6 +47,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -69,8 +72,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.viora.android.data.catalog.CatalogFilter
+import app.viora.android.data.catalog.CatalogSort
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.catalog.filterCatalog
+import app.viora.android.data.catalog.sortCatalog
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
 import app.viora.android.ui.components.MediaMetadataText
@@ -79,7 +84,7 @@ import java.util.Locale
 private val contentTypes = ContentType.entries.toList()
 private val countries = listOf("Испания", "США", "Франция", "Германия", "Италия", "Норвегия", "Великобритания")
 private val ratingOptions = listOf<Double?>(null, 7.0, 8.0, 8.5)
-private val qualityOptions = listOf<String?>(null, "1080p", "4K", "HDR")
+private val resolutionOptions = listOf<String?>(null, "720p", "1080p", "4K")
 private val ageOptions = listOf<Int?>(null, 6, 12, 16, 18)
 private val audioOptions = listOf<String?>(null, "Русский", "Original")
 private val subtitleOptions = listOf<String?>(null, "Русский", "English")
@@ -102,7 +107,7 @@ private val yearPresets = listOf(
 
 enum class CatalogLaunchPreset { ALL, NEW }
 
-private enum class QuickSheet { GENRE, YEAR, RATING, QUALITY }
+private enum class QuickSheet { GENRE, YEAR, RATING, RESOLUTION }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -118,7 +123,7 @@ fun CatalogScreen(
     var yearFrom by rememberSaveable { mutableStateOf<Int?>(null) }
     var yearTo by rememberSaveable { mutableStateOf<Int?>(null) }
     var minRating by rememberSaveable { mutableStateOf<Double?>(null) }
-    var quality by rememberSaveable { mutableStateOf<String?>(null) }
+    var resolution by rememberSaveable { mutableStateOf<String?>(null) }
     var country by rememberSaveable { mutableStateOf<String?>(null) }
     var durationMode by rememberSaveable { mutableStateOf("ANY") }
     var newOnly by rememberSaveable { mutableStateOf(false) }
@@ -127,6 +132,8 @@ fun CatalogScreen(
     var subtitleLanguage by rememberSaveable { mutableStateOf<String?>(null) }
     var quickSheet by remember { mutableStateOf<QuickSheet?>(null) }
     var advancedOpen by remember { mutableStateOf(false) }
+    var sortName by rememberSaveable { mutableStateOf(CatalogSort.POPULAR.name) }
+    var sortSheetOpen by remember { mutableStateOf(false) }
 
     val allContent = remember { DemoCatalogRepository.all() }
     val selectedGenres = selectedGenresState.takeIf { it.isNotBlank() }?.split("|") ?: emptyList()
@@ -139,7 +146,7 @@ fun CatalogScreen(
         yearFrom = next.yearFrom
         yearTo = next.yearTo
         minRating = next.minRating
-        quality = next.quality
+        resolution = next.resolution
         country = next.country
         durationMode = next.durationMode
         newOnly = next.newOnly
@@ -154,7 +161,7 @@ fun CatalogScreen(
         yearFrom = yearFrom,
         yearTo = yearTo,
         minRating = minRating,
-        quality = quality,
+        resolution = resolution,
         country = country,
         durationMode = durationMode,
         newOnly = newOnly,
@@ -175,7 +182,8 @@ fun CatalogScreen(
         }
     }
 
-    val filtered = filterCatalog(allContent, filter)
+    val sort = CatalogSort.valueOf(sortName)
+    val filtered = sortCatalog(filterCatalog(allContent, filter), sort)
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -193,83 +201,92 @@ fun CatalogScreen(
             Text("Каталог", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(end = 8.dp)) {
-                item {
-                    VioraFilterChip(
-                        selected = selectedType == null,
-                        onClick = { selectedTypeName = "ALL" },
-                        label = "Все",
-                    )
-                }
-                items(contentTypes) { type ->
-                    VioraFilterChip(
+            val typeOptions = listOf<ContentType?>(null) + contentTypes
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                typeOptions.forEachIndexed { index, type ->
+                    SegmentedButton(
                         selected = selectedType == type,
-                        onClick = { selectedTypeName = type.name },
-                        label = type.label,
+                        onClick = { selectedTypeName = type?.name ?: "ALL" },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = typeOptions.size),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.primary,
+                            activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            activeBorderColor = MaterialTheme.colorScheme.primary,
+                            inactiveBorderColor = MaterialTheme.colorScheme.outline,
+                        ),
+                        label = { Text(type?.label ?: "Все", maxLines = 1) },
                     )
                 }
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            LazyRow(
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                item {
-                    QuickFilterPill(
-                        label = genreChipLabel(selectedGenres),
-                        active = selectedGenres.isNotEmpty(),
-                        onOpen = { quickSheet = QuickSheet.GENRE },
-                        onClear = { selectedGenresState = "" },
-                    )
-                }
-                item {
-                    QuickFilterPill(
-                        label = yearChipLabel(yearFrom, yearTo),
-                        active = yearFrom != null || yearTo != null,
-                        onOpen = { quickSheet = QuickSheet.YEAR },
-                        onClear = { yearFrom = null; yearTo = null },
-                    )
-                }
-                item {
-                    QuickFilterPill(
-                        label = minRating?.let { "★ от ${formatRating(it)}" } ?: "Рейтинг",
-                        active = minRating != null,
-                        onOpen = { quickSheet = QuickSheet.RATING },
-                        onClear = { minRating = null },
-                    )
-                }
-                item {
-                    QuickFilterPill(
-                        label = quality ?: "Качество",
-                        active = quality != null,
-                        onOpen = { quickSheet = QuickSheet.QUALITY },
-                        onClear = { quality = null },
-                    )
-                }
-                item {
-                    QuickFilterPill(
-                        label = if (filter.activeCount > 0) "Все фильтры · ${filter.activeCount}" else "Все фильтры",
-                        active = filter.activeCount > 0,
-                        onOpen = { advancedOpen = true },
-                        onClear = {
-                            applyFilter(CatalogFilter(type = selectedType))
-                        },
-                    )
+                QuickFilterPill(
+                    label = if (filter.activeCount > 0) "Фильтры · ${filter.activeCount}" else "Фильтры",
+                    active = filter.activeCount > 0,
+                    onOpen = { advancedOpen = true },
+                    onClear = { applyFilter(CatalogFilter(type = selectedType)) },
+                )
+                LazyRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(end = 16.dp),
+                ) {
+                    item {
+                        QuickFilterPill(
+                            label = genreChipLabel(selectedGenres),
+                            active = selectedGenres.isNotEmpty(),
+                            onOpen = { quickSheet = QuickSheet.GENRE },
+                            onClear = { selectedGenresState = "" },
+                        )
+                    }
+                    item {
+                        QuickFilterPill(
+                            label = yearChipLabel(yearFrom, yearTo),
+                            active = yearFrom != null || yearTo != null,
+                            onOpen = { quickSheet = QuickSheet.YEAR },
+                            onClear = { yearFrom = null; yearTo = null },
+                        )
+                    }
+                    item {
+                        QuickFilterPill(
+                            label = minRating?.let { "★ ${formatRating(it)}+" } ?: "Рейтинг",
+                            active = minRating != null,
+                            onOpen = { quickSheet = QuickSheet.RATING },
+                            onClear = { minRating = null },
+                        )
+                    }
+                    item {
+                        QuickFilterPill(
+                            label = resolution ?: "Разрешение",
+                            active = resolution != null,
+                            onOpen = { quickSheet = QuickSheet.RESOLUTION },
+                            onClear = { resolution = null },
+                        )
+                    }
                 }
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "Найдено: ${filtered.size}",
+                    catalogCountLabel(filtered.size, selectedType),
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (filter.activeCount > 0) {
-                    TextButton(onClick = { applyFilter(CatalogFilter(type = selectedType)) }) {
-                        Text("Сбросить")
-                    }
+                TextButton(onClick = { sortSheetOpen = true }) {
+                    Text(sort.label)
+                    Icon(
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = "Изменить сортировку",
+                        modifier = Modifier.size(18.dp),
+                    )
                 }
             }
         }
@@ -291,6 +308,7 @@ fun CatalogScreen(
         QuickSheet.GENRE -> GenreFilterSheet(
             genres = allGenres,
             selected = selectedGenres.toSet(),
+            resultCount = { draftGenres -> filterCatalog(allContent, filter.copy(genres = draftGenres)).size },
             onApply = {
                 selectedGenresState = it.sorted().joinToString("|")
                 quickSheet = null
@@ -302,7 +320,7 @@ fun CatalogScreen(
             options = yearPresets,
             selected = yearPresets.firstOrNull { it.from == yearFrom && it.to == yearTo } ?: yearPresets.first(),
             label = { it.label },
-            onApply = {
+            onSelect = {
                 yearFrom = it.from
                 yearTo = it.to
                 quickSheet = null
@@ -314,26 +332,26 @@ fun CatalogScreen(
             options = ratingOptions,
             selected = minRating,
             label = { it?.let { value -> "★ от ${formatRating(value)}" } ?: "Любой рейтинг" },
-            onApply = {
+            onSelect = {
                 minRating = it
                 quickSheet = null
             },
             onDismiss = { quickSheet = null },
         )
-        QuickSheet.QUALITY -> SingleChoiceSheet(
-            title = "Качество",
-            options = qualityOptions,
-            selected = quality,
+        QuickSheet.RESOLUTION -> SingleChoiceSheet(
+            title = "Разрешение",
+            options = resolutionOptions,
+            selected = resolution,
             label = {
                 when (it) {
-                    "1080p" -> "HD · 1080p"
+                    "720p" -> "720p"
+                    "1080p" -> "1080p"
                     "4K" -> "4K Ultra HD"
-                    "HDR" -> "HDR"
-                    else -> "Все качества"
+                    else -> "Любое разрешение"
                 }
             },
-            onApply = {
-                quality = it
+            onSelect = {
+                resolution = it
                 quickSheet = null
             },
             onDismiss = { quickSheet = null },
@@ -341,10 +359,25 @@ fun CatalogScreen(
         null -> Unit
     }
 
+    if (sortSheetOpen) {
+        SingleChoiceSheet(
+            title = "Сортировка",
+            options = CatalogSort.entries,
+            selected = sort,
+            label = { it.label },
+            onSelect = {
+                sortName = it.name
+                sortSheetOpen = false
+            },
+            onDismiss = { sortSheetOpen = false },
+        )
+    }
+
     if (advancedOpen) {
         AdvancedFiltersSheet(
             filter = filter,
             allGenres = allGenres,
+            resultCount = { draftFilter -> filterCatalog(allContent, draftFilter).size },
             onApply = {
                 applyFilter(it)
                 advancedOpen = false
@@ -359,6 +392,7 @@ fun CatalogScreen(
 private fun GenreFilterSheet(
     genres: List<String>,
     selected: Set<String>,
+    resultCount: (Set<String>) -> Int,
     onApply: (Set<String>) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -378,19 +412,21 @@ private fun GenreFilterSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 520.dp, max = 720.dp)
+                .heightIn(min = 360.dp, max = 720.dp)
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text("Жанры", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Поиск по жанрам" },
-                singleLine = true,
-                label = { Text("Поиск по жанрам") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-            )
+            if (genres.size > 12) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Поиск по жанрам" },
+                    singleLine = true,
+                    label = { Text("Поиск по жанрам") },
+                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                )
+            }
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(visible, key = { it }) { genre ->
                     ListItem(
@@ -419,7 +455,7 @@ private fun GenreFilterSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
             ) {
                 TextButton(onClick = { draft = emptySet() }) { Text("Сбросить") }
-                Button(onClick = { onApply(draft) }) { Text("Применить") }
+                Button(onClick = { onApply(draft) }) { Text("Показать ${resultCount(draft)}") }
             }
         }
     }
@@ -432,10 +468,9 @@ private fun <T> SingleChoiceSheet(
     options: List<T>,
     selected: T,
     label: (T) -> String,
-    onApply: (T) -> Unit,
+    onSelect: (T) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var draft by remember(selected) { mutableStateOf(selected) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -452,7 +487,7 @@ private fun <T> SingleChoiceSheet(
                     headlineContent = { Text(label(option)) },
                     leadingContent = {
                         RadioButton(
-                            selected = option == draft,
+                            selected = option == selected,
                             onClick = null,
                             colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary),
                         )
@@ -460,15 +495,10 @@ private fun <T> SingleChoiceSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 56.dp)
-                        .clickable { draft = option },
+                        .clickable { onSelect(option) },
                 )
             }
-            Button(
-                onClick = { onApply(draft) },
-                modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 20.dp),
-            ) {
-                Text("Применить")
-            }
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -478,6 +508,7 @@ private fun <T> SingleChoiceSheet(
 private fun AdvancedFiltersSheet(
     filter: CatalogFilter,
     allGenres: List<String>,
+    resultCount: (CatalogFilter) -> Int,
     onApply: (CatalogFilter) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -556,17 +587,17 @@ private fun AdvancedFiltersSheet(
                         }
                     }
                 }
-                FilterSection("Качество") {
+                FilterSection("Разрешение") {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        qualityOptions.forEach { option ->
+                        resolutionOptions.forEach { option ->
                             VioraFilterChip(
-                                selected = draft.quality == option,
-                                onClick = { draft = draft.copy(quality = option) },
+                                selected = draft.resolution == option,
+                                onClick = { draft = draft.copy(resolution = option) },
                                 label = when (option) {
-                                    "1080p" -> "HD · 1080p"
+                                    "720p" -> "720p"
+                                    "1080p" -> "1080p"
                                     "4K" -> "4K Ultra HD"
-                                    "HDR" -> "HDR"
-                                    else -> "Все"
+                                    else -> "Любое"
                                 },
                             )
                         }
@@ -650,7 +681,7 @@ private fun AdvancedFiltersSheet(
                 onClick = { onApply(draft) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
             ) {
-                Text("Показать результаты")
+                Text("Показать ${resultCount(draft)}")
             }
         }
     }
@@ -776,6 +807,25 @@ private fun yearChipLabel(from: Int?, to: Int?): String = when {
     from != null && to != null -> "$from–$to"
     from != null -> "от $from"
     else -> "до $to"
+}
+
+
+private fun catalogCountLabel(count: Int, type: ContentType?): String = when (type) {
+    ContentType.MOVIE -> "$count ${pluralRu(count, "фильм", "фильма", "фильмов")}"
+    ContentType.SERIES -> "$count ${pluralRu(count, "сериал", "сериала", "сериалов")}"
+    ContentType.TV -> "$count ${pluralRu(count, "канал", "канала", "каналов")}"
+    null -> "$count ${pluralRu(count, "материал", "материала", "материалов")}"
+}
+
+private fun pluralRu(value: Int, one: String, few: String, many: String): String {
+    val mod100 = value % 100
+    val mod10 = value % 10
+    return when {
+        mod100 in 11..14 -> many
+        mod10 == 1 -> one
+        mod10 in 2..4 -> few
+        else -> many
+    }
 }
 
 private fun formatRating(value: Double): String = String.format(Locale.US, "%.1f", value)

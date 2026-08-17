@@ -3,13 +3,21 @@ package app.viora.android.data.catalog
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
 
+enum class CatalogSort(val label: String) {
+    POPULAR("Популярные"),
+    RATING("По рейтингу"),
+    NEWEST("Сначала новые"),
+    OLDEST("Сначала старые"),
+    TITLE("А–Я"),
+}
+
 data class CatalogFilter(
     val type: ContentType? = ContentType.MOVIE,
     val genres: Set<String> = emptySet(),
     val yearFrom: Int? = null,
     val yearTo: Int? = null,
     val minRating: Double? = null,
-    val quality: String? = null,
+    val resolution: String? = null,
     val country: String? = null,
     val durationMode: String = "ANY",
     val newOnly: Boolean = false,
@@ -22,7 +30,7 @@ data class CatalogFilter(
             genres.isNotEmpty(),
             yearFrom != null || yearTo != null,
             minRating != null,
-            quality != null,
+            resolution != null,
             country != null,
             durationMode != "ANY",
             newOnly,
@@ -45,21 +53,26 @@ fun filterCatalog(
     val yearMatches =
         (filter.yearFrom == null || item.year >= filter.yearFrom) &&
             (filter.yearTo == null || item.year <= filter.yearTo)
-    val qualityMatches = when (filter.quality) {
-        null -> true
-        "HDR" -> item.quality.contains("HDR", ignoreCase = true)
-        else -> item.quality.equals(filter.quality, ignoreCase = true)
-    }
+    val resolutionMatches = filter.resolution == null ||
+        item.quality.equals(filter.resolution, ignoreCase = true)
 
     (filter.type == null || item.type == filter.type) &&
         genreMatches &&
         yearMatches &&
         (filter.minRating == null || item.rating >= filter.minRating) &&
-        qualityMatches &&
+        resolutionMatches &&
         (filter.country == null || item.country == filter.country) &&
         durationMatches &&
         (!filter.newOnly || item.isNew) &&
         (filter.maxAgeRating == null || item.ageRating <= filter.maxAgeRating) &&
         (filter.audioLanguage == null || filter.audioLanguage in item.audioLanguages) &&
         (filter.subtitleLanguage == null || filter.subtitleLanguage in item.subtitleLanguages)
+}
+
+fun sortCatalog(items: List<MediaContent>, sort: CatalogSort): List<MediaContent> = when (sort) {
+    CatalogSort.POPULAR -> items.sortedWith(compareByDescending<MediaContent> { it.popularity }.thenByDescending { it.rating })
+    CatalogSort.RATING -> items.sortedWith(compareByDescending<MediaContent> { it.rating }.thenByDescending { it.popularity })
+    CatalogSort.NEWEST -> items.sortedWith(compareByDescending<MediaContent> { it.year }.thenByDescending { it.popularity })
+    CatalogSort.OLDEST -> items.sortedWith(compareBy<MediaContent> { it.year }.thenByDescending { it.popularity })
+    CatalogSort.TITLE -> items.sortedBy { it.title.lowercase() }
 }
