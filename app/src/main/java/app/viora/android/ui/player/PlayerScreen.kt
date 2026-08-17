@@ -13,12 +13,16 @@ import android.provider.Settings
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,6 +68,7 @@ import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -86,14 +91,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -152,6 +162,21 @@ fun PlayerScreen(
     val player = session.player
     val inPictureInPicture = VioraPiPState.isInPictureInPicture
 
+    // The player owns an immersive fullscreen window while it is visible.
+    // Restore system bars when the composable leaves so the rest of Viora behaves normally.
+    DisposableEffect(activity, inPictureInPicture) {
+        val window = activity?.window
+        val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
+        if (!inPictureInPicture) {
+            controller?.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller?.hide(WindowInsetsCompat.Type.systemBars())
+        }
+        onDispose {
+            controller?.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+
     var sourceRectHint by remember { mutableStateOf<Rect?>(null) }
     var playbackError by remember { mutableStateOf<String?>(null) }
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
@@ -162,6 +187,7 @@ fun PlayerScreen(
     var controlsVisible by remember { mutableStateOf(true) }
     var interactionTick by remember { mutableIntStateOf(0) }
     var positionMs by remember { mutableLongStateOf(max(0L, player.currentPosition)) }
+    var bufferedPositionMs by remember { mutableLongStateOf(max(0L, player.bufferedPosition)) }
     var durationMs by remember { mutableLongStateOf(max(0L, player.duration.takeIf { it > 0L } ?: 0L)) }
     var scrubbing by remember { mutableStateOf(false) }
     var seekFeedbackDirection by remember { mutableIntStateOf(0) }
@@ -196,14 +222,14 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(activity, sourceRectHint, session.isPlaying, title) {
+    LaunchedEffect(activity, sourceRectHint, session.isPlaying, session.playWhenReady, title) {
         activity?.setPictureInPictureParams(
             buildVioraPictureInPictureParams(
                 context = context,
                 sourceRectHint = sourceRectHint,
                 isPlaying = session.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = session.isPlaying,
+                autoEnter = session.playWhenReady,
             ),
         )
     }
@@ -224,6 +250,7 @@ fun PlayerScreen(
             if (!scrubbing) {
                 positionMs = max(0L, player.currentPosition)
             }
+            bufferedPositionMs = max(0L, player.bufferedPosition)
             durationMs = max(0L, player.duration.takeIf { it > 0L } ?: durationMs)
             delay(250L)
         }
@@ -556,25 +583,36 @@ fun PlayerScreen(
             )
 
             Surface(
-                color = Color.Black.copy(alpha = 0.72f),
+                color = Color.Black.copy(alpha = 0.62f),
                 shape = CircleShape,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(84.dp),
+                    .size(72.dp),
             ) {
-                IconButton(
-                    onClick = {
-                        session.togglePlayPause()
-                        showControls()
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Icon(
-                        if (session.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                        contentDescription = if (session.isPlaying) "Пауза" else "Воспроизвести",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp),
-                    )
+                if (session.playbackState == Player.STATE_BUFFERING) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            trackColor = Color.White.copy(alpha = 0.20f),
+                            strokeWidth = 3.dp,
+                            modifier = Modifier.size(34.dp),
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+                            session.togglePlayPause()
+                            showControls()
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Icon(
+                            if (session.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = if (session.isPlaying) "Пауза" else "Воспроизвести",
+                            tint = Color.White,
+                            modifier = Modifier.size(36.dp),
+                        )
+                    }
                 }
             }
 
@@ -618,7 +656,9 @@ fun PlayerScreen(
 
             PlayerTimeline(
                 positionMs = positionMs,
+                bufferedPositionMs = bufferedPositionMs,
                 durationMs = durationMs,
+                isScrubbing = scrubbing,
                 onScrub = { value ->
                     scrubbing = true
                     positionMs = value
@@ -645,13 +685,15 @@ fun PlayerScreen(
                             sourceRectHint = sourceRectHint,
                             isPlaying = session.isPlaying,
                             title = displayPlayerTitle(title),
-                            autoEnter = false,
+                            autoEnter = session.playWhenReady,
                         )
                         host.setPictureInPictureParams(params)
                         host.enterPictureInPictureMode(params)
                     }
                 },
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = if (isLandscape) 0.dp else 96.dp),
             )
         }
 
@@ -820,7 +862,9 @@ private fun PlayerTopBar(
 @Composable
 private fun PlayerTimeline(
     positionMs: Long,
+    bufferedPositionMs: Long,
     durationMs: Long,
+    isScrubbing: Boolean,
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
     onSettings: () -> Unit,
@@ -832,8 +876,17 @@ private fun PlayerTimeline(
 ) {
     val safeDuration = max(1L, durationMs)
     val horizontalSafePadding = if (isLandscape) 24.dp else 16.dp
+    val thumbSize by animateDpAsState(
+        targetValue = if (isScrubbing) 18.dp else 12.dp,
+        animationSpec = tween(durationMillis = 120),
+        label = "playerScrubberThumb",
+    )
+    val playedFraction = (positionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
+    val bufferedFraction = (bufferedPositionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
+    val remainingMs = max(0L, durationMs - positionMs)
+
     Surface(
-        color = Color.Black.copy(alpha = 0.34f),
+        color = Color.Black.copy(alpha = 0.26f),
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(
@@ -841,7 +894,7 @@ private fun PlayerTimeline(
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(horizontal = horizontalSafePadding, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -855,8 +908,8 @@ private fun PlayerTimeline(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = formatTime(durationMs),
-                    color = Color.White,
+                    text = "−${formatTime(remainingMs)}",
+                    color = Color.White.copy(alpha = 0.92f),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -865,35 +918,79 @@ private fun PlayerTimeline(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(48.dp),
                 contentAlignment = Alignment.Center,
             ) {
+                if (isScrubbing) {
+                    Surface(
+                        color = Color.Black.copy(alpha = 0.78f),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter),
+                    ) {
+                        Text(
+                            text = formatTime(positionMs),
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        )
+                    }
+                }
+
                 Slider(
                     value = positionMs.coerceIn(0L, safeDuration).toFloat(),
                     onValueChange = { onScrub(it.toLong()) },
                     onValueChangeFinished = onScrubFinished,
                     valueRange = 0f..safeDuration.toFloat(),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            contentDescription = "Позиция воспроизведения"
+                            stateDescription = "${formatTime(positionMs)} из ${formatTime(durationMs)}"
+                        },
                     colors = SliderDefaults.colors(
                         thumbColor = VioraBrandAmber,
-                        activeTrackColor = VioraBrandAmber,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.40f),
+                        activeTrackColor = Color.Transparent,
+                        inactiveTrackColor = Color.Transparent,
                     ),
                     thumb = {
                         Box(
                             modifier = Modifier
-                                .size(16.dp)
+                                .size(thumbSize)
                                 .background(VioraBrandAmber, CircleShape),
                         )
                     },
-                    track = { sliderState ->
-                        SliderDefaults.Track(
-                            sliderState = sliderState,
-                            colors = SliderDefaults.colors(
-                                activeTrackColor = VioraBrandAmber,
-                                inactiveTrackColor = Color.White.copy(alpha = 0.40f),
-                            ),
-                            drawStopIndicator = null,
+                    track = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .drawBehind {
+                                    val y = size.height / 2f
+                                    val stroke = 4.dp.toPx()
+                                    drawLine(
+                                        color = Color.White.copy(alpha = 0.20f),
+                                        start = Offset(0f, y),
+                                        end = Offset(size.width, y),
+                                        strokeWidth = stroke,
+                                        cap = StrokeCap.Round,
+                                    )
+                                    drawLine(
+                                        color = Color.White.copy(alpha = 0.42f),
+                                        start = Offset(0f, y),
+                                        end = Offset(size.width * bufferedFraction, y),
+                                        strokeWidth = stroke,
+                                        cap = StrokeCap.Round,
+                                    )
+                                    drawLine(
+                                        color = VioraBrandAmber,
+                                        start = Offset(0f, y),
+                                        end = Offset(size.width * playedFraction, y),
+                                        strokeWidth = stroke,
+                                        cap = StrokeCap.Round,
+                                    )
+                                },
                         )
                     },
                 )
@@ -914,7 +1011,7 @@ private fun PlayerTimeline(
                         }
                     },
                     enabled = activity != null,
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         Icons.Outlined.ScreenRotation,
@@ -924,7 +1021,7 @@ private fun PlayerTimeline(
                             "Развернуть в альбомный режим"
                         },
                         tint = Color.White,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
                 IconButton(
@@ -933,24 +1030,24 @@ private fun PlayerTimeline(
                         onEnterPictureInPicture()
                     },
                     enabled = activity != null,
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         Icons.Outlined.PictureInPictureAlt,
                         contentDescription = "Картинка в картинке",
                         tint = Color.White,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
                 IconButton(
                     onClick = onSettings,
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         Icons.Outlined.Settings,
                         contentDescription = "Настройки плеера",
                         tint = Color.White,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
@@ -1274,12 +1371,19 @@ private fun SeekFeedbackBubble(
     }
 }
 
-private fun displayPlayerTitle(title: String): String =
-    title
-        .replace(Regex(" · Эпизод \\d+$"), "")
+private fun displayPlayerTitle(title: String): String {
+    val match = Regex("""^(.*) · S(\d{2})E(\d{2})(?: · Эпизод \d+)?$""").matchEntire(title)
+    if (match != null) {
+        val base = match.groupValues[1].trim()
+        val episode = match.groupValues[3].toIntOrNull() ?: return base
+        return "$base · Эпизод $episode"
+    }
+    return title
+        .replace(Regex(""" · Эпизод \d+$"""), "")
         .trim()
         .trimEnd('·')
         .trim()
+}
 
 private fun formatSpeed(speed: Float): String =
     if (speed % 1f == 0f) speed.toInt().toString() else speed.toString()

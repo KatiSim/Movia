@@ -38,6 +38,9 @@ class PlaybackSession(context: Context) {
     var playbackState by mutableIntStateOf(Player.STATE_IDLE)
         private set
 
+    var playWhenReady by mutableStateOf(player.playWhenReady)
+        private set
+
     val mediaSession: MediaSession = MediaSession.Builder(context.applicationContext, player).build()
 
     init {
@@ -49,6 +52,10 @@ class PlaybackSession(context: Context) {
 
             override fun onPlaybackStateChanged(state: Int) {
                 playbackState = state
+            }
+
+            override fun onPlayWhenReadyChanged(value: Boolean, reason: Int) {
+                playWhenReady = value
             }
         })
     }
@@ -86,6 +93,7 @@ class PlaybackSession(context: Context) {
         activeSource = null
         isPlaying = false
         playbackState = Player.STATE_IDLE
+        playWhenReady = false
     }
 
     fun release() {

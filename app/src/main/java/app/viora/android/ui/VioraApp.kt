@@ -248,8 +248,9 @@ private fun VioraContent(
             session = playbackSession,
             title = title,
             onBack = {
-                persistActiveProgress()
-                fullPlayerOpen = false
+                // Leaving the full player is an explicit playback exit: persist first,
+                // then stop/clear so audio/video cannot continue behind the app UI.
+                closePlayback()
             },
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,

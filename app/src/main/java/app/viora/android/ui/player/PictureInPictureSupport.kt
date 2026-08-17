@@ -40,7 +40,7 @@ internal fun buildVioraPictureInPictureParams(
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         builder
-            .setAutoEnterEnabled(autoEnter && isPlaying)
+            .setAutoEnterEnabled(autoEnter)
             .setSeamlessResizeEnabled(true)
     }
     return builder.build()
