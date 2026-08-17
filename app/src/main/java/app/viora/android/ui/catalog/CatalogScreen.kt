@@ -32,7 +32,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.viora.android.data.catalog.CatalogFilter
 import app.viora.android.data.catalog.DemoCatalogRepository
+import app.viora.android.data.catalog.filterCatalog
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
 
@@ -51,13 +53,16 @@ fun CatalogScreen(
     var hdOnly by rememberSaveable { mutableStateOf(false) }
 
     val selectedType = ContentType.valueOf(selectedTypeName)
-    val filtered = DemoCatalogRepository.all().filter { item ->
-        item.type == selectedType &&
-            (!comedyOnly || "Комедия" in item.genres) &&
-            (!recentOnly || item.year >= 2020) &&
-            (!highRatingOnly || item.rating >= 7.0) &&
-            (!hdOnly || item.quality in setOf("1080p", "4K"))
-    }
+    val filtered = filterCatalog(
+        items = DemoCatalogRepository.all(),
+        filter = CatalogFilter(
+            type = selectedType,
+            comedyOnly = comedyOnly,
+            recentOnly = recentOnly,
+            highRatingOnly = highRatingOnly,
+            hdOnly = hdOnly,
+        ),
+    )
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 112.dp),
