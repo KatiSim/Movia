@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,22 +15,28 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.viora.android.ui.catalog.CatalogLaunchPreset
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.catalog.RecommendationEngine
-import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.domain.model.MediaContent
+import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader
 
@@ -43,6 +48,7 @@ fun HomeScreen(
     history: List<String> = emptyList(),
     onOpenDetails: (String) -> Unit,
     onContinue: (String) -> Unit,
+    onOpenCatalog: (CatalogLaunchPreset) -> Unit,
 ) {
     val recommendation = RecommendationEngine.recommend(history)
     val allContent = DemoCatalogRepository.all()
@@ -69,20 +75,47 @@ fun HomeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SectionHeader(title = "Продолжить просмотр")
-                ContinueWatchingCard(progress = progress, onOpenDetails = onOpenDetails, onContinue = onContinue)
+                ContinueWatchingCard(progress = progress, onContinue = onContinue)
             }
         }
         if (recommendation.items.isNotEmpty()) {
-            item { MediaSection("Для вас · ${recommendation.reason}", recommendation.items, onOpenDetails) }
+            item {
+                MediaSection(
+                    title = "Похожее на то, что вы смотрели",
+                    items = recommendation.items,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.ALL) },
+                )
+            }
         }
         if (newItems.isNotEmpty()) {
-            item { MediaSection("Новинки", newItems, onOpenDetails) }
+            item {
+                NewMediaSection(
+                    items = newItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.NEW) },
+                )
+            }
         }
         if (popularItems.isNotEmpty()) {
-            item { MediaSection("Популярное", popularItems, onOpenDetails) }
+            item {
+                MediaSection(
+                    title = "Популярное",
+                    items = popularItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.ALL) },
+                )
+            }
         }
         if (sciFiItems.isNotEmpty()) {
-            item { MediaSection("Подборка · Фантастика", sciFiItems, onOpenDetails) }
+            item {
+                MediaSection(
+                    title = "Фантастика для вас",
+                    items = sciFiItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.ALL) },
+                )
+            }
         }
     }
 }
@@ -90,45 +123,74 @@ fun HomeScreen(
 @Composable
 private fun ContinueWatchingCard(
     progress: PlaybackProgress,
-    onOpenDetails: (String) -> Unit,
     onContinue: (String) -> Unit,
 ) {
     val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
-    val title = if (hasRealProgress) progress.title else "Нулевая орбита"
+    val title = if (hasRealProgress) progress.title else "Нулевая орбита · E04 · Эпизод 4"
     val fraction = if (hasRealProgress) progress.fraction else 0.62f
     val subtitle = if (hasRealProgress && progress.durationMs > 0L) {
         val remainingMinutes = ((progress.durationMs - progress.positionMs).coerceAtLeast(0L) / 60_000L)
-        "Продолжить · осталось ≈ $remainingMinutes мин"
+        "Осталось ≈ $remainingMinutes мин"
     } else {
         "S01E04 · осталось 18 мин"
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(MaterialTheme.colorScheme.surface).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+    Surface(
+        onClick = { onContinue(title) },
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Продолжить просмотр. $title. $subtitle"
+            },
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.width(112.dp).height(72.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center,
-            ) { Icon(Icons.Outlined.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        LinearProgressIndicator(
-            progress = { fraction },
-            modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(999.dp)),
-        )
-        Button(
-            onClick = { if (hasRealProgress) onContinue(title) else onOpenDetails(title) },
-            modifier = Modifier.fillMaxWidth(),
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Icon(Icons.Outlined.PlayArrow, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Продолжить")
+            Box(
+                modifier = Modifier
+                    .width(128.dp)
+                    .height(76.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Outlined.PlayArrow,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(4.dp),
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                Text(
+                    text = title.substringBefore(" · Эпизод"),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
@@ -138,9 +200,10 @@ private fun MediaSection(
     title: String,
     items: List<MediaContent>,
     onOpenDetails: (String) -> Unit,
+    onViewAll: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        SectionHeader(title = title)
+        SectionHeader(title = title, onClick = onViewAll)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 8.dp)) {
             items(items, key = { it.id }) { item ->
                 MediaCard(
@@ -150,5 +213,85 @@ private fun MediaSection(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NewMediaSection(
+    items: List<MediaContent>,
+    onOpenDetails: (String) -> Unit,
+    onViewAll: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionHeader(title = "Новинки", onClick = onViewAll)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp), contentPadding = PaddingValues(end = 8.dp)) {
+            items(items, key = { "new-${it.id}" }) { item ->
+                WideNewMediaCard(item = item, onClick = { onOpenDetails(item.title) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun WideNewMediaCard(
+    item: MediaContent,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .width(248.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .semantics(mergeDescendants = true) {
+                contentDescription = "${item.title}. ${item.year}. Новинка"
+            },
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Surface(
+            onClick = onClick,
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    Icons.Outlined.Movie,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp),
+                ) {
+                    Text(
+                        text = "NEW",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    )
+                }
+            }
+        }
+        Text(
+            text = item.title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = "${item.year} · ★ ${item.rating}",
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.SansSerif,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

@@ -26,8 +26,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,6 +48,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -58,6 +61,7 @@ import app.viora.android.data.preferences.PlaybackPreferences
 import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.data.preferences.TitlePlaybackPreferences
 import app.viora.android.data.preferences.VioraPreferencesRepository
+import app.viora.android.ui.catalog.CatalogLaunchPreset
 import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.details.DetailsScreen
 import app.viora.android.ui.home.HomeScreen
@@ -91,6 +95,9 @@ private val topLevelDestinations = listOf(
     TopLevelDestination("Моё", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
     TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
+
+private val VioraNavigationAmber = Color(0xFFF4B343)
+private val VioraNavigationOnAmber = Color(0xFF241800)
 
 internal fun nextEpisodeTitle(current: String): String? {
     val match = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
@@ -156,6 +163,7 @@ private fun VioraContent(
 
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var catalogLaunchPreset by remember { mutableStateOf<CatalogLaunchPreset?>(null) }
     var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
@@ -404,10 +412,16 @@ private fun VioraContent(
                 history = history,
                 onOpenDetails = openDetails,
                 onContinue = startPlayback,
+                onOpenCatalog = { preset ->
+                    catalogLaunchPreset = preset
+                    selectedIndex = 1
+                },
             )
             1 -> CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
+                launchPreset = catalogLaunchPreset,
+                onLaunchPresetConsumed = { catalogLaunchPreset = null },
                 onOpenDetails = openDetails,
             )
             2 -> SearchScreen(
@@ -465,6 +479,13 @@ private fun VioraContent(
                                 )
                             },
                             label = { Text(destination.label) },
+                            colors = NavigationRailItemDefaults.colors(
+                                selectedIconColor = VioraNavigationOnAmber,
+                                selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                indicatorColor = VioraNavigationAmber,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                         )
                     }
                 }
@@ -513,6 +534,13 @@ private fun VioraContent(
                                         )
                                     },
                                     label = { Text(destination.label) },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = VioraNavigationOnAmber,
+                                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        indicatorColor = VioraNavigationAmber,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
                                 )
                             }
                         }

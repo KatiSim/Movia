@@ -11,11 +11,11 @@ private val VioraDarkColors = darkColorScheme(
     background = Color(0xFF0C0D0F),
     surface = Color(0xFF14161A),
     surfaceVariant = Color(0xFF1B1E23),
-    primary = Color(0xFFF4B64A),
+    primary = Color(0xFFF4B343),
     onPrimary = Color(0xFF241800),
     onBackground = Color(0xFFF5F6F7),
     onSurface = Color(0xFFF5F6F7),
-    onSurfaceVariant = Color(0xFFA7ABB2),
+    onSurfaceVariant = Color(0xFFB0B0B0),
 )
 
 private val VioraDarkHighContrast = darkColorScheme(

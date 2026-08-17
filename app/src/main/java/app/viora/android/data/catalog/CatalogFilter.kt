@@ -4,7 +4,7 @@ import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
 
 data class CatalogFilter(
-    val type: ContentType = ContentType.MOVIE,
+    val type: ContentType? = ContentType.MOVIE,
     val comedyOnly: Boolean = false,
     val recentOnly: Boolean = false,
     val highRatingOnly: Boolean = false,
@@ -37,7 +37,7 @@ fun filterCatalog(
         else -> true
     }
 
-    item.type == filter.type &&
+    (filter.type == null || item.type == filter.type) &&
         (!filter.comedyOnly || "Комедия" in item.genres) &&
         (!filter.recentOnly || item.year >= 2020) &&
         (!filter.highRatingOnly || item.rating >= 7.0) &&

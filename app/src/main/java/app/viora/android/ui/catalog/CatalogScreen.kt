@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,9 +54,13 @@ import app.viora.android.domain.model.MediaContent
 private val contentTypes = ContentType.entries.toList()
 private val countries = listOf("Испания", "США", "Франция", "Германия", "Италия", "Норвегия", "Великобритания")
 
+enum class CatalogLaunchPreset { ALL, NEW }
+
 @Composable
 fun CatalogScreen(
     contentPadding: PaddingValues,
+    launchPreset: CatalogLaunchPreset?,
+    onLaunchPresetConsumed: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenDetails: (String) -> Unit,
 ) {
@@ -71,7 +77,24 @@ fun CatalogScreen(
     var subtitleLanguage by rememberSaveable { mutableStateOf<String?>(null) }
     var advancedOpen by rememberSaveable { mutableStateOf(false) }
 
-    val selectedType = ContentType.valueOf(selectedTypeName)
+    LaunchedEffect(launchPreset) {
+        launchPreset?.let { preset ->
+            selectedTypeName = "ALL"
+            comedyOnly = false
+            recentOnly = false
+            highRatingOnly = false
+            hdOnly = false
+            country = null
+            durationMode = "ANY"
+            newOnly = preset == CatalogLaunchPreset.NEW
+            maxAgeRating = null
+            audioLanguage = null
+            subtitleLanguage = null
+            onLaunchPresetConsumed()
+        }
+    }
+
+    val selectedType = selectedTypeName.takeUnless { it == "ALL" }?.let(ContentType::valueOf)
     val filter = CatalogFilter(
         type = selectedType,
         comedyOnly = comedyOnly,
@@ -104,6 +127,13 @@ fun CatalogScreen(
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    FilterChip(
+                        selected = selectedType == null,
+                        onClick = { selectedTypeName = "ALL" },
+                        label = { Text("Все") },
+                    )
+                }
                 items(contentTypes) { type ->
                     FilterChip(selected = selectedType == type, onClick = { selectedTypeName = type.name }, label = { Text(type.label) })
                 }
@@ -260,6 +290,6 @@ private fun CatalogMediaCard(item: MediaContent, onClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) { Icon(Icons.Outlined.Movie, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         Text(item.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Text("${item.year} · ★ ${item.rating} · ${item.quality}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text("${item.year} · ★ ${item.rating} · ${item.quality}", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.SansSerif, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
