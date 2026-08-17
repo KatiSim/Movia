@@ -9,6 +9,9 @@ import android.content.res.Configuration
 import android.util.Rational
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +38,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -46,7 +50,7 @@ import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -139,6 +143,8 @@ fun PlayerScreen(
     var positionMs by remember { mutableLongStateOf(max(0L, player.currentPosition)) }
     var durationMs by remember { mutableLongStateOf(max(0L, player.duration.takeIf { it > 0L } ?: 0L)) }
     var scrubbing by remember { mutableStateOf(false) }
+    var seekFeedbackDirection by remember { mutableIntStateOf(0) }
+    var seekFeedbackTick by remember { mutableIntStateOf(0) }
 
     val resizeMode = RESIZE_MODES[resizeIndex].second
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -207,11 +213,24 @@ fun PlayerScreen(
         onDispose { player.removeListener(listener) }
     }
 
+    LaunchedEffect(subtitlePickerOpen, subtitleTracks.isEmpty()) {
+        if (subtitlePickerOpen && subtitleTracks.isEmpty()) {
+            subtitlePickerOpen = false
+        }
+    }
+
+    LaunchedEffect(seekFeedbackTick) {
+        if (seekFeedbackTick > 0) {
+            delay(650L)
+            seekFeedbackDirection = 0
+        }
+    }
+
     val selectedSubtitleLabel = subtitleTracks.firstOrNull { it.selected }?.label
     val subtitleSummary = when {
+        subtitleTracks.isEmpty() -> "Нет"
         !subtitlesEnabled -> "Выкл"
         selectedSubtitleLabel != null -> selectedSubtitleLabel
-        subtitleTracks.isEmpty() -> "Нет дорожек"
         else -> "Авто"
     }
 
@@ -280,11 +299,13 @@ fun PlayerScreen(
                             if (controlsVisible) interactionTick++
                         },
                         onDoubleTap = { offset ->
-                            val delta = if (offset.x < size.width / 2f) -10_000L else 10_000L
-                            val target = (player.currentPosition + delta)
+                            val direction = if (offset.x < size.width / 2f) -1 else 1
+                            val target = (player.currentPosition + direction * 10_000L)
                                 .coerceIn(0L, max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE))
                             player.seekTo(target)
                             positionMs = target
+                            seekFeedbackDirection = direction
+                            seekFeedbackTick++
                             showControls()
                         },
                     )
@@ -308,69 +329,55 @@ fun PlayerScreen(
             )
 
             PlayerTopBar(
-                title = title,
-                isLandscape = isLandscape,
-                activity = activity,
+                title = displayPlayerTitle(title),
                 onBack = leavePlayer,
                 onInteraction = ::showControls,
                 modifier = Modifier.align(Alignment.TopCenter),
             )
 
             Surface(
-                color = Color.Black.copy(alpha = 0.48f),
-                shape = RoundedCornerShape(36.dp),
-                modifier = Modifier.align(Alignment.Center),
+                color = Color.Black.copy(alpha = 0.72f),
+                shape = CircleShape,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(84.dp),
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                IconButton(
+                    onClick = {
+                        session.togglePlayPause()
+                        showControls()
+                    },
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    IconButton(
-                        onClick = {
-                            player.seekBack()
-                            showControls()
-                        },
-                        modifier = Modifier.size(60.dp),
-                    ) {
-                        Icon(
-                            Icons.Filled.Replay10,
-                            contentDescription = "Назад на 10 секунд",
-                            tint = Color.White,
-                            modifier = Modifier.size(34.dp),
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            session.togglePlayPause()
-                            showControls()
-                        },
-                        modifier = Modifier.size(68.dp),
-                    ) {
-                        Icon(
-                            if (session.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = if (session.isPlaying) "Пауза" else "Воспроизвести",
-                            tint = Color.White,
-                            modifier = Modifier.size(44.dp),
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            player.seekForward()
-                            showControls()
-                        },
-                        modifier = Modifier.size(60.dp),
-                    ) {
-                        Icon(
-                            Icons.Filled.Forward10,
-                            contentDescription = "Вперёд на 10 секунд",
-                            tint = Color.White,
-                            modifier = Modifier.size(34.dp),
-                        )
-                    }
+                    Icon(
+                        if (session.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                        contentDescription = if (session.isPlaying) "Пауза" else "Воспроизвести",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp),
+                    )
                 }
+            }
+
+            AnimatedVisibility(
+                visible = seekFeedbackDirection < 0,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 48.dp),
+            ) {
+                SeekFeedbackBubble(forward = false)
+            }
+
+            AnimatedVisibility(
+                visible = seekFeedbackDirection > 0,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 48.dp),
+            ) {
+                SeekFeedbackBubble(forward = true)
             }
 
             PlayerTimeline(
@@ -390,6 +397,9 @@ fun PlayerScreen(
                     settingsOpen = true
                     showControls()
                 },
+                isLandscape = isLandscape,
+                activity = activity,
+                onInteraction = ::showControls,
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
@@ -438,25 +448,17 @@ fun PlayerScreen(
                             onClick = { selectSubtitleTrack(null) },
                         )
 
-                        if (subtitleTracks.isEmpty()) {
-                            Text(
-                                text = "В этом видео нет доступных дорожек субтитров.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        } else {
+                        SubtitleTrackRow(
+                            label = "Авто",
+                            selected = subtitlesEnabled && selectedSubtitleLabel == null,
+                            onClick = ::selectAutomaticSubtitles,
+                        )
+                        subtitleTracks.forEach { option ->
                             SubtitleTrackRow(
-                                label = "Авто",
-                                selected = subtitlesEnabled && selectedSubtitleLabel == null,
-                                onClick = ::selectAutomaticSubtitles,
+                                label = option.label,
+                                selected = subtitlesEnabled && option.selected,
+                                onClick = { selectSubtitleTrack(option) },
                             )
-                            subtitleTracks.forEach { option ->
-                                SubtitleTrackRow(
-                                    label = option.label,
-                                    selected = subtitlesEnabled && option.selected,
-                                    onClick = { selectSubtitleTrack(option) },
-                                )
-                            }
                         }
                     } else {
                         Text(
@@ -472,14 +474,14 @@ fun PlayerScreen(
                             onSelect = onAudioSelected,
                         )
 
-                        PlayerSettingGrid(
+                        ScrollablePlayerSettingRow(
                             title = "Качество",
                             options = QUALITY_OPTIONS,
                             selected = preferredQuality,
                             onSelect = onQualitySelected,
                         )
 
-                        PlayerSettingGrid(
+                        ScrollablePlayerSettingRow(
                             title = "Скорость",
                             options = SPEEDS.map { "${formatSpeed(it)}×" },
                             selected = "${formatSpeed(speed)}×",
@@ -499,6 +501,7 @@ fun PlayerScreen(
 
                         SubtitleSelectorRow(
                             value = subtitleSummary,
+                            enabled = subtitleTracks.isNotEmpty(),
                             onClick = { subtitlePickerOpen = true },
                         )
                     }
@@ -522,8 +525,6 @@ fun PlayerScreen(
 @Composable
 private fun PlayerTopBar(
     title: String,
-    isLandscape: Boolean,
-    activity: Activity?,
     onBack: () -> Unit,
     onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -559,55 +560,8 @@ private fun PlayerTopBar(
             maxLines = 1,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(start = 72.dp, end = 132.dp, top = 16.dp),
+                .padding(start = 72.dp, end = 72.dp, top = 16.dp),
         )
-
-        Row(
-            modifier = Modifier.align(Alignment.TopEnd),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            IconButton(
-                onClick = {
-                    onInteraction()
-                    activity?.requestedOrientation = if (isLandscape) {
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    }
-                },
-                enabled = activity != null,
-                modifier = Modifier.size(56.dp),
-            ) {
-                Icon(
-                    Icons.Outlined.ScreenRotation,
-                    contentDescription = if (isLandscape) {
-                        "Переключить в портретный режим"
-                    } else {
-                        "Развернуть в альбомный режим"
-                    },
-                    tint = Color.White,
-                    modifier = Modifier.size(30.dp),
-                )
-            }
-
-            IconButton(
-                onClick = {
-                    onInteraction()
-                    activity?.enterPictureInPictureMode(
-                        PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9)).build(),
-                    )
-                },
-                enabled = activity != null,
-                modifier = Modifier.size(56.dp),
-            ) {
-                Icon(
-                    Icons.Outlined.PictureInPictureAlt,
-                    contentDescription = "Картинка в картинке",
-                    tint = Color.White,
-                    modifier = Modifier.size(30.dp),
-                )
-            }
-        }
     }
 }
 
@@ -619,69 +573,132 @@ private fun PlayerTimeline(
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
     onSettings: () -> Unit,
+    isLandscape: Boolean,
+    activity: Activity?,
+    onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val safeDuration = max(1L, durationMs)
     Surface(
-        color = Color.Black.copy(alpha = 0.26f),
+        color = Color.Black.copy(alpha = 0.40f),
         modifier = modifier.fillMaxWidth(),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(start = 14.dp, end = 8.dp, top = 4.dp, bottom = 6.dp),
         ) {
-            Text(
-                text = formatTime(positionMs),
-                color = Color.White,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Spacer(Modifier.width(14.dp))
-            Slider(
-                value = positionMs.coerceIn(0L, safeDuration).toFloat(),
-                onValueChange = { onScrub(it.toLong()) },
-                onValueChangeFinished = onScrubFinished,
-                valueRange = 0f..safeDuration.toFloat(),
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 56.dp),
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = Color.White.copy(alpha = 0.30f),
-                ),
-                track = { sliderState ->
-                    SliderDefaults.Track(
-                        sliderState = sliderState,
-                        colors = SliderDefaults.colors(
-                            activeTrackColor = MaterialTheme.colorScheme.primary,
-                            inactiveTrackColor = Color.White.copy(alpha = 0.30f),
-                        ),
-                        drawStopIndicator = null,
-                    )
-                },
-            )
-            Spacer(Modifier.width(14.dp))
-            Text(
-                text = formatTime(durationMs),
-                color = Color.White,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Spacer(Modifier.width(4.dp))
-            IconButton(
-                onClick = onSettings,
-                modifier = Modifier.size(52.dp),
+                    .fillMaxWidth()
+                    .padding(end = 2.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    Icons.Outlined.Settings,
-                    contentDescription = "Настройки плеера",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp),
+                IconButton(
+                    onClick = {
+                        onInteraction()
+                        activity?.requestedOrientation = if (isLandscape) {
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        }
+                    },
+                    enabled = activity != null,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.ScreenRotation,
+                        contentDescription = if (isLandscape) {
+                            "Переключить в портретный режим"
+                        } else {
+                            "Развернуть в альбомный режим"
+                        },
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        onInteraction()
+                        activity?.enterPictureInPictureMode(
+                            PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9)).build(),
+                        )
+                    },
+                    enabled = activity != null,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.PictureInPictureAlt,
+                        contentDescription = "Картинка в картинке",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = formatTime(positionMs),
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
                 )
+                Spacer(Modifier.width(14.dp))
+                Slider(
+                    value = positionMs.coerceIn(0L, safeDuration).toFloat(),
+                    onValueChange = { onScrub(it.toLong()) },
+                    onValueChangeFinished = onScrubFinished,
+                    valueRange = 0f..safeDuration.toFloat(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 56.dp),
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = Color.White.copy(alpha = 0.34f),
+                    ),
+                    thumb = {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                        )
+                    },
+                    track = { sliderState ->
+                        SliderDefaults.Track(
+                            sliderState = sliderState,
+                            colors = SliderDefaults.colors(
+                                activeTrackColor = MaterialTheme.colorScheme.primary,
+                                inactiveTrackColor = Color.White.copy(alpha = 0.34f),
+                            ),
+                            drawStopIndicator = null,
+                        )
+                    },
+                )
+                Spacer(Modifier.width(14.dp))
+                Text(
+                    text = formatTime(durationMs),
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.width(4.dp))
+                IconButton(
+                    onClick = onSettings,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Icon(
+                        Icons.Outlined.Settings,
+                        contentDescription = "Настройки плеера",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
             }
         }
     }
@@ -690,12 +707,14 @@ private fun PlayerTimeline(
 @Composable
 private fun SubtitleSelectorRow(
     value: String,
+    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     Surface(
         onClick = onClick,
+        enabled = enabled,
         shape = RoundedCornerShape(14.dp),
-        color = Color.White.copy(alpha = 0.08f),
+        color = Color.White.copy(alpha = if (enabled) 0.10f else 0.06f),
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 64.dp),
@@ -709,20 +728,37 @@ private fun SubtitleSelectorRow(
                     text = "Субтитры",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                )
+                if (enabled) {
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f),
+                        maxLines = 1,
+                    )
+                }
             }
-            Icon(
-                Icons.Outlined.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(28.dp),
-            )
+            if (enabled) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f),
+                    modifier = Modifier.size(28.dp),
+                )
+            } else {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color.White.copy(alpha = 0.10f),
+                ) {
+                    Text(
+                        text = "Нет",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.82f),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -921,6 +957,31 @@ private fun VioraChoiceChip(
         }
     }
 }
+
+@Composable
+private fun SeekFeedbackBubble(forward: Boolean) {
+    Surface(
+        shape = CircleShape,
+        color = Color.Black.copy(alpha = 0.64f),
+        modifier = Modifier.size(92.dp),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = if (forward) Icons.Filled.Forward10 else Icons.Filled.Replay10,
+                contentDescription = if (forward) "Перемотано вперёд на 10 секунд" else "Перемотано назад на 10 секунд",
+                tint = Color.White,
+                modifier = Modifier.size(42.dp),
+            )
+        }
+    }
+}
+
+private fun displayPlayerTitle(title: String): String =
+    title
+        .replace(Regex(" · Эпизод \\d+$"), "")
+        .trim()
+        .trimEnd('·')
+        .trim()
 
 private fun formatSpeed(speed: Float): String =
     if (speed % 1f == 0f) speed.toInt().toString() else speed.toString()
