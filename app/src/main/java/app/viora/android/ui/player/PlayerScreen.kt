@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -28,9 +29,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +46,7 @@ import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +55,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -80,10 +83,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 import kotlin.math.max
+import java.util.Locale
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private val AUDIO_OPTIONS = listOf("Auto", "LostFilm", "HDRezka", "Original")
@@ -92,6 +98,12 @@ private val RESIZE_MODES = listOf(
     "Fit" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
     "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
     "Fill" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
+)
+
+private data class SubtitleTrackOption(
+    val label: String,
+    val override: TrackSelectionOverride,
+    val selected: Boolean,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,6 +132,8 @@ fun PlayerScreen(
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
     var settingsOpen by remember { mutableStateOf(false) }
+    var subtitlePickerOpen by remember { mutableStateOf(false) }
+    var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
     var controlsVisible by remember { mutableStateOf(true) }
     var interactionTick by remember { mutableIntStateOf(0) }
     var positionMs by remember { mutableLongStateOf(max(0L, player.currentPosition)) }
@@ -183,9 +197,51 @@ fun PlayerScreen(
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 showControls()
             }
+
+            override fun onTracksChanged(tracks: Tracks) {
+                subtitleTracks = buildSubtitleTrackOptions(tracks)
+                showControls()
+            }
         }
         player.addListener(listener)
         onDispose { player.removeListener(listener) }
+    }
+
+    val selectedSubtitleLabel = subtitleTracks.firstOrNull { it.selected }?.label
+    val subtitleSummary = when {
+        !subtitlesEnabled -> "Выкл"
+        selectedSubtitleLabel != null -> selectedSubtitleLabel
+        subtitleTracks.isEmpty() -> "Нет дорожек"
+        else -> "Авто"
+    }
+
+    fun selectSubtitleTrack(option: SubtitleTrackOption?) {
+        val builder = player.trackSelectionParameters
+            .buildUpon()
+            .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+        if (option == null) {
+            builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+            onSubtitlesChanged(false)
+        } else {
+            builder
+                .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                .setOverrideForType(option.override)
+            onSubtitlesChanged(true)
+        }
+        player.trackSelectionParameters = builder.build()
+        subtitlePickerOpen = false
+        showControls()
+    }
+
+    fun selectAutomaticSubtitles() {
+        player.trackSelectionParameters = player.trackSelectionParameters
+            .buildUpon()
+            .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+            .build()
+        onSubtitlesChanged(true)
+        subtitlePickerOpen = false
+        showControls()
     }
 
     val leavePlayer: () -> Unit = {
@@ -342,6 +398,7 @@ fun PlayerScreen(
             ModalBottomSheet(
                 onDismissRequest = {
                     settingsOpen = false
+                    subtitlePickerOpen = false
                     showControls()
                 },
                 sheetState = sheetState,
@@ -354,65 +411,95 @@ fun PlayerScreen(
                         .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
                     verticalArrangement = Arrangement.spacedBy(22.dp),
                 ) {
-                    Text(
-                        text = "Настройки плеера",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-
-                    ScrollablePlayerSettingRow(
-                        title = "Озвучка",
-                        options = AUDIO_OPTIONS,
-                        selected = preferredAudio,
-                        onSelect = onAudioSelected,
-                    )
-
-                    PlayerSettingGrid(
-                        title = "Качество",
-                        options = QUALITY_OPTIONS,
-                        selected = preferredQuality,
-                        onSelect = onQualitySelected,
-                    )
-
-                    PlayerSettingGrid(
-                        title = "Скорость",
-                        options = SPEEDS.map { "${formatSpeed(it)}×" },
-                        selected = "${formatSpeed(speed)}×",
-                        onSelect = { value ->
-                            speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
-                        },
-                    )
-
-                    PlayerSettingGrid(
-                        title = "Масштаб",
-                        options = RESIZE_MODES.map { it.first },
-                        selected = RESIZE_MODES[resizeIndex].first,
-                        onSelect = { value ->
-                            resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
-                        },
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                    if (subtitlePickerOpen) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            IconButton(
+                                onClick = { subtitlePickerOpen = false },
+                                modifier = Modifier.size(48.dp),
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.ArrowBack,
+                                    contentDescription = "Назад к настройкам плеера",
+                                )
+                            }
                             Text(
                                 text = "Субтитры",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.SemiBold,
                             )
+                        }
+
+                        SubtitleTrackRow(
+                            label = "Выкл",
+                            selected = !subtitlesEnabled,
+                            onClick = { selectSubtitleTrack(null) },
+                        )
+
+                        if (subtitleTracks.isEmpty()) {
                             Text(
-                                text = if (subtitlesEnabled) "Включены" else "Выключены",
+                                text = "В этом видео нет доступных дорожек субтитров.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                        } else {
+                            SubtitleTrackRow(
+                                label = "Авто",
+                                selected = subtitlesEnabled && selectedSubtitleLabel == null,
+                                onClick = ::selectAutomaticSubtitles,
+                            )
+                            subtitleTracks.forEach { option ->
+                                SubtitleTrackRow(
+                                    label = option.label,
+                                    selected = subtitlesEnabled && option.selected,
+                                    onClick = { selectSubtitleTrack(option) },
+                                )
+                            }
                         }
-                        Switch(
-                            checked = subtitlesEnabled,
-                            onCheckedChange = onSubtitlesChanged,
+                    } else {
+                        Text(
+                            text = "Настройки плеера",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+
+                        ScrollablePlayerSettingRow(
+                            title = "Озвучка",
+                            options = AUDIO_OPTIONS,
+                            selected = preferredAudio,
+                            onSelect = onAudioSelected,
+                        )
+
+                        PlayerSettingGrid(
+                            title = "Качество",
+                            options = QUALITY_OPTIONS,
+                            selected = preferredQuality,
+                            onSelect = onQualitySelected,
+                        )
+
+                        PlayerSettingGrid(
+                            title = "Скорость",
+                            options = SPEEDS.map { "${formatSpeed(it)}×" },
+                            selected = "${formatSpeed(speed)}×",
+                            onSelect = { value ->
+                                speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
+                            },
+                        )
+
+                        PlayerSettingGrid(
+                            title = "Масштаб",
+                            options = RESIZE_MODES.map { it.first },
+                            selected = RESIZE_MODES[resizeIndex].first,
+                            onSelect = { value ->
+                                resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
+                            },
+                        )
+
+                        SubtitleSelectorRow(
+                            value = subtitleSummary,
+                            onClick = { subtitlePickerOpen = true },
                         )
                     }
                 }
@@ -524,6 +611,7 @@ private fun PlayerTopBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlayerTimeline(
     positionMs: Long,
@@ -551,7 +639,7 @@ private fun PlayerTimeline(
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(14.dp))
             Slider(
                 value = positionMs.coerceIn(0L, safeDuration).toFloat(),
                 onValueChange = { onScrub(it.toLong()) },
@@ -565,8 +653,18 @@ private fun PlayerTimeline(
                     activeTrackColor = MaterialTheme.colorScheme.primary,
                     inactiveTrackColor = Color.White.copy(alpha = 0.30f),
                 ),
+                track = { sliderState ->
+                    SliderDefaults.Track(
+                        sliderState = sliderState,
+                        colors = SliderDefaults.colors(
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = Color.White.copy(alpha = 0.30f),
+                        ),
+                        drawStopIndicator = null,
+                    )
+                },
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(14.dp))
             Text(
                 text = formatTime(durationMs),
                 color = Color.White,
@@ -590,28 +688,168 @@ private fun PlayerTimeline(
 }
 
 @Composable
+private fun SubtitleSelectorRow(
+    value: String,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        color = Color.White.copy(alpha = 0.08f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 64.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Субтитры",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            Icon(
+                Icons.Outlined.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun SubtitleTrackRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        } else {
+            Color.White.copy(alpha = 0.08f)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .semantics { this.selected = selected },
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                modifier = Modifier.weight(1f),
+            )
+            if (selected) {
+                Text(
+                    text = "✓",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
+}
+
+private fun buildSubtitleTrackOptions(tracks: Tracks): List<SubtitleTrackOption> {
+    val result = mutableListOf<SubtitleTrackOption>()
+    tracks.groups.forEach { group ->
+        if (group.type != C.TRACK_TYPE_TEXT) return@forEach
+        for (index in 0 until group.length) {
+            if (!group.isTrackSupported(index)) continue
+            val format = group.getTrackFormat(index)
+            val label = format.label?.takeIf { it.isNotBlank() }
+                ?: format.language?.takeIf { it.isNotBlank() }?.let(::displayLanguage)
+                ?: "Дорожка ${result.size + 1}"
+            result += SubtitleTrackOption(
+                label = label,
+                override = TrackSelectionOverride(group.mediaTrackGroup, index),
+                selected = group.isTrackSelected(index),
+            )
+        }
+    }
+    return result.distinctBy { it.label to it.override.mediaTrackGroup.id }
+}
+
+private fun displayLanguage(languageTag: String): String {
+    val locale = Locale.forLanguageTag(languageTag)
+    val name = locale.getDisplayLanguage(Locale("ru"))
+    return name.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(Locale("ru")) else it.toString()
+    }
+}
+
+@Composable
 private fun ScrollablePlayerSettingRow(
     title: String,
     options: List<String>,
     selected: String,
     onSelect: (String) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    val fadeColor = MaterialTheme.colorScheme.surface
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
         )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(end = 24.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            items(options) { option ->
-                VioraChoiceChip(
-                    label = option,
-                    selected = option == selected,
-                    onClick = { onSelect(option) },
+        Box(modifier = Modifier.fillMaxWidth()) {
+            LazyRow(
+                state = listState,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(end = 28.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(options) { option ->
+                    VioraChoiceChip(
+                        label = option,
+                        selected = option == selected,
+                        onClick = { onSelect(option) },
+                    )
+                }
+            }
+            if (listState.canScrollBackward) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(fadeColor, Color.Transparent),
+                            ),
+                        ),
+                )
+            }
+            if (listState.canScrollForward) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .width(22.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(Color.Transparent, fadeColor),
+                            ),
+                        ),
                 )
             }
         }
@@ -633,8 +871,8 @@ private fun PlayerSettingGrid(
             fontWeight = FontWeight.SemiBold,
         )
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             options.forEach { option ->
                 VioraChoiceChip(
@@ -667,6 +905,7 @@ private fun VioraChoiceChip(
             MaterialTheme.colorScheme.onSurface
         },
         modifier = Modifier
+            .widthIn(min = 56.dp)
             .heightIn(min = 48.dp)
             .semantics { this.selected = selected },
     ) {
