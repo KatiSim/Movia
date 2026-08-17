@@ -7,6 +7,7 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Rational
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -20,16 +21,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.outlined.ScreenRotation
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +60,8 @@ import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
+private val AUDIO_OPTIONS = listOf("Auto", "LostFilm", "HDRezka", "Original")
+private val QUALITY_OPTIONS = listOf("Auto", "4K", "1080p", "720p", "480p")
 private val RESIZE_MODES = listOf(
     "Fit" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
     "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
@@ -68,6 +76,8 @@ fun PlayerScreen(
     modifier: Modifier = Modifier,
     preferredAudio: String = "Auto",
     preferredQuality: String = "Auto",
+    onAudioSelected: (String) -> Unit,
+    onQualitySelected: (String) -> Unit,
     subtitlesEnabled: Boolean = false,
     autoNextEnabled: Boolean = true,
     onSubtitlesChanged: (Boolean) -> Unit,
@@ -81,6 +91,7 @@ fun PlayerScreen(
     var playbackError by remember { mutableStateOf<String?>(null) }
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
+    var settingsOpen by remember { mutableStateOf(false) }
     val offline = session.activeSource?.startsWith("file:") == true
     val resizeMode = RESIZE_MODES[resizeIndex].second
 
@@ -134,11 +145,13 @@ fun PlayerScreen(
                     useController = true
                     controllerShowTimeoutMs = 3000
                     this.player = player
+                    findViewById<View>(androidx.media3.ui.R.id.exo_settings)?.visibility = View.GONE
                 }
             },
             update = {
                 it.player = player
                 it.resizeMode = resizeMode
+                it.findViewById<View>(androidx.media3.ui.R.id.exo_settings)?.visibility = View.GONE
             },
             modifier = Modifier
                 .fillMaxSize()
@@ -171,7 +184,7 @@ fun PlayerScreen(
                 maxLines = 1,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(start = 112.dp, end = 112.dp, top = 12.dp),
+                    .padding(start = 64.dp, end = 112.dp, top = 12.dp),
             )
 
             Row(
@@ -216,39 +229,78 @@ fun PlayerScreen(
             }
         }
 
-        // Custom options live above Media3's own transport/timeline controls.
-        Column(
+        IconButton(
+            onClick = { settingsOpen = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(start = 16.dp, end = 16.dp, bottom = 104.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+                .padding(end = 8.dp, bottom = 8.dp),
         ) {
-            Text(
-                text = "Предпочтение: $preferredAudio · $preferredQuality${if (offline) " · офлайн" else ""}",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White,
+            Icon(
+                Icons.Outlined.Settings,
+                contentDescription = "Настройки плеера",
+                tint = Color.White,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AssistChip(
-                    onClick = {
-                        val index = SPEEDS.indexOf(speed).takeIf { it >= 0 } ?: 1
-                        speed = SPEEDS[(index + 1) % SPEEDS.size]
-                    },
-                    label = { Text("${formatSpeed(speed)}×") },
-                )
-                AssistChip(
-                    onClick = { resizeIndex = (resizeIndex + 1) % RESIZE_MODES.size },
-                    label = { Text(RESIZE_MODES[resizeIndex].first) },
-                )
-                FilterChip(
-                    selected = subtitlesEnabled,
-                    onClick = { onSubtitlesChanged(!subtitlesEnabled) },
-                    label = { Text("CC") },
-                )
-            }
+        }
+
+        if (settingsOpen) {
+            AlertDialog(
+                onDismissRequest = { settingsOpen = false },
+                title = { Text("Настройки плеера") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Text(
+                            text = "${if (offline) "Офлайн · " else ""}$preferredAudio · $preferredQuality",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+
+                        PlayerSettingRow(
+                            title = "Озвучка",
+                            options = AUDIO_OPTIONS,
+                            selected = preferredAudio,
+                            onSelect = onAudioSelected,
+                        )
+                        PlayerSettingRow(
+                            title = "Качество",
+                            options = QUALITY_OPTIONS,
+                            selected = preferredQuality,
+                            onSelect = onQualitySelected,
+                        )
+                        PlayerSettingRow(
+                            title = "Скорость",
+                            options = SPEEDS.map { "${formatSpeed(it)}×" },
+                            selected = "${formatSpeed(speed)}×",
+                            onSelect = { value ->
+                                speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
+                            },
+                        )
+                        PlayerSettingRow(
+                            title = "Масштаб",
+                            options = RESIZE_MODES.map { it.first },
+                            selected = RESIZE_MODES[resizeIndex].first,
+                            onSelect = { value ->
+                                resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
+                            },
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text("Субтитры", modifier = Modifier.weight(1f))
+                            FilterChip(
+                                selected = subtitlesEnabled,
+                                onClick = { onSubtitlesChanged(!subtitlesEnabled) },
+                                label = { Text(if (subtitlesEnabled) "Включены" else "Выключены") },
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { settingsOpen = false }) { Text("Готово") }
+                },
+            )
         }
 
         playbackError?.let { error ->
@@ -260,6 +312,28 @@ fun PlayerScreen(
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .padding(horizontal = 24.dp, vertical = 12.dp),
             )
+        }
+    }
+}
+
+
+@Composable
+private fun PlayerSettingRow(
+    title: String,
+    options: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(options) { option ->
+                FilterChip(
+                    selected = option == selected,
+                    onClick = { onSelect(option) },
+                    label = { Text(option) },
+                )
+            }
         }
     }
 }

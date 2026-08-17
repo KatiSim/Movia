@@ -221,6 +221,12 @@ private fun VioraContent(
             },
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,
+            onAudioSelected = { audio ->
+                scope.launch { preferencesRepository.setTitleAudio(baseTitle, audio) }
+            },
+            onQualitySelected = { quality ->
+                scope.launch { preferencesRepository.setTitleQuality(baseTitle, quality) }
+            },
             subtitlesEnabled = playbackPreferences.subtitlesEnabled,
             autoNextEnabled = playbackPreferences.autoNextEnabled,
             onSubtitlesChanged = { enabled ->
