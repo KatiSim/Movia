@@ -65,7 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,6 +73,7 @@ import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.catalog.filterCatalog
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
+import app.viora.android.ui.components.MediaMetadataText
 import java.util.Locale
 
 private val contentTypes = ContentType.entries.toList()
@@ -758,13 +758,8 @@ private fun CatalogMediaCard(item: MediaContent, onClick: () -> Unit) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
-            "${item.year} · ★ ${item.rating} · ${item.quality}",
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = FontFamily.SansSerif,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        MediaMetadataText(
+            text = "${item.year} · ★ ${item.rating} · ${item.quality}",
         )
     }
 }

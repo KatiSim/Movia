@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,9 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ import app.viora.android.data.catalog.RecommendationEngine
 import app.viora.android.domain.model.MediaContent
 import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.ui.components.MediaCard
+import app.viora.android.ui.components.MediaMetadataText
 import app.viora.android.ui.components.SectionHeader
 
 @Composable
@@ -81,7 +83,7 @@ fun HomeScreen(
         if (recommendation.items.isNotEmpty()) {
             item {
                 MediaSection(
-                    title = "Похожее на то, что вы смотрели",
+                    title = "Похожее для вас",
                     items = recommendation.items,
                     onOpenDetails = onOpenDetails,
                     onViewAll = { onOpenCatalog(CatalogLaunchPreset.ALL) },
@@ -204,7 +206,7 @@ private fun MediaSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title = title, onClick = onViewAll)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 8.dp)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 24.dp)) {
             items(items, key = { it.id }) { item ->
                 MediaCard(
                     title = item.title,
@@ -224,7 +226,7 @@ private fun NewMediaSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title = "Новинки", onClick = onViewAll)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp), contentPadding = PaddingValues(end = 8.dp)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp), contentPadding = PaddingValues(end = 24.dp)) {
             items(items, key = { "new-${it.id}" }) { item ->
                 WideNewMediaCard(item = item, onClick = { onOpenDetails(item.title) })
             }
@@ -239,8 +241,7 @@ private fun WideNewMediaCard(
 ) {
     Column(
         modifier = Modifier
-            .width(248.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .width(232.dp)
             .semantics(mergeDescendants = true) {
                 contentDescription = "${item.title}. ${item.year}. Новинка"
             },
@@ -252,27 +253,45 @@ private fun WideNewMediaCard(
             color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp),
+                .height(131.dp),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Outlined.Movie,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Box(
+                modifier = Modifier.background(
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.surface,
+                        ),
+                    ),
+                ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(24.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.Outlined.Movie,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                    )
+                }
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(6.dp),
                     color = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(10.dp),
+                        .padding(8.dp),
                 ) {
                     Text(
                         text = "NEW",
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                     )
                 }
             }
@@ -285,13 +304,8 @@ private fun WideNewMediaCard(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
+        MediaMetadataText(
             text = "${item.year} · ★ ${item.rating}",
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = FontFamily.SansSerif,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
         )
     }
 }
