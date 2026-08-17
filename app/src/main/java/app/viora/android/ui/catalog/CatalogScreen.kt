@@ -5,12 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,18 +28,36 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Movie
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,18 +69,42 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import app.viora.android.data.catalog.CatalogFilter
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.catalog.filterCatalog
 import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
+import java.util.Locale
 
 private val contentTypes = ContentType.entries.toList()
 private val countries = listOf("Испания", "США", "Франция", "Германия", "Италия", "Норвегия", "Великобритания")
+private val ratingOptions = listOf<Double?>(null, 7.0, 8.0, 8.5)
+private val qualityOptions = listOf<String?>(null, "1080p", "4K", "HDR")
+private val ageOptions = listOf<Int?>(null, 6, 12, 16, 18)
+private val audioOptions = listOf<String?>(null, "Русский", "Original")
+private val subtitleOptions = listOf<String?>(null, "Русский", "English")
+
+private data class YearPreset(
+    val label: String,
+    val from: Int?,
+    val to: Int?,
+)
+
+private val yearPresets = listOf(
+    YearPreset("Все годы", null, null),
+    YearPreset("2026", 2026, 2026),
+    YearPreset("2025", 2025, 2025),
+    YearPreset("2024", 2024, 2024),
+    YearPreset("2020–2023", 2020, 2023),
+    YearPreset("2010-е", 2010, 2019),
+    YearPreset("2000-е", 2000, 2009),
+)
 
 enum class CatalogLaunchPreset { ALL, NEW }
 
+private enum class QuickSheet { GENRE, YEAR, RATING, QUALITY }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CatalogScreen(
     contentPadding: PaddingValues,
@@ -65,42 +114,47 @@ fun CatalogScreen(
     onOpenDetails: (String) -> Unit,
 ) {
     var selectedTypeName by rememberSaveable { mutableStateOf(ContentType.MOVIE.name) }
-    var comedyOnly by rememberSaveable { mutableStateOf(false) }
-    var recentOnly by rememberSaveable { mutableStateOf(false) }
-    var highRatingOnly by rememberSaveable { mutableStateOf(false) }
-    var hdOnly by rememberSaveable { mutableStateOf(false) }
+    var selectedGenresState by rememberSaveable { mutableStateOf("") }
+    var yearFrom by rememberSaveable { mutableStateOf<Int?>(null) }
+    var yearTo by rememberSaveable { mutableStateOf<Int?>(null) }
+    var minRating by rememberSaveable { mutableStateOf<Double?>(null) }
+    var quality by rememberSaveable { mutableStateOf<String?>(null) }
     var country by rememberSaveable { mutableStateOf<String?>(null) }
     var durationMode by rememberSaveable { mutableStateOf("ANY") }
     var newOnly by rememberSaveable { mutableStateOf(false) }
     var maxAgeRating by rememberSaveable { mutableStateOf<Int?>(null) }
     var audioLanguage by rememberSaveable { mutableStateOf<String?>(null) }
     var subtitleLanguage by rememberSaveable { mutableStateOf<String?>(null) }
-    var advancedOpen by rememberSaveable { mutableStateOf(false) }
+    var quickSheet by remember { mutableStateOf<QuickSheet?>(null) }
+    var advancedOpen by remember { mutableStateOf(false) }
 
-    LaunchedEffect(launchPreset) {
-        launchPreset?.let { preset ->
-            selectedTypeName = "ALL"
-            comedyOnly = false
-            recentOnly = false
-            highRatingOnly = false
-            hdOnly = false
-            country = null
-            durationMode = "ANY"
-            newOnly = preset == CatalogLaunchPreset.NEW
-            maxAgeRating = null
-            audioLanguage = null
-            subtitleLanguage = null
-            onLaunchPresetConsumed()
-        }
+    val allContent = remember { DemoCatalogRepository.all() }
+    val selectedGenres = selectedGenresState.takeIf { it.isNotBlank() }?.split("|") ?: emptyList()
+    val allGenres = remember(allContent) { allContent.flatMap { it.genres }.distinct().sorted() }
+    val selectedType = selectedTypeName.takeUnless { it == "ALL" }?.let(ContentType::valueOf)
+
+    fun applyFilter(next: CatalogFilter) {
+        selectedTypeName = next.type?.name ?: "ALL"
+        selectedGenresState = next.genres.sorted().joinToString("|")
+        yearFrom = next.yearFrom
+        yearTo = next.yearTo
+        minRating = next.minRating
+        quality = next.quality
+        country = next.country
+        durationMode = next.durationMode
+        newOnly = next.newOnly
+        maxAgeRating = next.maxAgeRating
+        audioLanguage = next.audioLanguage
+        subtitleLanguage = next.subtitleLanguage
     }
 
-    val selectedType = selectedTypeName.takeUnless { it == "ALL" }?.let(ContentType::valueOf)
     val filter = CatalogFilter(
         type = selectedType,
-        comedyOnly = comedyOnly,
-        recentOnly = recentOnly,
-        highRatingOnly = highRatingOnly,
-        hdOnly = hdOnly,
+        genres = selectedGenres.toSet(),
+        yearFrom = yearFrom,
+        yearTo = yearTo,
+        minRating = minRating,
+        quality = quality,
         country = country,
         durationMode = durationMode,
         newOnly = newOnly,
@@ -108,10 +162,23 @@ fun CatalogScreen(
         audioLanguage = audioLanguage,
         subtitleLanguage = subtitleLanguage,
     )
-    val filtered = filterCatalog(DemoCatalogRepository.all(), filter)
+
+    LaunchedEffect(launchPreset) {
+        launchPreset?.let { preset ->
+            applyFilter(
+                CatalogFilter(
+                    type = null,
+                    newOnly = preset == CatalogLaunchPreset.NEW,
+                ),
+            )
+            onLaunchPresetConsumed()
+        }
+    }
+
+    val filtered = filterCatalog(allContent, filter)
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 112.dp),
+        columns = GridCells.Fixed(2),
         modifier = modifier,
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -119,57 +186,90 @@ fun CatalogScreen(
             end = 16.dp,
             bottom = contentPadding.calculateBottomPadding() + 24.dp,
         ),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text("Каталог", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(end = 8.dp)) {
                 item {
-                    FilterChip(
+                    VioraFilterChip(
                         selected = selectedType == null,
                         onClick = { selectedTypeName = "ALL" },
-                        label = { Text("Все") },
+                        label = "Все",
                     )
                 }
                 items(contentTypes) { type ->
-                    FilterChip(selected = selectedType == type, onClick = { selectedTypeName = type.name }, label = { Text(type.label) })
+                    VioraFilterChip(
+                        selected = selectedType == type,
+                        onClick = { selectedTypeName = type.name },
+                        label = type.label,
+                    )
                 }
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(end = 8.dp)) {
-                item { FilterChip(selected = comedyOnly, onClick = { comedyOnly = !comedyOnly }, label = { Text(if (comedyOnly) "✓ Комедия" else "Жанр") }) }
-                item { FilterChip(selected = recentOnly, onClick = { recentOnly = !recentOnly }, label = { Text(if (recentOnly) "2020–2026" else "Год") }) }
-                item { FilterChip(selected = highRatingOnly, onClick = { highRatingOnly = !highRatingOnly }, label = { Text(if (highRatingOnly) "★ 7+" else "Рейтинг") }) }
-                item { FilterChip(selected = hdOnly, onClick = { hdOnly = !hdOnly }, label = { Text(if (hdOnly) "HD+" else "Качество") }) }
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(end = 8.dp),
+            ) {
                 item {
-                    FilterChip(
-                        selected = filter.advancedCount > 0,
-                        onClick = { advancedOpen = true },
-                        label = { Text(if (filter.advancedCount > 0) "Ещё · ${filter.advancedCount}" else "Ещё") },
+                    QuickFilterPill(
+                        label = genreChipLabel(selectedGenres),
+                        active = selectedGenres.isNotEmpty(),
+                        onOpen = { quickSheet = QuickSheet.GENRE },
+                        onClear = { selectedGenresState = "" },
+                    )
+                }
+                item {
+                    QuickFilterPill(
+                        label = yearChipLabel(yearFrom, yearTo),
+                        active = yearFrom != null || yearTo != null,
+                        onOpen = { quickSheet = QuickSheet.YEAR },
+                        onClear = { yearFrom = null; yearTo = null },
+                    )
+                }
+                item {
+                    QuickFilterPill(
+                        label = minRating?.let { "★ от ${formatRating(it)}" } ?: "Рейтинг",
+                        active = minRating != null,
+                        onOpen = { quickSheet = QuickSheet.RATING },
+                        onClear = { minRating = null },
+                    )
+                }
+                item {
+                    QuickFilterPill(
+                        label = quality ?: "Качество",
+                        active = quality != null,
+                        onOpen = { quickSheet = QuickSheet.QUALITY },
+                        onClear = { quality = null },
+                    )
+                }
+                item {
+                    QuickFilterPill(
+                        label = if (filter.activeCount > 0) "Все фильтры · ${filter.activeCount}" else "Все фильтры",
+                        active = filter.activeCount > 0,
+                        onOpen = { advancedOpen = true },
+                        onClear = {
+                            applyFilter(CatalogFilter(type = selectedType))
+                        },
                     )
                 }
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Найдено: ${filtered.size}", modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (filter.advancedCount > 0 || comedyOnly || recentOnly || highRatingOnly || hdOnly) {
-                    TextButton(onClick = {
-                        comedyOnly = false
-                        recentOnly = false
-                        highRatingOnly = false
-                        hdOnly = false
-                        country = null
-                        durationMode = "ANY"
-                        newOnly = false
-                        maxAgeRating = null
-                        audioLanguage = null
-                        subtitleLanguage = null
-                    }) { Text("Сбросить") }
+                Text(
+                    "Найдено: ${filtered.size}",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (filter.activeCount > 0) {
+                    TextButton(onClick = { applyFilter(CatalogFilter(type = selectedType)) }) {
+                        Text("Сбросить")
+                    }
                 }
             }
         }
@@ -181,76 +281,429 @@ fun CatalogScreen(
                 }
             }
         } else {
-            items(filtered, key = { it.id }) { item -> CatalogMediaCard(item, onClick = { onOpenDetails(item.title) }) }
+            items(filtered, key = { it.id }) { item ->
+                CatalogMediaCard(item, onClick = { onOpenDetails(item.title) })
+            }
         }
     }
 
+    when (quickSheet) {
+        QuickSheet.GENRE -> GenreFilterSheet(
+            genres = allGenres,
+            selected = selectedGenres.toSet(),
+            onApply = {
+                selectedGenresState = it.sorted().joinToString("|")
+                quickSheet = null
+            },
+            onDismiss = { quickSheet = null },
+        )
+        QuickSheet.YEAR -> SingleChoiceSheet(
+            title = "Год выпуска",
+            options = yearPresets,
+            selected = yearPresets.firstOrNull { it.from == yearFrom && it.to == yearTo } ?: yearPresets.first(),
+            label = { it.label },
+            onApply = {
+                yearFrom = it.from
+                yearTo = it.to
+                quickSheet = null
+            },
+            onDismiss = { quickSheet = null },
+        )
+        QuickSheet.RATING -> SingleChoiceSheet(
+            title = "Минимальный рейтинг",
+            options = ratingOptions,
+            selected = minRating,
+            label = { it?.let { value -> "★ от ${formatRating(value)}" } ?: "Любой рейтинг" },
+            onApply = {
+                minRating = it
+                quickSheet = null
+            },
+            onDismiss = { quickSheet = null },
+        )
+        QuickSheet.QUALITY -> SingleChoiceSheet(
+            title = "Качество",
+            options = qualityOptions,
+            selected = quality,
+            label = {
+                when (it) {
+                    "1080p" -> "HD · 1080p"
+                    "4K" -> "4K Ultra HD"
+                    "HDR" -> "HDR"
+                    else -> "Все качества"
+                }
+            },
+            onApply = {
+                quality = it
+                quickSheet = null
+            },
+            onDismiss = { quickSheet = null },
+        )
+        null -> Unit
+    }
+
     if (advancedOpen) {
-        AdvancedFiltersDialog(
-            country = country,
-            durationMode = durationMode,
-            newOnly = newOnly,
-            maxAgeRating = maxAgeRating,
-            audioLanguage = audioLanguage,
-            subtitleLanguage = subtitleLanguage,
-            onCountry = { country = it },
-            onDuration = { durationMode = it },
-            onNewOnly = { newOnly = it },
-            onAge = { maxAgeRating = it },
-            onAudio = { audioLanguage = it },
-            onSubtitles = { subtitleLanguage = it },
-            onReset = {
-                country = null
-                durationMode = "ANY"
-                newOnly = false
-                maxAgeRating = null
-                audioLanguage = null
-                subtitleLanguage = null
+        AdvancedFiltersSheet(
+            filter = filter,
+            allGenres = allGenres,
+            onApply = {
+                applyFilter(it)
+                advancedOpen = false
             },
             onDismiss = { advancedOpen = false },
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AdvancedFiltersDialog(
-    country: String?,
-    durationMode: String,
-    newOnly: Boolean,
-    maxAgeRating: Int?,
-    audioLanguage: String?,
-    subtitleLanguage: String?,
-    onCountry: (String?) -> Unit,
-    onDuration: (String) -> Unit,
-    onNewOnly: (Boolean) -> Unit,
-    onAge: (Int?) -> Unit,
-    onAudio: (String?) -> Unit,
-    onSubtitles: (String?) -> Unit,
-    onReset: () -> Unit,
+private fun GenreFilterSheet(
+    genres: List<String>,
+    selected: Set<String>,
+    onApply: (Set<String>) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().widthIn(max = 560.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface,
+    var query by remember { mutableStateOf("") }
+    var draft by remember(selected) { mutableStateOf(selected) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val visible = remember(genres, query) {
+        val normalized = query.trim().lowercase()
+        if (normalized.isBlank()) genres else genres.filter { it.lowercase().contains(normalized) }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 520.dp, max = 720.dp)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-            ) {
-                Text("Расширенные фильтры", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                AdvancedChoice("Страна", listOf<String?>(null) + countries, country, onCountry) { it ?: "Все" }
-                AdvancedChoice("Длительность", listOf("ANY", "SHORT", "LONG"), durationMode, onDuration) {
-                    when (it) { "SHORT" -> "≤100 мин"; "LONG" -> "≥110 мин"; else -> "Любая" }
+            Text("Жанры", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Поиск по жанрам" },
+                singleLine = true,
+                label = { Text("Поиск по жанрам") },
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+            )
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(visible, key = { it }) { genre ->
+                    ListItem(
+                        headlineContent = { Text(genre) },
+                        leadingContent = {
+                            Checkbox(
+                                checked = genre in draft,
+                                onCheckedChange = null,
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = MaterialTheme.colorScheme.primary,
+                                    checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+                                ),
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 56.dp)
+                            .clickable {
+                                draft = if (genre in draft) draft - genre else draft + genre
+                            },
+                    )
                 }
-                AdvancedChoice("Возраст", listOf<Int?>(null, 6, 12, 16, 18), maxAgeRating, onAge) { it?.let { age -> "до $age+" } ?: "Любой" }
-                AdvancedChoice("Аудио", listOf<String?>(null, "Русский", "Original"), audioLanguage, onAudio) { it ?: "Любое" }
-                AdvancedChoice("Субтитры", listOf<String?>(null, "Русский", "English"), subtitleLanguage, onSubtitles) { it ?: "Любые" }
-                FilterChip(selected = newOnly, onClick = { onNewOnly(!newOnly) }, label = { Text("Только новинки") })
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onReset) { Text("Сбросить") }
-                    Button(onClick = onDismiss) { Text("Готово") }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+            ) {
+                TextButton(onClick = { draft = emptySet() }) { Text("Сбросить") }
+                Button(onClick = { onApply(draft) }) { Text("Применить") }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun <T> SingleChoiceSheet(
+    title: String,
+    options: List<T>,
+    selected: T,
+    label: (T) -> String,
+    onApply: (T) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var draft by remember(selected) { mutableStateOf(selected) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            options.forEach { option ->
+                ListItem(
+                    headlineContent = { Text(label(option)) },
+                    leadingContent = {
+                        RadioButton(
+                            selected = option == draft,
+                            onClick = null,
+                            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary),
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                        .clickable { draft = option },
+                )
+            }
+            Button(
+                onClick = { onApply(draft) },
+                modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 20.dp),
+            ) {
+                Text("Применить")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun AdvancedFiltersSheet(
+    filter: CatalogFilter,
+    allGenres: List<String>,
+    onApply: (CatalogFilter) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var draft by remember(filter) { mutableStateOf(filter) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxHeight(),
+    ) {
+        Column(modifier = Modifier.fillMaxHeight(0.96f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "Все фильтры",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = { draft = CatalogFilter(type = draft.type) }) { Text("Сбросить") }
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
+                FilterSection("Тип") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        VioraFilterChip(draft.type == null, { draft = draft.copy(type = null) }, "Все")
+                        contentTypes.forEach { type ->
+                            VioraFilterChip(draft.type == type, { draft = draft.copy(type = type) }, type.label)
+                        }
+                    }
+                }
+                FilterSection("Жанры") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        allGenres.forEach { genre ->
+                            VioraFilterChip(
+                                selected = genre in draft.genres,
+                                onClick = {
+                                    draft = draft.copy(
+                                        genres = if (genre in draft.genres) draft.genres - genre else draft.genres + genre,
+                                    )
+                                },
+                                label = genre,
+                            )
+                        }
+                    }
+                }
+                FilterSection("Год") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        yearPresets.forEach { preset ->
+                            VioraFilterChip(
+                                selected = draft.yearFrom == preset.from && draft.yearTo == preset.to,
+                                onClick = { draft = draft.copy(yearFrom = preset.from, yearTo = preset.to) },
+                                label = preset.label,
+                            )
+                        }
+                    }
+                }
+                FilterSection("Рейтинг") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ratingOptions.forEach { rating ->
+                            VioraFilterChip(
+                                selected = draft.minRating == rating,
+                                onClick = { draft = draft.copy(minRating = rating) },
+                                label = rating?.let { "★ от ${formatRating(it)}" } ?: "Любой",
+                            )
+                        }
+                    }
+                }
+                FilterSection("Качество") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        qualityOptions.forEach { option ->
+                            VioraFilterChip(
+                                selected = draft.quality == option,
+                                onClick = { draft = draft.copy(quality = option) },
+                                label = when (option) {
+                                    "1080p" -> "HD · 1080p"
+                                    "4K" -> "4K Ultra HD"
+                                    "HDR" -> "HDR"
+                                    else -> "Все"
+                                },
+                            )
+                        }
+                    }
+                }
+                FilterSection("Страна") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        VioraFilterChip(draft.country == null, { draft = draft.copy(country = null) }, "Все")
+                        countries.forEach { value ->
+                            VioraFilterChip(draft.country == value, { draft = draft.copy(country = value) }, value)
+                        }
+                    }
+                }
+                FilterSection("Длительность") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("ANY" to "Любая", "SHORT" to "≤100 мин", "LONG" to "≥110 мин").forEach { (value, text) ->
+                            VioraFilterChip(draft.durationMode == value, { draft = draft.copy(durationMode = value) }, text)
+                        }
+                    }
+                }
+                FilterSection("Возраст") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ageOptions.forEach { age ->
+                            VioraFilterChip(
+                                draft.maxAgeRating == age,
+                                { draft = draft.copy(maxAgeRating = age) },
+                                age?.let { "до $it+" } ?: "Любой",
+                            )
+                        }
+                    }
+                }
+                FilterSection("Аудио") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        audioOptions.forEach { audio ->
+                            VioraFilterChip(
+                                draft.audioLanguage == audio,
+                                { draft = draft.copy(audioLanguage = audio) },
+                                audio ?: "Любое",
+                            )
+                        }
+                    }
+                }
+                FilterSection("Субтитры") {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        subtitleOptions.forEach { subtitle ->
+                            VioraFilterChip(
+                                draft.subtitleLanguage == subtitle,
+                                { draft = draft.copy(subtitleLanguage = subtitle) },
+                                subtitle ?: "Любые",
+                            )
+                        }
+                    }
+                }
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text("Только новинки", fontWeight = FontWeight.SemiBold)
+                            Text("Показывать только новые релизы", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(
+                            checked = draft.newOnly,
+                            onCheckedChange = { draft = draft.copy(newOnly = it) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+            Button(
+                onClick = { onApply(draft) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+            ) {
+                Text("Показать результаты")
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterSection(
+    title: String,
+    content: @Composable () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        content()
+    }
+}
+
+@Composable
+private fun QuickFilterPill(
+    label: String,
+    active: Boolean,
+    onOpen: () -> Unit,
+    onClear: () -> Unit,
+) {
+    val container = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val content = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = container,
+        contentColor = content,
+    ) {
+        Row(
+            modifier = Modifier.heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier
+                    .clickable(onClick = onOpen)
+                    .heightIn(min = 48.dp)
+                    .padding(start = 16.dp, end = if (active) 2.dp else 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium)
+                if (!active) {
+                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, modifier = Modifier.size(18.dp))
+                }
+            }
+            if (active) {
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(Icons.Outlined.Close, contentDescription = "Сбросить $label", modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -258,27 +711,30 @@ private fun AdvancedFiltersDialog(
 }
 
 @Composable
-private fun <T> AdvancedChoice(
-    title: String,
-    options: List<T>,
-    selected: T,
-    onSelected: (T) -> Unit,
-    label: (T) -> String,
+private fun VioraFilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(options) { option ->
-                FilterChip(selected = option == selected, onClick = { onSelected(option) }, label = { Text(label(option)) })
-            }
-        }
-    }
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+        modifier = Modifier.heightIn(min = 48.dp),
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+    )
 }
 
 @Composable
 private fun CatalogMediaCard(item: MediaContent, onClick: () -> Unit) {
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .clickable(onClick = onClick)
             .semantics(mergeDescendants = true) {
                 contentDescription = "${item.title}. ${item.year}, рейтинг ${item.rating}, ${item.quality}"
@@ -286,10 +742,45 @@ private fun CatalogMediaCard(item: MediaContent, onClick: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().height(174.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center,
-        ) { Icon(Icons.Outlined.Movie, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-        Text(item.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Text("${item.year} · ★ ${item.rating} · ${item.quality}", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.SansSerif, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        ) {
+            Icon(Icons.Outlined.Movie, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text(
+            item.title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            "${item.year} · ★ ${item.rating} · ${item.quality}",
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.SansSerif,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
+
+private fun genreChipLabel(genres: List<String>): String = when (genres.size) {
+    0 -> "Жанр"
+    1 -> "Жанр: ${genres.first()}"
+    else -> "Жанры: ${genres.size}"
+}
+
+private fun yearChipLabel(from: Int?, to: Int?): String = when {
+    from == null && to == null -> "Год"
+    from != null && from == to -> from.toString()
+    from != null && to != null -> "$from–$to"
+    from != null -> "от $from"
+    else -> "до $to"
+}
+
+private fun formatRating(value: Double): String = String.format(Locale.US, "%.1f", value)

@@ -5,10 +5,11 @@ import app.viora.android.domain.model.MediaContent
 
 data class CatalogFilter(
     val type: ContentType? = ContentType.MOVIE,
-    val comedyOnly: Boolean = false,
-    val recentOnly: Boolean = false,
-    val highRatingOnly: Boolean = false,
-    val hdOnly: Boolean = false,
+    val genres: Set<String> = emptySet(),
+    val yearFrom: Int? = null,
+    val yearTo: Int? = null,
+    val minRating: Double? = null,
+    val quality: String? = null,
     val country: String? = null,
     val durationMode: String = "ANY",
     val newOnly: Boolean = false,
@@ -16,8 +17,12 @@ data class CatalogFilter(
     val audioLanguage: String? = null,
     val subtitleLanguage: String? = null,
 ) {
-    val advancedCount: Int
+    val activeCount: Int
         get() = listOf(
+            genres.isNotEmpty(),
+            yearFrom != null || yearTo != null,
+            minRating != null,
+            quality != null,
             country != null,
             durationMode != "ANY",
             newOnly,
@@ -36,12 +41,21 @@ fun filterCatalog(
         "LONG" -> item.durationMinutes >= 110
         else -> true
     }
+    val genreMatches = filter.genres.isEmpty() || item.genres.any { it in filter.genres }
+    val yearMatches =
+        (filter.yearFrom == null || item.year >= filter.yearFrom) &&
+            (filter.yearTo == null || item.year <= filter.yearTo)
+    val qualityMatches = when (filter.quality) {
+        null -> true
+        "HDR" -> item.quality.contains("HDR", ignoreCase = true)
+        else -> item.quality.equals(filter.quality, ignoreCase = true)
+    }
 
     (filter.type == null || item.type == filter.type) &&
-        (!filter.comedyOnly || "Комедия" in item.genres) &&
-        (!filter.recentOnly || item.year >= 2020) &&
-        (!filter.highRatingOnly || item.rating >= 7.0) &&
-        (!filter.hdOnly || item.quality in setOf("1080p", "4K")) &&
+        genreMatches &&
+        yearMatches &&
+        (filter.minRating == null || item.rating >= filter.minRating) &&
+        qualityMatches &&
         (filter.country == null || item.country == filter.country) &&
         durationMatches &&
         (!filter.newOnly || item.isNew) &&
