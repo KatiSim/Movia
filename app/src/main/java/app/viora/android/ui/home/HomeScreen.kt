@@ -41,8 +41,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     progress: PlaybackProgress = PlaybackProgress(),
     history: List<String> = emptyList(),
-    onOpenDetails: (String) -> Unit = {},
-    onContinue: (String) -> Unit = {},
+    onOpenDetails: (String) -> Unit,
+    onContinue: (String) -> Unit,
 ) {
     val recommendation = RecommendationEngine.recommend(history)
     val allContent = DemoCatalogRepository.all()

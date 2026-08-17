@@ -62,8 +62,8 @@ fun PlayerScreen(
     preferredQuality: String = "Auto",
     subtitlesEnabled: Boolean = false,
     autoNextEnabled: Boolean = true,
-    onSubtitlesChanged: (Boolean) -> Unit = {},
-    onNextEpisode: () -> Unit = {},
+    onSubtitlesChanged: (Boolean) -> Unit,
+    onNextEpisode: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }

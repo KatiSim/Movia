@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -52,7 +51,7 @@ private val profileEntries = listOf(
 fun ProfileScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onOpenSettings: (String) -> Unit = {},
+    onOpenSettings: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -82,7 +81,7 @@ fun ProfileScreen(
                         Text("Локальный профиль", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text("Прогресс и настройки хранятся на устройстве", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Button(onClick = {}, enabled = false) { Text("Без аккаунта") }
+                    Text("Локально", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

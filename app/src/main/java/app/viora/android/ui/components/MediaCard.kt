@@ -29,7 +29,7 @@ fun MediaCard(
     title: String,
     meta: String,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
+    onClick: () -> Unit,
 ) {
     Column(
         modifier = modifier

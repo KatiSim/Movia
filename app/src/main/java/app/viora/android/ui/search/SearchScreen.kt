@@ -56,9 +56,9 @@ fun SearchScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     recentQueries: List<String> = emptyList(),
-    onSearchCommitted: (String) -> Unit = {},
-    onClearRecent: () -> Unit = {},
-    onOpenDetails: (String) -> Unit = {},
+    onSearchCommitted: (String) -> Unit,
+    onClearRecent: () -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }

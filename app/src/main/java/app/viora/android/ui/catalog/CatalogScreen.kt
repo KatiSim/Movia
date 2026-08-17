@@ -56,7 +56,7 @@ private val countries = listOf("Испания", "США", "Франция", "Г
 fun CatalogScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onOpenDetails: (String) -> Unit = {},
+    onOpenDetails: (String) -> Unit,
 ) {
     var selectedTypeName by rememberSaveable { mutableStateOf(ContentType.MOVIE.name) }
     var comedyOnly by rememberSaveable { mutableStateOf(false) }

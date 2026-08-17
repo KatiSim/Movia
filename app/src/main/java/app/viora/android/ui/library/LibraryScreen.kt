@@ -37,8 +37,8 @@ fun LibraryScreen(
     history: List<String> = emptyList(),
     downloads: Set<String> = emptySet(),
     hasProgress: Boolean = false,
-    onOpenDetails: (String) -> Unit = {},
-    onClearHistory: () -> Unit = {},
+    onOpenDetails: (String) -> Unit,
+    onClearHistory: () -> Unit,
 ) {
     val entries = listOf(
         LibraryEntry("Продолжить просмотр", if (hasProgress) "Есть незавершённый просмотр" else "Пока пусто", Icons.Outlined.PlayCircleOutline),
