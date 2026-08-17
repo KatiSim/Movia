@@ -54,6 +54,7 @@ private val newItems = listOf(
 fun HomeScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onOpenDetails: (String) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -84,7 +85,7 @@ fun HomeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SectionHeader(title = "Продолжить просмотр")
-                ContinueWatchingCard()
+                ContinueWatchingCard(onOpenDetails)
             }
         }
 
@@ -92,6 +93,7 @@ fun HomeScreen(
             MediaSection(
                 title = "Для вас",
                 items = recommendedItems,
+                onOpenDetails = onOpenDetails,
             )
         }
 
@@ -99,13 +101,14 @@ fun HomeScreen(
             MediaSection(
                 title = "Новинки",
                 items = newItems,
+                onOpenDetails = onOpenDetails,
             )
         }
     }
 }
 
 @Composable
-private fun ContinueWatchingCard() {
+private fun ContinueWatchingCard(onOpenDetails: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -159,7 +162,7 @@ private fun ContinueWatchingCard() {
         )
 
         Button(
-            onClick = {},
+            onClick = { onOpenDetails("Нулевая орбита") },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Icon(
@@ -176,6 +179,7 @@ private fun ContinueWatchingCard() {
 private fun MediaSection(
     title: String,
     items: List<HomeMediaItem>,
+    onOpenDetails: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title = title)
@@ -187,6 +191,7 @@ private fun MediaSection(
                 MediaCard(
                     title = item.title,
                     meta = item.meta,
+                    onClick = { onOpenDetails(item.title) },
                 )
             }
         }

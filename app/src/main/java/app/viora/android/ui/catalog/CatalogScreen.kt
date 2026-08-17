@@ -1,6 +1,7 @@
 package app.viora.android.ui.catalog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ private val contentTypes = listOf("Фильмы", "Сериалы", "ТВ")
 fun CatalogScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onOpenDetails: (String) -> Unit = {},
 ) {
     var selectedType by rememberSaveable { mutableStateOf("Фильмы") }
     var comedyOnly by rememberSaveable { mutableStateOf(false) }
@@ -141,14 +143,15 @@ fun CatalogScreen(
         }
 
         items(catalogItems) { item ->
-            CatalogMediaCard(item)
+            CatalogMediaCard(item, onClick = { onOpenDetails(item.title) })
         }
     }
 }
 
 @Composable
-private fun CatalogMediaCard(item: CatalogItem) {
+private fun CatalogMediaCard(item: CatalogItem, onClick: () -> Unit) {
     Column(
+        modifier = Modifier.clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(

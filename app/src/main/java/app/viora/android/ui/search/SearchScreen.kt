@@ -44,6 +44,7 @@ private val demoResults = listOf(
 fun SearchScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onOpenDetails: (String) -> Unit = {},
 ) {
     var query by rememberSaveable { mutableStateOf("") }
 
@@ -144,6 +145,7 @@ fun SearchScreen(
                         MediaCard(
                             title = result.first,
                             meta = result.second,
+                            onClick = { onOpenDetails(result.first) },
                         )
                     }
                 }

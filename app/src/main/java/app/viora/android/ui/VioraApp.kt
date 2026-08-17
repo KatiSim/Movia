@@ -1,8 +1,6 @@
 package app.viora.android.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -23,12 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import app.viora.android.ui.catalog.CatalogScreen
+import app.viora.android.ui.details.DetailsScreen
 import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.library.LibraryScreen
 import app.viora.android.ui.profile.ProfileScreen
@@ -53,14 +52,23 @@ private val topLevelDestinations = listOf(
 fun VioraApp() {
     VioraTheme {
         var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-        val selectedDestination = topLevelDestinations[selectedIndex]
+        var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
+        var playTitle by rememberSaveable { mutableStateOf<String?>(null) }
+
+        if (detailsTitle != null) {
+            DetailsScreen(
+                title = detailsTitle.orEmpty(),
+                onBack = { detailsTitle = null },
+                onPlay = { playTitle = it },
+                modifier = Modifier.fillMaxSize(),
+            )
+            return@VioraTheme
+        }
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                     topLevelDestinations.forEachIndexed { index, destination ->
                         val selected = selectedIndex == index
                         NavigationBarItem(
@@ -68,11 +76,7 @@ fun VioraApp() {
                             onClick = { selectedIndex = index },
                             icon = {
                                 Icon(
-                                    imageVector = if (selected) {
-                                        destination.selectedIcon
-                                    } else {
-                                        destination.unselectedIcon
-                                    },
+                                    imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
                                     contentDescription = destination.label,
                                 )
                             },
@@ -86,41 +90,33 @@ fun VioraApp() {
                 0 -> HomeScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    onOpenDetails = { detailsTitle = it },
                 )
-
                 1 -> CatalogScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    onOpenDetails = { detailsTitle = it },
                 )
-
                 2 -> SearchScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    onOpenDetails = { detailsTitle = it },
                 )
-
                 3 -> LibraryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                 )
-
                 4 -> ProfileScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                 )
-
-                else -> Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = selectedDestination.label,
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                }
             }
+        }
+
+        // Reserved for the next isolated Media3 step; keeping the state here guarantees
+        // the details screen already exposes a stable play contract.
+        if (playTitle != null) {
+            playTitle = null
         }
     }
 }

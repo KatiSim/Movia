@@ -1,12 +1,12 @@
 package app.viora.android.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,9 +27,13 @@ fun MediaCard(
     title: String,
     meta: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.width(132.dp),
+        modifier = modifier
+            .width(132.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
