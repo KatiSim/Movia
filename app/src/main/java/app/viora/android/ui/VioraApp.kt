@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.home.HomeScreen
+import app.viora.android.ui.library.LibraryScreen
 import app.viora.android.ui.search.SearchScreen
 import app.viora.android.ui.theme.VioraTheme
 
@@ -92,6 +93,11 @@ fun VioraApp() {
                 )
 
                 2 -> SearchScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding,
+                )
+
+                3 -> LibraryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                 )
