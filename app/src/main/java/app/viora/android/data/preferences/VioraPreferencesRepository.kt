@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 private val Context.vioraDataStore by preferencesDataStore(name = "viora_preferences")
+private const val ENTRY_SEPARATOR = "\u001F"
 
 data class PlaybackPreferences(
     val audio: String = "Auto",
@@ -22,6 +24,24 @@ data class PlaybackPreferences(
     val autoNextEnabled: Boolean = true,
     val wifiOnlyDownloads: Boolean = true,
 )
+
+data class TitlePlaybackPreferences(
+    val audio: String? = null,
+    val quality: String? = null,
+)
+
+data class PlaybackProgress(
+    val title: String = "",
+    val positionMs: Long = 0L,
+    val durationMs: Long = 0L,
+) {
+    val fraction: Float
+        get() = if (durationMs > 0L) {
+            (positionMs.toDouble() / durationMs.toDouble()).coerceIn(0.0, 1.0).toFloat()
+        } else {
+            0f
+        }
+}
 
 class VioraPreferencesRepository(
     private val context: Context,
@@ -33,6 +53,11 @@ class VioraPreferencesRepository(
         val autoNext = booleanPreferencesKey("playback_auto_next")
         val wifiOnlyDownloads = booleanPreferencesKey("downloads_wifi_only")
         val favorites = stringSetPreferencesKey("library_favorites")
+        val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
+        val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
+        val lastTitle = stringPreferencesKey("last_playback_title")
+        val lastPosition = longPreferencesKey("last_playback_position_ms")
+        val lastDuration = longPreferencesKey("last_playback_duration_ms")
     }
 
     private val safeData: Flow<Preferences> = context.vioraDataStore.data.catch { error ->
@@ -51,6 +76,21 @@ class VioraPreferencesRepository(
 
     val favorites: Flow<Set<String>> = safeData.map { prefs ->
         prefs[Keys.favorites].orEmpty()
+    }
+
+    val lastProgress: Flow<PlaybackProgress> = safeData.map { prefs ->
+        PlaybackProgress(
+            title = prefs[Keys.lastTitle].orEmpty(),
+            positionMs = prefs[Keys.lastPosition] ?: 0L,
+            durationMs = prefs[Keys.lastDuration] ?: 0L,
+        )
+    }
+
+    fun titlePlaybackPreferences(title: String): Flow<TitlePlaybackPreferences> = safeData.map { prefs ->
+        TitlePlaybackPreferences(
+            audio = findOverride(prefs[Keys.titleAudioOverrides].orEmpty(), title),
+            quality = findOverride(prefs[Keys.titleQualityOverrides].orEmpty(), title),
+        )
     }
 
     suspend fun setAudio(value: String) {
@@ -80,4 +120,39 @@ class VioraPreferencesRepository(
             prefs[Keys.favorites] = next
         }
     }
+
+    suspend fun setTitleAudio(title: String, value: String?) {
+        updateOverride(Keys.titleAudioOverrides, title, value)
+    }
+
+    suspend fun setTitleQuality(title: String, value: String?) {
+        updateOverride(Keys.titleQualityOverrides, title, value)
+    }
+
+    suspend fun saveProgress(title: String, positionMs: Long, durationMs: Long) {
+        if (title.isBlank() || positionMs < 0L) return
+        context.vioraDataStore.edit { prefs ->
+            prefs[Keys.lastTitle] = title
+            prefs[Keys.lastPosition] = positionMs
+            if (durationMs > 0L) prefs[Keys.lastDuration] = durationMs
+        }
+    }
+
+    private suspend fun updateOverride(
+        key: Preferences.Key<Set<String>>,
+        title: String,
+        value: String?,
+    ) {
+        context.vioraDataStore.edit { prefs ->
+            val entries = prefs[key].orEmpty().toMutableSet()
+            entries.removeAll { entry -> entry.substringBefore(ENTRY_SEPARATOR) == title }
+            if (value != null) entries += "$title$ENTRY_SEPARATOR$value"
+            prefs[key] = entries
+        }
+    }
+
+    private fun findOverride(entries: Set<String>, title: String): String? = entries
+        .firstOrNull { entry -> entry.substringBefore(ENTRY_SEPARATOR) == title }
+        ?.substringAfter(ENTRY_SEPARATOR, missingDelimiterValue = "")
+        ?.takeIf { it.isNotEmpty() }
 }

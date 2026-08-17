@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import app.viora.android.data.preferences.PlaybackPreferences
+import app.viora.android.data.preferences.PlaybackProgress
+import app.viora.android.data.preferences.TitlePlaybackPreferences
 import app.viora.android.data.preferences.VioraPreferencesRepository
 import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.details.DetailsScreen
@@ -65,10 +67,9 @@ fun VioraApp() {
             VioraPreferencesRepository(context.applicationContext)
         }
         val scope = rememberCoroutineScope()
-        val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(
-            initial = PlaybackPreferences(),
-        )
+        val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(initial = PlaybackPreferences())
         val favorites by preferencesRepository.favorites.collectAsState(initial = emptySet())
+        val lastProgress by preferencesRepository.lastProgress.collectAsState(initial = PlaybackProgress())
 
         var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
         var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
@@ -76,9 +77,14 @@ fun VioraApp() {
         var playbackSettingsOpen by rememberSaveable { mutableStateOf(false) }
 
         if (playTitle != null) {
+            val title = playTitle.orEmpty()
             PlayerScreen(
-                title = playTitle.orEmpty(),
+                title = title,
                 onBack = { playTitle = null },
+                startPositionMs = if (lastProgress.title == title) lastProgress.positionMs else 0L,
+                onProgress = { positionMs, durationMs ->
+                    scope.launch { preferencesRepository.saveProgress(title, positionMs, durationMs) }
+                },
                 modifier = Modifier.fillMaxSize(),
             )
             return@VioraTheme
@@ -86,22 +92,33 @@ fun VioraApp() {
 
         if (detailsTitle != null) {
             val title = detailsTitle.orEmpty()
+            val titlePreferencesFlow = remember(title, preferencesRepository) {
+                preferencesRepository.titlePlaybackPreferences(title)
+            }
+            val titlePreferences by titlePreferencesFlow.collectAsState(initial = TitlePlaybackPreferences())
+            val resolvedAudio = titlePreferences.audio ?: playbackPreferences.audio
+            val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
+
             DetailsScreen(
                 title = title,
                 onBack = { detailsTitle = null },
                 onPlay = { playTitle = it },
                 favorite = title in favorites,
-                selectedAudio = playbackPreferences.audio,
-                selectedQuality = playbackPreferences.quality,
+                selectedAudio = resolvedAudio,
+                selectedQuality = resolvedQuality,
                 onFavoriteChange = { favorite ->
                     scope.launch { preferencesRepository.setFavorite(title, favorite) }
                 },
                 onAudioSelected = { audio ->
-                    scope.launch { preferencesRepository.setAudio(audio) }
+                    scope.launch { preferencesRepository.setTitleAudio(title, audio) }
                 },
                 onQualitySelected = { quality ->
-                    scope.launch { preferencesRepository.setQuality(quality) }
+                    scope.launch { preferencesRepository.setTitleQuality(title, quality) }
                 },
+                audioIsOverride = titlePreferences.audio != null,
+                qualityIsOverride = titlePreferences.quality != null,
+                onResetAudio = { scope.launch { preferencesRepository.setTitleAudio(title, null) } },
+                onResetQuality = { scope.launch { preferencesRepository.setTitleQuality(title, null) } },
                 modifier = Modifier.fillMaxSize(),
             )
             return@VioraTheme
@@ -146,7 +163,9 @@ fun VioraApp() {
                 0 -> HomeScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
+                    progress = lastProgress,
                     onOpenDetails = { detailsTitle = it },
+                    onContinue = { playTitle = it },
                 )
                 1 -> CatalogScreen(
                     modifier = Modifier.fillMaxSize(),

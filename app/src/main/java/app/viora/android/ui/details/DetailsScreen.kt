@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +52,10 @@ fun DetailsScreen(
     onFavoriteChange: (Boolean) -> Unit = {},
     onAudioSelected: (String) -> Unit = {},
     onQualitySelected: (String) -> Unit = {},
+    audioIsOverride: Boolean = false,
+    qualityIsOverride: Boolean = false,
+    onResetAudio: () -> Unit = {},
+    onResetQuality: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val isSeries = title == "Нулевая орбита" || title == "Граница миров"
@@ -147,6 +152,8 @@ fun DetailsScreen(
                 options = audioOptions,
                 selected = selectedAudio,
                 onSelect = onAudioSelected,
+                isOverride = audioIsOverride,
+                onReset = onResetAudio,
             )
         }
 
@@ -156,6 +163,8 @@ fun DetailsScreen(
                 options = qualityOptions,
                 selected = selectedQuality,
                 onSelect = onQualitySelected,
+                isOverride = qualityIsOverride,
+                onReset = onResetQuality,
             )
         }
 
@@ -209,6 +218,8 @@ private fun SelectorSection(
     options: List<String>,
     selected: String,
     onSelect: (String) -> Unit,
+    isOverride: Boolean,
+    onReset: () -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -222,6 +233,16 @@ private fun SelectorSection(
                     onClick = { onSelect(option) },
                     label = { Text(option) },
                 )
+            }
+        }
+        if (isOverride) {
+            TextButton(onClick = onReset) {
+                Text("Использовать настройку профиля")
+            }
+        }
+        if (isOverride) {
+            TextButton(onClick = onReset) {
+                Text("Использовать настройку профиля")
             }
         }
     }

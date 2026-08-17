@@ -28,13 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.viora.android.data.preferences.PlaybackProgress
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader
 
-data class HomeMediaItem(
-    val title: String,
-    val meta: String,
-)
+data class HomeMediaItem(val title: String, val meta: String)
 
 private val recommendedItems = listOf(
     HomeMediaItem("Граница миров", "2026 · ★ 8.1"),
@@ -54,7 +52,9 @@ private val newItems = listOf(
 fun HomeScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    progress: PlaybackProgress = PlaybackProgress(),
     onOpenDetails: (String) -> Unit = {},
+    onContinue: (String) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -68,108 +68,68 @@ fun HomeScreen(
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = "Viora",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = "Смотрите дальше с того места, где остановились",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Text("Viora", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text("Смотрите дальше с того места, где остановились", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SectionHeader(title = "Продолжить просмотр")
-                ContinueWatchingCard(onOpenDetails)
+                ContinueWatchingCard(progress = progress, onOpenDetails = onOpenDetails, onContinue = onContinue)
             }
         }
 
-        item {
-            MediaSection(
-                title = "Для вас",
-                items = recommendedItems,
-                onOpenDetails = onOpenDetails,
-            )
-        }
-
-        item {
-            MediaSection(
-                title = "Новинки",
-                items = newItems,
-                onOpenDetails = onOpenDetails,
-            )
-        }
+        item { MediaSection("Для вас", recommendedItems, onOpenDetails) }
+        item { MediaSection("Новинки", newItems, onOpenDetails) }
     }
 }
 
 @Composable
-private fun ContinueWatchingCard(onOpenDetails: (String) -> Unit) {
+private fun ContinueWatchingCard(
+    progress: PlaybackProgress,
+    onOpenDetails: (String) -> Unit,
+    onContinue: (String) -> Unit,
+) {
+    val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
+    val title = if (hasRealProgress) progress.title else "Нулевая орбита"
+    val fraction = if (hasRealProgress) progress.fraction else 0.62f
+    val subtitle = if (hasRealProgress && progress.durationMs > 0L) {
+        val remainingMinutes = ((progress.durationMs - progress.positionMs).coerceAtLeast(0L) / 60_000L)
+        "Продолжить · осталось ≈ $remainingMinutes мин"
+    } else {
+        "S01E04 · осталось 18 мин"
+    }
+
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(MaterialTheme.colorScheme.surface).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier
-                    .width(112.dp)
-                    .height(72.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                modifier = Modifier.width(112.dp).height(72.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.PlayArrow,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+                Icon(Icons.Outlined.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
-            Spacer(modifier = Modifier.width(14.dp))
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = "Нулевая орбита",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = "S01E04 · осталось 18 мин",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
         LinearProgressIndicator(
-            progress = { 0.62f },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(999.dp)),
+            progress = { fraction },
+            modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(999.dp)),
         )
 
         Button(
-            onClick = { onOpenDetails("Нулевая орбита") },
+            onClick = { if (hasRealProgress) onContinue(title) else onOpenDetails(title) },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(
-                imageVector = Icons.Outlined.PlayArrow,
-                contentDescription = null,
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+            Icon(Icons.Outlined.PlayArrow, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
             Text("Продолжить")
         }
     }
@@ -183,16 +143,9 @@ private fun MediaSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title = title)
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(end = 8.dp),
-        ) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 8.dp)) {
             items(items) { item ->
-                MediaCard(
-                    title = item.title,
-                    meta = item.meta,
-                    onClick = { onOpenDetails(item.title) },
-                )
+                MediaCard(title = item.title, meta = item.meta, onClick = { onOpenDetails(item.title) })
             }
         }
     }
