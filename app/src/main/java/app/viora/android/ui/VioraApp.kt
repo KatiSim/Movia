@@ -29,6 +29,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -151,6 +154,7 @@ private fun VioraContent(
     val recentSearches by libraryRepository.recentSearches.collectAsState(initial = emptyList())
     val lastProgress by libraryRepository.lastProgress.collectAsState(initial = PlaybackProgress())
 
+    val snackbarHostState = remember { SnackbarHostState() }
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
@@ -417,7 +421,19 @@ private fun VioraContent(
                 downloads = downloads,
                 hasProgress = lastProgress.title.isNotBlank() && lastProgress.positionMs > 0L,
                 onOpenDetails = openDetails,
-                onClearHistory = { scope.launch { libraryRepository.clearHistory() } },
+                onClearHistory = { snapshot ->
+                    scope.launch {
+                        libraryRepository.clearHistory()
+                        val result = snackbarHostState.showSnackbar(
+                            message = "История очищена",
+                            actionLabel = "Отменить",
+                            withDismissAction = true,
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            libraryRepository.restoreHistory(snapshot)
+                        }
+                    }
+                },
             )
             4 -> ProfileScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -459,9 +475,16 @@ private fun VioraContent(
                     }
                 }
             }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = if (miniVisible) 88.dp else 16.dp),
+            )
         } else {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
+                snackbarHost = { SnackbarHost(snackbarHostState) },
                 bottomBar = {
                     Column {
                         if (miniVisible) {

@@ -44,6 +44,14 @@ class LibraryRepository(context: Context) {
 
     suspend fun clearHistory() = dao.clearHistory()
 
+    suspend fun restoreHistory(items: List<String>) {
+        dao.clearHistory()
+        var timestamp = now()
+        items.asReversed().forEach { title ->
+            if (title.isNotBlank()) dao.upsertHistory(HistoryEntity(title, timestamp++))
+        }
+    }
+
     suspend fun addSearchQuery(query: String, searchedAt: Long = now()) {
         val normalized = query.trim()
         if (normalized.isBlank()) return

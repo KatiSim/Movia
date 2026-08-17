@@ -38,7 +38,7 @@ fun LibraryScreen(
     downloads: Set<String> = emptySet(),
     hasProgress: Boolean = false,
     onOpenDetails: (String) -> Unit,
-    onClearHistory: () -> Unit,
+    onClearHistory: (List<String>) -> Unit,
 ) {
     val entries = listOf(
         LibraryEntry("Продолжить просмотр", if (hasProgress) "Есть незавершённый просмотр" else "Пока пусто", Icons.Outlined.PlayCircleOutline),
@@ -93,7 +93,7 @@ fun LibraryScreen(
                             modifier = Modifier.fillMaxWidth().clickable { onOpenDetails(title) }.padding(vertical = 8.dp),
                         )
                     }
-                    TextButton(onClick = onClearHistory) { Text("Очистить историю") }
+                    TextButton(onClick = { onClearHistory(history) }) { Text("Очистить историю") }
                 }
             }
         }
