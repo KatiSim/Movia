@@ -4,6 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.material.icons.filled.ViewModule
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
@@ -14,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,19 +28,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.theme.VioraTheme
 
 private data class TopLevelDestination(
     val label: String,
-    val icon: ImageVector,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
 )
 
 private val topLevelDestinations = listOf(
-    TopLevelDestination("Главная", Icons.Outlined.Home),
-    TopLevelDestination("Каталог", Icons.Outlined.ViewModule),
-    TopLevelDestination("Поиск", Icons.Outlined.Search),
-    TopLevelDestination("Моё", Icons.Outlined.VideoLibrary),
-    TopLevelDestination("Профиль", Icons.Outlined.Person),
+    TopLevelDestination("Главная", Icons.Filled.Home, Icons.Outlined.Home),
+    TopLevelDestination("Каталог", Icons.Filled.ViewModule, Icons.Outlined.ViewModule),
+    TopLevelDestination("Поиск", Icons.Filled.Search, Icons.Outlined.Search),
+    TopLevelDestination("Моё", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
+    TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
 
 @Composable
@@ -52,12 +58,17 @@ fun VioraApp() {
                     containerColor = MaterialTheme.colorScheme.surface,
                 ) {
                     topLevelDestinations.forEachIndexed { index, destination ->
+                        val selected = selectedIndex == index
                         NavigationBarItem(
-                            selected = selectedIndex == index,
+                            selected = selected,
                             onClick = { selectedIndex = index },
                             icon = {
                                 Icon(
-                                    imageVector = destination.icon,
+                                    imageVector = if (selected) {
+                                        destination.selectedIcon
+                                    } else {
+                                        destination.unselectedIcon
+                                    },
                                     contentDescription = destination.label,
                                 )
                             },
@@ -67,14 +78,16 @@ fun VioraApp() {
                 }
             },
         ) { innerPadding ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                color = MaterialTheme.colorScheme.background,
-            ) {
-                Box(
+            if (selectedIndex == 0) {
+                HomeScreen(
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding,
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
