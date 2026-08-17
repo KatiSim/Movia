@@ -12,7 +12,10 @@ import androidx.media3.session.MediaSession
 private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
 
 class PlaybackSession(context: Context) {
-    val player: ExoPlayer = ExoPlayer.Builder(context.applicationContext).build().apply {
+    val player: ExoPlayer = ExoPlayer.Builder(context.applicationContext)
+        .setSeekBackIncrementMs(10_000L)
+        .setSeekForwardIncrementMs(10_000L)
+        .build().apply {
         repeatMode = Player.REPEAT_MODE_OFF
         playWhenReady = true
     }

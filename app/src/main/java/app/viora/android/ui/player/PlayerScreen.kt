@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Color as AndroidColor
+import android.graphics.drawable.GradientDrawable
 import android.util.Rational
 import android.view.View
 import android.view.ViewGroup
@@ -14,28 +16,30 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +62,7 @@ import androidx.media3.common.Player
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private val AUDIO_OPTIONS = listOf("Auto", "LostFilm", "HDRezka", "Original")
@@ -68,6 +73,7 @@ private val RESIZE_MODES = listOf(
     "Fill" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
     session: PlaybackSession,
@@ -92,8 +98,8 @@ fun PlayerScreen(
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
     var settingsOpen by remember { mutableStateOf(false) }
-    val offline = session.activeSource?.startsWith("file:") == true
     val resizeMode = RESIZE_MODES[resizeIndex].second
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(speed) {
         player.playbackParameters = PlaybackParameters(speed)
@@ -145,20 +151,19 @@ fun PlayerScreen(
                     useController = true
                     controllerShowTimeoutMs = 3000
                     this.player = player
-                    findViewById<View>(androidx.media3.ui.R.id.exo_settings)?.visibility = View.GONE
+                    configureVioraControls()
                 }
             },
             update = {
                 it.player = player
                 it.resizeMode = resizeMode
-                it.findViewById<View>(androidx.media3.ui.R.id.exo_settings)?.visibility = View.GONE
+                it.configureVioraControls()
             },
             modifier = Modifier
                 .fillMaxSize()
                 .windowInsetsPadding(WindowInsets.safeDrawing),
         )
 
-        // Keep all top actions inside status-bar / cutout safe areas.
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -244,63 +249,58 @@ fun PlayerScreen(
         }
 
         if (settingsOpen) {
-            AlertDialog(
+            ModalBottomSheet(
                 onDismissRequest = { settingsOpen = false },
-                title = { Text("Настройки плеера") },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                        Text(
-                            text = "${if (offline) "Офлайн · " else ""}$preferredAudio · $preferredQuality",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                sheetState = sheetState,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(start = 20.dp, end = 20.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                ) {
+                    Text(
+                        text = "Настройки плеера",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
 
-                        PlayerSettingRow(
-                            title = "Озвучка",
-                            options = AUDIO_OPTIONS,
-                            selected = preferredAudio,
-                            onSelect = onAudioSelected,
-                        )
-                        PlayerSettingRow(
-                            title = "Качество",
-                            options = QUALITY_OPTIONS,
-                            selected = preferredQuality,
-                            onSelect = onQualitySelected,
-                        )
-                        PlayerSettingRow(
-                            title = "Скорость",
-                            options = SPEEDS.map { "${formatSpeed(it)}×" },
-                            selected = "${formatSpeed(speed)}×",
-                            onSelect = { value ->
-                                speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
-                            },
-                        )
-                        PlayerSettingRow(
-                            title = "Масштаб",
-                            options = RESIZE_MODES.map { it.first },
-                            selected = RESIZE_MODES[resizeIndex].first,
-                            onSelect = { value ->
-                                resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
-                            },
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text("Субтитры", modifier = Modifier.weight(1f))
-                            FilterChip(
-                                selected = subtitlesEnabled,
-                                onClick = { onSubtitlesChanged(!subtitlesEnabled) },
-                                label = { Text(if (subtitlesEnabled) "Включены" else "Выключены") },
-                            )
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { settingsOpen = false }) { Text("Готово") }
-                },
-            )
+                    PlayerSettingRow(
+                        title = "Озвучка",
+                        options = AUDIO_OPTIONS,
+                        selected = preferredAudio,
+                        onSelect = onAudioSelected,
+                    )
+                    PlayerSettingRow(
+                        title = "Качество",
+                        options = QUALITY_OPTIONS,
+                        selected = preferredQuality,
+                        onSelect = onQualitySelected,
+                    )
+                    PlayerSettingRow(
+                        title = "Скорость",
+                        options = SPEEDS.map { "${formatSpeed(it)}×" },
+                        selected = "${formatSpeed(speed)}×",
+                        onSelect = { value ->
+                            speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
+                        },
+                    )
+                    PlayerSettingRow(
+                        title = "Масштаб",
+                        options = RESIZE_MODES.map { it.first },
+                        selected = RESIZE_MODES[resizeIndex].first,
+                        onSelect = { value ->
+                            resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
+                        },
+                    )
+                    PlayerSettingRow(
+                        title = "Субтитры",
+                        options = listOf("Выкл", "Вкл"),
+                        selected = if (subtitlesEnabled) "Вкл" else "Выкл",
+                        onSelect = { value -> onSubtitlesChanged(value == "Вкл") },
+                    )
+                }
+            }
         }
 
         playbackError?.let { error ->
@@ -316,7 +316,7 @@ fun PlayerScreen(
     }
 }
 
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PlayerSettingRow(
     title: String,
@@ -324,21 +324,64 @@ private fun PlayerSettingRow(
     selected: String,
     onSelect: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = MaterialTheme.typography.titleSmall)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(options) { option ->
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            options.forEach { option ->
+                val isSelected = option == selected
                 FilterChip(
-                    selected = option == selected,
+                    selected = isSelected,
                     onClick = { onSelect(option) },
                     label = { Text(option) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
                 )
             }
         }
     }
 }
 
-private fun formatSpeed(speed: Float): String = if (speed % 1f == 0f) speed.toInt().toString() else speed.toString()
+private fun PlayerView.configureVioraControls() {
+    setShowPreviousButton(false)
+    setShowNextButton(false)
+    setShowRewindButton(true)
+    setShowFastForwardButton(true)
+    setShowSubtitleButton(false)
+    findViewById<View>(androidx.media3.ui.R.id.exo_settings)?.visibility = View.GONE
+
+    val density = resources.displayMetrics.density
+    val progress = findViewById<View>(androidx.media3.ui.R.id.exo_progress)
+    progress?.minimumHeight = (48f * density).roundToInt()
+
+    findViewById<View>(androidx.media3.ui.R.id.exo_controls_background)?.background =
+        GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                AndroidColor.argb(150, 0, 0, 0),
+                AndroidColor.argb(30, 0, 0, 0),
+                AndroidColor.argb(180, 0, 0, 0),
+            ),
+        )
+
+    findViewById<View>(androidx.media3.ui.R.id.exo_center_controls)?.apply {
+        val horizontal = (12f * density).roundToInt()
+        val vertical = (6f * density).roundToInt()
+        setPadding(horizontal, vertical, horizontal, vertical)
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 999f
+            setColor(AndroidColor.argb(105, 0, 0, 0))
+        }
+    }
+}
+
+private fun formatSpeed(speed: Float): String =
+    if (speed % 1f == 0f) speed.toInt().toString() else speed.toString()
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
