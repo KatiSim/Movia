@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import app.viora.android.data.preferences.VioraPreferencesRepository
+import app.viora.android.data.library.LibraryRepository
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -59,7 +59,7 @@ class OfflineDownloadWorker(
 
             if (finalFile.exists()) finalFile.delete()
             if (!tempFile.renameTo(finalFile)) throw IOException("Could not finalize download")
-            VioraPreferencesRepository(applicationContext).setDownloaded(title, true)
+            LibraryRepository(applicationContext).setDownloaded(title, true, finalFile.absolutePath)
             Result.success(Data.Builder().putString(KEY_FILE_PATH, finalFile.absolutePath).build())
         } catch (error: IOException) {
             tempFile.delete()

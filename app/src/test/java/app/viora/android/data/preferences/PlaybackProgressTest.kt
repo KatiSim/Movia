@@ -1,5 +1,6 @@
 package app.viora.android.data.preferences
 
+import app.viora.android.domain.model.PlaybackProgress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

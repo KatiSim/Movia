@@ -49,9 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import app.viora.android.data.download.DownloadScheduler
 import app.viora.android.data.download.DownloadStatus
+import app.viora.android.data.library.LibraryRepository
 import app.viora.android.data.preferences.AppPreferences
 import app.viora.android.data.preferences.PlaybackPreferences
-import app.viora.android.data.preferences.PlaybackProgress
+import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.data.preferences.TitlePlaybackPreferences
 import app.viora.android.data.preferences.VioraPreferencesRepository
 import app.viora.android.ui.catalog.CatalogScreen
@@ -103,6 +104,9 @@ fun VioraApp() {
     val preferencesRepository = remember(context) {
         VioraPreferencesRepository(context.applicationContext)
     }
+    val libraryRepository = remember(context) {
+        LibraryRepository(context.applicationContext)
+    }
     val appPreferences by preferencesRepository.appPreferences.collectAsState(initial = AppPreferences())
 
     VioraTheme(
@@ -112,6 +116,7 @@ fun VioraApp() {
         VioraContent(
             context = context,
             preferencesRepository = preferencesRepository,
+            libraryRepository = libraryRepository,
             appPreferences = appPreferences,
         )
     }
@@ -121,6 +126,7 @@ fun VioraApp() {
 private fun VioraContent(
     context: Context,
     preferencesRepository: VioraPreferencesRepository,
+    libraryRepository: LibraryRepository,
     appPreferences: AppPreferences,
 ) {
     val scope = rememberCoroutineScope()
@@ -129,13 +135,21 @@ private fun VioraContent(
         onDispose { playbackSession.release() }
     }
 
+    LaunchedEffect(preferencesRepository, libraryRepository) {
+        if (preferencesRepository.needsRoomLibraryMigration()) {
+            val legacy = preferencesRepository.readLegacyLibrarySnapshot()
+            libraryRepository.importLegacy(legacy)
+            preferencesRepository.finishRoomLibraryMigration()
+        }
+    }
+
     val playbackPreferences by preferencesRepository.playbackPreferences.collectAsState(initial = PlaybackPreferences())
-    val favorites by preferencesRepository.favorites.collectAsState(initial = emptySet())
-    val watchLater by preferencesRepository.watchLater.collectAsState(initial = emptySet())
-    val downloads by preferencesRepository.downloads.collectAsState(initial = emptySet())
-    val history by preferencesRepository.history.collectAsState(initial = emptyList())
-    val recentSearches by preferencesRepository.recentSearches.collectAsState(initial = emptyList())
-    val lastProgress by preferencesRepository.lastProgress.collectAsState(initial = PlaybackProgress())
+    val favorites by libraryRepository.favorites.collectAsState(initial = emptySet())
+    val watchLater by libraryRepository.watchLater.collectAsState(initial = emptySet())
+    val downloads by libraryRepository.downloads.collectAsState(initial = emptySet())
+    val history by libraryRepository.history.collectAsState(initial = emptyList())
+    val recentSearches by libraryRepository.recentSearches.collectAsState(initial = emptyList())
+    val lastProgress by libraryRepository.lastProgress.collectAsState(initial = PlaybackProgress())
 
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
@@ -147,7 +161,7 @@ private fun VioraContent(
         val duration = playbackSession.player.duration
         val position = playbackSession.player.currentPosition
         if (!title.isNullOrBlank() && position >= 0L && duration > 0L) {
-            scope.launch { preferencesRepository.saveProgress(title, position, duration) }
+            scope.launch { libraryRepository.saveProgress(title, position, duration) }
         }
     }
 
@@ -179,7 +193,7 @@ private fun VioraContent(
             val duration = playbackSession.player.duration
             val position = playbackSession.player.currentPosition
             if (position >= 0L && duration > 0L) {
-                preferencesRepository.saveProgress(title, position, duration)
+                libraryRepository.saveProgress(title, position, duration)
             }
         }
     }
@@ -261,15 +275,15 @@ private fun VioraContent(
                 selectedAudio = resolvedAudio,
                 selectedQuality = resolvedQuality,
                 onFavoriteChange = { favorite ->
-                    scope.launch { preferencesRepository.setFavorite(title, favorite) }
+                    scope.launch { libraryRepository.setFavorite(title, favorite) }
                 },
                 onWatchLaterChange = { enabled ->
-                    scope.launch { preferencesRepository.setWatchLater(title, enabled) }
+                    scope.launch { libraryRepository.setWatchLater(title, enabled) }
                 },
                 onDownloadClick = {
                     if (title in downloads) {
                         if (DownloadScheduler.delete(context.applicationContext, title)) {
-                            scope.launch { preferencesRepository.setDownloaded(title, false) }
+                            scope.launch { libraryRepository.setDownloaded(title, false) }
                         }
                     } else {
                         DownloadScheduler.enqueue(
@@ -328,7 +342,7 @@ private fun VioraContent(
                     onWifiOnlyChanged = { value -> scope.launch { preferencesRepository.setWifiOnlyDownloads(value) } },
                     onDeleteAll = {
                         if (DownloadScheduler.deleteAll(context.applicationContext)) {
-                            scope.launch { preferencesRepository.clearDownloaded() }
+                            scope.launch { libraryRepository.clearDownloads() }
                         }
                     },
                     modifier = settingsModifier,
@@ -368,7 +382,7 @@ private fun VioraContent(
 
     val openDetails: (String) -> Unit = { title ->
         detailsTitle = title
-        scope.launch { preferencesRepository.addHistory(title) }
+        scope.launch { libraryRepository.addHistory(title) }
     }
 
     val screenContent: @Composable (PaddingValues) -> Unit = { innerPadding ->
@@ -390,8 +404,8 @@ private fun VioraContent(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
                 recentQueries = recentSearches,
-                onSearchCommitted = { query -> scope.launch { preferencesRepository.addSearchQuery(query) } },
-                onClearRecent = { scope.launch { preferencesRepository.clearSearchHistory() } },
+                onSearchCommitted = { query -> scope.launch { libraryRepository.addSearchQuery(query) } },
+                onClearRecent = { scope.launch { libraryRepository.clearSearchHistory() } },
                 onOpenDetails = openDetails,
             )
             3 -> LibraryScreen(
@@ -403,7 +417,7 @@ private fun VioraContent(
                 downloads = downloads,
                 hasProgress = lastProgress.title.isNotBlank() && lastProgress.positionMs > 0L,
                 onOpenDetails = openDetails,
-                onClearHistory = { scope.launch { preferencesRepository.clearHistory() } },
+                onClearHistory = { scope.launch { libraryRepository.clearHistory() } },
             )
             4 -> ProfileScreen(
                 modifier = Modifier.fillMaxSize(),

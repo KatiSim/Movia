@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.data.catalog.RecommendationEngine
-import app.viora.android.data.preferences.PlaybackProgress
+import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.domain.model.MediaContent
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader

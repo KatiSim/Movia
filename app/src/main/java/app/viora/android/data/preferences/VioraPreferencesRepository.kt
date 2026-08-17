@@ -9,20 +9,21 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import app.viora.android.data.library.LegacyLibrarySnapshot
+import app.viora.android.domain.model.PlaybackProgress
 import java.io.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.vioraDataStore by preferencesDataStore(name = "viora_preferences")
 private const val ENTRY_SEPARATOR = "\u001F"
 private const val LIST_SEPARATOR = "\u001E"
 
-
 data class AppPreferences(
     val themeMode: String = "DARK",
     val highContrast: Boolean = false,
-    val reducedMotion: Boolean = false,
     val notificationsEnabled: Boolean = true,
 )
 
@@ -39,19 +40,6 @@ data class TitlePlaybackPreferences(
     val quality: String? = null,
 )
 
-data class PlaybackProgress(
-    val title: String = "",
-    val positionMs: Long = 0L,
-    val durationMs: Long = 0L,
-) {
-    val fraction: Float
-        get() = if (durationMs > 0L) {
-            (positionMs.toDouble() / durationMs.toDouble()).coerceIn(0.0, 1.0).toFloat()
-        } else {
-            0f
-        }
-}
-
 class VioraPreferencesRepository(
     private val context: Context,
 ) {
@@ -63,18 +51,20 @@ class VioraPreferencesRepository(
         val wifiOnlyDownloads = booleanPreferencesKey("downloads_wifi_only")
         val themeMode = stringPreferencesKey("appearance_theme_mode")
         val highContrast = booleanPreferencesKey("accessibility_high_contrast")
-        val reducedMotion = booleanPreferencesKey("accessibility_reduced_motion")
         val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
-        val favorites = stringSetPreferencesKey("library_favorites")
-        val watchLater = stringSetPreferencesKey("library_watch_later")
-        val downloads = stringSetPreferencesKey("library_downloads")
-        val history = stringPreferencesKey("library_history")
-        val searchHistory = stringPreferencesKey("search_history")
         val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
         val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
-        val lastTitle = stringPreferencesKey("last_playback_title")
-        val lastPosition = longPreferencesKey("last_playback_position_ms")
-        val lastDuration = longPreferencesKey("last_playback_duration_ms")
+
+        // Legacy keys: read only during the one-time Room migration.
+        val legacyFavorites = stringSetPreferencesKey("library_favorites")
+        val legacyWatchLater = stringSetPreferencesKey("library_watch_later")
+        val legacyDownloads = stringSetPreferencesKey("library_downloads")
+        val legacyHistory = stringPreferencesKey("library_history")
+        val legacySearchHistory = stringPreferencesKey("search_history")
+        val legacyLastTitle = stringPreferencesKey("last_playback_title")
+        val legacyLastPosition = longPreferencesKey("last_playback_position_ms")
+        val legacyLastDuration = longPreferencesKey("last_playback_duration_ms")
+        val roomLibraryMigrated = booleanPreferencesKey("room_library_migrated_v1")
     }
 
     private val safeData: Flow<Preferences> = context.vioraDataStore.data.catch { error ->
@@ -85,7 +75,6 @@ class VioraPreferencesRepository(
         AppPreferences(
             themeMode = prefs[Keys.themeMode] ?: "DARK",
             highContrast = prefs[Keys.highContrast] ?: false,
-            reducedMotion = prefs[Keys.reducedMotion] ?: false,
             notificationsEnabled = prefs[Keys.notificationsEnabled] ?: true,
         )
     }
@@ -97,40 +86,6 @@ class VioraPreferencesRepository(
             subtitlesEnabled = prefs[Keys.subtitles] ?: false,
             autoNextEnabled = prefs[Keys.autoNext] ?: true,
             wifiOnlyDownloads = prefs[Keys.wifiOnlyDownloads] ?: true,
-        )
-    }
-
-    val favorites: Flow<Set<String>> = safeData.map { prefs ->
-        prefs[Keys.favorites].orEmpty()
-    }
-
-    val watchLater: Flow<Set<String>> = safeData.map { prefs ->
-        prefs[Keys.watchLater].orEmpty()
-    }
-
-    val downloads: Flow<Set<String>> = safeData.map { prefs ->
-        prefs[Keys.downloads].orEmpty()
-    }
-
-    val history: Flow<List<String>> = safeData.map { prefs ->
-        prefs[Keys.history]
-            ?.split(LIST_SEPARATOR)
-            ?.filter { it.isNotBlank() }
-            .orEmpty()
-    }
-
-    val recentSearches: Flow<List<String>> = safeData.map { prefs ->
-        prefs[Keys.searchHistory]
-            ?.split(LIST_SEPARATOR)
-            ?.filter { it.isNotBlank() }
-            .orEmpty()
-    }
-
-    val lastProgress: Flow<PlaybackProgress> = safeData.map { prefs ->
-        PlaybackProgress(
-            title = prefs[Keys.lastTitle].orEmpty(),
-            positionMs = prefs[Keys.lastPosition] ?: 0L,
-            durationMs = prefs[Keys.lastDuration] ?: 0L,
         )
     }
 
@@ -147,10 +102,6 @@ class VioraPreferencesRepository(
 
     suspend fun setHighContrast(value: Boolean) {
         context.vioraDataStore.edit { it[Keys.highContrast] = value }
-    }
-
-    suspend fun setReducedMotion(value: Boolean) {
-        context.vioraDataStore.edit { it[Keys.reducedMotion] = value }
     }
 
     suspend fun setNotificationsEnabled(value: Boolean) {
@@ -177,59 +128,6 @@ class VioraPreferencesRepository(
         context.vioraDataStore.edit { it[Keys.wifiOnlyDownloads] = value }
     }
 
-    suspend fun setFavorite(title: String, favorite: Boolean) {
-        updateSet(Keys.favorites, title, favorite)
-    }
-
-    suspend fun setWatchLater(title: String, enabled: Boolean) {
-        updateSet(Keys.watchLater, title, enabled)
-    }
-
-    suspend fun setDownloaded(title: String, enabled: Boolean) {
-        updateSet(Keys.downloads, title, enabled)
-    }
-
-    suspend fun clearDownloaded() {
-        context.vioraDataStore.edit { it.remove(Keys.downloads) }
-    }
-
-    suspend fun addHistory(title: String) {
-        if (title.isBlank()) return
-        context.vioraDataStore.edit { prefs ->
-            val current = prefs[Keys.history]
-                ?.split(LIST_SEPARATOR)
-                ?.filter { it.isNotBlank() }
-                .orEmpty()
-                .toMutableList()
-            current.remove(title)
-            current.add(0, title)
-            prefs[Keys.history] = current.take(30).joinToString(LIST_SEPARATOR)
-        }
-    }
-
-    suspend fun clearHistory() {
-        context.vioraDataStore.edit { it.remove(Keys.history) }
-    }
-
-    suspend fun addSearchQuery(query: String) {
-        val normalized = query.trim()
-        if (normalized.isBlank()) return
-        context.vioraDataStore.edit { prefs ->
-            val current = prefs[Keys.searchHistory]
-                ?.split(LIST_SEPARATOR)
-                ?.filter { it.isNotBlank() }
-                .orEmpty()
-                .toMutableList()
-            current.removeAll { it.equals(normalized, ignoreCase = true) }
-            current.add(0, normalized)
-            prefs[Keys.searchHistory] = current.take(8).joinToString(LIST_SEPARATOR)
-        }
-    }
-
-    suspend fun clearSearchHistory() {
-        context.vioraDataStore.edit { it.remove(Keys.searchHistory) }
-    }
-
     suspend fun setTitleAudio(title: String, value: String?) {
         updateOverride(Keys.titleAudioOverrides, title, value)
     }
@@ -238,25 +136,42 @@ class VioraPreferencesRepository(
         updateOverride(Keys.titleQualityOverrides, title, value)
     }
 
-    suspend fun saveProgress(title: String, positionMs: Long, durationMs: Long) {
-        if (title.isBlank() || positionMs < 0L) return
-        context.vioraDataStore.edit { prefs ->
-            prefs[Keys.lastTitle] = title
-            prefs[Keys.lastPosition] = positionMs
-            if (durationMs > 0L) prefs[Keys.lastDuration] = durationMs
-        }
+    suspend fun needsRoomLibraryMigration(): Boolean =
+        !(safeData.first()[Keys.roomLibraryMigrated] ?: false)
+
+    suspend fun readLegacyLibrarySnapshot(): LegacyLibrarySnapshot {
+        val prefs = safeData.first()
+        return LegacyLibrarySnapshot(
+            favorites = prefs[Keys.legacyFavorites].orEmpty(),
+            watchLater = prefs[Keys.legacyWatchLater].orEmpty(),
+            downloads = prefs[Keys.legacyDownloads].orEmpty(),
+            history = prefs[Keys.legacyHistory]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty(),
+            recentSearches = prefs[Keys.legacySearchHistory]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty(),
+            lastProgress = PlaybackProgress(
+                title = prefs[Keys.legacyLastTitle].orEmpty(),
+                positionMs = prefs[Keys.legacyLastPosition] ?: 0L,
+                durationMs = prefs[Keys.legacyLastDuration] ?: 0L,
+            ),
+        )
     }
 
-
-    private suspend fun updateSet(
-        key: Preferences.Key<Set<String>>,
-        title: String,
-        enabled: Boolean,
-    ) {
+    suspend fun finishRoomLibraryMigration() {
         context.vioraDataStore.edit { prefs ->
-            val next = prefs[key].orEmpty().toMutableSet()
-            if (enabled) next += title else next -= title
-            prefs[key] = next
+            prefs[Keys.roomLibraryMigrated] = true
+            prefs.remove(Keys.legacyFavorites)
+            prefs.remove(Keys.legacyWatchLater)
+            prefs.remove(Keys.legacyDownloads)
+            prefs.remove(Keys.legacyHistory)
+            prefs.remove(Keys.legacySearchHistory)
+            prefs.remove(Keys.legacyLastTitle)
+            prefs.remove(Keys.legacyLastPosition)
+            prefs.remove(Keys.legacyLastDuration)
         }
     }
 
