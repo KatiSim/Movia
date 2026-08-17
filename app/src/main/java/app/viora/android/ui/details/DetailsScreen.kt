@@ -152,7 +152,7 @@ fun DetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Button(
-                    onClick = { onPlay(title) },
+                    onClick = { onPlay(if (isSeries) "$title · E04 · Эпизод 4" else title) },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(Icons.Filled.PlayArrow, contentDescription = null)

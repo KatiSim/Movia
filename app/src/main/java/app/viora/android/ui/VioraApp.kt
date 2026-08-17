@@ -78,6 +78,15 @@ private val topLevelDestinations = listOf(
     TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
 
+internal fun nextEpisodeTitle(current: String): String? {
+    val match = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
+    val base = match.groupValues[1]
+    val episode = match.groupValues[2].toIntOrNull() ?: return null
+    val next = episode + 1
+    if (next > 8) return null
+    return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
+}
+
 @Composable
 fun VioraApp() {
     val context = LocalContext.current
@@ -120,14 +129,33 @@ private fun VioraContent(
 
     if (playTitle != null) {
         val title = playTitle.orEmpty()
-        val localSource = DownloadScheduler.localFile(context.applicationContext, title)
-            ?.toURI()
-            ?.toString()
+        val baseTitle = title.substringBefore(" · E")
+        val titlePreferencesFlow = remember(baseTitle, preferencesRepository) {
+            preferencesRepository.titlePlaybackPreferences(baseTitle)
+        }
+        val titlePreferences by titlePreferencesFlow.collectAsState(initial = TitlePlaybackPreferences())
+        val localSource = (
+            DownloadScheduler.localFile(context.applicationContext, title)
+                ?: DownloadScheduler.localFile(context.applicationContext, baseTitle)
+            )?.toURI()?.toString()
+        val resolvedAudio = titlePreferences.audio ?: playbackPreferences.audio
+        val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
+
         PlayerScreen(
             title = title,
             onBack = { playTitle = null },
             startPositionMs = if (lastProgress.title == title) lastProgress.positionMs else 0L,
             sourceUri = localSource,
+            preferredAudio = resolvedAudio,
+            preferredQuality = resolvedQuality,
+            subtitlesEnabled = playbackPreferences.subtitlesEnabled,
+            autoNextEnabled = playbackPreferences.autoNextEnabled,
+            onSubtitlesChanged = { enabled ->
+                scope.launch { preferencesRepository.setSubtitlesEnabled(enabled) }
+            },
+            onNextEpisode = {
+                nextEpisodeTitle(title)?.let { playTitle = it }
+            },
             onProgress = { positionMs, durationMs ->
                 scope.launch { preferencesRepository.saveProgress(title, positionMs, durationMs) }
             },
