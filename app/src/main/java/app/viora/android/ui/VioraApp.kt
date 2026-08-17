@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import app.viora.android.ui.catalog.CatalogScreen
 import app.viora.android.ui.home.HomeScreen
 import app.viora.android.ui.theme.VioraTheme
 
@@ -78,13 +79,18 @@ fun VioraApp() {
                 }
             },
         ) { innerPadding ->
-            if (selectedIndex == 0) {
-                HomeScreen(
+            when (selectedIndex) {
+                0 -> HomeScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = innerPadding,
                 )
-            } else {
-                Box(
+
+                1 -> CatalogScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding,
+                )
+
+                else -> Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
