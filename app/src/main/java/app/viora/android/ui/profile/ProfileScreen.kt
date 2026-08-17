@@ -46,8 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-private val VioraBrandAmber = Color(0xFFF4B343)
-
 data class ProfileEntry(val title: String, val subtitle: String, val icon: ImageVector, val route: String)
 
 private val mediaEntries = listOf(
@@ -150,7 +148,7 @@ private fun LocalProfileCard() {
                 Icon(
                     Icons.Outlined.Person,
                     contentDescription = null,
-                    tint = VioraBrandAmber,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -218,7 +216,7 @@ private fun ProfileSection(
                                 Icon(
                                     entry.icon,
                                     contentDescription = null,
-                                    tint = VioraBrandAmber,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(22.dp),
                                 )
                             }

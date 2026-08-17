@@ -48,7 +48,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -81,6 +80,8 @@ import app.viora.android.ui.settings.PlaybackSettingsScreen
 import app.viora.android.ui.theme.VioraTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import app.viora.android.ui.theme.VioraBrandAmber
+import app.viora.android.ui.theme.VioraOnBrandAmber
 
 private data class TopLevelDestination(
     val label: String,
@@ -95,9 +96,6 @@ private val topLevelDestinations = listOf(
     TopLevelDestination("Моё", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
     TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
-
-private val VioraNavigationAmber = Color(0xFFF4B343)
-private val VioraNavigationOnAmber = Color(0xFF241800)
 
 internal fun nextEpisodeTitle(current: String): String? {
     val match = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
@@ -479,9 +477,9 @@ private fun VioraContent(
                             },
                             label = { Text(destination.label) },
                             colors = NavigationRailItemDefaults.colors(
-                                selectedIconColor = VioraNavigationOnAmber,
+                                selectedIconColor = VioraOnBrandAmber,
                                 selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                indicatorColor = VioraNavigationAmber,
+                                indicatorColor = VioraBrandAmber,
                                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
@@ -534,9 +532,9 @@ private fun VioraContent(
                                     },
                                     label = { Text(destination.label) },
                                     colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = VioraNavigationOnAmber,
+                                        selectedIconColor = VioraOnBrandAmber,
                                         selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                                        indicatorColor = VioraNavigationAmber,
+                                        indicatorColor = VioraBrandAmber,
                                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     ),

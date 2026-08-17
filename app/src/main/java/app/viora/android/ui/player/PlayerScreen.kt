@@ -108,6 +108,8 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 import java.util.Locale
+import app.viora.android.ui.theme.VioraBrandAmber
+import app.viora.android.ui.theme.VioraOnBrandAmber
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private val AUDIO_OPTIONS = listOf("Auto", "LostFilm", "HDRezka", "Original")
@@ -348,7 +350,7 @@ fun PlayerScreen(
         ) {
             Text(
                 text = "Viora",
-                color = MaterialTheme.colorScheme.primary,
+                color = VioraBrandAmber,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
             )
@@ -400,7 +402,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(pipProgress)
-                        .background(MaterialTheme.colorScheme.primary),
+                        .background(VioraBrandAmber),
                 )
             }
         }
@@ -868,22 +870,22 @@ private fun PlayerTimeline(
                     valueRange = 0f..safeDuration.toFloat(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = SliderDefaults.colors(
-                        thumbColor = MaterialTheme.colorScheme.primary,
-                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        thumbColor = VioraBrandAmber,
+                        activeTrackColor = VioraBrandAmber,
                         inactiveTrackColor = Color.White.copy(alpha = 0.40f),
                     ),
                     thumb = {
                         Box(
                             modifier = Modifier
                                 .size(16.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                                .background(VioraBrandAmber, CircleShape),
                         )
                     },
                     track = { sliderState ->
                         SliderDefaults.Track(
                             sliderState = sliderState,
                             colors = SliderDefaults.colors(
-                                activeTrackColor = MaterialTheme.colorScheme.primary,
+                                activeTrackColor = VioraBrandAmber,
                                 inactiveTrackColor = Color.White.copy(alpha = 0.40f),
                             ),
                             drawStopIndicator = null,
@@ -1034,7 +1036,7 @@ private fun SubtitleTrackRow(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
         color = if (selected) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+            VioraBrandAmber.copy(alpha = 0.18f)
         } else {
             Color.White.copy(alpha = 0.08f)
         },
@@ -1056,7 +1058,7 @@ private fun SubtitleTrackRow(
             if (selected) {
                 Text(
                     text = "✓",
-                    color = MaterialTheme.colorScheme.primary,
+                    color = VioraBrandAmber,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
@@ -1192,12 +1194,12 @@ private fun VioraChoiceChip(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
         color = if (selected) {
-            MaterialTheme.colorScheme.primary
+            VioraBrandAmber
         } else {
             Color.White.copy(alpha = 0.16f)
         },
         contentColor = if (selected) {
-            MaterialTheme.colorScheme.onPrimary
+            VioraOnBrandAmber
         } else {
             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.96f)
         },

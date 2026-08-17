@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.viora.android.domain.model.PlaybackProgress
 import kotlin.math.ceil
+import app.viora.android.ui.theme.VioraBrandAmber
 
 private enum class LibrarySection { FAVORITES, LATER, DOWNLOADS, HISTORY }
 
@@ -222,8 +223,8 @@ private fun ContinueWatchingCard(
                 LinearProgressIndicator(
                     progress = { progress.fraction },
                     modifier = Modifier.fillMaxWidth().height(4.dp).align(Alignment.BottomCenter),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                    color = VioraBrandAmber,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 )
             }
             Column(

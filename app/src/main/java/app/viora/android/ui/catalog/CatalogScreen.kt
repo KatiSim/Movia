@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,6 +81,8 @@ import app.viora.android.domain.model.ContentType
 import app.viora.android.domain.model.MediaContent
 import app.viora.android.ui.components.MediaMetadataText
 import java.util.Locale
+import app.viora.android.ui.theme.VioraBrandAmber
+import app.viora.android.ui.theme.VioraOnBrandAmber
 
 private val contentTypes = ContentType.entries.toList()
 private val countries = listOf("Испания", "США", "Франция", "Германия", "Италия", "Норвегия", "Великобритания")
@@ -209,11 +212,11 @@ fun CatalogScreen(
                         onClick = { selectedTypeName = type?.name ?: "ALL" },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = typeOptions.size),
                         colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.primary,
-                            activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                            activeContainerColor = VioraBrandAmber,
+                            activeContentColor = VioraOnBrandAmber,
                             inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            activeBorderColor = MaterialTheme.colorScheme.primary,
+                            activeBorderColor = VioraBrandAmber,
                             inactiveBorderColor = MaterialTheme.colorScheme.outline,
                         ),
                         label = { Text(type?.label ?: "Все", maxLines = 1) },
@@ -455,7 +458,10 @@ private fun GenreFilterSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
             ) {
                 TextButton(onClick = { draft = emptySet() }) { Text("Сбросить") }
-                Button(onClick = { onApply(draft) }) { Text("Показать ${resultCount(draft)}") }
+                Button(
+                    onClick = { onApply(draft) },
+                    colors = ButtonDefaults.buttonColors(containerColor = VioraBrandAmber, contentColor = VioraOnBrandAmber),
+                ) { Text("Показать ${resultCount(draft)}") }
             }
         }
     }
@@ -668,8 +674,8 @@ private fun AdvancedFiltersSheet(
                             checked = draft.newOnly,
                             onCheckedChange = { draft = draft.copy(newOnly = it) },
                             colors = SwitchDefaults.colors(
-                                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                checkedTrackColor = VioraBrandAmber,
+                                checkedThumbColor = VioraOnBrandAmber,
                             ),
                         )
                     }
@@ -680,6 +686,7 @@ private fun AdvancedFiltersSheet(
             Button(
                 onClick = { onApply(draft) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = VioraBrandAmber, contentColor = VioraOnBrandAmber),
             ) {
                 Text("Показать ${resultCount(draft)}")
             }
@@ -705,8 +712,8 @@ private fun QuickFilterPill(
     onOpen: () -> Unit,
     onClear: () -> Unit,
 ) {
-    val container = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val content = if (active) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    val container = if (active) VioraBrandAmber else MaterialTheme.colorScheme.surfaceVariant
+    val content = if (active) VioraOnBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = container,
@@ -755,8 +762,8 @@ private fun VioraFilterChip(
         colors = FilterChipDefaults.filterChipColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            selectedContainerColor = VioraBrandAmber,
+            selectedLabelColor = VioraOnBrandAmber,
         ),
     )
 }

@@ -70,9 +70,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.domain.model.ContentType
-
-private val VioraBrandAmber = Color(0xFFF4B343)
-private val VioraOnBrandAmber = Color(0xFF241800)
+import app.viora.android.ui.theme.VioraBrandAmber
+import app.viora.android.ui.theme.VioraOnBrandAmber
 
 private val audioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
 private val qualityOptions = listOf("Auto", "1080p", "720p", "480p")

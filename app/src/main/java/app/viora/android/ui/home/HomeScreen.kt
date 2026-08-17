@@ -41,6 +41,8 @@ import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.MediaMetadataText
 import app.viora.android.ui.components.SectionHeader
+import app.viora.android.ui.theme.VioraBrandAmber
+import app.viora.android.ui.theme.VioraOnBrandAmber
 
 @Composable
 fun HomeScreen(
@@ -167,6 +169,8 @@ private fun ContinueWatchingCard(
                 )
                 LinearProgressIndicator(
                     progress = { fraction },
+                    color = VioraBrandAmber,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
@@ -281,8 +285,8 @@ private fun WideNewMediaCard(
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    color = VioraBrandAmber,
+                    contentColor = VioraOnBrandAmber,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp),
