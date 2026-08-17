@@ -6,11 +6,13 @@ import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -19,12 +21,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,6 +42,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import app.viora.android.data.catalog.DemoCatalogRepository
+import app.viora.android.domain.model.ContentType
+import app.viora.android.domain.model.MediaContent
+import app.viora.android.domain.model.Person
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader
 import java.util.Locale
@@ -55,6 +63,7 @@ fun SearchScreen(
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
     val results = DemoCatalogRepository.search(query)
+    val people = DemoCatalogRepository.searchPeople(query)
 
     fun commitSearch(value: String) {
         val normalized = value.trim()
@@ -102,21 +111,32 @@ fun SearchScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        item { Text("Поиск", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) }
+        item {
+            Text(
+                "Поиск",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+        }
         item {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                label = { Text("Фильм, сериал, жанр, страна…") },
+                label = { Text("Фильм, сериал, актёр, режиссёр…") },
                 leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
                 trailingIcon = {
                     Row {
                         if (query.isNotEmpty()) {
-                            IconButton(onClick = { query = "" }) { Icon(Icons.Outlined.Close, contentDescription = "Очистить поиск") }
+                            IconButton(onClick = { query = "" }) {
+                                Icon(Icons.Outlined.Close, contentDescription = "Очистить поиск")
+                            }
                         }
-                        IconButton(onClick = ::startVoiceSearch) { Icon(Icons.Outlined.Mic, contentDescription = "Голосовой поиск") }
+                        IconButton(onClick = ::startVoiceSearch) {
+                            Icon(Icons.Outlined.Mic, contentDescription = "Голосовой поиск")
+                        }
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -125,20 +145,34 @@ fun SearchScreen(
         }
 
         if (voiceUnavailable) {
-            item { Text("На устройстве не найден системный сервис распознавания речи.", color = MaterialTheme.colorScheme.error) }
+            item {
+                Text(
+                    "На устройстве не найден системный сервис распознавания речи.",
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
 
         if (query.isBlank()) {
             if (recentQueries.isNotEmpty()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
                             SectionHeader(title = "Недавние запросы", modifier = Modifier.weight(1f))
                             TextButton(onClick = onClearRecent) { Text("Очистить") }
                         }
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(recentQueries) { recent ->
-                                AssistChip(onClick = { query = recent }, label = { Text(recent) })
+                                AssistChip(
+                                    onClick = {
+                                        query = recent
+                                        commitSearch(recent)
+                                    },
+                                    label = { Text(recent) },
+                                )
                             }
                         }
                     }
@@ -161,31 +195,127 @@ fun SearchScreen(
                 }
             }
         } else {
+            val total = results.size + people.size
             item {
                 Text(
-                    text = if (results.isEmpty()) "Ничего не найдено" else "Результаты: ${results.size}",
+                    text = if (total == 0) "Ничего не найдено" else "Найдено: $total",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }
-            if (results.isEmpty()) {
-                item { Text("Проверьте запрос или попробуйте жанр, страну либо год.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            } else {
+
+            if (total == 0) {
                 item {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(results, key = { it.id }) { result ->
-                            MediaCard(
-                                title = result.title,
-                                meta = "${result.year} · ★ ${result.rating}",
-                                onClick = {
+                    Text(
+                        "Проверьте запрос или попробуйте название, человека, жанр, страну либо год.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                ContentType.entries.forEach { type ->
+                    val typed = results.filter { it.type == type }
+                    if (typed.isNotEmpty()) {
+                        item {
+                            MediaResultSection(
+                                title = type.label,
+                                items = typed,
+                                onOpenDetails = {
                                     commitSearch(query)
-                                    onOpenDetails(result.title)
+                                    onOpenDetails(it)
                                 },
                             )
                         }
                     }
                 }
+                if (people.isNotEmpty()) {
+                    item {
+                        PeopleResultSection(
+                            people = people,
+                            onPersonClick = { person ->
+                                query = person.name
+                                commitSearch(person.name)
+                            },
+                            onKnownForClick = { title ->
+                                commitSearch(query)
+                                onOpenDetails(title)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MediaResultSection(
+    title: String,
+    items: List<MediaContent>,
+    onOpenDetails: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionHeader(title = title)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(items, key = { it.id }) { item ->
+                MediaCard(
+                    title = item.title,
+                    meta = buildString {
+                        append(item.year)
+                        append(" · ★ ")
+                        append(item.rating)
+                        item.originalTitle?.let {
+                            append(" · ")
+                            append(it)
+                        }
+                    },
+                    onClick = { onOpenDetails(item.title) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PeopleResultSection(
+    people: List<Person>,
+    onPersonClick: (Person) -> Unit,
+    onKnownForClick: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SectionHeader(title = "Люди")
+        people.forEach { person ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPersonClick(person) },
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.large,
+            ) {
+                ListItem(
+                    headlineContent = { Text(person.name, fontWeight = FontWeight.SemiBold) },
+                    supportingContent = {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Связанный контент: ${person.knownFor.size}")
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                items(person.knownFor) { title ->
+                                    AssistChip(
+                                        onClick = { onKnownForClick(title) },
+                                        label = { Text(title) },
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    leadingContent = {
+                        Icon(
+                            Icons.Outlined.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    modifier = Modifier.padding(vertical = 2.dp),
+                )
             }
         }
     }

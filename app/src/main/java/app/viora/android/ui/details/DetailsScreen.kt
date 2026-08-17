@@ -231,6 +231,39 @@ fun DetailsScreen(
             }
         }
 
+        if (content != null && (content.originalTitle != null || content.director != null || content.cast.isNotEmpty())) {
+            item {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "Сведения",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    content.originalTitle?.let { original ->
+                        Text(
+                            text = "Оригинальное название: $original",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                    content.director?.let { director ->
+                        Text(
+                            text = "Режиссёр: $director",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                    if (content.cast.isNotEmpty()) {
+                        Text(
+                            text = "В ролях: ${content.cast.joinToString()}",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
+            }
+        }
+
         if (isSeries) {
             item {
                 Column(

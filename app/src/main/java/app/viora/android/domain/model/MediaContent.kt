@@ -6,6 +6,11 @@ enum class ContentType(val label: String) {
     TV("ТВ"),
 }
 
+data class Person(
+    val name: String,
+    val knownFor: List<String>,
+)
+
 data class MediaContent(
     val id: String,
     val title: String,
@@ -21,4 +26,7 @@ data class MediaContent(
     val ageRating: Int = 16,
     val audioLanguages: Set<String> = setOf("Русский", "Original"),
     val subtitleLanguages: Set<String> = setOf("Русский", "English"),
+    val originalTitle: String? = null,
+    val director: String? = null,
+    val cast: List<String> = emptyList(),
 )
