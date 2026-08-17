@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,12 +39,10 @@ fun DownloadsSettingsScreen(
             )
         }
         item {
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Офлайн-контент", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(
-                    text = if (downloadedCount == 0) "Скачанных элементов нет" else "Скачано элементов: $downloadedCount",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            SettingsInfoCard(
+                title = "Офлайн-контент",
+                body = if (downloadedCount == 0) "Скачанных элементов нет" else "Скачано элементов: $downloadedCount",
+            ) {
                 if (downloadedCount > 0) {
                     TextButton(onClick = onDeleteAll) { Text("Удалить все загрузки") }
                 }
@@ -66,11 +66,19 @@ fun AppearanceSettingsScreen(
                 options = listOf("DARK", "LIGHT", "SYSTEM"),
                 selected = preferences.themeMode,
                 onSelected = onThemeModeChanged,
+                optionLabel = { option ->
+                    when (option) {
+                        "DARK" -> "Тёмная"
+                        "LIGHT" -> "Светлая"
+                        "SYSTEM" -> "Системная"
+                        else -> option
+                    }
+                },
             )
         }
         item {
             Text(
-                text = "DARK — фирменная тёмная тема Viora; LIGHT — светлая; SYSTEM — следует настройке Android.",
+                text = "Системная тема следует настройке Android.",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -97,39 +105,25 @@ fun AccessibilitySettingsScreen(
             )
         }
         item {
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Базовые требования", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text("• Основные touch-targets не меньше 48 dp")
-                Text("• Значимые иконки имеют accessibility-описания")
-                Text("• Интерфейс использует системное масштабирование текста")
-                Text("• Основные действия доступны без скрытых жестов")
-            }
+            SettingsInfoCard(
+                title = "Базовые требования",
+                body = "Основные touch-targets — не меньше 48 dp. Значимые иконки имеют accessibility-описания, а интерфейс учитывает системное масштабирование текста.",
+            )
         }
     }
 }
 
 @Composable
 fun NotificationsSettingsScreen(
-    preferences: AppPreferences,
     onBack: () -> Unit,
-    onEnabledChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBack)
     SettingsPage(title = "Уведомления", onBack = onBack, modifier = modifier) {
         item {
-            SettingsSwitch(
-                title = "Разрешить уведомления Viora",
-                subtitle = "Глобальный переключатель локальных уведомлений приложения",
-                checked = preferences.notificationsEnabled,
-                onCheckedChange = onEnabledChanged,
-            )
-        }
-        item {
-            Text(
-                text = "Премьеры и новые серии не симулируются локально: для них потребуется подключённый каталог/сервер уведомлений.",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            SettingsInfoCard(
+                title = "Премьеры и новые серии",
+                body = "Недоступны в локальной версии. Они появятся после подключения сервера уведомлений — Viora не показывает неработающий переключатель.",
             )
         }
     }
@@ -141,17 +135,18 @@ fun DevicesSettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBack)
-    SettingsPage(title = "Устройства", onBack = onBack, modifier = modifier) {
+    SettingsPage(title = "Устройство", onBack = onBack, modifier = modifier) {
         item {
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Текущее устройство", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text("${Build.MANUFACTURER} ${Build.MODEL}")
-                Text("Android ${Build.VERSION.RELEASE} · API ${Build.VERSION.SDK_INT}", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(
-                    "Cloud-синхронизация не имитируется: она будет включена только после подключения реального аккаунт/backend-провайдера.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            SettingsInfoCard(
+                title = "Это устройство",
+                body = "${manufacturerName()} ${Build.MODEL}\nAndroid ${Build.VERSION.RELEASE}",
+            )
+        }
+        item {
+            SettingsInfoCard(
+                title = "Облачная синхронизация",
+                body = "Пока недоступна. Данные Viora сохраняются только на этом устройстве.",
+            )
         }
     }
 }
@@ -164,14 +159,50 @@ fun HelpSettingsScreen(
     BackHandler(onBack = onBack)
     SettingsPage(title = "Помощь", onBack = onBack, modifier = modifier) {
         item {
-            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+            ) {
                 HelpItem("Как продолжить просмотр?", "На Главной нажмите «Продолжить». Позиция сохраняется автоматически.")
                 HelpItem("Как вернуть общую озвучку?", "На странице контента откройте «Параметры воспроизведения» и нажмите «Использовать настройки по умолчанию».")
                 HelpItem("Где находится офлайн-контент?", "В разделе «Моё → Скачанное». Файлы хранятся во внутреннем каталоге приложения.")
                 HelpItem("Почему контент демонстрационный?", "Текущая сборка проверяет продуктовую архитектуру и работает только с легальным публичным тестовым видео.")
-                Spacer(Modifier.padding(bottom = 16.dp))
-                Text("Viora · development build", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.padding(bottom = 8.dp))
+                Text("Локальная демо-сборка Viora", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+        }
+    }
+}
+
+@Composable
+private fun SettingsInfoCard(
+    title: String,
+    body: String,
+    action: @Composable () -> Unit = {},
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            action()
         }
     }
 }
@@ -182,4 +213,8 @@ private fun HelpItem(title: String, body: String) {
         Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
+}
+
+private fun manufacturerName(): String = Build.MANUFACTURER.replaceFirstChar { char ->
+    if (char.isLowerCase()) char.titlecase() else char.toString()
 }

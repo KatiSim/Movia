@@ -366,9 +366,7 @@ private fun VioraContent(
                     modifier = settingsModifier,
                 )
                 "notifications" -> NotificationsSettingsScreen(
-                    preferences = appPreferences,
                     onBack = closeSettings,
-                    onEnabledChanged = { value -> scope.launch { preferencesRepository.setNotificationsEnabled(value) } },
                     modifier = settingsModifier,
                 )
                 "appearance" -> AppearanceSettingsScreen(
