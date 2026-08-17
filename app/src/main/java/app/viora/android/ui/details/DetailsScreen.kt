@@ -1,5 +1,6 @@
 package app.viora.android.ui.details
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -75,6 +77,7 @@ fun DetailsScreen(
         else -> "${content.year} · 16+ · ${formatDuration(content.durationMinutes)} · ★ ${content.rating} · ${content.quality}"
     }
     val genres = content?.genres?.sorted().orEmpty()
+    BackHandler(onBack = onBack)
 
     LazyColumn(
         modifier = modifier,
@@ -128,7 +131,16 @@ fun DetailsScreen(
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(genres) { genre ->
-                        AssistChip(onClick = {}, label = { Text(genre) })
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Text(
+                                text = genre,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
                     }
                 }
             }
