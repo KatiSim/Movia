@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material.icons.Icons
@@ -353,7 +354,9 @@ private fun VioraContent(
                     session = playbackSession,
                     onOpen = { fullPlayerOpen = true },
                     onClose = closePlayback,
-                    modifier = Modifier.align(Alignment.BottomCenter),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding(),
                 )
             }
         }
@@ -412,7 +415,9 @@ private fun VioraContent(
                     session = playbackSession,
                     onOpen = { fullPlayerOpen = true },
                     onClose = closePlayback,
-                    modifier = Modifier.align(Alignment.BottomCenter),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding(),
                 )
             }
         }
