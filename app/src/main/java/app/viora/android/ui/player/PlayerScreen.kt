@@ -59,10 +59,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Forward10
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
@@ -100,6 +106,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -107,6 +114,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
@@ -144,6 +152,7 @@ private data class SubtitleTrackOption(
 fun PlayerScreen(
     session: PlaybackSession,
     title: String,
+    onMinimize: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     preferredAudio: String = "Auto",
@@ -152,13 +161,17 @@ fun PlayerScreen(
     onQualitySelected: (String) -> Unit,
     subtitlesEnabled: Boolean = false,
     autoNextEnabled: Boolean = true,
+    persistentSeekButtons: Boolean = false,
     onSubtitlesChanged: (Boolean) -> Unit,
     onNextEpisode: () -> Unit,
+    onOpenEpisodes: () -> Unit,
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val activity = remember(context) { context.findActivity() }
+    val haptic = LocalHapticFeedback.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isSeriesEpisode = Regex(""" · S\d{2}E\d{2}""").containsMatchIn(title)
     val player = session.player
     val inPictureInPicture = VioraPiPState.isInPictureInPicture
 
@@ -204,6 +217,20 @@ fun PlayerScreen(
             controlsVisible = true
             interactionTick++
         }
+    }
+
+    fun seekBy(deltaMs: Long, stackedSeconds: Int = 10) {
+        val maxPosition = max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE)
+        val target = (player.currentPosition + deltaMs).coerceIn(0L, maxPosition)
+        player.seekTo(target)
+        positionMs = target
+        seekFeedbackDirection = if (deltaMs < 0L) -1 else 1
+        seekFeedbackTick++
+        gestureFeedbackLabel = if (deltaMs < 0L) "−${stackedSeconds} сек" else "+${stackedSeconds} сек"
+        gestureFeedbackPercent = 0
+        gestureFeedbackTick++
+        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        showControls()
     }
 
     fun updateSourceRect(view: PlayerView) {
@@ -447,8 +474,8 @@ fun PlayerScreen(
                     .pointerInput(activity) {
                         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
                         var lastTapAt = 0L
-                        var lastTapX = 0f
-                        var lastTapY = 0f
+                        var lastTapDirection = 0
+                        var tapChainCount = 0
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val startX = down.position.x
@@ -458,7 +485,8 @@ fun PlayerScreen(
                             var totalX = 0f
                             var totalY = 0f
                             var verticalDrag = false
-                            val brightnessGesture = startX < size.width / 2f
+                            val centerGesture = startX in (size.width * 0.35f)..(size.width * 0.65f)
+                            val brightnessGesture = !centerGesture && startX < size.width / 2f
 
                             while (true) {
                                 val event = awaitPointerEvent()
@@ -478,7 +506,9 @@ fun PlayerScreen(
                                 if (verticalDrag && change.pressed) {
                                     change.consume()
                                     val delta = -dy / size.height.toFloat()
-                                    if (brightnessGesture) {
+                                    if (centerGesture) {
+                                        // Center vertical gesture is reserved for swipe-down close.
+                                    } else if (brightnessGesture) {
                                         activity?.let { host ->
                                             val attrs = host.window.attributes
                                             val systemBrightness = Settings.System.getInt(
@@ -513,33 +543,29 @@ fun PlayerScreen(
                                 previousX = change.position.x
                                 previousY = change.position.y
                                 if (!change.pressed) {
-                                    if (!verticalDrag) {
+                                    if (verticalDrag && centerGesture && totalY > 120.dp.toPx()) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        leavePlayer()
+                                    } else if (!verticalDrag) {
                                         val now = SystemClock.uptimeMillis()
-                                        val closeToLastTap =
-                                            abs(startX - lastTapX) < size.width * 0.28f &&
-                                                abs(startY - lastTapY) < size.height * 0.22f
-                                        if (now - lastTapAt <= 320L && closeToLastTap) {
-                                            val direction = if (startX < size.width / 2f) -1 else 1
-                                            val target = (player.currentPosition + direction * 10_000L)
-                                                .coerceIn(
-                                                    0L,
-                                                    max(
-                                                        0L,
-                                                        player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE,
-                                                    ),
-                                                )
-                                            player.seekTo(target)
-                                            positionMs = target
-                                            seekFeedbackDirection = direction
-                                            seekFeedbackTick++
+                                        if (centerGesture) {
+                                            // Center single tap: reveal controls; when already visible, toggle playback.
+                                            if (controlsVisible) session.togglePlayPause() else showControls()
                                             lastTapAt = 0L
-                                            showControls()
+                                            tapChainCount = 0
                                         } else {
-                                            controlsVisible = !controlsVisible
-                                            if (controlsVisible) interactionTick++
+                                            val direction = if (startX < size.width * 0.35f) -1 else 1
+                                            if (now - lastTapAt <= 320L && direction == lastTapDirection) {
+                                                tapChainCount += 1
+                                                if (tapChainCount >= 2) {
+                                                    val seconds = (tapChainCount - 1) * 10
+                                                    seekBy(direction * 10_000L, seconds)
+                                                }
+                                            } else {
+                                                tapChainCount = 1
+                                                lastTapDirection = direction
+                                            }
                                             lastTapAt = now
-                                            lastTapX = startX
-                                            lastTapY = startY
                                         }
                                     }
                                     break
@@ -577,7 +603,19 @@ fun PlayerScreen(
 
             PlayerTopBar(
                 title = displayPlayerTitle(title),
-                onBack = leavePlayer,
+                isLandscape = isLandscape,
+                onMinimize = {
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    onMinimize()
+                },
+                onToggleFullscreen = {
+                    activity?.requestedOrientation = if (isLandscape) {
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    }
+                },
+                onClose = leavePlayer,
                 onInteraction = ::showControls,
                 modifier = Modifier.align(Alignment.TopCenter),
             )
@@ -616,6 +654,35 @@ fun PlayerScreen(
                 }
             }
 
+            if (persistentSeekButtons) {
+                Surface(
+                    onClick = { seekBy(-10_000L) },
+                    shape = CircleShape,
+                    color = Color.Black.copy(alpha = 0.62f),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 28.dp)
+                        .size(64.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Replay10, "Назад на 10 секунд", tint = Color.White, modifier = Modifier.size(34.dp))
+                    }
+                }
+                Surface(
+                    onClick = { seekBy(10_000L) },
+                    shape = CircleShape,
+                    color = Color.Black.copy(alpha = 0.62f),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 28.dp)
+                        .size(64.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Forward10, "Вперёд на 10 секунд", tint = Color.White, modifier = Modifier.size(34.dp))
+                    }
+                }
+            }
+
             AnimatedVisibility(
                 visible = seekFeedbackDirection < 0,
                 enter = fadeIn(),
@@ -645,7 +712,7 @@ fun PlayerScreen(
                     modifier = Modifier.align(Alignment.Center),
                 ) {
                     Text(
-                        text = "$label · $gestureFeedbackPercent%",
+                        text = if (gestureFeedbackPercent > 0) "$label · $gestureFeedbackPercent%" else label,
                         color = Color.White,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
@@ -659,6 +726,8 @@ fun PlayerScreen(
                 bufferedPositionMs = bufferedPositionMs,
                 durationMs = durationMs,
                 isScrubbing = scrubbing,
+                subtitlesEnabled = subtitlesEnabled,
+                isSeriesEpisode = isSeriesEpisode,
                 onScrub = { value ->
                     scrubbing = true
                     positionMs = value
@@ -669,6 +738,13 @@ fun PlayerScreen(
                     scrubbing = false
                     showControls()
                 },
+                onSubtitles = {
+                    subtitlePickerOpen = true
+                    settingsOpen = true
+                    showControls()
+                },
+                onNextEpisode = onNextEpisode,
+                onOpenEpisodes = onOpenEpisodes,
                 onSettings = {
                     settingsOpen = true
                     showControls()
@@ -818,33 +894,26 @@ fun PlayerScreen(
 @Composable
 private fun PlayerTopBar(
     title: String,
-    onBack: () -> Unit,
+    isLandscape: Boolean,
+    onMinimize: () -> Unit,
+    onToggleFullscreen: () -> Unit,
+    onClose: () -> Unit,
     onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
-            onClick = {
-                onInteraction()
-                onBack()
-            },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(56.dp),
+            onClick = { onInteraction(); onMinimize() },
+            modifier = Modifier.size(48.dp),
         ) {
-            Icon(
-                Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "Свернуть плеер",
-                tint = Color.White,
-                modifier = Modifier.size(30.dp),
-            )
+            Icon(Icons.Filled.KeyboardArrowDown, "Свернуть плеер", tint = Color.White, modifier = Modifier.size(30.dp))
         }
-
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
@@ -852,9 +921,26 @@ private fun PlayerTopBar(
             color = Color.White,
             maxLines = 1,
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(start = 72.dp, end = 72.dp, top = 16.dp),
+                .weight(1f)
+                .padding(horizontal = 8.dp),
         )
+        IconButton(
+            onClick = { onInteraction(); onToggleFullscreen() },
+            modifier = Modifier.size(48.dp),
+        ) {
+            Icon(
+                if (isLandscape) Icons.Filled.FullscreenExit else Icons.Filled.Fullscreen,
+                if (isLandscape) "Выйти из полноэкранного режима" else "Развернуть на весь экран",
+                tint = Color.White,
+                modifier = Modifier.size(28.dp),
+            )
+        }
+        IconButton(
+            onClick = { onInteraction(); onClose() },
+            modifier = Modifier.size(48.dp),
+        ) {
+            Icon(Icons.Filled.Close, "Закрыть плеер", tint = Color.White, modifier = Modifier.size(28.dp))
+        }
     }
 }
 
@@ -865,8 +951,13 @@ private fun PlayerTimeline(
     bufferedPositionMs: Long,
     durationMs: Long,
     isScrubbing: Boolean,
+    subtitlesEnabled: Boolean,
+    isSeriesEpisode: Boolean,
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
+    onSubtitles: () -> Unit,
+    onNextEpisode: () -> Unit,
+    onOpenEpisodes: () -> Unit,
     onSettings: () -> Unit,
     isLandscape: Boolean,
     activity: Activity?,
@@ -1002,27 +1093,29 @@ private fun PlayerTimeline(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(
-                    onClick = {
-                        onInteraction()
-                        activity?.requestedOrientation = if (isLandscape) {
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                        } else {
-                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                        }
-                    },
-                    enabled = activity != null,
+                    onClick = { onInteraction(); onSubtitles() },
                     modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
-                        Icons.Outlined.ScreenRotation,
-                        contentDescription = if (isLandscape) {
-                            "Переключить в портретный режим"
-                        } else {
-                            "Развернуть в альбомный режим"
-                        },
-                        tint = Color.White,
+                        Icons.Outlined.ClosedCaption,
+                        if (subtitlesEnabled) "Субтитры включены" else "Субтитры и дорожки",
+                        tint = if (subtitlesEnabled) VioraBrandAmber else Color.White,
                         modifier = Modifier.size(26.dp),
                     )
+                }
+                if (isSeriesEpisode) {
+                    IconButton(
+                        onClick = { onInteraction(); onNextEpisode() },
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(Icons.Filled.SkipNext, "Следующий эпизод", tint = Color.White, modifier = Modifier.size(26.dp))
+                    }
+                    IconButton(
+                        onClick = { onInteraction(); onOpenEpisodes() },
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(Icons.Outlined.PlaylistPlay, "Все серии сезона", tint = Color.White, modifier = Modifier.size(28.dp))
+                    }
                 }
                 IconButton(
                     onClick = {

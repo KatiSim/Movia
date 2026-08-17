@@ -24,6 +24,7 @@ private const val LIST_SEPARATOR = "\u001E"
 data class AppPreferences(
     val themeMode: String = "DARK",
     val highContrast: Boolean = false,
+    val persistentSeekButtons: Boolean = false,
     val notificationsEnabled: Boolean = true,
 )
 
@@ -51,6 +52,7 @@ class VioraPreferencesRepository(
         val wifiOnlyDownloads = booleanPreferencesKey("downloads_wifi_only")
         val themeMode = stringPreferencesKey("appearance_theme_mode")
         val highContrast = booleanPreferencesKey("accessibility_high_contrast")
+        val persistentSeekButtons = booleanPreferencesKey("accessibility_persistent_seek_buttons")
         val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
         val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
         val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
@@ -75,6 +77,7 @@ class VioraPreferencesRepository(
         AppPreferences(
             themeMode = prefs[Keys.themeMode] ?: "DARK",
             highContrast = prefs[Keys.highContrast] ?: false,
+            persistentSeekButtons = prefs[Keys.persistentSeekButtons] ?: false,
             notificationsEnabled = prefs[Keys.notificationsEnabled] ?: true,
         )
     }
@@ -102,6 +105,10 @@ class VioraPreferencesRepository(
 
     suspend fun setHighContrast(value: Boolean) {
         context.vioraDataStore.edit { it[Keys.highContrast] = value }
+    }
+
+    suspend fun setPersistentSeekButtons(value: Boolean) {
+        context.vioraDataStore.edit { it[Keys.persistentSeekButtons] = value }
     }
 
     suspend fun setNotificationsEnabled(value: Boolean) {

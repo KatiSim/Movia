@@ -247,6 +247,7 @@ private fun VioraContent(
         PlayerScreen(
             session = playbackSession,
             title = title,
+            onMinimize = { fullPlayerOpen = false },
             onBack = {
                 // Leaving the full player is an explicit playback exit: persist first,
                 // then stop/clear so audio/video cannot continue behind the app UI.
@@ -262,11 +263,18 @@ private fun VioraContent(
             },
             subtitlesEnabled = playbackPreferences.subtitlesEnabled,
             autoNextEnabled = playbackPreferences.autoNextEnabled,
+            persistentSeekButtons = appPreferences.persistentSeekButtons,
             onSubtitlesChanged = { enabled ->
                 scope.launch { preferencesRepository.setSubtitlesEnabled(enabled) }
             },
             onNextEpisode = {
                 nextEpisodeTitle(title)?.let(startPlayback)
+            },
+            onOpenEpisodes = {
+                persistActiveProgress()
+                playbackSession.player.pause()
+                fullPlayerOpen = false
+                detailsTitle = baseTitle
             },
             modifier = Modifier.fillMaxSize(),
         )
@@ -406,6 +414,9 @@ private fun VioraContent(
                     preferences = appPreferences,
                     onBack = closeSettings,
                     onHighContrastChanged = { value -> scope.launch { preferencesRepository.setHighContrast(value) } },
+                    onPersistentSeekButtonsChanged = { value ->
+                        scope.launch { preferencesRepository.setPersistentSeekButtons(value) }
+                    },
                     modifier = settingsModifier,
                 )
                 "devices" -> DevicesSettingsScreen(onBack = closeSettings, modifier = settingsModifier)

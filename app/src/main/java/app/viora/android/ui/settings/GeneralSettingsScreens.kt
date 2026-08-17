@@ -92,6 +92,7 @@ fun AccessibilitySettingsScreen(
     preferences: AppPreferences,
     onBack: () -> Unit,
     onHighContrastChanged: (Boolean) -> Unit,
+    onPersistentSeekButtonsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBack)
@@ -102,6 +103,14 @@ fun AccessibilitySettingsScreen(
                 subtitle = "Усиливает контраст текста и поверхностей",
                 checked = preferences.highContrast,
                 onCheckedChange = onHighContrastChanged,
+            )
+        }
+        item {
+            SettingsSwitch(
+                title = "Кнопки перемотки ±10 сек",
+                subtitle = "Постоянно показывать крупные кнопки перемотки в плеере",
+                checked = preferences.persistentSeekButtons,
+                onCheckedChange = onPersistentSeekButtonsChanged,
             )
         }
         item {
