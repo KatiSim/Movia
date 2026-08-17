@@ -199,6 +199,7 @@ fun PlayerScreen(
     LaunchedEffect(activity, sourceRectHint, session.isPlaying, title) {
         activity?.setPictureInPictureParams(
             buildVioraPictureInPictureParams(
+                context = context,
                 sourceRectHint = sourceRectHint,
                 isPlaying = session.isPlaying,
                 title = displayPlayerTitle(title),
@@ -640,6 +641,7 @@ fun PlayerScreen(
                         controlsVisible = false
                         settingsOpen = false
                         val params = buildVioraPictureInPictureParams(
+                            context = context,
                             sourceRectHint = sourceRectHint,
                             isPlaying = session.isPlaying,
                             title = displayPlayerTitle(title),

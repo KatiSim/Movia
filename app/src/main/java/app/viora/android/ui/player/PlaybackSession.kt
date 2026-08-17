@@ -10,6 +10,11 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 
+internal object VioraPlaybackRegistry {
+    var current: PlaybackSession? = null
+        internal set
+}
+
 private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
 
 class PlaybackSession(context: Context) {
@@ -36,6 +41,7 @@ class PlaybackSession(context: Context) {
     val mediaSession: MediaSession = MediaSession.Builder(context.applicationContext, player).build()
 
     init {
+        VioraPlaybackRegistry.current = this
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(value: Boolean) {
                 isPlaying = value
@@ -83,6 +89,9 @@ class PlaybackSession(context: Context) {
     }
 
     fun release() {
+        if (VioraPlaybackRegistry.current === this) {
+            VioraPlaybackRegistry.current = null
+        }
         mediaSession.release()
         player.release()
         activeTitle = null
