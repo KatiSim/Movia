@@ -109,10 +109,14 @@ private fun VioraContent(
 
     if (playTitle != null) {
         val title = playTitle.orEmpty()
+        val localSource = DownloadScheduler.localFile(context.applicationContext, title)
+            ?.toURI()
+            ?.toString()
         PlayerScreen(
             title = title,
             onBack = { playTitle = null },
             startPositionMs = if (lastProgress.title == title) lastProgress.positionMs else 0L,
+            sourceUri = localSource,
             onProgress = { positionMs, durationMs ->
                 scope.launch { preferencesRepository.saveProgress(title, positionMs, durationMs) }
             },

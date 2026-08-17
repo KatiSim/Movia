@@ -29,6 +29,11 @@ object DownloadScheduler {
         )
     }
 
+    fun localFile(context: Context, title: String): File? {
+        val file = File(File(context.filesDir, "offline"), OfflineDownloadWorker.fileNameFor(title))
+        return file.takeIf { it.isFile && it.length() > 0L }
+    }
+
     fun delete(context: Context, title: String): Boolean {
         WorkManager.getInstance(context).cancelUniqueWork(uniqueWorkName(title))
         val file = File(File(context.filesDir, "offline"), OfflineDownloadWorker.fileNameFor(title))

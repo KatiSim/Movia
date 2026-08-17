@@ -1,5 +1,10 @@
 package app.viora.android.ui.player
 
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.ContextWrapper
+import android.util.Rational
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -8,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,12 +34,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.delay
 
 private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
+private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 
 @Composable
 fun PlayerScreen(
@@ -39,10 +49,15 @@ fun PlayerScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     startPositionMs: Long = 0L,
+    sourceUri: String? = null,
     onProgress: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
     var playbackError by remember { mutableStateOf<String?>(null) }
+    var speed by remember { mutableFloatStateOf(1.0f) }
+    val effectiveSource = sourceUri ?: DEMO_VIDEO_URL
+    val offline = sourceUri?.startsWith("file:") == true
 
     val player = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -51,12 +66,16 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(title, startPositionMs) {
+    LaunchedEffect(title, startPositionMs, effectiveSource) {
         playbackError = null
-        player.setMediaItem(MediaItem.fromUri(DEMO_VIDEO_URL))
+        player.setMediaItem(MediaItem.fromUri(effectiveSource))
         player.prepare()
         if (startPositionMs > 0L) player.seekTo(startPositionMs)
         player.play()
+    }
+
+    LaunchedEffect(speed) {
+        player.playbackParameters = PlaybackParameters(speed)
     }
 
     LaunchedEffect(player, title) {
@@ -106,11 +125,34 @@ fun PlayerScreen(
             Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад", tint = Color.White)
         }
 
+        IconButton(
+            onClick = {
+                activity?.enterPictureInPictureMode(
+                    PictureInPictureParams.Builder()
+                        .setAspectRatio(Rational(16, 9))
+                        .build(),
+                )
+            },
+            enabled = activity != null,
+            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+        ) {
+            Icon(Icons.Outlined.PictureInPictureAlt, contentDescription = "Картинка в картинке", tint = Color.White)
+        }
+
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = Color.White,
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 24.dp, start = 64.dp, end = 64.dp),
+        )
+
+        AssistChip(
+            onClick = {
+                val index = SPEEDS.indexOf(speed).takeIf { it >= 0 } ?: 1
+                speed = SPEEDS[(index + 1) % SPEEDS.size]
+            },
+            label = { Text("${formatSpeed(speed)}×${if (offline) " · офлайн" else ""}") },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 24.dp),
         )
 
         playbackError?.let { error ->
@@ -121,4 +163,16 @@ fun PlayerScreen(
             )
         }
     }
+}
+
+private fun formatSpeed(speed: Float): String = if (speed % 1f == 0f) {
+    speed.toInt().toString()
+} else {
+    speed.toString()
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
