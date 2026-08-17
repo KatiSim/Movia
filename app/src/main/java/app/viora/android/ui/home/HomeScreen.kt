@@ -28,34 +28,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.viora.android.data.catalog.DemoCatalogRepository
+import app.viora.android.data.catalog.RecommendationEngine
 import app.viora.android.data.preferences.PlaybackProgress
+import app.viora.android.domain.model.MediaContent
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader
-
-data class HomeMediaItem(val title: String, val meta: String)
-
-private val recommendedItems = listOf(
-    HomeMediaItem("Граница миров", "2026 · ★ 8.1"),
-    HomeMediaItem("Тихий сигнал", "2025 · ★ 7.9"),
-    HomeMediaItem("Последний рейс", "2026 · ★ 7.7"),
-    HomeMediaItem("Северный ветер", "2024 · ★ 8.0"),
-)
-
-private val newItems = listOf(
-    HomeMediaItem("Касание света", "2026 · 1 ч 48 мин"),
-    HomeMediaItem("Нулевая орбита", "2026 · 2 ч 06 мин"),
-    HomeMediaItem("Точка возврата", "2026 · 1 ч 56 мин"),
-    HomeMediaItem("Город после дождя", "2026 · 1 ч 42 мин"),
-)
 
 @Composable
 fun HomeScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     progress: PlaybackProgress = PlaybackProgress(),
+    history: List<String> = emptyList(),
     onOpenDetails: (String) -> Unit = {},
     onContinue: (String) -> Unit = {},
 ) {
+    val recommendation = RecommendationEngine.recommend(history)
+    val allContent = DemoCatalogRepository.all()
+    val newItems = allContent.filter { it.isNew }.sortedByDescending { it.popularity }.take(6)
+    val popularItems = allContent.sortedByDescending { it.popularity }.take(6)
+    val sciFiItems = allContent.filter { "Фантастика" in it.genres }.sortedByDescending { it.rating }.take(6)
+
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -72,16 +66,24 @@ fun HomeScreen(
                 Text("Смотрите дальше с того места, где остановились", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SectionHeader(title = "Продолжить просмотр")
                 ContinueWatchingCard(progress = progress, onOpenDetails = onOpenDetails, onContinue = onContinue)
             }
         }
-
-        item { MediaSection("Для вас", recommendedItems, onOpenDetails) }
-        item { MediaSection("Новинки", newItems, onOpenDetails) }
+        if (recommendation.items.isNotEmpty()) {
+            item { MediaSection("Для вас · ${recommendation.reason}", recommendation.items, onOpenDetails) }
+        }
+        if (newItems.isNotEmpty()) {
+            item { MediaSection("Новинки", newItems, onOpenDetails) }
+        }
+        if (popularItems.isNotEmpty()) {
+            item { MediaSection("Популярное", popularItems, onOpenDetails) }
+        }
+        if (sciFiItems.isNotEmpty()) {
+            item { MediaSection("Подборка · Фантастика", sciFiItems, onOpenDetails) }
+        }
     }
 }
 
@@ -109,21 +111,17 @@ private fun ContinueWatchingCard(
             Box(
                 modifier = Modifier.width(112.dp).height(72.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Outlined.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            }
+            ) { Icon(Icons.Outlined.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-
         LinearProgressIndicator(
             progress = { fraction },
             modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(999.dp)),
         )
-
         Button(
             onClick = { if (hasRealProgress) onContinue(title) else onOpenDetails(title) },
             modifier = Modifier.fillMaxWidth(),
@@ -138,14 +136,18 @@ private fun ContinueWatchingCard(
 @Composable
 private fun MediaSection(
     title: String,
-    items: List<HomeMediaItem>,
+    items: List<MediaContent>,
     onOpenDetails: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionHeader(title = title)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 8.dp)) {
-            items(items) { item ->
-                MediaCard(title = item.title, meta = item.meta, onClick = { onOpenDetails(item.title) })
+            items(items, key = { it.id }) { item ->
+                MediaCard(
+                    title = item.title,
+                    meta = "${item.year} · ★ ${item.rating}",
+                    onClick = { onOpenDetails(item.title) },
+                )
             }
         }
     }

@@ -69,6 +69,7 @@ class VioraPreferencesRepository(
         val watchLater = stringSetPreferencesKey("library_watch_later")
         val downloads = stringSetPreferencesKey("library_downloads")
         val history = stringPreferencesKey("library_history")
+        val searchHistory = stringPreferencesKey("search_history")
         val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
         val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
         val lastTitle = stringPreferencesKey("last_playback_title")
@@ -113,6 +114,13 @@ class VioraPreferencesRepository(
 
     val history: Flow<List<String>> = safeData.map { prefs ->
         prefs[Keys.history]
+            ?.split(LIST_SEPARATOR)
+            ?.filter { it.isNotBlank() }
+            .orEmpty()
+    }
+
+    val recentSearches: Flow<List<String>> = safeData.map { prefs ->
+        prefs[Keys.searchHistory]
             ?.split(LIST_SEPARATOR)
             ?.filter { it.isNotBlank() }
             .orEmpty()
@@ -201,6 +209,25 @@ class VioraPreferencesRepository(
 
     suspend fun clearHistory() {
         context.vioraDataStore.edit { it.remove(Keys.history) }
+    }
+
+    suspend fun addSearchQuery(query: String) {
+        val normalized = query.trim()
+        if (normalized.isBlank()) return
+        context.vioraDataStore.edit { prefs ->
+            val current = prefs[Keys.searchHistory]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty()
+                .toMutableList()
+            current.removeAll { it.equals(normalized, ignoreCase = true) }
+            current.add(0, normalized)
+            prefs[Keys.searchHistory] = current.take(8).joinToString(LIST_SEPARATOR)
+        }
+    }
+
+    suspend fun clearSearchHistory() {
+        context.vioraDataStore.edit { it.remove(Keys.searchHistory) }
     }
 
     suspend fun setTitleAudio(title: String, value: String?) {

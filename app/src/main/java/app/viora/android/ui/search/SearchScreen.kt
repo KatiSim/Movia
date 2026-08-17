@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Mic
@@ -24,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,24 +34,32 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.ui.components.MediaCard
 import app.viora.android.ui.components.SectionHeader
 import java.util.Locale
 
-private val recentQueries = listOf("Космос", "Триллер", "Испания")
 private val popularQueries = listOf("2026", "Фантастика", "Комедия", "Драма")
 
 @Composable
 fun SearchScreen(
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    recentQueries: List<String> = emptyList(),
+    onSearchCommitted: (String) -> Unit = {},
+    onClearRecent: () -> Unit = {},
     onOpenDetails: (String) -> Unit = {},
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
     val results = DemoCatalogRepository.search(query)
+
+    fun commitSearch(value: String) {
+        val normalized = value.trim()
+        if (normalized.isNotEmpty()) onSearchCommitted(normalized)
+    }
 
     val voiceLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
@@ -60,6 +71,7 @@ fun SearchScreen(
                 ?.trim()
             if (!recognized.isNullOrEmpty()) {
                 query = recognized
+                commitSearch(recognized)
                 voiceUnavailable = false
             }
         }
@@ -91,7 +103,6 @@ fun SearchScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item { Text("Поиск", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) }
-
         item {
             OutlinedTextField(
                 value = query,
@@ -105,29 +116,31 @@ fun SearchScreen(
                         if (query.isNotEmpty()) {
                             IconButton(onClick = { query = "" }) { Icon(Icons.Outlined.Close, contentDescription = "Очистить поиск") }
                         }
-                        IconButton(onClick = ::startVoiceSearch) {
-                            Icon(Icons.Outlined.Mic, contentDescription = "Голосовой поиск")
-                        }
+                        IconButton(onClick = ::startVoiceSearch) { Icon(Icons.Outlined.Mic, contentDescription = "Голосовой поиск") }
                     }
                 },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { commitSearch(query) }),
             )
         }
 
         if (voiceUnavailable) {
-            item {
-                Text(
-                    text = "На устройстве не найден системный сервис распознавания речи.",
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
+            item { Text("На устройстве не найден системный сервис распознавания речи.", color = MaterialTheme.colorScheme.error) }
         }
 
         if (query.isBlank()) {
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SectionHeader(title = "Недавние запросы")
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(recentQueries) { recent -> AssistChip(onClick = { query = recent }, label = { Text(recent) }) }
+            if (recentQueries.isNotEmpty()) {
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            SectionHeader(title = "Недавние запросы", modifier = Modifier.weight(1f))
+                            TextButton(onClick = onClearRecent) { Text("Очистить") }
+                        }
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(recentQueries) { recent ->
+                                AssistChip(onClick = { query = recent }, label = { Text(recent) })
+                            }
+                        }
                     }
                 }
             }
@@ -135,7 +148,15 @@ fun SearchScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     SectionHeader(title = "Популярное в поиске")
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(popularQueries) { popular -> AssistChip(onClick = { query = popular }, label = { Text(popular) }) }
+                        items(popularQueries) { popular ->
+                            AssistChip(
+                                onClick = {
+                                    query = popular
+                                    commitSearch(popular)
+                                },
+                                label = { Text(popular) },
+                            )
+                        }
                     }
                 }
             }
@@ -157,7 +178,10 @@ fun SearchScreen(
                             MediaCard(
                                 title = result.title,
                                 meta = "${result.year} · ★ ${result.rating}",
-                                onClick = { onOpenDetails(result.title) },
+                                onClick = {
+                                    commitSearch(query)
+                                    onOpenDetails(result.title)
+                                },
                             )
                         }
                     }

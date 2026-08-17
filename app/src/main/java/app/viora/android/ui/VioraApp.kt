@@ -110,6 +110,7 @@ private fun VioraContent(
     val watchLater by preferencesRepository.watchLater.collectAsState(initial = emptySet())
     val downloads by preferencesRepository.downloads.collectAsState(initial = emptySet())
     val history by preferencesRepository.history.collectAsState(initial = emptyList())
+    val recentSearches by preferencesRepository.recentSearches.collectAsState(initial = emptyList())
     val lastProgress by preferencesRepository.lastProgress.collectAsState(initial = PlaybackProgress())
 
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -247,6 +248,7 @@ private fun VioraContent(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
                 progress = lastProgress,
+                history = history,
                 onOpenDetails = openDetails,
                 onContinue = { playTitle = it },
             )
@@ -258,6 +260,9 @@ private fun VioraContent(
             2 -> SearchScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
+                recentQueries = recentSearches,
+                onSearchCommitted = { query -> scope.launch { preferencesRepository.addSearchQuery(query) } },
+                onClearRecent = { scope.launch { preferencesRepository.clearSearchHistory() } },
                 onOpenDetails = openDetails,
             )
             3 -> LibraryScreen(

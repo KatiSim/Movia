@@ -31,11 +31,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.viora.android.data.catalog.DemoCatalogRepository
+import app.viora.android.domain.model.ContentType
 
 private val audioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
 private val qualityOptions = listOf("Auto", "1080p", "720p", "480p")
@@ -62,7 +65,16 @@ fun DetailsScreen(
     onResetQuality: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val isSeries = title == "Нулевая орбита" || title == "Граница миров"
+    val content = remember(title) { DemoCatalogRepository.findByTitle(title) }
+    val isSeries = content?.type == ContentType.SERIES
+    val isTv = content?.type == ContentType.TV
+    val meta = when {
+        content == null -> "Демонстрационный контент"
+        isTv -> "${content.year} · Прямой эфир · ★ ${content.rating} · ${content.quality}"
+        isSeries -> "${content.year} · 16+ · 1 сезон · ★ ${content.rating} · ${content.quality}"
+        else -> "${content.year} · 16+ · ${formatDuration(content.durationMinutes)} · ★ ${content.rating} · ${content.quality}"
+    }
+    val genres = content?.genres?.sorted().orEmpty()
 
     LazyColumn(
         modifier = modifier,
@@ -110,12 +122,12 @@ fun DetailsScreen(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
-                    text = if (isSeries) "2026 · 16+ · 1 сезон · ★ 8.3" else "2026 · 16+ · 1 ч 56 мин · ★ 7.8",
+                    text = meta,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(listOf("Фантастика", "Драма", "Триллер")) { genre ->
+                    items(genres) { genre ->
                         AssistChip(onClick = {}, label = { Text(genre) })
                     }
                 }
@@ -133,7 +145,7 @@ fun DetailsScreen(
                 ) {
                     Icon(Icons.Filled.PlayArrow, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text(if (isSeries) "Продолжить S01E04" else "Смотреть")
+                    Text(if (isSeries) "Продолжить S01E04" else if (isTv) "Смотреть эфир" else "Смотреть")
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -193,7 +205,11 @@ fun DetailsScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "История о людях, которым приходится сделать выбор на границе знакомого мира. Демонстрационный контент используется для проверки интерфейса Viora.",
+                    text = if (content == null) {
+                        "Демонстрационный контент используется для проверки интерфейса Viora."
+                    } else {
+                        "${content.type.label}: ${content.country}, ${content.year}. Жанры: ${content.genres.sorted().joinToString()}. В этой сборке медиаданные демонстрационные и отделены от playback-провайдера."
+                    },
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -254,12 +270,14 @@ private fun SelectorSection(
                 Text("Использовать настройку профиля")
             }
         }
-        if (isOverride) {
-            TextButton(onClick = onReset) {
-                Text("Использовать настройку профиля")
-            }
-        }
     }
+}
+
+private fun formatDuration(minutes: Int): String {
+    if (minutes <= 0) return "—"
+    val hours = minutes / 60
+    val rest = minutes % 60
+    return if (hours == 0) "$rest мин" else "$hours ч ${rest.toString().padStart(2, '0')} мин"
 }
 
 @Composable

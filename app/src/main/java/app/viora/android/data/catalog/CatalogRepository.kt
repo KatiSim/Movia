@@ -6,6 +6,7 @@ import app.viora.android.domain.model.MediaContent
 interface CatalogRepository {
     fun all(): List<MediaContent>
     fun search(query: String): List<MediaContent>
+    fun findByTitle(title: String): MediaContent?
 }
 
 object DemoCatalogRepository : CatalogRepository {
@@ -35,5 +36,9 @@ object DemoCatalogRepository : CatalogRepository {
                 item.country.lowercase().contains(normalized) ||
                 item.year.toString().contains(normalized)
         }.sortedByDescending { it.popularity }
+    }
+
+    override fun findByTitle(title: String): MediaContent? = catalog.firstOrNull {
+        it.title.equals(title, ignoreCase = true)
     }
 }
