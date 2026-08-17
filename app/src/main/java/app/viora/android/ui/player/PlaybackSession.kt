@@ -2,6 +2,7 @@ package app.viora.android.ui.player
 
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
@@ -29,7 +30,7 @@ class PlaybackSession(context: Context) {
     var isPlaying by mutableStateOf(false)
         private set
 
-    var playbackState by mutableStateOf(Player.STATE_IDLE)
+    var playbackState by mutableIntStateOf(Player.STATE_IDLE)
         private set
 
     val mediaSession: MediaSession = MediaSession.Builder(context.applicationContext, player).build()

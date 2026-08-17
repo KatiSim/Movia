@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package app.viora.android.ui.player
 
 import android.app.Activity
@@ -11,6 +13,7 @@ import android.provider.Settings
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -196,8 +199,6 @@ fun PlayerScreen(
     LaunchedEffect(activity, sourceRectHint, session.isPlaying, title) {
         activity?.setPictureInPictureParams(
             buildVioraPictureInPictureParams(
-                context = context,
-                activity = activity,
                 sourceRectHint = sourceRectHint,
                 isPlaying = session.isPlaying,
                 title = displayPlayerTitle(title),
@@ -365,7 +366,11 @@ fun PlayerScreen(
         AndroidView(
             factory = { viewContext ->
                 (LayoutInflater.from(viewContext)
-                    .inflate(R.layout.view_viora_player, null, false) as PlayerView).apply {
+                    .inflate(
+                        R.layout.view_viora_player,
+                        FrameLayout(viewContext),
+                        false,
+                    ) as PlayerView).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -635,8 +640,6 @@ fun PlayerScreen(
                         controlsVisible = false
                         settingsOpen = false
                         val params = buildVioraPictureInPictureParams(
-                            context = context,
-                            activity = host,
                             sourceRectHint = sourceRectHint,
                             isPlaying = session.isPlaying,
                             title = displayPlayerTitle(title),

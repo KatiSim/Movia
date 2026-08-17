@@ -133,6 +133,7 @@ fun DetailsScreen(
     title: String,
     onBack: () -> Unit,
     onPlay: (String) -> Unit,
+    modifier: Modifier = Modifier,
     favorite: Boolean = false,
     watchLater: Boolean = false,
     downloaded: Boolean = false,
@@ -149,7 +150,6 @@ fun DetailsScreen(
     qualityIsOverride: Boolean = false,
     onResetAudio: () -> Unit,
     onResetQuality: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val content = remember(title) { DemoCatalogRepository.findByTitle(title) }
     val isSeries = content?.type == ContentType.SERIES
