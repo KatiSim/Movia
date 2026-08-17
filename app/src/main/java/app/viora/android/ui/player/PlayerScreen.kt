@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.util.Rational
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
@@ -13,10 +15,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -35,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -66,7 +74,9 @@ fun PlayerScreen(
     onNextEpisode: () -> Unit,
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
     val activity = remember(context) { context.findActivity() }
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val player = session.player
     var playbackError by remember { mutableStateOf<String?>(null) }
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
@@ -106,7 +116,12 @@ fun PlayerScreen(
         onDispose { player.removeListener(listener) }
     }
 
-    BackHandler(onBack = onBack)
+    val leavePlayer: () -> Unit = {
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        onBack()
+    }
+
+    BackHandler(onBack = leavePlayer)
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
@@ -125,36 +140,91 @@ fun PlayerScreen(
                 it.player = player
                 it.resizeMode = resizeMode
             },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing),
         )
 
-        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Свернуть плеер", tint = Color.White)
-        }
-
-        IconButton(
-            onClick = {
-                activity?.enterPictureInPictureMode(
-                    PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9)).build(),
-                )
-            },
-            enabled = activity != null,
-            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+        // Keep all top actions inside status-bar / cutout safe areas.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = 8.dp, vertical = 6.dp),
         ) {
-            Icon(Icons.Outlined.PictureInPictureAlt, contentDescription = "Картинка в картинке", tint = Color.White)
+            IconButton(
+                onClick = leavePlayer,
+                modifier = Modifier.align(Alignment.TopStart),
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Свернуть плеер",
+                    tint = Color.White,
+                )
+            }
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                maxLines = 1,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(start = 112.dp, end = 112.dp, top = 12.dp),
+            )
+
+            Row(
+                modifier = Modifier.align(Alignment.TopEnd),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                IconButton(
+                    onClick = {
+                        activity?.requestedOrientation = if (isLandscape) {
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        }
+                    },
+                    enabled = activity != null,
+                ) {
+                    Icon(
+                        Icons.Outlined.ScreenRotation,
+                        contentDescription = if (isLandscape) {
+                            "Переключить в портретный режим"
+                        } else {
+                            "Развернуть в альбомный режим"
+                        },
+                        tint = Color.White,
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        activity?.enterPictureInPictureMode(
+                            PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9)).build(),
+                        )
+                    },
+                    enabled = activity != null,
+                ) {
+                    Icon(
+                        Icons.Outlined.PictureInPictureAlt,
+                        contentDescription = "Картинка в картинке",
+                        tint = Color.White,
+                    )
+                }
+            }
         }
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 24.dp, start = 64.dp, end = 64.dp),
-        )
-
+        // Custom options live above Media3's own transport/timeline controls.
         Column(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 24.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(start = 16.dp, end = 16.dp, bottom = 104.dp),
             horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
                 text = "Предпочтение: $preferredAudio · $preferredQuality${if (offline) " · офлайн" else ""}",
@@ -185,7 +255,10 @@ fun PlayerScreen(
             Text(
                 text = "Ошибка воспроизведения: $error",
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
             )
         }
     }
