@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -164,14 +166,6 @@ fun PlayerScreen(
         val sourceView = view.videoSurfaceView ?: view
         if (sourceView.getGlobalVisibleRect(rect) && !rect.isEmpty) {
             sourceRectHint = rect
-        }
-    }
-
-    DisposableEffect(context, session) {
-        val appContext = context.applicationContext
-        val receiver = registerPiPActionReceiver(appContext, session)
-        onDispose {
-            runCatching { appContext.unregisterReceiver(receiver) }
         }
     }
 
@@ -371,6 +365,24 @@ fun PlayerScreen(
             },
             modifier = Modifier.fillMaxSize(),
         )
+
+        if (inPictureInPicture && durationMs > 0L) {
+            val pipProgress = (positionMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(Color.Black.copy(alpha = 0.42f)),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(pipProgress)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -680,62 +692,16 @@ private fun PlayerTimeline(
 ) {
     val safeDuration = max(1L, durationMs)
     Surface(
-        color = Color.Black.copy(alpha = 0.40f),
+        color = Color.Black.copy(alpha = 0.46f),
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.safeDrawing)
-                .padding(start = 14.dp, end = 8.dp, top = 4.dp, bottom = 6.dp),
+                .padding(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 2.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(
-                    onClick = {
-                        onInteraction()
-                        activity?.requestedOrientation = if (isLandscape) {
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                        } else {
-                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                        }
-                    },
-                    enabled = activity != null,
-                    modifier = Modifier.size(52.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.ScreenRotation,
-                        contentDescription = if (isLandscape) {
-                            "Переключить в портретный режим"
-                        } else {
-                            "Развернуть в альбомный режим"
-                        },
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp),
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        onInteraction()
-                        onEnterPictureInPicture()
-                    },
-                    enabled = activity != null,
-                    modifier = Modifier.size(52.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.PictureInPictureAlt,
-                        contentDescription = "Картинка в картинке",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp),
-                    )
-                }
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -758,7 +724,7 @@ private fun PlayerTimeline(
                     colors = SliderDefaults.colors(
                         thumbColor = MaterialTheme.colorScheme.primary,
                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                        inactiveTrackColor = Color.White.copy(alpha = 0.34f),
+                        inactiveTrackColor = Color.White.copy(alpha = 0.38f),
                     ),
                     thumb = {
                         Box(
@@ -772,7 +738,7 @@ private fun PlayerTimeline(
                             sliderState = sliderState,
                             colors = SliderDefaults.colors(
                                 activeTrackColor = MaterialTheme.colorScheme.primary,
-                                inactiveTrackColor = Color.White.copy(alpha = 0.34f),
+                                inactiveTrackColor = Color.White.copy(alpha = 0.38f),
                             ),
                             drawStopIndicator = null,
                         )
@@ -785,17 +751,72 @@ private fun PlayerTimeline(
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Spacer(Modifier.width(4.dp))
-                IconButton(
-                    onClick = onSettings,
-                    modifier = Modifier.size(52.dp),
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color.White.copy(alpha = 0.12f),
                 ) {
-                    Icon(
-                        Icons.Outlined.Settings,
-                        contentDescription = "Настройки плеера",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp),
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                    ) {
+                        IconButton(
+                            onClick = {
+                                onInteraction()
+                                activity?.requestedOrientation = if (isLandscape) {
+                                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                } else {
+                                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                                }
+                            },
+                            enabled = activity != null,
+                            modifier = Modifier.size(52.dp),
+                        ) {
+                            Icon(
+                                Icons.Outlined.ScreenRotation,
+                                contentDescription = if (isLandscape) {
+                                    "Переключить в портретный режим"
+                                } else {
+                                    "Развернуть в альбомный режим"
+                                },
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp),
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                onInteraction()
+                                onEnterPictureInPicture()
+                            },
+                            enabled = activity != null,
+                            modifier = Modifier.size(52.dp),
+                        ) {
+                            Icon(
+                                Icons.Outlined.PictureInPictureAlt,
+                                contentDescription = "Картинка в картинке",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp),
+                            )
+                        }
+                        IconButton(
+                            onClick = onSettings,
+                            modifier = Modifier.size(52.dp),
+                        ) {
+                            Icon(
+                                Icons.Outlined.Settings,
+                                contentDescription = "Настройки плеера",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -811,48 +832,61 @@ private fun SubtitleSelectorRow(
     Surface(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
-        color = Color.White.copy(alpha = if (enabled) 0.10f else 0.06f),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = if (enabled) 0.15f else 0.09f),
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp),
+            .heightIn(min = 68.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color.White.copy(alpha = if (enabled) 0.12f else 0.07f),
+                modifier = Modifier.size(44.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Outlined.ClosedCaption,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.94f else 0.62f),
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Субтитры",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.72f),
                 )
-                if (enabled) {
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f),
-                        maxLines = 1,
-                    )
-                }
+                Text(
+                    text = if (enabled) value else "Нет доступных дорожек",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.82f else 0.66f),
+                    maxLines = 1,
+                )
             }
             if (enabled) {
                 Icon(
                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.86f),
                     modifier = Modifier.size(28.dp),
                 )
             } else {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color.White.copy(alpha = 0.10f),
+                    color = Color.White.copy(alpha = 0.12f),
                 ) {
                     Text(
                         text = "Нет",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.82f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.76f),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     )
                 }
@@ -948,7 +982,7 @@ private fun ScrollablePlayerSettingRow(
         Box(modifier = Modifier.fillMaxWidth()) {
             LazyRow(
                 state = listState,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(end = 28.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -1031,12 +1065,12 @@ private fun VioraChoiceChip(
         color = if (selected) {
             MaterialTheme.colorScheme.primary
         } else {
-            Color.White.copy(alpha = 0.10f)
+            Color.White.copy(alpha = 0.16f)
         },
         contentColor = if (selected) {
             MaterialTheme.colorScheme.onPrimary
         } else {
-            MaterialTheme.colorScheme.onSurface
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.96f)
         },
         modifier = Modifier
             .widthIn(min = 56.dp)
