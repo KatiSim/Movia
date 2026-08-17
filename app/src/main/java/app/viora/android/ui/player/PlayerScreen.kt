@@ -1,12 +1,12 @@
 package app.viora.android.ui.player
 
 import android.app.Activity
-import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.util.Rational
+import android.graphics.Rect
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -91,6 +91,7 @@ import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import app.viora.android.R
 import kotlinx.coroutines.delay
 import kotlin.math.max
 import java.util.Locale
@@ -131,7 +132,9 @@ fun PlayerScreen(
     val activity = remember(context) { context.findActivity() }
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val player = session.player
+    val inPictureInPicture = VioraPiPState.isInPictureInPicture
 
+    var sourceRectHint by remember { mutableStateOf<Rect?>(null) }
     var playbackError by remember { mutableStateOf<String?>(null) }
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
@@ -150,8 +153,47 @@ fun PlayerScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun showControls() {
-        controlsVisible = true
-        interactionTick++
+        if (!inPictureInPicture) {
+            controlsVisible = true
+            interactionTick++
+        }
+    }
+
+    fun updateSourceRect(view: PlayerView) {
+        val rect = Rect()
+        val sourceView = view.videoSurfaceView ?: view
+        if (sourceView.getGlobalVisibleRect(rect) && !rect.isEmpty) {
+            sourceRectHint = rect
+        }
+    }
+
+    DisposableEffect(context, session) {
+        val appContext = context.applicationContext
+        val receiver = registerPiPActionReceiver(appContext, session)
+        onDispose {
+            runCatching { appContext.unregisterReceiver(receiver) }
+        }
+    }
+
+    LaunchedEffect(inPictureInPicture) {
+        if (inPictureInPicture) {
+            controlsVisible = false
+            settingsOpen = false
+            subtitlePickerOpen = false
+        }
+    }
+
+    LaunchedEffect(activity, sourceRectHint, session.isPlaying, title) {
+        activity?.setPictureInPictureParams(
+            buildVioraPictureInPictureParams(
+                context = context,
+                activity = activity,
+                sourceRectHint = sourceRectHint,
+                isPlaying = session.isPlaying,
+                title = displayPlayerTitle(title),
+                autoEnter = session.isPlaying,
+            ),
+        )
     }
 
     LaunchedEffect(speed) {
@@ -270,21 +312,62 @@ fun PlayerScreen(
 
     BackHandler(onBack = leavePlayer)
 
-    Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        Color.Black,
+                    ),
+                ),
+            ),
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
+        ) {
+            Text(
+                text = "Viora",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = displayPlayerTitle(title),
+                color = Color.White.copy(alpha = 0.84f),
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+            )
+        }
+
         AndroidView(
             factory = { viewContext ->
-                PlayerView(viewContext).apply {
+                (LayoutInflater.from(viewContext)
+                    .inflate(R.layout.view_viora_player, null, false) as PlayerView).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                     )
                     useController = false
+                    setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    setKeepContentOnPlayerReset(true)
+                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     this.player = player
+                    addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                        updateSourceRect(view as PlayerView)
+                    }
+                    post { updateSourceRect(this) }
                 }
             },
             update = {
                 it.player = player
                 it.resizeMode = resizeMode
+                it.post { updateSourceRect(it) }
             },
             modifier = Modifier.fillMaxSize(),
         )
@@ -312,7 +395,7 @@ fun PlayerScreen(
                 },
         )
 
-        if (controlsVisible || settingsOpen) {
+        if (!inPictureInPicture && (controlsVisible || settingsOpen)) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -400,11 +483,27 @@ fun PlayerScreen(
                 isLandscape = isLandscape,
                 activity = activity,
                 onInteraction = ::showControls,
+                onEnterPictureInPicture = {
+                    activity?.let { host ->
+                        controlsVisible = false
+                        settingsOpen = false
+                        val params = buildVioraPictureInPictureParams(
+                            context = context,
+                            activity = host,
+                            sourceRectHint = sourceRectHint,
+                            isPlaying = session.isPlaying,
+                            title = displayPlayerTitle(title),
+                            autoEnter = false,
+                        )
+                        host.setPictureInPictureParams(params)
+                        host.enterPictureInPictureMode(params)
+                    }
+                },
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
 
-        if (settingsOpen) {
+        if (!inPictureInPicture && settingsOpen) {
             ModalBottomSheet(
                 onDismissRequest = {
                     settingsOpen = false
@@ -509,7 +608,7 @@ fun PlayerScreen(
             }
         }
 
-        playbackError?.let { error ->
+        if (!inPictureInPicture) playbackError?.let { error ->
             Text(
                 text = "Ошибка воспроизведения: $error",
                 color = MaterialTheme.colorScheme.error,
@@ -576,6 +675,7 @@ private fun PlayerTimeline(
     isLandscape: Boolean,
     activity: Activity?,
     onInteraction: () -> Unit,
+    onEnterPictureInPicture: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val safeDuration = max(1L, durationMs)
@@ -622,9 +722,7 @@ private fun PlayerTimeline(
                 IconButton(
                     onClick = {
                         onInteraction()
-                        activity?.enterPictureInPictureMode(
-                            PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9)).build(),
-                        )
+                        onEnterPictureInPicture()
                     },
                     enabled = activity != null,
                     modifier = Modifier.size(52.dp),
