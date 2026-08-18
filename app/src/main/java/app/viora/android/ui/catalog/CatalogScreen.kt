@@ -1,5 +1,8 @@
 package app.viora.android.ui.catalog
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,9 +51,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -135,6 +135,7 @@ fun CatalogScreen(
     var subtitleLanguage by rememberSaveable { mutableStateOf<String?>(null) }
     var quickSheet by remember { mutableStateOf<QuickSheet?>(null) }
     var advancedOpen by remember { mutableStateOf(false) }
+    var filtersExpanded by rememberSaveable { mutableStateOf(false) }
     var sortName by rememberSaveable { mutableStateOf(CatalogSort.POPULAR.name) }
     var sortSheetOpen by remember { mutableStateOf(false) }
 
@@ -193,54 +194,94 @@ fun CatalogScreen(
         modifier = modifier,
         contentPadding = PaddingValues(
             start = 16.dp,
-            top = contentPadding.calculateTopPadding() + 20.dp,
+            top = contentPadding.calculateTopPadding() + 12.dp,
             end = 16.dp,
             bottom = contentPadding.calculateBottomPadding() + 24.dp,
         ),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Text("Каталог", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            val typeOptions = listOf<ContentType?>(null) + contentTypes
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                typeOptions.forEachIndexed { index, type ->
-                    SegmentedButton(
-                        selected = selectedType == type,
-                        onClick = { selectedTypeName = type?.name ?: "ALL" },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = typeOptions.size),
-                        colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = VioraBrandAmber,
-                            activeContentColor = VioraOnBrandAmber,
-                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            activeBorderColor = VioraBrandAmber,
-                            inactiveBorderColor = MaterialTheme.colorScheme.outline,
-                        ),
-                        label = { Text(type?.label ?: "Все", maxLines = 1) },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        "Каталог",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        catalogCountLabel(filtered.size, selectedType),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                TextButton(onClick = { sortSheetOpen = true }) {
+                    Text(sort.label, maxLines = 1)
+                    Icon(
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = "Изменить сортировку",
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
         }
+
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(
+            val typeOptions = listOf<ContentType?>(null) + contentTypes
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                QuickFilterPill(
-                    label = if (filter.activeCount > 0) "Фильтры · ${filter.activeCount}" else "Фильтры",
-                    active = filter.activeCount > 0,
-                    onOpen = { advancedOpen = true },
-                    onClear = { applyFilter(CatalogFilter(type = selectedType)) },
-                )
+                items(typeOptions, key = { it?.name ?: "ALL" }) { type ->
+                    VioraFilterChip(
+                        selected = selectedType == type,
+                        onClick = { selectedTypeName = type?.name ?: "ALL" },
+                        label = type?.label ?: "Все",
+                    )
+                }
+                item(key = "FILTERS_TOGGLE") {
+                    VioraFilterChip(
+                        selected = filtersExpanded || filter.activeCount > 0,
+                        onClick = { filtersExpanded = !filtersExpanded },
+                        label = if (filter.activeCount > 0) {
+                            "Фильтры · ${filter.activeCount}"
+                        } else {
+                            "Фильтры"
+                        },
+                    )
+                }
+            }
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AnimatedVisibility(
+                visible = filtersExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
                 LazyRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(end = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    item {
+                        QuickFilterPill(
+                            label = if (filter.activeCount > 0) "Все фильтры · ${filter.activeCount}" else "Все фильтры",
+                            active = filter.activeCount > 0,
+                            onOpen = { advancedOpen = true },
+                            onClear = { applyFilter(CatalogFilter(type = selectedType)) },
+                        )
+                    }
                     item {
                         QuickFilterPill(
                             label = genreChipLabel(selectedGenres),
@@ -273,23 +314,6 @@ fun CatalogScreen(
                             onClear = { resolution = null },
                         )
                     }
-                }
-            }
-        }
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    catalogCountLabel(filtered.size, selectedType),
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                TextButton(onClick = { sortSheetOpen = true }) {
-                    Text(sort.label)
-                    Icon(
-                        Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "Изменить сортировку",
-                        modifier = Modifier.size(18.dp),
-                    )
                 }
             }
         }
