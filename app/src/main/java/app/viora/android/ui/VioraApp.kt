@@ -203,6 +203,7 @@ private fun VioraContent(
     var catalogLaunchPreset by remember { mutableStateOf<CatalogLaunchPreset?>(null) }
     var detailsTitle by rememberSaveable { mutableStateOf<String?>(null) }
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
+    var profileOpen by rememberSaveable { mutableStateOf(false) }
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
 
     val persistActiveProgress: () -> Unit = {
@@ -459,6 +460,15 @@ private fun VioraContent(
         return
     }
 
+    if (profileOpen) {
+        ProfileScreen(
+            modifier = Modifier.fillMaxSize(),
+            onBack = { profileOpen = false },
+            onOpenSettings = { settingsRoute = it },
+        )
+        return
+    }
+
     val openDetails: (String) -> Unit = { title ->
         detailsTitle = title
         scope.launch { libraryRepository.addHistory(title) }
@@ -477,7 +487,7 @@ private fun VioraContent(
                     catalogLaunchPreset = preset
                     selectedIndex = 1
                 },
-                onOpenProfile = { selectedIndex = 4 },
+                onOpenProfile = { profileOpen = true },
             )
             1 -> CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -517,11 +527,6 @@ private fun VioraContent(
                         }
                     }
                 },
-            )
-            4 -> ProfileScreen(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = innerPadding,
-                onOpenSettings = { settingsRoute = it },
             )
         }
     }

@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -30,12 +35,15 @@ import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -67,45 +75,54 @@ private val supportEntries = listOf(
     ProfileEntry("Помощь", "Справка по Viora", Icons.AutoMirrored.Outlined.HelpOutline, "help"),
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    onBack: () -> Unit,
     onOpenSettings: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val versionName = remember(context) { installedVersionName(context) }
+    val navigationBottomPadding = WindowInsets.navigationBars
+        .asPaddingValues()
+        .calculateBottomPadding()
+
+    BackHandler(onBack = onBack)
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-        ) {
-            Text(
-                text = "Профиль",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                        top = contentPadding.calculateTopPadding() + 20.dp,
-                        end = 16.dp,
-                        bottom = 16.dp,
-                    ),
-            )
-        }
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Профиль",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Назад",
+                    )
+                }
+            },
+        )
 
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(
+                top = 16.dp,
                 start = 16.dp,
                 end = 16.dp,
-                bottom = contentPadding.calculateBottomPadding() + 24.dp,
+                bottom = navigationBottomPadding + 24.dp,
             ),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
