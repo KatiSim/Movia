@@ -30,6 +30,16 @@ class LibraryRepository(context: Context) {
         } ?: PlaybackProgress()
     }
 
+    val progressByTitle: Flow<Map<String, PlaybackProgress>> = dao.observeAllProgress().map { rows ->
+        rows.associate { entity ->
+            entity.title to PlaybackProgress(
+                title = entity.title,
+                positionMs = entity.positionMs,
+                durationMs = entity.durationMs,
+            )
+        }
+    }
+
     suspend fun setFavorite(title: String, enabled: Boolean) {
         if (enabled) dao.upsertFavorite(FavoriteEntity(title, now())) else dao.deleteFavorite(title)
     }

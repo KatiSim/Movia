@@ -50,6 +50,9 @@ interface VioraDao {
     @Query("SELECT * FROM playback_progress ORDER BY updatedAt DESC LIMIT 1")
     fun observeLatestProgress(): Flow<PlaybackProgressEntity?>
 
+    @Query("SELECT * FROM playback_progress ORDER BY updatedAt DESC")
+    fun observeAllProgress(): Flow<List<PlaybackProgressEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProgress(entity: PlaybackProgressEntity)
 

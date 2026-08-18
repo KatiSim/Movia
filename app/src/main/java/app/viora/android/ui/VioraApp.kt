@@ -52,9 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.work.WorkInfo
 import app.viora.android.data.download.DownloadScheduler
-import app.viora.android.data.download.DownloadStatus
 import app.viora.android.data.library.LibraryRepository
 import app.viora.android.data.preferences.AppPreferences
 import app.viora.android.data.preferences.PlaybackPreferences
@@ -96,7 +94,6 @@ private val topLevelDestinations = listOf(
     TopLevelDestination("Каталог", Icons.Filled.ViewModule, Icons.Outlined.ViewModule),
     TopLevelDestination("Поиск", Icons.Filled.Search, Icons.Outlined.Search),
     TopLevelDestination("Моё", Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary),
-    TopLevelDestination("Профиль", Icons.Filled.Person, Icons.Outlined.Person),
 )
 
 internal fun playbackBaseTitle(current: String): String =
@@ -184,6 +181,22 @@ private fun VioraContent(
     val history by libraryRepository.history.collectAsState(initial = emptyList())
     val recentSearches by libraryRepository.recentSearches.collectAsState(initial = emptyList())
     val lastProgress by libraryRepository.lastProgress.collectAsState(initial = PlaybackProgress())
+    val progressByTitle by libraryRepository.progressByTitle.collectAsState(initial = emptyMap())
+    val playbackState by playbackSession.state.collectAsState()
+    val effectiveProgress = if (playbackState.hasMedia && playbackState.totalDurationMs > 0L) {
+        PlaybackProgress(
+            title = playbackState.displayTitle,
+            positionMs = playbackState.currentPositionMs,
+            durationMs = playbackState.totalDurationMs,
+        )
+    } else {
+        lastProgress
+    }
+    val effectiveProgressByTitle = if (playbackState.hasMedia && playbackState.totalDurationMs > 0L) {
+        progressByTitle + (playbackState.displayTitle to effectiveProgress)
+    } else {
+        progressByTitle
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -193,11 +206,16 @@ private fun VioraContent(
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
 
     val persistActiveProgress: () -> Unit = {
-        val title = playbackSession.activeTitle
-        val duration = playbackSession.player.duration
-        val position = playbackSession.player.currentPosition
-        if (!title.isNullOrBlank() && position >= 0L && duration > 0L) {
-            scope.launch { libraryRepository.saveProgress(title, position, duration) }
+        val state = playbackSession.state.value
+        if (state.hasMedia && state.currentPositionMs >= 0L && state.totalDurationMs > 0L) {
+            scope.launch {
+                libraryRepository.saveProgress(
+                    state.displayTitle,
+                    state.currentPositionMs,
+                    state.totalDurationMs,
+                    state.lastUpdatedTimestamp,
+                )
+            }
         }
     }
 
@@ -209,33 +227,45 @@ private fun VioraContent(
 
     val startPlayback: (String) -> Unit = { title ->
         val baseTitle = playbackBaseTitle(title)
+        val content = DemoCatalogRepository.findByTitle(baseTitle)
+        val episodeMatch = Regex(""".* · S(\d{2})E(\d{2})(?: · Эпизод \d+)?$""").matchEntire(title)
+        val seasonNumber = episodeMatch?.groupValues?.getOrNull(1)?.toIntOrNull()
+        val episodeNumber = episodeMatch?.groupValues?.getOrNull(2)?.toIntOrNull()
         val localSource = (
             DownloadScheduler.localFile(context.applicationContext, title)
                 ?: DownloadScheduler.localFile(context.applicationContext, baseTitle)
             )?.toURI()?.toString()
-        val startPosition = if (lastProgress.title == title) lastProgress.positionMs else 0L
+        val saved = progressByTitle[title] ?: lastProgress.takeIf { it.title == title }
         playbackSession.start(
+            mediaId = content?.id ?: baseTitle,
             title = title,
+            seasonNumber = seasonNumber,
+            episodeNumber = episodeNumber,
             sourceUri = localSource,
-            startPositionMs = startPosition,
+            startPositionMs = saved?.positionMs ?: 0L,
+            audioTrackId = playbackPreferences.audio,
+            subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
         )
         fullPlayerOpen = true
     }
 
-    LaunchedEffect(playbackSession.activeTitle) {
-        while (playbackSession.activeTitle != null) {
-            delay(5_000L)
-            val title = playbackSession.activeTitle ?: break
-            val duration = playbackSession.player.duration
-            val position = playbackSession.player.currentPosition
-            if (position >= 0L && duration > 0L) {
-                libraryRepository.saveProgress(title, position, duration)
+    LaunchedEffect(playbackSession, libraryRepository) {
+        while (true) {
+            delay(2_000L)
+            val state = playbackSession.state.value
+            if (state.hasMedia && state.currentPositionMs >= 0L && state.totalDurationMs > 0L) {
+                libraryRepository.saveProgress(
+                    state.displayTitle,
+                    state.currentPositionMs,
+                    state.totalDurationMs,
+                    state.lastUpdatedTimestamp,
+                )
             }
         }
     }
 
-    if (fullPlayerOpen && playbackSession.activeTitle != null) {
-        val title = playbackSession.activeTitle.orEmpty()
+    if (fullPlayerOpen && playbackState.hasMedia) {
+        val title = playbackState.displayTitle
         val baseTitle = playbackBaseTitle(title)
         val titlePreferencesFlow = remember(baseTitle, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(baseTitle)
@@ -256,6 +286,7 @@ private fun VioraContent(
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,
             onAudioSelected = { audio ->
+                playbackSession.setTrackPreferences(audio, playbackSession.state.value.subtitleTrackId)
                 scope.launch { preferencesRepository.setTitleAudio(baseTitle, audio) }
             },
             onQualitySelected = { quality ->
@@ -265,23 +296,27 @@ private fun VioraContent(
             autoNextEnabled = playbackPreferences.autoNextEnabled,
             persistentSeekButtons = appPreferences.persistentSeekButtons,
             onSubtitlesChanged = { enabled ->
+                playbackSession.setTrackPreferences(
+                    playbackSession.state.value.audioTrackId,
+                    if (enabled) (playbackSession.state.value.subtitleTrackId ?: "Auto") else null,
+                )
                 scope.launch { preferencesRepository.setSubtitlesEnabled(enabled) }
+            },
+            onSubtitleTrackIdChanged = { trackId ->
+                playbackSession.setTrackPreferences(
+                    playbackSession.state.value.audioTrackId,
+                    trackId,
+                )
             },
             onNextEpisode = {
                 nextEpisodeTitle(title)?.let(startPlayback)
-            },
-            onOpenEpisodes = {
-                persistActiveProgress()
-                playbackSession.player.pause()
-                fullPlayerOpen = false
-                detailsTitle = baseTitle
             },
             modifier = Modifier.fillMaxSize(),
         )
         return
     }
 
-    val miniVisible = playbackSession.activeTitle != null
+    val miniVisible = playbackState.hasMedia
     val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
 
     if (detailsTitle != null) {
@@ -292,58 +327,42 @@ private fun VioraContent(
         val titlePreferences by titlePreferencesFlow.collectAsState(initial = TitlePlaybackPreferences())
         val resolvedAudio = titlePreferences.audio ?: playbackPreferences.audio
         val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
-        var downloadStatus by remember(title) { mutableStateOf(DownloadStatus()) }
-        LaunchedEffect(title) {
-            while (true) {
-                downloadStatus = DownloadScheduler.status(context.applicationContext, title)
-                delay(1_000L)
+        val inMyList = title in favorites || title in watchLater
+
+        val toggleDownload: (String) -> Unit = { target ->
+            if (target in downloads) {
+                if (DownloadScheduler.delete(context.applicationContext, target)) {
+                    scope.launch { libraryRepository.setDownloaded(target, false) }
+                }
+            } else {
+                DownloadScheduler.enqueue(
+                    context = context.applicationContext,
+                    title = target,
+                    wifiOnly = playbackPreferences.wifiOnlyDownloads,
+                )
             }
         }
-        val downloadLabel = when {
-            title in downloads -> "Скачано"
-            downloadStatus.state == WorkInfo.State.RUNNING -> "Скачивается ${downloadStatus.progressPercent}%"
-            downloadStatus.state == WorkInfo.State.ENQUEUED || downloadStatus.state == WorkInfo.State.BLOCKED -> "Ожидание"
-            downloadStatus.state == WorkInfo.State.FAILED -> "Ошибка · Повторить"
-            downloadStatus.state == WorkInfo.State.SUCCEEDED -> "Завершено"
-            else -> "Скачать ~65 МБ"
-        }
-        val downloadActionEnabled = title in downloads || downloadStatus.state !in setOf(
-            WorkInfo.State.RUNNING,
-            WorkInfo.State.ENQUEUED,
-            WorkInfo.State.BLOCKED,
-        )
 
         Box(modifier = Modifier.fillMaxSize()) {
             DetailsScreen(
                 title = title,
                 onBack = { detailsTitle = null },
                 onPlay = startPlayback,
-                favorite = title in favorites,
-                watchLater = title in watchLater,
-                downloaded = title in downloads,
-                downloadLabel = downloadLabel,
-                downloadActionEnabled = downloadActionEnabled,
-                selectedAudio = resolvedAudio,
-                selectedQuality = resolvedQuality,
-                onFavoriteChange = { favorite ->
-                    scope.launch { libraryRepository.setFavorite(title, favorite) }
-                },
-                onWatchLaterChange = { enabled ->
-                    scope.launch { libraryRepository.setWatchLater(title, enabled) }
-                },
-                onDownloadClick = {
-                    if (title in downloads) {
-                        if (DownloadScheduler.delete(context.applicationContext, title)) {
-                            scope.launch { libraryRepository.setDownloaded(title, false) }
-                        }
-                    } else {
-                        DownloadScheduler.enqueue(
-                            context = context.applicationContext,
-                            title = title,
-                            wifiOnly = playbackPreferences.wifiOnlyDownloads,
-                        )
+                inMyList = inMyList,
+                onMyListChange = { enabled ->
+                    scope.launch {
+                        // Keep legacy collections synchronized while the new UI exposes one SSOT-facing action.
+                        libraryRepository.setFavorite(title, enabled)
+                        libraryRepository.setWatchLater(title, enabled)
                     }
                 },
+                downloads = downloads,
+                onDownloadTitle = toggleDownload,
+                selectedAudio = resolvedAudio,
+                selectedQuality = resolvedQuality,
+                subtitlesEnabled = playbackPreferences.subtitlesEnabled,
+                progressByTitle = effectiveProgressByTitle,
+                latestProgress = effectiveProgress,
                 onAudioSelected = { audio ->
                     scope.launch { preferencesRepository.setTitleAudio(title, audio) }
                 },
@@ -446,7 +465,7 @@ private fun VioraContent(
             0 -> HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
-                progress = lastProgress,
+                progress = effectiveProgress,
                 history = history,
                 onOpenDetails = openDetails,
                 onContinue = startPlayback,
@@ -454,6 +473,7 @@ private fun VioraContent(
                     catalogLaunchPreset = preset
                     selectedIndex = 1
                 },
+                onOpenProfile = { selectedIndex = 4 },
             )
             1 -> CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -477,7 +497,7 @@ private fun VioraContent(
                 watchLater = watchLater,
                 history = history,
                 downloads = downloads,
-                progress = lastProgress,
+                progress = effectiveProgress,
                 onContinuePlayback = startPlayback,
                 onOpenDetails = openDetails,
                 onClearHistory = { snapshot ->

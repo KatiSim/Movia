@@ -1,49 +1,40 @@
 package app.viora.android.ui.details
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.ExpandLess
-import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Movie
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,9 +48,13 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,17 +63,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.viora.android.R
 import app.viora.android.data.catalog.DemoCatalogRepository
 import app.viora.android.domain.model.ContentType
+import app.viora.android.domain.model.PlaybackProgress
 import app.viora.android.ui.theme.VioraBrandAmber
 import app.viora.android.ui.theme.VioraOnBrandAmber
+import kotlin.math.ceil
 
 private val audioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
 private val qualityOptions = listOf("Auto", "1080p", "720p", "480p")
@@ -87,21 +87,16 @@ private data class EpisodeUiState(
     val season: Int,
     val number: Int,
     val durationMinutes: Int = 46,
-    val progress: Float = 0f,
-    val remainingMinutes: Int? = null,
+    val progress: PlaybackProgress = PlaybackProgress(),
 ) {
     val code: String = "S${season.toString().padStart(2, '0')}E${number.toString().padStart(2, '0')}"
-    val title: String = "$code · Эпизод $number"
+    val playbackTitle: String get() = "$code · Эпизод $number"
+    val progressFraction: Float get() = progress.fraction
+    val remainingMinutes: Int?
+        get() = if (progress.durationMs > 0L) {
+            ceil((progress.durationMs - progress.positionMs).coerceAtLeast(0L) / 60_000.0).toInt()
+        } else null
 }
-
-private fun episodesForSeason(season: Int, episodeCount: Int): List<EpisodeUiState> =
-    (1..episodeCount).map { number ->
-        when {
-            season == 1 && number in 1..3 -> EpisodeUiState(season = season, number = number, progress = 1f)
-            season == 1 && number == 4 -> EpisodeUiState(season = season, number = number, progress = 0.32f, remainingMinutes = 18)
-            else -> EpisodeUiState(season = season, number = number)
-        }
-    }
 
 private fun seasonCountText(count: Int): String {
     val mod100 = count % 100
@@ -115,35 +110,31 @@ private fun seasonCountText(count: Int): String {
     return "$count $word"
 }
 
-private fun episodeCountText(count: Int): String {
-    val mod100 = count % 100
-    val mod10 = count % 10
-    val word = when {
-        mod100 in 11..14 -> "серий"
-        mod10 == 1 -> "серия"
-        mod10 in 2..4 -> "серии"
-        else -> "серий"
-    }
-    return "$count $word"
-}
+private fun episodeTitle(baseTitle: String, season: Int, episode: Int): String =
+    "$baseTitle · S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} · Эпизод $episode"
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+private fun seasonFromTitle(title: String): Int? =
+    Regex(" · S(\\d{2})E\\d{2}").find(title)?.groupValues?.getOrNull(1)?.toIntOrNull()
+
+private fun episodeFromTitle(title: String): Int? =
+    Regex(" · S\\d{2}E(\\d{2})").find(title)?.groupValues?.getOrNull(1)?.toIntOrNull()
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailsScreen(
     title: String,
     onBack: () -> Unit,
     onPlay: (String) -> Unit,
     modifier: Modifier = Modifier,
-    favorite: Boolean = false,
-    watchLater: Boolean = false,
-    downloaded: Boolean = false,
-    downloadLabel: String = "Скачать ~65 МБ",
-    downloadActionEnabled: Boolean = true,
+    inMyList: Boolean = false,
+    onMyListChange: (Boolean) -> Unit,
+    downloads: Set<String> = emptySet(),
+    onDownloadTitle: (String) -> Unit,
     selectedAudio: String = "Auto",
     selectedQuality: String = "Auto",
-    onFavoriteChange: (Boolean) -> Unit,
-    onWatchLaterChange: (Boolean) -> Unit,
-    onDownloadClick: () -> Unit,
+    subtitlesEnabled: Boolean = false,
+    progressByTitle: Map<String, PlaybackProgress> = emptyMap(),
+    latestProgress: PlaybackProgress = PlaybackProgress(),
     onAudioSelected: (String) -> Unit,
     onQualitySelected: (String) -> Unit,
     audioIsOverride: Boolean = false,
@@ -152,14 +143,25 @@ fun DetailsScreen(
     onResetQuality: () -> Unit,
 ) {
     val content = remember(title) { DemoCatalogRepository.findByTitle(title) }
+    val heroHeight = (LocalConfiguration.current.screenHeightDp.dp * 0.38f).coerceIn(280.dp, 420.dp)
     val isSeries = content?.type == ContentType.SERIES
     val isTv = content?.type == ContentType.TV
     val seasonEpisodeCounts = if (isSeries) {
         content?.seasonEpisodeCounts?.takeIf { it.isNotEmpty() } ?: listOf(8)
-    } else {
-        emptyList()
+    } else emptyList()
+    val resume = latestProgress.takeIf { it.title == title || it.title.startsWith("$title · S") }
+    val initialSeason = seasonFromTitle(resume?.title.orEmpty())?.coerceIn(1, seasonEpisodeCounts.size.coerceAtLeast(1)) ?: 1
+    var selectedSeason by remember(title, initialSeason) { mutableIntStateOf(initialSeason) }
+    var playbackSheetOpen by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    val appBarSolid by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 96 }
     }
-    var expandedSeasons by remember(content?.id) { mutableStateOf(setOf(1)) }
+    val appBarColor by animateColorAsState(
+        targetValue = if (appBarSolid) Color(0xD9121212) else Color.Transparent,
+        label = "detailsTopAppBar",
+    )
+
     val meta = when {
         content == null -> "Демонстрационный контент"
         isTv -> "${content.year} · Прямой эфир · ★ ${content.rating} · ${content.quality}"
@@ -167,71 +169,58 @@ fun DetailsScreen(
         else -> "${content.year} · ${content.ageRating}+ · ${formatDuration(content.durationMinutes)} · ★ ${content.rating} · ${content.quality}"
     }
     val genres = content?.genres?.sorted().orEmpty()
-    var playbackSheetOpen by remember { mutableStateOf(false) }
+    val resumeEpisode = episodeFromTitle(resume?.title.orEmpty())
+    val resumeTitle = when {
+        isSeries && resumeEpisode != null -> resume!!.title
+        isSeries -> episodeTitle(title, 1, 1)
+        else -> title
+    }
+    val ctaLabel = when {
+        isTv -> "Смотреть эфир"
+        isSeries && resumeEpisode != null && (resume?.positionMs ?: 0L) > 0L -> "Продолжить эпизод $resumeEpisode"
+        isSeries -> "Смотреть эпизод 1"
+        resume?.positionMs?.let { it > 0L } == true -> "Продолжить"
+        else -> "Смотреть"
+    }
+
     BackHandler(onBack = onBack)
 
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(18.dp),
+            contentPadding = PaddingValues(bottom = 30.dp),
         ) {
-            item {
+            item(key = "hero") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(184.dp)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.82f),
+                        .height(heroHeight),
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.viora_demo_backdrop),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.40f to Color.Transparent,
+                                        1.0f to MaterialTheme.colorScheme.background,
+                                    ),
                                 ),
                             ),
-                        ),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Movie,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .align(Alignment.Center),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
                     )
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .windowInsetsPadding(
-                                WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
-                                ),
-                            )
-                            .padding(start = 8.dp, top = 8.dp)
-                            .size(48.dp),
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(40.dp),
-                            shape = RoundedCornerShape(999.dp),
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.AutoMirrored.Outlined.ArrowBack,
-                                    contentDescription = "Назад",
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
-            item {
+            item(key = "metadata") {
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(9.dp),
@@ -240,13 +229,8 @@ fun DetailsScreen(
                         text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
                     )
-                    Text(
-                        text = meta,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Text(meta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(genres) { genre ->
                             Surface(
@@ -265,92 +249,63 @@ fun DetailsScreen(
                 }
             }
 
-            item {
+            item(key = "actions") {
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Button(
-                        onClick = { onPlay(if (isSeries) "$title · S01E04 · Эпизод 4" else title) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = VioraBrandAmber,
-                            contentColor = VioraOnBrandAmber,
-                        ),
+                        onClick = { onPlay(resumeTitle) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF5A623), contentColor = Color(0xFF241800)),
                     ) {
                         Icon(Icons.Filled.PlayArrow, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text(
-                            when {
-                                isSeries -> "Продолжить эпизод 4"
-                                isTv -> "Смотреть эфир"
-                                else -> "Смотреть"
-                            },
-                        )
+                        Text(ctaLabel)
                     }
-                    if (isSeries) {
+                    if (resume != null && resume.durationMs > 0L && resume.positionMs > 0L) {
+                        val remaining = ceil((resume.durationMs - resume.positionMs).coerceAtLeast(0L) / 60_000.0).toInt()
                         Text(
-                            text = "18 мин осталось",
+                            text = "Осталось около $remaining мин",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        DetailQuickAction(
-                            label = if (favorite) "В избранном" else "Избранное",
-                            icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            active = favorite,
-                            onClick = { onFavoriteChange(!favorite) },
-                            contentDescription = if (favorite) "Удалить из избранного" else "Добавить в избранное",
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        MyListButton(
+                            selected = inMyList,
+                            onClick = { onMyListChange(!inMyList) },
                             modifier = Modifier.weight(1f),
                         )
-                        DetailQuickAction(
-                            label = if (watchLater) "Добавлено" else "Позже",
-                            icon = Icons.Outlined.WatchLater,
-                            active = watchLater,
-                            onClick = { onWatchLaterChange(!watchLater) },
-                            contentDescription = if (watchLater) "Удалить из списка Посмотреть позже" else "Добавить в список Посмотреть позже",
-                            modifier = Modifier.weight(1f),
-                        )
-                        DetailQuickAction(
-                            label = if (downloaded) "Скачано" else downloadPrimaryLabel(downloadLabel),
-                            secondary = if (downloaded) null else downloadSecondaryLabel(downloadLabel),
-                            icon = if (downloaded) Icons.Outlined.CheckCircle else Icons.Outlined.Download,
-                            active = downloaded,
-                            enabled = downloadActionEnabled,
-                            onClick = onDownloadClick,
-                            contentDescription = if (downloaded) "Удалить скачанное" else downloadLabel,
-                            modifier = Modifier.weight(1f),
-                        )
+                        if (!isSeries) {
+                            DownloadButton(
+                                downloaded = title in downloads,
+                                onClick = { onDownloadTitle(title) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }
 
-            item {
+            item(key = "playback-parameters") {
                 PlaybackPreferencesRow(
                     audio = selectedAudio,
                     quality = selectedQuality,
+                    subtitlesEnabled = subtitlesEnabled,
                     onClick = { playbackSheetOpen = true },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
 
-            item {
-                DetailsTextSection(
-                    title = "Описание",
-                    body = content?.synopsis ?: "Описание пока недоступно.",
-                )
+            item(key = "description") {
+                DetailsTextSection("Описание", content?.synopsis ?: "Описание пока недоступно.")
             }
 
             if (content != null) {
-                item {
+                item(key = "info") {
                     Column(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -359,55 +314,78 @@ fun DetailsScreen(
                         InfoField("Страна", content.country)
                         content.originalTitle?.let { InfoField("Оригинальное название", it) }
                         content.director?.let { InfoField("Режиссёр", it) }
-                        if (content.cast.isNotEmpty()) {
-                            InfoField("В ролях", content.cast.joinToString(" · "))
-                        }
+                        if (content.cast.isNotEmpty()) InfoField("В ролях", content.cast.joinToString(" · "))
                     }
                 }
             }
 
             if (isSeries) {
-                seasonEpisodeCounts.forEachIndexed { index, episodeCount ->
-                    val seasonNumber = index + 1
-                    item(key = "season-$seasonNumber") {
-                        val expanded = seasonNumber in expandedSeasons
-                        Column(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                item(key = "season-selector") {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        SectionTitle("Эпизоды", Modifier.padding(horizontal = 16.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp),
                         ) {
-                            SeasonAccordionHeader(
-                                seasonNumber = seasonNumber,
-                                episodeCount = episodeCount,
-                                expanded = expanded,
-                                onClick = {
-                                    expandedSeasons = if (expanded) {
-                                        expandedSeasons - seasonNumber
-                                    } else {
-                                        expandedSeasons + seasonNumber
-                                    }
-                                },
-                            )
-                            AnimatedVisibility(
-                                visible = expanded,
-                                enter = expandVertically() + fadeIn(),
-                                exit = shrinkVertically() + fadeOut(),
-                            ) {
-                                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                                    episodesForSeason(seasonNumber, episodeCount).forEach { episode ->
-                                        EpisodeRow(
-                                            episode = episode,
-                                            onClick = { onPlay("$title · ${episode.title}") },
-                                        )
-                                    }
-                                }
+                            items((1..seasonEpisodeCounts.size).toList()) { season ->
+                                FilterChip(
+                                    selected = selectedSeason == season,
+                                    onClick = { selectedSeason = season },
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    label = { Text("Сезон $season") },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        selectedContainerColor = VioraBrandAmber,
+                                        selectedLabelColor = VioraOnBrandAmber,
+                                    ),
+                                )
                             }
                         }
                     }
                 }
-            }
 
-            item { Spacer(Modifier.height(28.dp)) }
+                val episodeCount = seasonEpisodeCounts.getOrElse(selectedSeason - 1) { 0 }
+                items(
+                    count = episodeCount,
+                    key = { index -> "S$selectedSeason-E${index + 1}" },
+                ) { index ->
+                    val number = index + 1
+                    val fullTitle = episodeTitle(title, selectedSeason, number)
+                    val episode = EpisodeUiState(
+                        season = selectedSeason,
+                        number = number,
+                        progress = progressByTitle[fullTitle] ?: PlaybackProgress(title = fullTitle),
+                    )
+                    EpisodeRow(
+                        episode = episode,
+                        downloaded = fullTitle in downloads,
+                        onPlay = { onPlay(fullTitle) },
+                        onDownload = { onDownloadTitle(fullTitle) },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
         }
+
+        TopAppBar(
+            title = {
+                if (appBarSolid) {
+                    Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            navigationIcon = {
+                IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = appBarColor,
+                navigationIconContentColor = Color.White,
+                titleContentColor = Color.White,
+            ),
+            windowInsets = WindowInsets.statusBars,
+        )
     }
 
     if (playbackSheetOpen) {
@@ -428,59 +406,42 @@ fun DetailsScreen(
 }
 
 @Composable
-private fun DetailQuickAction(
-    label: String,
-    icon: ImageVector,
-    active: Boolean,
-    onClick: () -> Unit,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    secondary: String? = null,
-    enabled: Boolean = true,
-) {
-    val containerColor = when {
-        active -> VioraBrandAmber
-        enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
-        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
-    }
-    val contentColor = when {
-        active -> VioraOnBrandAmber
-        enabled -> MaterialTheme.colorScheme.onSurface
-        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-    }
+private fun MyListButton(selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
-        modifier = modifier
-            .heightIn(min = 72.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(enabled = enabled, onClick = onClick)
-            .semantics { this.contentDescription = contentDescription },
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 56.dp),
         shape = RoundedCornerShape(16.dp),
-        color = containerColor,
-        contentColor = contentColor,
+        color = if (selected) VioraBrandAmber else MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = if (selected) VioraOnBrandAmber else MaterialTheme.colorScheme.onSurface,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.height(4.dp))
-            Text(
-                label,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            secondary?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = contentColor.copy(alpha = 0.78f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Icon(if (selected) Icons.Filled.Check else Icons.Filled.Add, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text("Мой список", fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun DownloadButton(downloaded: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 56.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(if (downloaded) Icons.Outlined.CheckCircle else Icons.Outlined.Download, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(if (downloaded) "Скачано" else "Скачать", fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -489,51 +450,99 @@ private fun DetailQuickAction(
 private fun PlaybackPreferencesRow(
     audio: String,
     quality: String,
+    subtitlesEnabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 64.dp)
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 68.dp).padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(
-                Icons.Outlined.Tune,
-                contentDescription = null,
-                tint = VioraBrandAmber,
-                modifier = Modifier.size(24.dp),
-            )
+            Icon(Icons.Outlined.Tune, contentDescription = null, tint = VioraBrandAmber, modifier = Modifier.size(24.dp))
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("Параметры воспроизведения", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Параметры воспроизведения",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    "$audio · $quality",
+                    "Озвучка: ${displayAudio(audio)} • Субтитры: ${if (subtitlesEnabled) "Вкл" else "Выкл"} • $quality",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Icon(
-                Icons.Outlined.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+private fun displayAudio(value: String): String = when (value) {
+    "Auto" -> "Авто"
+    "Original" -> "Оригинал"
+    else -> value
+}
+
+@Composable
+private fun EpisodeRow(
+    episode: EpisodeUiState,
+    downloaded: Boolean,
+    onPlay: () -> Unit,
+    onDownload: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val progress = episode.progressFraction
+    val status = when {
+        progress >= 0.98f -> "✓ Просмотрено · ${episode.durationMinutes} мин"
+        progress > 0f -> "${episode.remainingMinutes?.let { "Осталось $it мин · " }.orEmpty()}${(progress * 100).toInt()}%"
+        else -> "${episode.durationMinutes} мин"
+    }
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Эпизод ${episode.number}. $status"
+            },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(width = 112.dp, height = 68.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable(onClick = onPlay),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Outlined.PlayCircleOutline, contentDescription = "Воспроизвести эпизод ${episode.number}", tint = VioraBrandAmber)
+                if (progress > 0f) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        color = VioraBrandAmber,
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(3.dp),
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f).clickable(onClick = onPlay)) {
+                Text("E${episode.number.toString().padStart(2, '0')} · Эпизод ${episode.number}", fontWeight = FontWeight.SemiBold)
+                Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = onDownload, modifier = Modifier.size(48.dp)) {
+                Icon(
+                    if (downloaded) Icons.Outlined.CheckCircle else Icons.Outlined.Download,
+                    contentDescription = if (downloaded) "Удалить скачанный эпизод" else "Скачать эпизод",
+                    tint = if (downloaded) VioraBrandAmber else MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
     }
 }
@@ -551,67 +560,25 @@ private fun PlaybackPreferencesSheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-    ) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            Text(
-                "Параметры воспроизведения",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Text("Параметры воспроизведения", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            PlaybackChoiceSection("Озвучка", audioOptions, selectedAudio, onAudioSelected)
+            PlaybackChoiceSection("Качество", qualityOptions, selectedQuality, onQualitySelected)
             if (audioIsOverride || qualityIsOverride) {
-                Text(
-                    "Индивидуальные настройки этого материала",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            PlaybackChoiceSection(
-                title = "Озвучка",
-                options = audioOptions,
-                selected = selectedAudio,
-                onSelect = onAudioSelected,
-            )
-            PlaybackChoiceSection(
-                title = "Качество",
-                options = qualityOptions,
-                selected = selectedQuality,
-                onSelect = onQualitySelected,
-            )
-            if (audioIsOverride || qualityIsOverride) {
-                TextButton(
-                    onClick = onResetDefaults,
-                    modifier = Modifier.heightIn(min = 48.dp),
-                ) {
+                TextButton(onClick = onResetDefaults, modifier = Modifier.heightIn(min = 48.dp)) {
                     Text("Использовать настройки по умолчанию")
                 }
-            } else {
-                Text(
-                    "Используются настройки профиля по умолчанию.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
         }
     }
 }
 
 @Composable
-private fun PlaybackChoiceSection(
-    title: String,
-    options: List<String>,
-    selected: String,
-    onSelect: (String) -> Unit,
-) {
+private fun PlaybackChoiceSection(title: String, options: List<String>, selected: String, onSelect: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionTitle(title)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -634,199 +601,28 @@ private fun PlaybackChoiceSection(
 }
 
 @Composable
-private fun DetailsTextSection(
-    title: String,
-    body: String,
-) {
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+private fun DetailsTextSection(title: String, body: String) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle(title)
-        Text(
-            text = body,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
 @Composable
 private fun InfoField(label: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
 @Composable
-private fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurface,
-    )
-}
-
-@Composable
-private fun SeasonAccordionHeader(
-    seasonNumber: Int,
-    episodeCount: Int,
-    expanded: Boolean,
-    onClick: () -> Unit,
-) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = buildString {
-                    append("Сезон $seasonNumber. ${episodeCountText(episodeCount)}. ")
-                    append(if (expanded) "Развёрнут. Нажмите, чтобы свернуть" else "Свёрнут. Нажмите, чтобы развернуть")
-                }
-            },
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Сезон $seasonNumber",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text = episodeCountText(episodeCount),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Icon(
-                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-    }
-}
-
-@Composable
-private fun EpisodeRow(
-    episode: EpisodeUiState,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val status = when {
-        episode.progress >= 1f -> "✓ Просмотрено · ${episode.durationMinutes} мин"
-        episode.progress > 0f -> "Осталось ${episode.remainingMinutes ?: 0} мин · ${(episode.progress * 100).toInt()}%"
-        else -> "${episode.durationMinutes} мин"
-    }
-    val semanticsText = buildString {
-        append("Эпизод ${episode.number}. ")
-        when {
-            episode.progress >= 1f -> append("Просмотрено. ")
-            episode.progress > 0f -> append("Просмотрено ${(episode.progress * 100).toInt()} процентов, осталось ${episode.remainingMinutes ?: 0} минут. ")
-            else -> append("Длительность ${episode.durationMinutes} минут. ")
-        }
-        append("Воспроизвести.")
-    }
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
-            .semantics { contentDescription = semanticsText },
-        shape = RoundedCornerShape(14.dp),
-        color = if (episode.progress in 0.001f..0.999f) {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.82f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 84.dp)
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(width = 104.dp, height = 58.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            ) {
-                Icon(
-                    Icons.Filled.PlayArrow,
-                    contentDescription = null,
-                    tint = VioraBrandAmber,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.Center),
-                )
-                if (episode.progress > 0f) {
-                    LinearProgressIndicator(
-                        progress = { episode.progress.coerceIn(0f, 1f) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(3.dp)
-                            .align(Alignment.BottomCenter),
-                        color = VioraBrandAmber,
-                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f),
-                    )
-                }
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    episode.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    status,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (episode.progress in 0.001f..0.999f) VioraBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-}
-
-private fun downloadPrimaryLabel(downloadLabel: String): String = when {
-    downloadLabel.startsWith("Скачать") -> "Скачать"
-    else -> downloadLabel
-}
-
-private fun downloadSecondaryLabel(downloadLabel: String): String? = when {
-    downloadLabel.startsWith("Скачать") -> downloadLabel.removePrefix("Скачать").trim().takeIf { it.isNotBlank() }
-    else -> null
+private fun SectionTitle(title: String, modifier: Modifier = Modifier) {
+    Text(title, modifier = modifier, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 }
 
 private fun formatDuration(minutes: Int): String {
-    if (minutes <= 0) return "—"
     val hours = minutes / 60
     val rest = minutes % 60
-    return if (hours == 0) "$rest мин" else "$hours ч ${rest.toString().padStart(2, '0')} мин"
+    return if (hours > 0) "$hours ч $rest мин" else "$minutes мин"
 }

@@ -11,6 +11,7 @@ import android.graphics.Rect
 import android.media.AudioManager
 import android.provider.Settings
 import android.os.SystemClock
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.WindowCompat
@@ -24,6 +25,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -59,16 +61,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Forward10
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
-import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
@@ -85,6 +84,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,6 +93,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,20 +102,22 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
@@ -124,7 +127,9 @@ import androidx.media3.common.Tracks
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import app.viora.android.R
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -163,15 +168,16 @@ fun PlayerScreen(
     autoNextEnabled: Boolean = true,
     persistentSeekButtons: Boolean = false,
     onSubtitlesChanged: (Boolean) -> Unit,
+    onSubtitleTrackIdChanged: (String?) -> Unit,
     onNextEpisode: () -> Unit,
-    onOpenEpisodes: () -> Unit,
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val activity = remember(context) { context.findActivity() }
-    val haptic = LocalHapticFeedback.current
+    val rootView = LocalView.current
+    val gestureScope = rememberCoroutineScope()
+    val playback by session.state.collectAsState()
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val isSeriesEpisode = Regex(""" · S\d{2}E\d{2}""").containsMatchIn(title)
     val player = session.player
     val inPictureInPicture = VioraPiPState.isInPictureInPicture
 
@@ -199,12 +205,16 @@ fun PlayerScreen(
     var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
     var controlsVisible by remember { mutableStateOf(true) }
     var interactionTick by remember { mutableIntStateOf(0) }
-    var positionMs by remember { mutableLongStateOf(max(0L, player.currentPosition)) }
-    var bufferedPositionMs by remember { mutableLongStateOf(max(0L, player.bufferedPosition)) }
-    var durationMs by remember { mutableLongStateOf(max(0L, player.duration.takeIf { it > 0L } ?: 0L)) }
     var scrubbing by remember { mutableStateOf(false) }
+    var scrubPositionMs by remember(title) { mutableLongStateOf(playback.currentPositionMs) }
+    val positionMs = if (scrubbing) scrubPositionMs else playback.currentPositionMs
+    val bufferedPositionMs = playback.bufferedPositionMs
+    val durationMs = playback.totalDurationMs
+    var scrubPreviewFrame by remember(title) { mutableStateOf<ImageBitmap?>(null) }
     var seekFeedbackDirection by remember { mutableIntStateOf(0) }
     var seekFeedbackTick by remember { mutableIntStateOf(0) }
+    var seekFeedbackSeconds by remember { mutableIntStateOf(10) }
+    var pendingCenterTapJob by remember { mutableStateOf<Job?>(null) }
     var gestureFeedbackLabel by remember { mutableStateOf<String?>(null) }
     var gestureFeedbackPercent by remember { mutableIntStateOf(0) }
     var gestureFeedbackTick by remember { mutableIntStateOf(0) }
@@ -221,15 +231,13 @@ fun PlayerScreen(
 
     fun seekBy(deltaMs: Long, stackedSeconds: Int = 10) {
         val maxPosition = max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE)
-        val target = (player.currentPosition + deltaMs).coerceIn(0L, maxPosition)
-        player.seekTo(target)
-        positionMs = target
+        val target = (session.state.value.currentPositionMs + deltaMs).coerceIn(0L, maxPosition)
+        session.seekTo(target)
+        scrubPositionMs = target
         seekFeedbackDirection = if (deltaMs < 0L) -1 else 1
+        seekFeedbackSeconds = stackedSeconds
         seekFeedbackTick++
-        gestureFeedbackLabel = if (deltaMs < 0L) "−${stackedSeconds} сек" else "+${stackedSeconds} сек"
-        gestureFeedbackPercent = 0
-        gestureFeedbackTick++
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        rootView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
         showControls()
     }
 
@@ -241,6 +249,22 @@ fun PlayerScreen(
         }
     }
 
+    fun enterPictureInPicture() {
+        activity?.let { host ->
+            controlsVisible = false
+            settingsOpen = false
+            val params = buildVioraPictureInPictureParams(
+                context = context,
+                sourceRectHint = sourceRectHint,
+                isPlaying = playback.isPlaying,
+                title = displayPlayerTitle(title),
+                autoEnter = playback.playWhenReady,
+            )
+            host.setPictureInPictureParams(params)
+            host.enterPictureInPictureMode(params)
+        }
+    }
+
     LaunchedEffect(inPictureInPicture) {
         if (inPictureInPicture) {
             controlsVisible = false
@@ -249,14 +273,14 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(activity, sourceRectHint, session.isPlaying, session.playWhenReady, title) {
+    LaunchedEffect(activity, sourceRectHint, playback.isPlaying, playback.playWhenReady, title) {
         activity?.setPictureInPictureParams(
             buildVioraPictureInPictureParams(
                 context = context,
                 sourceRectHint = sourceRectHint,
-                isPlaying = session.isPlaying,
+                isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = session.playWhenReady,
+                autoEnter = playback.playWhenReady,
             ),
         )
     }
@@ -272,19 +296,21 @@ fun PlayerScreen(
             .build()
     }
 
-    LaunchedEffect(player, title) {
-        while (true) {
-            if (!scrubbing) {
-                positionMs = max(0L, player.currentPosition)
-            }
-            bufferedPositionMs = max(0L, player.bufferedPosition)
-            durationMs = max(0L, player.duration.takeIf { it > 0L } ?: durationMs)
-            delay(250L)
+    LaunchedEffect(scrubbing, scrubPositionMs / 5_000L, session.activeSourceUri) {
+        if (!scrubbing) {
+            scrubPreviewFrame = null
+        } else {
+            delay(120L)
+            scrubPreviewFrame = loadScrubPreviewFrame(
+                context = context.applicationContext,
+                sourceUri = session.activeSourceUri,
+                positionMs = scrubPositionMs,
+            )
         }
     }
 
-    LaunchedEffect(controlsVisible, interactionTick, session.isPlaying, settingsOpen) {
-        if (controlsVisible && session.isPlaying && !settingsOpen) {
+    LaunchedEffect(controlsVisible, interactionTick, settingsOpen, scrubbing) {
+        if (controlsVisible && !settingsOpen && !scrubbing) {
             delay(3_500L)
             controlsVisible = false
         }
@@ -356,11 +382,13 @@ fun PlayerScreen(
         if (option == null) {
             builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
             onSubtitlesChanged(false)
+            onSubtitleTrackIdChanged(null)
         } else {
             builder
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
                 .setOverrideForType(option.override)
             onSubtitlesChanged(true)
+            onSubtitleTrackIdChanged(option.label)
         }
         player.trackSelectionParameters = builder.build()
         subtitlePickerOpen = false
@@ -374,6 +402,7 @@ fun PlayerScreen(
             .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
             .build()
         onSubtitlesChanged(true)
+        onSubtitleTrackIdChanged("Auto")
         subtitlePickerOpen = false
         showControls()
     }
@@ -471,7 +500,7 @@ fun PlayerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(activity) {
+                    .pointerInput(activity, isLandscape) {
                         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
                         var lastTapAt = 0L
                         var lastTapDirection = 0
@@ -543,19 +572,30 @@ fun PlayerScreen(
                                 previousX = change.position.x
                                 previousY = change.position.y
                                 if (!change.pressed) {
-                                    if (verticalDrag && centerGesture && totalY > 120.dp.toPx()) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        leavePlayer()
+                                    if (verticalDrag && centerGesture && !isLandscape && totalY > 120.dp.toPx()) {
+                                        pendingCenterTapJob?.cancel()
+                                        rootView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                        if (playback.playWhenReady && activity != null) {
+                                            enterPictureInPicture()
+                                        } else {
+                                            onMinimize()
+                                        }
                                     } else if (!verticalDrag) {
                                         val now = SystemClock.uptimeMillis()
                                         if (centerGesture) {
-                                            // Center single tap: reveal controls; when already visible, toggle playback.
-                                            if (controlsVisible) session.togglePlayPause() else showControls()
+                                            // Delay the single tap so rapid gesture sequences do not flash the overlay.
+                                            pendingCenterTapJob?.cancel()
+                                            pendingCenterTapJob = gestureScope.launch {
+                                                delay(280L)
+                                                controlsVisible = !controlsVisible
+                                                if (controlsVisible) interactionTick++
+                                            }
                                             lastTapAt = 0L
                                             tapChainCount = 0
                                         } else {
+                                            pendingCenterTapJob?.cancel()
                                             val direction = if (startX < size.width * 0.35f) -1 else 1
-                                            if (now - lastTapAt <= 320L && direction == lastTapDirection) {
+                                            if (now - lastTapAt <= 600L && direction == lastTapDirection) {
                                                 tapChainCount += 1
                                                 if (tapChainCount >= 2) {
                                                     val seconds = (tapChainCount - 1) * 10
@@ -577,15 +617,21 @@ fun PlayerScreen(
         }
 
 
-        if (!inPictureInPicture && (controlsVisible || settingsOpen)) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
+        AnimatedVisibility(
+            visible = !inPictureInPicture && (controlsVisible || settingsOpen),
+            enter = fadeIn(animationSpec = tween(180)),
+            exit = fadeOut(animationSpec = tween(180)),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .fillMaxHeight(0.34f)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color.Black.copy(alpha = 0.38f), Color.Transparent),
+                            listOf(Color.Black.copy(alpha = 0.32f), Color.Transparent),
                         ),
                     ),
             )
@@ -596,44 +642,36 @@ fun PlayerScreen(
                     .fillMaxHeight(0.36f)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color.Transparent, Color.Black.copy(alpha = 0.40f)),
+                            listOf(Color.Transparent, Color.Black.copy(alpha = 0.34f)),
                         ),
                     ),
             )
 
             PlayerTopBar(
                 title = displayPlayerTitle(title),
-                isLandscape = isLandscape,
+                onPictureInPicture = ::enterPictureInPicture,
                 onMinimize = {
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     onMinimize()
                 },
-                onToggleFullscreen = {
-                    activity?.requestedOrientation = if (isLandscape) {
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    }
-                },
-                onClose = leavePlayer,
                 onInteraction = ::showControls,
                 modifier = Modifier.align(Alignment.TopCenter),
             )
 
             Surface(
-                color = Color.Black.copy(alpha = 0.62f),
+                color = Color.Black.copy(alpha = 0.58f),
                 shape = CircleShape,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(72.dp),
+                    .size(68.dp),
             ) {
-                if (session.playbackState == Player.STATE_BUFFERING) {
+                if (playback.status == app.viora.android.domain.model.PlaybackStatus.BUFFERING) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
                             color = Color.White,
-                            trackColor = Color.White.copy(alpha = 0.20f),
+                            trackColor = Color.White.copy(alpha = 0.18f),
                             strokeWidth = 3.dp,
-                            modifier = Modifier.size(34.dp),
+                            modifier = Modifier.size(32.dp),
                         )
                     }
                 } else {
@@ -645,10 +683,10 @@ fun PlayerScreen(
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
-                            if (session.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = if (session.isPlaying) "Пауза" else "Воспроизвести",
+                            if (playback.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = if (playback.isPlaying) "Пауза" else "Воспроизвести",
                             tint = Color.White,
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(34.dp),
                         )
                     }
                 }
@@ -689,9 +727,9 @@ fun PlayerScreen(
                 exit = fadeOut(),
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(start = 48.dp),
+                    .padding(start = 18.dp),
             ) {
-                SeekFeedbackBubble(forward = false, pulseKey = seekFeedbackTick)
+                SeekFeedbackBubble(forward = false, pulseKey = seekFeedbackTick, seconds = seekFeedbackSeconds)
             }
 
             AnimatedVisibility(
@@ -700,9 +738,9 @@ fun PlayerScreen(
                 exit = fadeOut(),
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 48.dp),
+                    .padding(end = 18.dp),
             ) {
-                SeekFeedbackBubble(forward = true, pulseKey = seekFeedbackTick)
+                SeekFeedbackBubble(forward = true, pulseKey = seekFeedbackTick, seconds = seekFeedbackSeconds)
             }
 
             gestureFeedbackLabel?.let { label ->
@@ -726,51 +764,36 @@ fun PlayerScreen(
                 bufferedPositionMs = bufferedPositionMs,
                 durationMs = durationMs,
                 isScrubbing = scrubbing,
-                subtitlesEnabled = subtitlesEnabled,
-                isSeriesEpisode = isSeriesEpisode,
+                scrubPreview = scrubPreviewFrame,
                 onScrub = { value ->
                     scrubbing = true
-                    positionMs = value
+                    scrubPositionMs = value
                     showControls()
                 },
                 onScrubFinished = {
-                    player.seekTo(positionMs)
+                    session.seekTo(scrubPositionMs)
                     scrubbing = false
                     showControls()
                 },
-                onSubtitles = {
-                    subtitlePickerOpen = true
-                    settingsOpen = true
+                onToggleFullscreen = {
+                    activity?.requestedOrientation = if (isLandscape) {
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    }
                     showControls()
                 },
-                onNextEpisode = onNextEpisode,
-                onOpenEpisodes = onOpenEpisodes,
                 onSettings = {
                     settingsOpen = true
                     showControls()
                 },
                 isLandscape = isLandscape,
-                activity = activity,
                 onInteraction = ::showControls,
-                onEnterPictureInPicture = {
-                    activity?.let { host ->
-                        controlsVisible = false
-                        settingsOpen = false
-                        val params = buildVioraPictureInPictureParams(
-                            context = context,
-                            sourceRectHint = sourceRectHint,
-                            isPlaying = session.isPlaying,
-                            title = displayPlayerTitle(title),
-                            autoEnter = session.playWhenReady,
-                        )
-                        host.setPictureInPictureParams(params)
-                        host.enterPictureInPictureMode(params)
-                    }
-                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = if (isLandscape) 0.dp else 96.dp),
+                    .padding(bottom = if (isLandscape) 0.dp else 32.dp),
             )
+            }
         }
 
         if (!inPictureInPicture && settingsOpen) {
@@ -805,11 +828,24 @@ fun PlayerScreen(
                                 )
                             }
                             Text(
-                                text = "Субтитры",
+                                text = "Озвучка и субтитры",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
+
+                        ScrollablePlayerSettingRow(
+                            title = "Озвучка",
+                            options = AUDIO_OPTIONS,
+                            selected = preferredAudio,
+                            onSelect = onAudioSelected,
+                        )
+
+                        Text(
+                            text = "Субтитры",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
 
                         SubtitleTrackRow(
                             label = "Выкл",
@@ -894,10 +930,8 @@ fun PlayerScreen(
 @Composable
 private fun PlayerTopBar(
     title: String,
-    isLandscape: Boolean,
+    onPictureInPicture: () -> Unit,
     onMinimize: () -> Unit,
-    onToggleFullscreen: () -> Unit,
-    onClose: () -> Unit,
     onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -905,41 +939,41 @@ private fun PlayerTopBar(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(
-            onClick = { onInteraction(); onMinimize() },
-            modifier = Modifier.size(48.dp),
-        ) {
-            Icon(Icons.Filled.KeyboardArrowDown, "Свернуть плеер", tint = Color.White, modifier = Modifier.size(30.dp))
-        }
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,
             maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 8.dp),
+                .padding(end = 8.dp),
         )
         IconButton(
-            onClick = { onInteraction(); onToggleFullscreen() },
+            onClick = { onInteraction(); onPictureInPicture() },
             modifier = Modifier.size(48.dp),
         ) {
             Icon(
-                if (isLandscape) Icons.Filled.FullscreenExit else Icons.Filled.Fullscreen,
-                if (isLandscape) "Выйти из полноэкранного режима" else "Развернуть на весь экран",
+                Icons.Outlined.PictureInPictureAlt,
+                contentDescription = "Картинка в картинке",
                 tint = Color.White,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(26.dp),
             )
         }
         IconButton(
-            onClick = { onInteraction(); onClose() },
+            onClick = { onInteraction(); onMinimize() },
             modifier = Modifier.size(48.dp),
         ) {
-            Icon(Icons.Filled.Close, "Закрыть плеер", tint = Color.White, modifier = Modifier.size(28.dp))
+            Icon(
+                Icons.Filled.KeyboardArrowDown,
+                contentDescription = "Свернуть плеер",
+                tint = Color.White,
+                modifier = Modifier.size(30.dp),
+            )
         }
     }
 }
@@ -951,18 +985,13 @@ private fun PlayerTimeline(
     bufferedPositionMs: Long,
     durationMs: Long,
     isScrubbing: Boolean,
-    subtitlesEnabled: Boolean,
-    isSeriesEpisode: Boolean,
+    scrubPreview: ImageBitmap?,
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
-    onSubtitles: () -> Unit,
-    onNextEpisode: () -> Unit,
-    onOpenEpisodes: () -> Unit,
+    onToggleFullscreen: () -> Unit,
     onSettings: () -> Unit,
     isLandscape: Boolean,
-    activity: Activity?,
     onInteraction: () -> Unit,
-    onEnterPictureInPicture: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val safeDuration = max(1L, durationMs)
@@ -1014,18 +1043,32 @@ private fun PlayerTimeline(
             ) {
                 if (isScrubbing) {
                     Surface(
-                        color = Color.Black.copy(alpha = 0.78f),
-                        shape = RoundedCornerShape(10.dp),
+                        color = Color.Black.copy(alpha = 0.88f),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
-                            .align(Alignment.TopCenter),
+                            .align(Alignment.TopCenter)
+                            .padding(bottom = 4.dp),
                     ) {
-                        Text(
-                            text = formatTime(positionMs),
-                            color = Color.White,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            scrubPreview?.let { bitmap ->
+                                Image(
+                                    bitmap = bitmap,
+                                    contentDescription = "Предпросмотр кадра ${formatTime(positionMs)}",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .width(160.dp)
+                                        .height(90.dp)
+                                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                                )
+                            }
+                            Text(
+                                text = formatTime(positionMs),
+                                color = Color.White,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            )
+                        }
                     }
                 }
 
@@ -1093,47 +1136,10 @@ private fun PlayerTimeline(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(
-                    onClick = { onInteraction(); onSubtitles() },
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.ClosedCaption,
-                        if (subtitlesEnabled) "Субтитры включены" else "Субтитры и дорожки",
-                        tint = if (subtitlesEnabled) VioraBrandAmber else Color.White,
-                        modifier = Modifier.size(26.dp),
-                    )
-                }
-                if (isSeriesEpisode) {
-                    IconButton(
-                        onClick = { onInteraction(); onNextEpisode() },
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(Icons.Filled.SkipNext, "Следующий эпизод", tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                    IconButton(
-                        onClick = { onInteraction(); onOpenEpisodes() },
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(Icons.Outlined.PlaylistPlay, "Все серии сезона", tint = Color.White, modifier = Modifier.size(28.dp))
-                    }
-                }
-                IconButton(
                     onClick = {
                         onInteraction()
-                        onEnterPictureInPicture()
+                        onSettings()
                     },
-                    enabled = activity != null,
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        Icons.Outlined.PictureInPictureAlt,
-                        contentDescription = "Картинка в картинке",
-                        tint = Color.White,
-                        modifier = Modifier.size(26.dp),
-                    )
-                }
-                IconButton(
-                    onClick = onSettings,
                     modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
@@ -1143,11 +1149,28 @@ private fun PlayerTimeline(
                         modifier = Modifier.size(26.dp),
                     )
                 }
+                IconButton(
+                    onClick = {
+                        onInteraction()
+                        onToggleFullscreen()
+                    },
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        if (isLandscape) Icons.Filled.FullscreenExit else Icons.Filled.Fullscreen,
+                        contentDescription = if (isLandscape) {
+                            "Выйти из полноэкранного режима"
+                        } else {
+                            "Развернуть на весь экран"
+                        },
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
             }
         }
     }
 }
-
 @Composable
 private fun SubtitleSelectorRow(
     value: String,
@@ -1420,44 +1443,53 @@ private fun VioraChoiceChip(
 private fun SeekFeedbackBubble(
     forward: Boolean,
     pulseKey: Int,
+    seconds: Int,
 ) {
-    val rippleScale = remember { Animatable(0.72f) }
-    val rippleAlpha = remember { Animatable(0.60f) }
+    val rippleScale = remember { Animatable(0.76f) }
+    val rippleAlpha = remember { Animatable(0.58f) }
     LaunchedEffect(pulseKey) {
-        rippleScale.snapTo(0.72f)
-        rippleAlpha.snapTo(0.60f)
-        rippleScale.animateTo(1.12f, animationSpec = tween(320))
-        rippleAlpha.animateTo(0f, animationSpec = tween(180))
+        rippleScale.snapTo(0.76f)
+        rippleAlpha.snapTo(0.58f)
+        rippleScale.animateTo(1.10f, animationSpec = tween(280))
+        rippleAlpha.animateTo(0f, animationSpec = tween(200))
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(116.dp),
+        modifier = Modifier.size(132.dp),
     ) {
         Box(
             modifier = Modifier
-                .size(96.dp)
+                .size(112.dp)
                 .graphicsLayer {
                     scaleX = rippleScale.value
                     scaleY = rippleScale.value
                     alpha = rippleAlpha.value
                 }
-                .border(2.dp, Color.White.copy(alpha = 0.52f), CircleShape),
+                .drawBehind {
+                    drawArc(
+                        color = Color.White.copy(alpha = 0.70f),
+                        startAngle = if (forward) -70f else 110f,
+                        sweepAngle = 140f,
+                        useCenter = false,
+                        style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round),
+                    )
+                },
         )
         Surface(
             shape = CircleShape,
-            color = Color.Black.copy(alpha = 0.66f),
-            modifier = Modifier.size(76.dp),
+            color = Color.Black.copy(alpha = 0.54f),
+            modifier = Modifier.size(58.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = if (forward) Icons.Filled.Forward10 else Icons.Filled.Replay10,
                     contentDescription = if (forward) {
-                        "Перемотано вперёд на 10 секунд"
+                        "Перемотка вперёд на $seconds секунд"
                     } else {
-                        "Перемотано назад на 10 секунд"
+                        "Перемотка назад на $seconds секунд"
                     },
                     tint = Color.White,
-                    modifier = Modifier.size(38.dp),
+                    modifier = Modifier.size(32.dp),
                 )
             }
         }
