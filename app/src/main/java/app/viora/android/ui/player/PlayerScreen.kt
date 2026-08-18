@@ -50,6 +50,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -72,6 +73,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
+import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.ScreenRotation
 import androidx.compose.material.icons.outlined.Settings
@@ -132,6 +134,8 @@ import androidx.media3.common.Tracks
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import app.viora.android.R
+import app.viora.android.data.catalog.DemoCatalogRepository
+import app.viora.android.domain.model.ContentType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -175,6 +179,7 @@ fun PlayerScreen(
     onSubtitlesChanged: (Boolean) -> Unit,
     onSubtitleTrackIdChanged: (String?) -> Unit,
     onNextEpisode: () -> Unit,
+    onSelectEpisode: (Int, Int) -> Unit,
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -183,6 +188,11 @@ fun PlayerScreen(
     val gestureScope = rememberCoroutineScope()
     val playback by session.state.collectAsState()
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val baseTitle = remember(title) { title.substringBefore(" · S").substringBefore(" · E") }
+    val mediaContent = remember(baseTitle) { DemoCatalogRepository.findByTitle(baseTitle) }
+    val isSeries = mediaContent?.type == ContentType.SERIES
+    val currentSeason = playback.seasonNumber ?: 1
+    val currentEpisode = playback.episodeNumber
     val player = session.player
     val inPictureInPicture = VioraPiPState.isInPictureInPicture
 
@@ -206,6 +216,8 @@ fun PlayerScreen(
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var resizeIndex by remember { mutableIntStateOf(0) }
     var settingsOpen by remember { mutableStateOf(false) }
+    var episodesSheetOpen by remember { mutableStateOf(false) }
+    var episodesSheetSeason by remember(title) { mutableIntStateOf(currentSeason) }
     var subtitlePickerOpen by remember { mutableStateOf(false) }
     var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
     var controlsVisible by remember { mutableStateOf(true) }
@@ -226,6 +238,7 @@ fun PlayerScreen(
 
     val resizeMode = RESIZE_MODES[resizeIndex].second
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val episodesSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun showControls() {
         if (!inPictureInPicture) {
@@ -274,8 +287,13 @@ fun PlayerScreen(
         if (inPictureInPicture) {
             controlsVisible = false
             settingsOpen = false
+            episodesSheetOpen = false
             subtitlePickerOpen = false
         }
+    }
+
+    LaunchedEffect(currentSeason) {
+        episodesSheetSeason = currentSeason
     }
 
     LaunchedEffect(activity, sourceRectHint, playback.isPlaying, playback.playWhenReady, title) {
@@ -314,8 +332,8 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(controlsVisible, interactionTick, settingsOpen, scrubbing) {
-        if (controlsVisible && !settingsOpen && !scrubbing) {
+    LaunchedEffect(controlsVisible, interactionTick, settingsOpen, episodesSheetOpen, scrubbing) {
+        if (controlsVisible && !settingsOpen && !episodesSheetOpen && !scrubbing) {
             delay(3_500L)
             controlsVisible = false
         }
@@ -644,15 +662,13 @@ fun PlayerScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .fillMaxHeight(0.44f)
+                    .fillMaxHeight(0.50f)
                     .background(
                         Brush.verticalGradient(
                             colorStops = arrayOf(
-                                0.00f to Color.Transparent,
-                                0.32f to Color.Black.copy(alpha = 0.06f),
-                                0.58f to Color.Black.copy(alpha = 0.20f),
-                                0.80f to Color.Black.copy(alpha = 0.44f),
-                                1.00f to Color.Black.copy(alpha = 0.70f),
+                                0.0f to Color.Transparent,
+                                0.5f to Color.Black.copy(alpha = 0.35f),
+                                1.0f to Color.Black.copy(alpha = 0.85f),
                             ),
                         ),
                     ),
@@ -795,6 +811,12 @@ fun PlayerScreen(
                     }
                     showControls()
                 },
+                showEpisodes = isSeries,
+                onEpisodes = {
+                    episodesSheetSeason = currentSeason
+                    episodesSheetOpen = true
+                    showControls()
+                },
                 onSettings = {
                     settingsOpen = true
                     showControls()
@@ -805,6 +827,88 @@ fun PlayerScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = if (isLandscape) 0.dp else 32.dp),
             )
+            }
+        }
+
+        if (!inPictureInPicture && episodesSheetOpen && isSeries && mediaContent != null) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    episodesSheetOpen = false
+                    showControls()
+                },
+                sheetState = episodesSheetState,
+                containerColor = Color(0xE6121212),
+                contentColor = Color.White,
+                scrimColor = Color.Black.copy(alpha = 0.34f),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text(
+                        text = "Серии",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items((1..mediaContent.seasonEpisodeCounts.size).toList()) { season ->
+                            VioraChoiceChip(
+                                label = "Сезон $season",
+                                selected = episodesSheetSeason == season,
+                                onClick = { episodesSheetSeason = season },
+                            )
+                        }
+                    }
+                    val episodeCount = mediaContent.seasonEpisodeCounts
+                        .getOrNull(episodesSheetSeason - 1)
+                        ?: 0
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 460.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        (1..episodeCount).forEach { episode ->
+                            val selected = episodesSheetSeason == currentSeason && episode == currentEpisode
+                            Surface(
+                                onClick = {
+                                    episodesSheetOpen = false
+                                    onSelectEpisode(episodesSheetSeason, episode)
+                                },
+                                shape = RoundedCornerShape(14.dp),
+                                color = if (selected) {
+                                    VioraBrandAmber.copy(alpha = 0.18f)
+                                } else {
+                                    Color.White.copy(alpha = 0.08f)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 56.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Filled.PlayArrow,
+                                        contentDescription = null,
+                                        tint = if (selected) VioraBrandAmber else Color.White.copy(alpha = 0.82f),
+                                    )
+                                    Text(
+                                        text = "E${episode.toString().padStart(2, '0')} · Эпизод $episode",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -951,16 +1055,21 @@ private fun PlayerTopBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(
-                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
-                ),
-            )
-            .padding(
-                start = if (isLandscape) 20.dp else 16.dp,
-                end = if (isLandscape) 12.dp else 8.dp,
-                top = 6.dp,
-                bottom = 6.dp,
+            .then(
+                if (isLandscape) {
+                    Modifier
+                        .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                        .padding(horizontal = 24.dp, vertical = 6.dp)
+                } else {
+                    Modifier
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
+                            ),
+                        )
+                        .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)
+                }
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1011,13 +1120,14 @@ private fun PlayerTimeline(
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
     onToggleFullscreen: () -> Unit,
+    showEpisodes: Boolean,
+    onEpisodes: () -> Unit,
     onSettings: () -> Unit,
     isLandscape: Boolean,
     onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val safeDuration = max(1L, durationMs)
-    val horizontalSafePadding = if (isLandscape) 24.dp else 16.dp
     val thumbSize by animateDpAsState(
         targetValue = if (isScrubbing) 18.dp else 12.dp,
         animationSpec = tween(durationMillis = 120),
@@ -1033,12 +1143,22 @@ private fun PlayerTimeline(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
-                    ),
-                )
-                .padding(horizontal = horizontalSafePadding, vertical = 8.dp),
+                .then(
+                    if (isLandscape) {
+                        Modifier
+                            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+                            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                    } else {
+                        Modifier
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                                ),
+                            )
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    }
+                ),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(
@@ -1066,42 +1186,55 @@ private fun PlayerTimeline(
                     .height(48.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                val previewWidth = 160.dp
+                val previewWidth = 120.dp
+                val previewHeight = 68.dp
+                val scrubFraction = (positionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
+                val thumbCenterX = maxWidth * scrubFraction
                 val previewX = if (maxWidth > previewWidth) {
-                    (maxWidth * playedFraction - previewWidth / 2f)
+                    (thumbCenterX - previewWidth / 2f)
                         .coerceIn(0.dp, maxWidth - previewWidth)
                 } else {
                     0.dp
                 }
 
                 if (isScrubbing) {
-                    Surface(
-                        color = Color.Black.copy(alpha = 0.90f),
-                        shape = RoundedCornerShape(12.dp),
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .offset(x = previewX, y = (-108).dp)
+                            .offset(x = previewX, y = (-104).dp)
                             .width(previewWidth)
                             .zIndex(3f),
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Surface(
+                            color = Color.Black.copy(alpha = 0.88f),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .width(previewWidth)
+                                .height(previewHeight),
+                        ) {
                             scrubPreview?.let { bitmap ->
                                 Image(
                                     bitmap = bitmap,
                                     contentDescription = "Предпросмотр кадра ${formatTime(positionMs)}",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(90.dp)
-                                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(8.dp)),
                                 )
                             }
+                        }
+                        Surface(
+                            color = Color.Black.copy(alpha = 0.90f),
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
                             Text(
                                 text = formatTime(positionMs),
                                 color = Color.White,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
                             )
                         }
                     }
@@ -1170,6 +1303,22 @@ private fun PlayerTimeline(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (showEpisodes) {
+                    IconButton(
+                        onClick = {
+                            onInteraction()
+                            onEpisodes()
+                        },
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.Outlined.PlaylistPlay,
+                            contentDescription = "Серии",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
+                }
                 IconButton(
                     onClick = {
                         onInteraction()

@@ -311,6 +311,10 @@ private fun VioraContent(
             onNextEpisode = {
                 nextEpisodeTitle(title)?.let(startPlayback)
             },
+            onSelectEpisode = { season, episode ->
+                val exact = "$baseTitle · S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} · Эпизод $episode"
+                startPlayback(exact)
+            },
             modifier = Modifier.fillMaxSize(),
         )
         return
