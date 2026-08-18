@@ -32,6 +32,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +48,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -99,6 +103,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -639,16 +644,23 @@ fun PlayerScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .fillMaxHeight(0.36f)
+                    .fillMaxHeight(0.44f)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color.Transparent, Color.Black.copy(alpha = 0.34f)),
+                            colorStops = arrayOf(
+                                0.00f to Color.Transparent,
+                                0.32f to Color.Black.copy(alpha = 0.06f),
+                                0.58f to Color.Black.copy(alpha = 0.20f),
+                                0.80f to Color.Black.copy(alpha = 0.44f),
+                                1.00f to Color.Black.copy(alpha = 0.70f),
+                            ),
                         ),
                     ),
             )
 
             PlayerTopBar(
                 title = displayPlayerTitle(title),
+                isLandscape = isLandscape,
                 onPictureInPicture = ::enterPictureInPicture,
                 onMinimize = {
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -930,6 +942,7 @@ fun PlayerScreen(
 @Composable
 private fun PlayerTopBar(
     title: String,
+    isLandscape: Boolean,
     onPictureInPicture: () -> Unit,
     onMinimize: () -> Unit,
     onInteraction: () -> Unit,
@@ -938,8 +951,17 @@ private fun PlayerTopBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
+                ),
+            )
+            .padding(
+                start = if (isLandscape) 20.dp else 16.dp,
+                end = if (isLandscape) 12.dp else 8.dp,
+                top = 6.dp,
+                bottom = 6.dp,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -1005,14 +1027,17 @@ private fun PlayerTimeline(
     val bufferedFraction = (bufferedPositionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
     val remainingMs = max(0L, durationMs - positionMs)
 
-    Surface(
-        color = Color.Black.copy(alpha = 0.26f),
+    Box(
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                    ),
+                )
                 .padding(horizontal = horizontalSafePadding, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -1035,19 +1060,29 @@ private fun PlayerTimeline(
                 )
             }
 
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 contentAlignment = Alignment.Center,
             ) {
+                val previewWidth = 160.dp
+                val previewX = if (maxWidth > previewWidth) {
+                    (maxWidth * playedFraction - previewWidth / 2f)
+                        .coerceIn(0.dp, maxWidth - previewWidth)
+                } else {
+                    0.dp
+                }
+
                 if (isScrubbing) {
                     Surface(
-                        color = Color.Black.copy(alpha = 0.88f),
+                        color = Color.Black.copy(alpha = 0.90f),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(bottom = 4.dp),
+                            .align(Alignment.TopStart)
+                            .offset(x = previewX, y = (-108).dp)
+                            .width(previewWidth)
+                            .zIndex(3f),
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             scrubPreview?.let { bitmap ->
@@ -1056,7 +1091,7 @@ private fun PlayerTimeline(
                                     contentDescription = "Предпросмотр кадра ${formatTime(positionMs)}",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .width(160.dp)
+                                        .fillMaxWidth()
                                         .height(90.dp)
                                         .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
                                 )
