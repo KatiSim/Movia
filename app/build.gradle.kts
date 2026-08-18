@@ -13,8 +13,8 @@ android {
         applicationId = "app.viora.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 40
-        versionName = "0.2.38"
+        versionCode = 42
+        versionName = "0.2.40"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

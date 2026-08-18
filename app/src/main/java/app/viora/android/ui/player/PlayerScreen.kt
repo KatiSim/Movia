@@ -72,7 +72,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
-import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.ScreenRotation
@@ -84,8 +83,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -119,7 +116,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
@@ -147,12 +147,15 @@ import app.viora.android.ui.theme.VioraBrandAmber
 import app.viora.android.ui.theme.VioraOnBrandAmber
 
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
-private val AUDIO_OPTIONS = listOf("Auto", "LostFilm", "HDRezka", "Original")
-private val QUALITY_OPTIONS = listOf("Auto", "4K", "1080p", "720p", "480p")
 private val RESIZE_MODES = listOf(
-    "Fit" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    "Zoom" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
-    "Fill" to AspectRatioFrameLayout.RESIZE_MODE_FILL,
+    "Вписать" to AspectRatioFrameLayout.RESIZE_MODE_FIT,
+    "Заполнить экран" to AspectRatioFrameLayout.RESIZE_MODE_ZOOM,
+)
+
+private data class SelectableTrackOption(
+    val label: String,
+    val override: TrackSelectionOverride,
+    val selected: Boolean,
 )
 
 private data class SubtitleTrackOption(
@@ -219,6 +222,8 @@ fun PlayerScreen(
     var episodesSheetOpen by remember { mutableStateOf(false) }
     var episodesSheetSeason by remember(title) { mutableIntStateOf(currentSeason) }
     var subtitlePickerOpen by remember { mutableStateOf(false) }
+    var audioTracks by remember { mutableStateOf(buildAudioTrackOptions(player.currentTracks)) }
+    var videoQualityTracks by remember { mutableStateOf(buildVideoQualityTrackOptions(player.currentTracks)) }
     var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
     var controlsVisible by remember { mutableStateOf(true) }
     var interactionTick by remember { mutableIntStateOf(0) }
@@ -239,6 +244,16 @@ fun PlayerScreen(
     val resizeMode = RESIZE_MODES[resizeIndex].second
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val episodesSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val effectiveAudioPreference = preferredAudio.takeIf { value ->
+        value == "Auto" || audioTracks.any { it.label == value }
+    } ?: "Auto"
+    val effectiveQualityPreference = preferredQuality.takeIf { value ->
+        value == "Auto" || videoQualityTracks.any { it.label == value }
+    } ?: "Auto"
+    val selectedAudioLabel = audioTracks.firstOrNull { it.selected }?.label
+    val selectedQualityLabel = videoQualityTracks.firstOrNull { it.selected }?.label
+    val audioAutoLabel = selectedAudioLabel?.let { "Авто · $it" } ?: "Авто"
+    val qualityAutoLabel = selectedQualityLabel?.let { "Авто · $it" } ?: "Авто"
 
     fun showControls() {
         if (!inPictureInPicture) {
@@ -256,6 +271,30 @@ fun PlayerScreen(
         seekFeedbackSeconds = stackedSeconds
         seekFeedbackTick++
         rootView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        showControls()
+    }
+
+    fun selectAudio(value: String) {
+        val builder = player.trackSelectionParameters.buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
+            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+        if (value != "Auto") {
+            audioTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
+        }
+        player.trackSelectionParameters = builder.build()
+        onAudioSelected(value)
+        showControls()
+    }
+
+    fun selectQuality(value: String) {
+        val builder = player.trackSelectionParameters.buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
+            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+        if (value != "Auto") {
+            videoQualityTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
+        }
+        player.trackSelectionParameters = builder.build()
+        onQualitySelected(value)
         showControls()
     }
 
@@ -319,6 +358,26 @@ fun PlayerScreen(
             .build()
     }
 
+    LaunchedEffect(preferredAudio, audioTracks) {
+        val builder = player.trackSelectionParameters.buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
+            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+        audioTracks.firstOrNull { preferredAudio != "Auto" && it.label == preferredAudio }?.let {
+            builder.setOverrideForType(it.override)
+        }
+        player.trackSelectionParameters = builder.build()
+    }
+
+    LaunchedEffect(preferredQuality, videoQualityTracks) {
+        val builder = player.trackSelectionParameters.buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
+            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+        videoQualityTracks.firstOrNull { preferredQuality != "Auto" && it.label == preferredQuality }?.let {
+            builder.setOverrideForType(it.override)
+        }
+        player.trackSelectionParameters = builder.build()
+    }
+
     LaunchedEffect(scrubbing, scrubPositionMs / 5_000L, session.activeSourceUri) {
         if (!scrubbing) {
             scrubPreviewFrame = null
@@ -332,10 +391,26 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(controlsVisible, interactionTick, settingsOpen, episodesSheetOpen, scrubbing) {
-        if (controlsVisible && !settingsOpen && !episodesSheetOpen && !scrubbing) {
+    LaunchedEffect(
+        controlsVisible,
+        interactionTick,
+        settingsOpen,
+        episodesSheetOpen,
+        scrubbing,
+        playback.isPlaying,
+        playback.playWhenReady,
+        playback.status,
+        playbackError,
+    ) {
+        val activePlayback = playback.isPlaying ||
+            (playback.playWhenReady && playback.status == app.viora.android.domain.model.PlaybackStatus.BUFFERING)
+        if (controlsVisible && activePlayback && playbackError == null &&
+            !settingsOpen && !episodesSheetOpen && !scrubbing
+        ) {
             delay(3_500L)
             controlsVisible = false
+        } else if (!activePlayback || playbackError != null) {
+            controlsVisible = true
         }
     }
 
@@ -362,6 +437,8 @@ fun PlayerScreen(
             }
 
             override fun onTracksChanged(tracks: Tracks) {
+                audioTracks = buildAudioTrackOptions(tracks)
+                videoQualityTracks = buildVideoQualityTrackOptions(tracks)
                 subtitleTracks = buildSubtitleTrackOptions(tracks)
                 showControls()
             }
@@ -641,7 +718,7 @@ fun PlayerScreen(
 
 
         AnimatedVisibility(
-            visible = !inPictureInPicture && (controlsVisible || settingsOpen),
+            visible = !inPictureInPicture && controlsVisible && !settingsOpen && !episodesSheetOpen,
             enter = fadeIn(animationSpec = tween(180)),
             exit = fadeOut(animationSpec = tween(180)),
             modifier = Modifier.fillMaxSize(),
@@ -677,7 +754,6 @@ fun PlayerScreen(
             PlayerTopBar(
                 title = displayPlayerTitle(title),
                 isLandscape = isLandscape,
-                onPictureInPicture = ::enterPictureInPicture,
                 onMinimize = {
                     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     onMinimize()
@@ -819,7 +895,7 @@ fun PlayerScreen(
                 },
                 onSettings = {
                     settingsOpen = true
-                    showControls()
+                    controlsVisible = false
                 },
                 isLandscape = isLandscape,
                 onInteraction = ::showControls,
@@ -944,24 +1020,11 @@ fun PlayerScreen(
                                 )
                             }
                             Text(
-                                text = "Озвучка и субтитры",
+                                text = "Субтитры",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
-
-                        ScrollablePlayerSettingRow(
-                            title = "Озвучка",
-                            options = AUDIO_OPTIONS,
-                            selected = preferredAudio,
-                            onSelect = onAudioSelected,
-                        )
-
-                        Text(
-                            text = "Субтитры",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.SemiBold,
-                        )
 
                         SubtitleTrackRow(
                             label = "Выкл",
@@ -988,18 +1051,30 @@ fun PlayerScreen(
                             fontWeight = FontWeight.SemiBold,
                         )
 
+                        Text(
+                            text = "Аудио и субтитры",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+
                         ScrollablePlayerSettingRow(
-                            title = "Озвучка",
-                            options = AUDIO_OPTIONS,
-                            selected = preferredAudio,
-                            onSelect = onAudioSelected,
+                            title = "Аудио",
+                            options = buildDisplayOptions(audioAutoLabel, audioTracks.map { it.label }),
+                            selected = if (effectiveAudioPreference == "Auto") audioAutoLabel else effectiveAudioPreference,
+                            onSelect = { value -> selectAudio(if (value == audioAutoLabel) "Auto" else value) },
+                        )
+
+                        SubtitleSelectorRow(
+                            value = subtitleSummary,
+                            enabled = subtitleTracks.isNotEmpty(),
+                            onClick = { subtitlePickerOpen = true },
                         )
 
                         ScrollablePlayerSettingRow(
                             title = "Качество",
-                            options = QUALITY_OPTIONS,
-                            selected = preferredQuality,
-                            onSelect = onQualitySelected,
+                            options = buildDisplayOptions(qualityAutoLabel, videoQualityTracks.map { it.label }),
+                            selected = if (effectiveQualityPreference == "Auto") qualityAutoLabel else effectiveQualityPreference,
+                            onSelect = { value -> selectQuality(if (value == qualityAutoLabel) "Auto" else value) },
                         )
 
                         ScrollablePlayerSettingRow(
@@ -1012,18 +1087,12 @@ fun PlayerScreen(
                         )
 
                         PlayerSettingGrid(
-                            title = "Масштаб",
+                            title = "Экран",
                             options = RESIZE_MODES.map { it.first },
                             selected = RESIZE_MODES[resizeIndex].first,
                             onSelect = { value ->
                                 resizeIndex = RESIZE_MODES.indexOfFirst { it.first == value }.coerceAtLeast(0)
                             },
-                        )
-
-                        SubtitleSelectorRow(
-                            value = subtitleSummary,
-                            enabled = subtitleTracks.isNotEmpty(),
-                            onClick = { subtitlePickerOpen = true },
                         )
                     }
                 }
@@ -1047,7 +1116,6 @@ fun PlayerScreen(
 private fun PlayerTopBar(
     title: String,
     isLandscape: Boolean,
-    onPictureInPicture: () -> Unit,
     onMinimize: () -> Unit,
     onInteraction: () -> Unit,
     modifier: Modifier = Modifier,
@@ -1084,17 +1152,6 @@ private fun PlayerTopBar(
                 .weight(1f)
                 .padding(end = 8.dp),
         )
-        IconButton(
-            onClick = { onInteraction(); onPictureInPicture() },
-            modifier = Modifier.size(48.dp),
-        ) {
-            Icon(
-                Icons.Outlined.PictureInPictureAlt,
-                contentDescription = "Картинка в картинке",
-                tint = Color.White,
-                modifier = Modifier.size(26.dp),
-            )
-        }
         IconButton(
             onClick = { onInteraction(); onMinimize() },
             modifier = Modifier.size(48.dp),
@@ -1189,7 +1246,8 @@ private fun PlayerTimeline(
                 val previewWidth = 120.dp
                 val previewHeight = 68.dp
                 val scrubFraction = (positionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
-                val thumbCenterX = maxWidth * scrubFraction
+                val timelineInset = 9.dp
+                val thumbCenterX = timelineInset + (maxWidth - timelineInset * 2f) * scrubFraction
                 val previewX = if (maxWidth > previewWidth) {
                     (thumbCenterX - previewWidth / 2f)
                         .coerceIn(0.dp, maxWidth - previewWidth)
@@ -1240,61 +1298,80 @@ private fun PlayerTimeline(
                     }
                 }
 
-                Slider(
-                    value = positionMs.coerceIn(0L, safeDuration).toFloat(),
-                    onValueChange = { onScrub(it.toLong()) },
-                    onValueChangeFinished = onScrubFinished,
-                    valueRange = 0f..safeDuration.toFloat(),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(48.dp)
                         .semantics {
                             contentDescription = "Позиция воспроизведения"
                             stateDescription = "${formatTime(positionMs)} из ${formatTime(durationMs)}"
+                            progressBarRangeInfo = ProgressBarRangeInfo(
+                                current = positionMs.coerceIn(0L, safeDuration).toFloat(),
+                                range = 0f..safeDuration.toFloat(),
+                            )
+                            setProgress { target ->
+                                onScrub(target.toLong().coerceIn(0L, safeDuration))
+                                onScrubFinished()
+                                true
+                            }
+                        }
+                        .pointerInput(safeDuration) {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(requireUnconsumed = false)
+                                val trackInsetPx = 9.dp.toPx()
+                                val usableWidth = (size.width - trackInsetPx * 2f).coerceAtLeast(1f)
+                                fun positionForX(x: Float): Long {
+                                    val fraction = ((x - trackInsetPx) / usableWidth).coerceIn(0f, 1f)
+                                    return (safeDuration * fraction).toLong()
+                                }
+                                onScrub(positionForX(down.position.x))
+                                do {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.firstOrNull() ?: break
+                                    onScrub(positionForX(change.position.x))
+                                    change.consume()
+                                } while (event.changes.any { it.pressed })
+                                onScrubFinished()
+                            }
+                        }
+                        .drawBehind {
+                            val centerY = size.height / 2f
+                            val strokeWidth = 4.dp.toPx()
+                            val idleRadius = thumbSize.toPx() / 2f
+                            val trackInset = max(9.dp.toPx(), idleRadius)
+                            val trackStart = trackInset
+                            val trackEnd = size.width - trackInset
+                            val trackWidth = (trackEnd - trackStart).coerceAtLeast(1f)
+                            val playedX = trackStart + trackWidth * playedFraction
+                            val bufferedX = trackStart + trackWidth * bufferedFraction
+
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.20f),
+                                start = Offset(trackStart, centerY),
+                                end = Offset(trackEnd, centerY),
+                                strokeWidth = strokeWidth,
+                                cap = StrokeCap.Round,
+                            )
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.42f),
+                                start = Offset(trackStart, centerY),
+                                end = Offset(bufferedX.coerceIn(trackStart, trackEnd), centerY),
+                                strokeWidth = strokeWidth,
+                                cap = StrokeCap.Round,
+                            )
+                            drawLine(
+                                color = VioraBrandAmber,
+                                start = Offset(trackStart, centerY),
+                                end = Offset(playedX.coerceIn(trackStart, trackEnd), centerY),
+                                strokeWidth = strokeWidth,
+                                cap = StrokeCap.Round,
+                            )
+                            drawCircle(
+                                color = VioraBrandAmber,
+                                radius = idleRadius,
+                                center = Offset(playedX.coerceIn(trackStart, trackEnd), centerY),
+                            )
                         },
-                    colors = SliderDefaults.colors(
-                        thumbColor = VioraBrandAmber,
-                        activeTrackColor = Color.Transparent,
-                        inactiveTrackColor = Color.Transparent,
-                    ),
-                    thumb = {
-                        Box(
-                            modifier = Modifier
-                                .size(thumbSize)
-                                .background(VioraBrandAmber, CircleShape),
-                        )
-                    },
-                    track = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                                .drawBehind {
-                                    val y = size.height / 2f
-                                    val stroke = 4.dp.toPx()
-                                    drawLine(
-                                        color = Color.White.copy(alpha = 0.20f),
-                                        start = Offset(0f, y),
-                                        end = Offset(size.width, y),
-                                        strokeWidth = stroke,
-                                        cap = StrokeCap.Round,
-                                    )
-                                    drawLine(
-                                        color = Color.White.copy(alpha = 0.42f),
-                                        start = Offset(0f, y),
-                                        end = Offset(size.width * bufferedFraction, y),
-                                        strokeWidth = stroke,
-                                        cap = StrokeCap.Round,
-                                    )
-                                    drawLine(
-                                        color = VioraBrandAmber,
-                                        start = Offset(0f, y),
-                                        end = Offset(size.width * playedFraction, y),
-                                        strokeWidth = stroke,
-                                        cap = StrokeCap.Round,
-                                    )
-                                },
-                        )
-                    },
                 )
             }
 
@@ -1369,7 +1446,7 @@ private fun SubtitleSelectorRow(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 68.dp)
-            .alpha(if (enabled) 1f else 0.38f),
+            .alpha(1f),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -1468,6 +1545,63 @@ private fun SubtitleTrackRow(
         }
     }
 }
+
+private fun buildAudioTrackOptions(tracks: Tracks): List<SelectableTrackOption> {
+    val result = mutableListOf<SelectableTrackOption>()
+    tracks.groups.forEach { group ->
+        if (group.type != C.TRACK_TYPE_AUDIO) return@forEach
+        for (index in 0 until group.length) {
+            if (!group.isTrackSupported(index)) continue
+            val format = group.getTrackFormat(index)
+            val language = format.language
+                ?.takeIf { it.isNotBlank() && !it.equals("und", ignoreCase = true) }
+                ?.let(::displayLanguage)
+                ?.takeIf { it.isNotBlank() }
+            val label = format.label?.takeIf { it.isNotBlank() }
+                ?: language
+                ?: "Аудио ${result.size + 1}"
+            result += SelectableTrackOption(
+                label = label,
+                override = TrackSelectionOverride(group.mediaTrackGroup, index),
+                selected = group.isTrackSelected(index),
+            )
+        }
+    }
+    return result.distinctBy { it.label }
+}
+
+private fun buildVideoQualityTrackOptions(tracks: Tracks): List<SelectableTrackOption> {
+    val result = mutableListOf<SelectableTrackOption>()
+    tracks.groups.forEach { group ->
+        if (group.type != C.TRACK_TYPE_VIDEO) return@forEach
+        for (index in 0 until group.length) {
+            if (!group.isTrackSupported(index)) continue
+            val format = group.getTrackFormat(index)
+            val label = when {
+                format.height >= 2160 -> "4K"
+                format.height > 0 -> "${format.height}p"
+                format.label?.isNotBlank() == true -> format.label.orEmpty()
+                else -> "Видео ${result.size + 1}"
+            }
+            result += SelectableTrackOption(
+                label = label,
+                override = TrackSelectionOverride(group.mediaTrackGroup, index),
+                selected = group.isTrackSelected(index),
+            )
+        }
+    }
+    return result.distinctBy { it.label }
+        .sortedWith(compareByDescending<SelectableTrackOption> { qualityRank(it.label) }.thenBy { it.label })
+}
+
+private fun qualityRank(label: String): Int = when {
+    label == "4K" -> 2160
+    label.endsWith("p") -> label.removeSuffix("p").toIntOrNull() ?: 0
+    else -> 0
+}
+
+private fun buildDisplayOptions(autoLabel: String, tracks: List<String>): List<String> =
+    (listOf(autoLabel) + tracks).distinct()
 
 private fun buildSubtitleTrackOptions(tracks: Tracks): List<SubtitleTrackOption> {
     val result = mutableListOf<SubtitleTrackOption>()
