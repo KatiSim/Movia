@@ -1,7 +1,7 @@
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC
-**Эталон:** Movia `0.3.12`, `versionCode=114`
+**Эталон:** Movia `0.3.13`, `versionCode=115`
 **Дата фиксации:** 2026-08-20  
 **Основной файл реализации:** `app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt`  
 **Playback session:** `PlaybackSession` / один `session.player` для всех player-layout/routes.
@@ -274,8 +274,22 @@ PiP снизу отсутствует и остаётся сверху слев�
 Approved horizontal behavior не менялся:
 
 ```text
-outerHorizontal = 18dp
+outerHorizontal = 5dp
 ```
+
+Внутренний inset видимой линии в Portrait:
+
+```text
+timelineInset = 5dp
+```
+
+Итоговый фактический отступ начала/конца линии от Portrait player-area:
+
+```text
+5dp outer + 5dp timeline = 10dp
+```
+
+Плюс системный `safeDrawing` inset при его наличии.
 
 Timeline использует доступную ширину Portrait player area.
 
@@ -329,14 +343,16 @@ fillMaxWidth()
 height = 22dp
 ```
 
-Visible timeline line и time row используют один общий endpoint anchor:
+Visible timeline line и time row используют один общий endpoint anchor, но значение зависит от orientation:
 
 ```text
-timelineInset = 9dp
-trackStart    = 9dp
-trackEnd      = width - 9dp
-stroke        = 3dp
-cap           = Round
+Portrait:  timelineInset = 5dp
+Landscape: timelineInset = 9dp
+
+trackStart = timelineInset
+trackEnd   = width - timelineInset
+stroke     = 3dp
+cap        = Round
 ```
 
 ### Video FIT aspect source
@@ -427,7 +443,7 @@ Arrangement.SpaceBetween
 
 - current time начинается строго под левым видимым концом timeline;
 - remaining time заканчивается строго под правым видимым концом timeline;
-- оба края задаются тем же `timelineInset = 9dp`, что и линия;
+- оба края задаются тем же orientation-aware `timelineInset`, что и линия: **5dp Portrait / 9dp Landscape**;
 - time row не имеет собственного дополнительного правого/левого offset;
 - timeline container уменьшен до `22dp`, чтобы цифры были визуально ближе к линии;
 - remaining time отображается со знаком `−`;
@@ -914,7 +930,9 @@ episodesScreenOpen = false
 - Landscape timeline снова растягивается по физической ширине дисплея независимо от FIT-видео;
 - Landscape использует фиксированный device-specific margin вместо расчёта из `VideoSize` и root constraints;
 - потерян `onVideoSizeChanged` и aspect ratio перестал обновляться при смене media/track;
-- Portrait outer padding перестал быть `18dp` без нового решения;
+- Portrait outer padding перестал быть `5dp` без нового решения;
+- Portrait timelineInset перестал быть `5dp` без нового решения;
+- Portrait фактический отступ линии перестал быть `10dp` от player-area без нового решения;
 - timeline и time row используют разные endpoint offsets;
 - правый remaining time не заканчивается под правым концом timeline;
 - remaining time потеряло знак `−`;
@@ -938,14 +956,14 @@ episodesScreenOpen = false
 5. Проверить отсутствие общей Surface/рамки/цветной подложки вокруг lower controls.
 6. Проверить порядок `timeline → time → 8dp spacer → actions`.
 7. Проверить timeline `fillMaxWidth()`, container height `22dp`.
-8. Проверить единый `timelineInset = 9dp` в draw/gesture/time row.
+8. Проверить orientation-aware `timelineInset`: `5dp Portrait / 9dp Landscape`, единый для draw/gesture/time row.
 9. Проверить `RESIZE_MODE_FIT`.
 10. Проверить state `videoAspectRatio = moviaVideoAspectRatio(player.videoSize)`.
 11. Проверить `onVideoSizeChanged(videoSize)`.
 12. Проверить aspect formula `width × pixelWidthHeightRatio / height` без deprecated rotation API.
 13. Проверить root `BoxWithConstraints(fillMaxSize())` и FIT width formula `min(maxWidth, maxHeight × aspect)`.
 14. Проверить Landscape outer inset `maxOf(30dp, landscapeVideoHorizontalInset + 18dp)`.
-15. Проверить Portrait outer inset `18dp`.
+15. Проверить Portrait outer inset `5dp` и итог линии `5dp + 5dp = 10dp` от player-area.
 16. Проверить lower actions: PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`.
 17. Проверить opaque Playback Settings и nested Back hierarchy.
 18. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
@@ -959,10 +977,10 @@ episodesScreenOpen = false
 ## 22. Последний подтверждённый build baseline
 
 ```text
-Movia 0.3.12
-versionCode 114
-APK: /storage/emulated/0/Download/Movia-0.3.12.apk
-full gate marker: MOVIA_0_3_12_ALL_GATES_PASS
+Movia 0.3.13
+versionCode 115
+APK: /storage/emulated/0/Download/Movia-0.3.13.apk
+full gate marker: MOVIA_0_3_13_ALL_GATES_PASS
 ```
 
 Последний полный gate включал:
@@ -974,20 +992,20 @@ assembleDebug
 lintDebug
 assembleRelease
 assembleDebugAndroidTest
-static landscape-video-bounds contract
+static portrait-inset contract
 git diff --check
 ```
 
-Установка `0.3.12 / 114` подтверждена через `dumpsys package app.viora.android`.
+Установка `0.3.13 / 115` подтверждена через `dumpsys package app.viora.android`.
 
 Контрольные SHA-256 на момент фиксации baseline:
 
 ```text
 PlayerScreen.kt
-6e027ddf78fc0d3c6406ce80ad2205bf11d10a0914ded55740a508b133c53659
+6d858f5edcaf5d3b2afb8f69384e71f26d4ee3540eae49627a8c9c4bf108a666
 
-Movia-0.3.12.apk
-388863b90f33ee06f6c8b79fc42a7cf7f5fcc5479126750d3286f080b13e7700
+Movia-0.3.13.apk
+baf84bd6b3b5a66ed8d919ec05e1820399f72c0fb21c498bff38c23695b8c5eb
 ```
 
 ---
