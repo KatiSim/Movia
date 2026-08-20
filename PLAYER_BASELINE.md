@@ -1,7 +1,7 @@
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC
-**Эталон:** Movia `0.3.10`, `versionCode=112`
+**Эталон:** Movia `0.3.11`, `versionCode=113`
 **Дата фиксации:** 2026-08-20  
 **Основной файл реализации:** `app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt`  
 **Playback session:** `PlaybackSession` / один `session.player` для всех player-layout/routes.
@@ -251,42 +251,39 @@ end   = transparent
 
 ## 7. Нижняя панель — FINAL APPROVED LAYOUT
 
-
-Это **компактная трёхстрочная панель**. PiP в ней отсутствует.
+Нижний controls-блок теперь **без общей рамки и без общей цветной подложки**. Это прозрачный overlay поверх видео.
 
 ```text
-┌──────────────────────────────────────────────────────┐
-│ [===================●-----------------------------] │
-│ 00:01                                      −09:54  │
-│                                 (≡►)   (⛶/collapse) │
-└──────────────────────────────────────────────────────┘
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●
+00:01                                      −09:54
+
+                               (≡►)   (⛶/collapse)
 ```
 
 Порядок сверху вниз — STRICT:
 
-1. `timeline` на отдельной строке почти на всю внутреннюю ширину;
-2. отдельная строка времени;
-3. справа только `≡►` и `Fullscreen/FullscreenExit`.
+1. полноширинный timeline;
+2. непосредственно под ним отдельная строка времени;
+3. небольшой свободный вертикальный интервал;
+4. справа только `≡►` и `Fullscreen/FullscreenExit`.
 
-PiP снизу **не показывать**.
+PiP снизу отсутствует и остаётся сверху слева от Settings.
 
-### Панель
+### Внешний lower overlay
 
 ```text
-panelHeight      = 136dp
-shape            = RoundedCornerShape(30dp)
-background       = scheme.surfaceContainer alpha 0.52
-border           = 1dp MoviaBorderSubtle
+NO Surface capsule
+NO RoundedCornerShape container
+NO shared background fill
+NO shared border
 outer horizontal = 18dp Portrait / 30dp Landscape
-contentStart     = 16dp
-contentEnd       = 16dp
-vertical padding = 8dp
-column spacing   = 6dp
 ```
 
-Панель остаётся overlay поверх видео.
+Не возвращать старую общую капсулу `136dp`, `surfaceContainer alpha 0.52` и `1dp MoviaBorderSubtle` вокруг timeline/time/actions.
 
-Insets:
+Нижние action-кнопки сохраняют собственный утверждённый круглый glass-style; запрет на общую подложку относится именно к фоновой панели целиком.
+
+Insets сохраняются:
 
 Portrait:
 
@@ -306,27 +303,23 @@ navigationBarsIgnoringVisibility Horizontal + Bottom
 
 ## 8. Timeline geometry
 
-
-Timeline теперь не делит верхнюю строку с action-кнопками.
+Timeline занимает практически всю доступную ширину lower overlay и не находится внутри отдельной фоновой панели.
 
 Timeline box:
 
 ```text
 fillMaxWidth()
-height = 38dp
+height = 22dp
 ```
 
-Расчёт usable geometry:
+Горизонтальная область определяется внешними safe/inset padding плеера:
 
 ```text
-contentStart = 16dp
-contentEnd   = 16dp
-
-timelineWidth = maxWidth - contentStart - contentEnd
-minimum timelineWidth = 160dp
+outerHorizontal = 18dp Portrait / 30dp Landscape
+timelineWidth = maxWidth
 ```
 
-Visible timeline line:
+Visible timeline line и time row используют **один общий endpoint anchor**:
 
 ```text
 timelineInset = 9dp
@@ -335,6 +328,8 @@ trackEnd      = width - 9dp
 stroke        = 3dp
 cap           = Round
 ```
+
+Критично: в seek gesture и draw code использовать `timelineInset.toPx()`, а не отдельное расходящееся magic-number значение.
 
 Colors:
 
@@ -354,14 +349,13 @@ thumb color = scheme.onSurface
 scrub glow  = MoviaGlowLuminescence alpha 0.14
 ```
 
-Scrubbing semantics/seek и preview сохраняются.
+Scrubbing semantics/seek/preview сохраняются.
 
 ---
 
 ## 9. Время — CRITICAL ALIGNMENT LOCK
 
-
-Время находится отдельной строкой **непосредственно под полноширинным timeline**.
+Время находится **сразу под timeline** и визуально образует с ним один информационный блок.
 
 Approved implementation:
 
@@ -374,19 +368,27 @@ Arrangement.SpaceBetween
 То есть:
 
 ```text
-[===================●-----------------------------]
-↑                                                  ↑
-00:01                                          −09:54
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●
+↑                                              ↑
+00:01                                      −09:54
 ```
 
 Инварианты:
 
-- current time привязан к левому видимому концу timeline;
-- remaining time привязан к правому видимому концу timeline;
-- action-кнопки находятся ниже, поэтому время не делит с ними ширину;
-- remaining time показывается со знаком `−`;
+- current time начинается строго под левым видимым концом timeline;
+- remaining time заканчивается строго под правым видимым концом timeline;
+- оба края задаются тем же `timelineInset = 9dp`, что и линия;
+- time row не имеет собственного дополнительного правого/левого offset;
+- timeline container уменьшен до `22dp`, чтобы цифры были визуально ближе к линии;
+- remaining time отображается со знаком `−`;
 - current text: `scheme.onSurface alpha 0.92`, `labelMedium`, Medium;
 - remaining text: `scheme.onSurface alpha 0.78`, `labelMedium`, Medium.
+
+Между time row и нижними action-кнопками approved spacer:
+
+```text
+8dp
+```
 
 ---
 
@@ -848,7 +850,6 @@ episodesScreenOpen = false
 
 ## 20. Что считать регрессией
 
-
 Любое из следующего — regression относительно этого baseline:
 
 - Back снова стал `×`;
@@ -859,9 +860,11 @@ episodesScreenOpen = false
 - settings снова BottomSheet/translucent;
 - `Вписать / Заполнить экран` вернулись в player settings;
 - Play/Pause меньше/больше `57.5dp / 28.75dp` без нового решения;
-- lower panel перестала иметь порядок `timeline → time → actions`;
-- lower panel снова содержит три actions;
-- panelHeight отличается от `136dp` без нового решения;
+- вокруг timeline/time/actions снова появилась общая рамка, капсула или цветная подложка;
+- вернулся `panelHeight = 136dp`/старый общий Surface-контейнер;
+- timeline container снова стал `38dp` без нового решения;
+- timeline и time row используют разные endpoint offsets;
+- правый remaining time не заканчивается под правым концом timeline;
 - время оказалось в одной строке с timeline;
 - remaining time потеряло знак `−`;
 - нижние кнопки получили другую геометрию без запроса;
@@ -878,37 +881,36 @@ episodesScreenOpen = false
 
 ## 21. Recovery checklist после merge/regression
 
-
 1. Сверить `PlayerScreen.kt` с этим документом.
 2. Проверить version/source state и фактический diff.
 3. Проверить центральный control `57.5dp / 28.75dp`.
 4. Проверить верх: `Back | PiP Settings`, Settings крайняя справа.
 5. Проверить PiP: `PictureInPictureAlt`, glyph `22dp`, top glass container `52dp`.
-6. Проверить lower panel `136dp`.
-7. Проверить порядок `timeline → time → actions`.
-8. Проверить `timelineInset = 9dp`, timeline `fillMaxWidth()`, height `38dp`.
-9. Проверить time Row: `fillMaxWidth() + padding(horizontal = timelineInset)` и знак `−`.
-10. Проверить lower actions: только PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`.
-11. Проверить `Fullscreen` vs `FullscreenExit`.
-12. Проверить opaque Playback Settings, section order и отсутствие resize choices.
-13. Проверить nested Back hierarchy.
-14. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
-15. Проверить season horizontal thresholds `88dp / 1.35x`.
-16. Проверить one `session.player`.
-17. Выполнить `git diff --check`.
-18. Выполнить релевантный compile/test/lint/assemble gate перед установкой.
-19. Не заявлять runtime-проверку, если приложение физически не запускалось.
+6. Проверить отсутствие общей Surface/рамки/цветной подложки вокруг lower controls.
+7. Проверить порядок `timeline → time → 8dp spacer → actions`.
+8. Проверить timeline `fillMaxWidth()`, container height `22dp`.
+9. Проверить единый `timelineInset = 9dp` в draw/gesture/time row.
+10. Проверить time Row: `fillMaxWidth() + padding(horizontal = timelineInset)` и знак `−`.
+11. Проверить lower actions: только PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`, right aligned.
+12. Проверить `Fullscreen` vs `FullscreenExit`.
+13. Проверить opaque Playback Settings, section order и отсутствие resize choices.
+14. Проверить nested Back hierarchy.
+15. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
+16. Проверить season horizontal thresholds `88dp / 1.35x`.
+17. Проверить one `session.player`.
+18. Выполнить `git diff --check`.
+19. Выполнить релевантный compile/test/lint/assemble gate перед установкой.
+20. Не заявлять runtime-проверку, если приложение физически не запускалось.
 
 ---
 
 ## 22. Последний подтверждённый build baseline
 
-
 ```text
-Movia 0.3.10
-versionCode 112
-APK: /storage/emulated/0/Download/Movia-0.3.10.apk
-full gate marker: MOVIA_0_3_10_ALL_GATES_PASS
+Movia 0.3.11
+versionCode 113
+APK: /storage/emulated/0/Download/Movia-0.3.11.apk
+full gate marker: MOVIA_0_3_11_ALL_GATES_PASS
 ```
 
 Последний полный gate включал:
@@ -920,20 +922,20 @@ assembleDebug
 lintDebug
 assembleRelease
 assembleDebugAndroidTest
-static player hierarchy contract
+static lower-clean-alignment contract
 git diff --check
 ```
 
-Установка `0.3.10 / 112` подтверждена через `dumpsys package app.viora.android`.
+Установка `0.3.11 / 113` подтверждена через `dumpsys package app.viora.android`.
 
 Контрольные SHA-256 на момент фиксации baseline:
 
 ```text
 PlayerScreen.kt
-3f79dc3e923b7a92d9f8f9cfce53184780fea7b30311f3cbfefe7dfcce8b1545
+b3916706fa6c2edcab2660559cf19c63b582dcb4859c8c50a10df522b9c18c12
 
-Movia-0.3.10.apk
-b17f62b8ddf55000a4e0a12140b67726676d1c7e10a049801303dfd1d738c14a
+Movia-0.3.11.apk
+d3b81d40f42565c6e7c69e8aa78d8143467e3679b8357c666b89899b17f9a1eb
 ```
 
 SHA используется только как контроль этого approved snapshot. После сознательно одобренной новой правки baseline и hash обновляются вместе.
