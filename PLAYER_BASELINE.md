@@ -1,7 +1,7 @@
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC
-**Эталон:** Movia `0.3.11`, `versionCode=113`
+**Эталон:** Movia `0.3.12`, `versionCode=114`
 **Дата фиксации:** 2026-08-20  
 **Основной файл реализации:** `app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt`  
 **Playback session:** `PlaybackSession` / один `session.player` для всех player-layout/routes.
@@ -251,7 +251,7 @@ end   = transparent
 
 ## 7. Нижняя панель — FINAL APPROVED LAYOUT
 
-Нижний controls-блок теперь **без общей рамки и без общей цветной подложки**. Это прозрачный overlay поверх видео.
+Нижний controls-блок остаётся **без общей рамки и без общей цветной подложки**. Это прозрачный overlay поверх видео.
 
 ```text
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●
@@ -262,64 +262,74 @@ end   = transparent
 
 Порядок сверху вниз — STRICT:
 
-1. полноширинный timeline;
-2. непосредственно под ним отдельная строка времени;
-3. небольшой свободный вертикальный интервал;
-4. справа только `≡►` и `Fullscreen/FullscreenExit`.
+1. timeline;
+2. непосредственно под ним строка времени;
+3. `8dp` свободного пространства;
+4. справа `≡►` и `Fullscreen/FullscreenExit`.
 
 PiP снизу отсутствует и остаётся сверху слева от Settings.
 
-### Внешний lower overlay
+### Portrait
+
+Approved horizontal behavior не менялся:
 
 ```text
-NO Surface capsule
-NO RoundedCornerShape container
-NO shared background fill
-NO shared border
-outer horizontal = 18dp Portrait / 30dp Landscape
+outerHorizontal = 18dp
 ```
 
-Не возвращать старую общую капсулу `136dp`, `surfaceContainer alpha 0.52` и `1dp MoviaBorderSubtle` вокруг timeline/time/actions.
+Timeline использует доступную ширину Portrait player area.
 
-Нижние action-кнопки сохраняют собственный утверждённый круглый glass-style; запрет на общую подложку относится именно к фоновой панели целиком.
+### Landscape — CRITICAL VIDEO-BOUND RULE
 
-Insets сохраняются:
+В Landscape lower controls **не привязываются к физическим краям дисплея**.
 
-Portrait:
+Их горизонтальная область ограничивается фактическим FIT-прямоугольником видео, рассчитанным по `VideoSize` и тем же root `BoxWithConstraints`, внутри которого находится `PlayerView`.
 
 ```text
-safeDrawing Horizontal
-navigationBarsIgnoringVisibility Bottom
+Player root / physical display
+┌────────────────────────────────────────────────────┐
+│      FIT video rectangle / movie window            │
+│      ┌──────────────────────────────────────┐      │
+│      │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │      │
+│      │ 00:01                         −09:54 │      │
+│      │                         ≡►     ⛶      │      │
+│      └──────────────────────────────────────┘      │
+└────────────────────────────────────────────────────┘
 ```
 
-Landscape:
+Landscape outer horizontal inset:
+
+```text
+maxOf(30dp, landscapeVideoHorizontalInset + 18dp)
+```
+
+То есть:
+
+- минимум сохраняется safe margin `30dp`;
+- если `RESIZE_MODE_FIT` создаёт боковые поля, controls сдвигаются внутрь на ширину этих полей;
+- дополнительно сохраняется `18dp` внутреннего отступа уже внутри видеопрямоугольника.
+
+Insets также сохраняются:
 
 ```text
 displayCutout Horizontal
 navigationBarsIgnoringVisibility Horizontal + Bottom
 ```
 
+Не возвращать привязку timeline к полной физической ширине Landscape-экрана.
+
 ---
 
 ## 8. Timeline geometry
 
-Timeline занимает практически всю доступную ширину lower overlay и не находится внутри отдельной фоновой панели.
-
-Timeline box:
+Timeline container:
 
 ```text
 fillMaxWidth()
 height = 22dp
 ```
 
-Горизонтальная область определяется внешними safe/inset padding плеера:
-
-```text
-outerHorizontal = 18dp Portrait / 30dp Landscape
-timelineWidth = maxWidth
-```
-
-Visible timeline line и time row используют **один общий endpoint anchor**:
+Visible timeline line и time row используют один общий endpoint anchor:
 
 ```text
 timelineInset = 9dp
@@ -329,7 +339,47 @@ stroke        = 3dp
 cap           = Round
 ```
 
-Критично: в seek gesture и draw code использовать `timelineInset.toPx()`, а не отдельное расходящееся magic-number значение.
+### Video FIT aspect source
+
+Использовать актуальный Media3 `VideoSize`:
+
+```text
+displayAspect = width × pixelWidthHeightRatio / height
+```
+
+`unappliedRotationDegrees` не использовать: в Media3 1.9.3 поле deprecated, а актуальный `VideoSize(width, height, pixelWidthHeightRatio)` создаётся с уже display-oriented geometry.
+
+Aspect ratio обновляется через:
+
+```text
+Player.Listener.onVideoSizeChanged(videoSize)
+```
+
+### Landscape FIT bounds
+
+Корень `PlayerScreen` — `BoxWithConstraints(fillMaxSize())`, то есть те же constraints, в которых расположен `PlayerView(fillMaxSize())`.
+
+Для Landscape:
+
+```text
+fittedVideoWidth = min(maxWidth, maxHeight × videoAspectRatio)
+landscapeVideoHorizontalInset = max(0dp, (maxWidth - fittedVideoWidth) / 2)
+```
+
+Далее `PlayerTimeline` получает этот inset и применяет:
+
+```text
+outerHorizontal = maxOf(30dp, landscapeVideoHorizontalInset + 18dp)
+```
+
+Это делает timeline адаптивным для:
+
+- 16:9 видео на ультрашироком дисплее;
+- 4:3 видео;
+- 21:9/2.39:1 видео;
+- источников с non-square pixel ratio.
+
+Если видео само заполняет ширину Landscape viewport, `landscapeVideoHorizontalInset = 0dp` и остаётся обычный safe padding `30dp`.
 
 Colors:
 
@@ -856,23 +906,23 @@ episodesScreenOpen = false
 - Settings перестала быть крайней правой верхней action-кнопкой;
 - PiP снова оказался в нижней панели;
 - PiP стоит справа от Settings;
-- изменён исходный PiP glyph `PictureInPictureAlt` без запроса;
 - settings снова BottomSheet/translucent;
 - `Вписать / Заполнить экран` вернулись в player settings;
 - Play/Pause меньше/больше `57.5dp / 28.75dp` без нового решения;
 - вокруг timeline/time/actions снова появилась общая рамка, капсула или цветная подложка;
-- вернулся `panelHeight = 136dp`/старый общий Surface-контейнер;
 - timeline container снова стал `38dp` без нового решения;
+- Landscape timeline снова растягивается по физической ширине дисплея независимо от FIT-видео;
+- Landscape использует фиксированный device-specific margin вместо расчёта из `VideoSize` и root constraints;
+- потерян `onVideoSizeChanged` и aspect ratio перестал обновляться при смене media/track;
+- Portrait outer padding перестал быть `18dp` без нового решения;
 - timeline и time row используют разные endpoint offsets;
 - правый remaining time не заканчивается под правым концом timeline;
-- время оказалось в одной строке с timeline;
 - remaining time потеряло знак `−`;
 - нижние кнопки получили другую геометрию без запроса;
 - Portrait и Landscape показывают одну и ту же fullscreen icon;
 - swipe-down закрывает больше одного navigation level;
 - vertical scrolling случайно закрывает settings/episode screen;
 - horizontal season swipe запускает media;
-- просмотр другого сезона без tap меняет текущий playback item;
 - settings/fullscreen создают новый player или сбрасывают position;
 - controls auto-hide timer изменён без запроса;
 - cutout/system insets потеряны.
@@ -885,32 +935,34 @@ episodesScreenOpen = false
 2. Проверить version/source state и фактический diff.
 3. Проверить центральный control `57.5dp / 28.75dp`.
 4. Проверить верх: `Back | PiP Settings`, Settings крайняя справа.
-5. Проверить PiP: `PictureInPictureAlt`, glyph `22dp`, top glass container `52dp`.
-6. Проверить отсутствие общей Surface/рамки/цветной подложки вокруг lower controls.
-7. Проверить порядок `timeline → time → 8dp spacer → actions`.
-8. Проверить timeline `fillMaxWidth()`, container height `22dp`.
-9. Проверить единый `timelineInset = 9dp` в draw/gesture/time row.
-10. Проверить time Row: `fillMaxWidth() + padding(horizontal = timelineInset)` и знак `−`.
-11. Проверить lower actions: только PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`, right aligned.
-12. Проверить `Fullscreen` vs `FullscreenExit`.
-13. Проверить opaque Playback Settings, section order и отсутствие resize choices.
-14. Проверить nested Back hierarchy.
-15. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
-16. Проверить season horizontal thresholds `88dp / 1.35x`.
-17. Проверить one `session.player`.
-18. Выполнить `git diff --check`.
-19. Выполнить релевантный compile/test/lint/assemble gate перед установкой.
-20. Не заявлять runtime-проверку, если приложение физически не запускалось.
+5. Проверить отсутствие общей Surface/рамки/цветной подложки вокруг lower controls.
+6. Проверить порядок `timeline → time → 8dp spacer → actions`.
+7. Проверить timeline `fillMaxWidth()`, container height `22dp`.
+8. Проверить единый `timelineInset = 9dp` в draw/gesture/time row.
+9. Проверить `RESIZE_MODE_FIT`.
+10. Проверить state `videoAspectRatio = moviaVideoAspectRatio(player.videoSize)`.
+11. Проверить `onVideoSizeChanged(videoSize)`.
+12. Проверить aspect formula `width × pixelWidthHeightRatio / height` без deprecated rotation API.
+13. Проверить root `BoxWithConstraints(fillMaxSize())` и FIT width formula `min(maxWidth, maxHeight × aspect)`.
+14. Проверить Landscape outer inset `maxOf(30dp, landscapeVideoHorizontalInset + 18dp)`.
+15. Проверить Portrait outer inset `18dp`.
+16. Проверить lower actions: PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`.
+17. Проверить opaque Playback Settings и nested Back hierarchy.
+18. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
+19. Проверить season horizontal thresholds `88dp / 1.35x`.
+20. Проверить one `session.player`.
+21. Выполнить `git diff --check` и релевантный compile/test/lint/assemble gate.
+22. Не заявлять runtime-проверку, если приложение физически не запускалось.
 
 ---
 
 ## 22. Последний подтверждённый build baseline
 
 ```text
-Movia 0.3.11
-versionCode 113
-APK: /storage/emulated/0/Download/Movia-0.3.11.apk
-full gate marker: MOVIA_0_3_11_ALL_GATES_PASS
+Movia 0.3.12
+versionCode 114
+APK: /storage/emulated/0/Download/Movia-0.3.12.apk
+full gate marker: MOVIA_0_3_12_ALL_GATES_PASS
 ```
 
 Последний полный gate включал:
@@ -922,23 +974,21 @@ assembleDebug
 lintDebug
 assembleRelease
 assembleDebugAndroidTest
-static lower-clean-alignment contract
+static landscape-video-bounds contract
 git diff --check
 ```
 
-Установка `0.3.11 / 113` подтверждена через `dumpsys package app.viora.android`.
+Установка `0.3.12 / 114` подтверждена через `dumpsys package app.viora.android`.
 
 Контрольные SHA-256 на момент фиксации baseline:
 
 ```text
 PlayerScreen.kt
-b3916706fa6c2edcab2660559cf19c63b582dcb4859c8c50a10df522b9c18c12
+6e027ddf78fc0d3c6406ce80ad2205bf11d10a0914ded55740a508b133c53659
 
-Movia-0.3.11.apk
-d3b81d40f42565c6e7c69e8aa78d8143467e3679b8357c666b89899b17f9a1eb
+Movia-0.3.12.apk
+388863b90f33ee06f6c8b79fc42a7cf7f5fcc5479126750d3286f080b13e7700
 ```
-
-SHA используется только как контроль этого approved snapshot. После сознательно одобренной новой правки baseline и hash обновляются вместе.
 
 ---
 
