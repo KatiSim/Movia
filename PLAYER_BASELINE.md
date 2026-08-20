@@ -1,7 +1,7 @@
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC
-**Эталон:** Movia `0.3.13`, `versionCode=115`
+**Эталон:** Movia `0.3.14`, `versionCode=116`
 **Дата фиксации:** 2026-08-20  
 **Основной файл реализации:** `app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt`  
 **Playback session:** `PlaybackSession` / один `session.player` для всех player-layout/routes.
@@ -274,7 +274,7 @@ PiP снизу отсутствует и остаётся сверху слев�
 Approved horizontal behavior не менялся:
 
 ```text
-outerHorizontal = 5dp
+outerHorizontal = 0dp
 ```
 
 Внутренний inset видимой линии в Portrait:
@@ -283,13 +283,13 @@ outerHorizontal = 5dp
 timelineInset = 5dp
 ```
 
-Итоговый фактический отступ начала/конца линии от Portrait player-area:
+Итоговый фактический отступ начала/конца видимой линии от Portrait safe player-area:
 
 ```text
-5dp outer + 5dp timeline = 10dp
+0dp outer + 5dp timeline = 5dp TOTAL
 ```
 
-Плюс системный `safeDrawing` inset при его наличии.
+То есть **весь пользовательский горизонтальный отступ линии — ровно 5dp слева и 5dp справа**. Системный `safeDrawing` inset сохраняется отдельно и не считается частью пользовательского 5dp отступа.
 
 Timeline использует доступную ширину Portrait player area.
 
@@ -930,9 +930,9 @@ episodesScreenOpen = false
 - Landscape timeline снова растягивается по физической ширине дисплея независимо от FIT-видео;
 - Landscape использует фиксированный device-specific margin вместо расчёта из `VideoSize` и root constraints;
 - потерян `onVideoSizeChanged` и aspect ratio перестал обновляться при смене media/track;
-- Portrait outer padding перестал быть `5dp` без нового решения;
+- Portrait outer padding перестал быть `0dp` без нового решения;
 - Portrait timelineInset перестал быть `5dp` без нового решения;
-- Portrait фактический отступ линии перестал быть `10dp` от player-area без нового решения;
+- Portrait итоговый пользовательский отступ линии перестал быть ровно `5dp` от safe player-area без нового решения;
 - timeline и time row используют разные endpoint offsets;
 - правый remaining time не заканчивается под правым концом timeline;
 - remaining time потеряло знак `−`;
@@ -963,7 +963,7 @@ episodesScreenOpen = false
 12. Проверить aspect formula `width × pixelWidthHeightRatio / height` без deprecated rotation API.
 13. Проверить root `BoxWithConstraints(fillMaxSize())` и FIT width formula `min(maxWidth, maxHeight × aspect)`.
 14. Проверить Landscape outer inset `maxOf(30dp, landscapeVideoHorizontalInset + 18dp)`.
-15. Проверить Portrait outer inset `5dp` и итог линии `5dp + 5dp = 10dp` от player-area.
+15. Проверить Portrait: `outerHorizontal = 0dp`, `timelineInset = 5dp`, итоговый пользовательский отступ видимой линии = ровно `5dp` от safe player-area.
 16. Проверить lower actions: PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`.
 17. Проверить opaque Playback Settings и nested Back hierarchy.
 18. Проверить swipe-down thresholds `112dp / 96dp / 1.35x`.
@@ -977,10 +977,10 @@ episodesScreenOpen = false
 ## 22. Последний подтверждённый build baseline
 
 ```text
-Movia 0.3.13
-versionCode 115
-APK: /storage/emulated/0/Download/Movia-0.3.13.apk
-full gate marker: MOVIA_0_3_13_ALL_GATES_PASS
+Movia 0.3.14
+versionCode 116
+APK: /storage/emulated/0/Download/Movia-0.3.14.apk
+full gate marker: MOVIA_0_3_14_ALL_GATES_PASS
 ```
 
 Последний полный gate включал:
@@ -992,20 +992,20 @@ assembleDebug
 lintDebug
 assembleRelease
 assembleDebugAndroidTest
-static portrait-inset contract
+static portrait-total-5dp contract
 git diff --check
 ```
 
-Установка `0.3.13 / 115` подтверждена через `dumpsys package app.viora.android`.
+Установка `0.3.14 / 116` подтверждена через `dumpsys package app.viora.android`.
 
 Контрольные SHA-256 на момент фиксации baseline:
 
 ```text
 PlayerScreen.kt
-6d858f5edcaf5d3b2afb8f69384e71f26d4ee3540eae49627a8c9c4bf108a666
+3a516449d9e3c37af5be7d208e3f67dbe2be937182c43796f585403543e8ca2b
 
-Movia-0.3.13.apk
-baf84bd6b3b5a66ed8d919ec05e1820399f72c0fb21c498bff38c23695b8c5eb
+Movia-0.3.14.apk
+86309938e5eff74ed38797d6dbae45c475ee190cd1ddb65eccc224cfc966f28f
 ```
 
 ---
