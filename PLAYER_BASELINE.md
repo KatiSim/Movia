@@ -1,7 +1,7 @@
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC
-**Эталон:** Movia `0.3.14`, `versionCode=116`
+**Эталон:** Movia `0.3.15`, `versionCode=117`
 **Дата фиксации:** 2026-08-20  
 **Основной файл реализации:** `app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt`  
 **Playback session:** `PlaybackSession` / один `session.player` для всех player-layout/routes.
@@ -311,26 +311,35 @@ Player root / physical display
 └────────────────────────────────────────────────────┘
 ```
 
-Landscape outer horizontal inset:
+Landscape использует **5dp TOTAL от фактической границы FIT-видео**.
 
 ```text
-maxOf(30dp, landscapeVideoHorizontalInset + 18dp)
+FIT video edge
+│
+├─ 5dp TOTAL
+│
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●
 ```
 
-То есть:
+Системный safe-edge (`displayCutout` / horizontal `navigationBars`) используется только как **минимальная граница безопасности**, а не прибавляется поверх этих 5dp.
 
-- минимум сохраняется safe margin `30dp`;
-- если `RESIZE_MODE_FIT` создаёт боковые поля, controls сдвигаются внутрь на ширину этих полей;
-- дополнительно сохраняется `18dp` внутреннего отступа уже внутри видеопрямоугольника.
-
-Insets также сохраняются:
+Точная логика по сторонам:
 
 ```text
-displayCutout Horizontal
-navigationBarsIgnoringVisibility Horizontal + Bottom
+visibleLeft  = max(videoSideInset + 5dp, systemSafeLeft)
+visibleRight = max(videoSideInset + 5dp, systemSafeRight)
 ```
 
-Не возвращать привязку timeline к полной физической ширине Landscape-экрана.
+Внешний padding вычисляется с учётом внутреннего `timelineInset = 5dp`:
+
+```text
+outerStart = max(0dp, visibleLeft  - 5dp)
+outerEnd   = max(0dp, visibleRight - 5dp)
+```
+
+Landscape больше **не использует** отдельный horizontal `windowInsetsPadding`; иначе safe-area суммировался бы второй раз. Из системных window-insets отдельным modifier остаётся только Bottom navigation-bar inset.
+
+Не возвращать `30dp`, `+18dp`, отдельный landscape `9dp` или двойное суммирование horizontal safe-insets.
 
 ---
 
@@ -347,7 +356,7 @@ Visible timeline line и time row используют один общий endpo
 
 ```text
 Portrait:  timelineInset = 5dp
-Landscape: timelineInset = 9dp
+Landscape: timelineInset = 5dp
 
 trackStart = timelineInset
 trackEnd   = width - timelineInset
@@ -382,20 +391,24 @@ fittedVideoWidth = min(maxWidth, maxHeight × videoAspectRatio)
 landscapeVideoHorizontalInset = max(0dp, (maxWidth - fittedVideoWidth) / 2)
 ```
 
-Далее `PlayerTimeline` получает этот inset и применяет:
+Далее `PlayerTimeline` использует `landscapeVideoHorizontalInset` как **границу FIT-видео**, а не как дополнительный margin.
 
 ```text
-outerHorizontal = maxOf(30dp, landscapeVideoHorizontalInset + 18dp)
+timelineInset = 5dp
+safeLeft  = max(displayCutout.left, navigationBars.left)
+safeRight = max(displayCutout.right, navigationBars.right)
+
+outerStart = max(0dp, max(videoInset + 5dp, safeLeft)  - 5dp)
+outerEnd   = max(0dp, max(videoInset + 5dp, safeRight) - 5dp)
 ```
 
-Это делает timeline адаптивным для:
+Следовательно, когда FIT-video edge находится дальше системного safe-edge:
 
-- 16:9 видео на ультрашироком дисплее;
-- 4:3 видео;
-- 21:9/2.39:1 видео;
-- источников с non-square pixel ratio.
+```text
+visible timeline edge = FIT-video edge + 5dp EXACTLY
+```
 
-Если видео само заполняет ширину Landscape viewport, `landscapeVideoHorizontalInset = 0dp` и остаётся обычный safe padding `30dp`.
+Если видео само заполняет ширину Landscape viewport, линия находится на `5dp` от player-area, кроме стороны, где системный safe-edge требует большего расстояния.
 
 Colors:
 
@@ -443,7 +456,7 @@ Arrangement.SpaceBetween
 
 - current time начинается строго под левым видимым концом timeline;
 - remaining time заканчивается строго под правым видимым концом timeline;
-- оба края задаются тем же orientation-aware `timelineInset`, что и линия: **5dp Portrait / 9dp Landscape**;
+- оба края задаются тем же orientation-aware `timelineInset`, что и линия: **5dp Portrait / 5dp Landscape**;
 - time row не имеет собственного дополнительного правого/левого offset;
 - timeline container уменьшен до `22dp`, чтобы цифры были визуально ближе к линии;
 - remaining time отображается со знаком `−`;
@@ -928,7 +941,8 @@ episodesScreenOpen = false
 - вокруг timeline/time/actions снова появилась общая рамка, капсула или цветная подложка;
 - timeline container снова стал `38dp` без нового решения;
 - Landscape timeline снова растягивается по физической ширине дисплея независимо от FIT-видео;
-- Landscape использует фиксированный device-specific margin вместо расчёта из `VideoSize` и root constraints;
+- Landscape использует `30dp`, `+18dp`, отдельный `9dp` или другой лишний margin поверх уже вычисленной границы FIT-видео;
+- horizontal system-insets в Landscape снова суммируются отдельным `windowInsetsPadding` поверх video-bound padding;
 - потерян `onVideoSizeChanged` и aspect ratio перестал обновляться при смене media/track;
 - Portrait outer padding перестал быть `0dp` без нового решения;
 - Portrait timelineInset перестал быть `5dp` без нового решения;
@@ -956,13 +970,13 @@ episodesScreenOpen = false
 5. Проверить отсутствие общей Surface/рамки/цветной подложки вокруг lower controls.
 6. Проверить порядок `timeline → time → 8dp spacer → actions`.
 7. Проверить timeline `fillMaxWidth()`, container height `22dp`.
-8. Проверить orientation-aware `timelineInset`: `5dp Portrait / 9dp Landscape`, единый для draw/gesture/time row.
+8. Проверить `timelineInset = 5dp` и в Portrait, и в Landscape; он единый для draw/gesture/time row.
 9. Проверить `RESIZE_MODE_FIT`.
 10. Проверить state `videoAspectRatio = moviaVideoAspectRatio(player.videoSize)`.
 11. Проверить `onVideoSizeChanged(videoSize)`.
 12. Проверить aspect formula `width × pixelWidthHeightRatio / height` без deprecated rotation API.
 13. Проверить root `BoxWithConstraints(fillMaxSize())` и FIT width formula `min(maxWidth, maxHeight × aspect)`.
-14. Проверить Landscape outer inset `maxOf(30dp, landscapeVideoHorizontalInset + 18dp)`.
+14. Проверить Landscape: `visible edge = max(videoSideInset + 5dp, systemSafeEdge)`; horizontal safe-insets не должны суммироваться второй раз.
 15. Проверить Portrait: `outerHorizontal = 0dp`, `timelineInset = 5dp`, итоговый пользовательский отступ видимой линии = ровно `5dp` от safe player-area.
 16. Проверить lower actions: PlaylistPlay + Fullscreen/Exit, `48dp`, icon `22dp`, gap `8dp`.
 17. Проверить opaque Playback Settings и nested Back hierarchy.
@@ -977,10 +991,10 @@ episodesScreenOpen = false
 ## 22. Последний подтверждённый build baseline
 
 ```text
-Movia 0.3.14
-versionCode 116
-APK: /storage/emulated/0/Download/Movia-0.3.14.apk
-full gate marker: MOVIA_0_3_14_ALL_GATES_PASS
+Movia 0.3.15
+versionCode 117
+APK: /storage/emulated/0/Download/Movia-0.3.15.apk
+full gate marker: MOVIA_0_3_15_ALL_GATES_PASS
 ```
 
 Последний полный gate включал:
@@ -992,20 +1006,20 @@ assembleDebug
 lintDebug
 assembleRelease
 assembleDebugAndroidTest
-static portrait-total-5dp contract
+static landscape-total-5dp contract
 git diff --check
 ```
 
-Установка `0.3.14 / 116` подтверждена через `dumpsys package app.viora.android`.
+Установка `0.3.15 / 117` подтверждена через `dumpsys package app.viora.android`.
 
 Контрольные SHA-256 на момент фиксации baseline:
 
 ```text
 PlayerScreen.kt
-3a516449d9e3c37af5be7d208e3f67dbe2be937182c43796f585403543e8ca2b
+959446c700a43009a86ab840f46097f581da3f82f938fdbb41b63fcd204d94eb
 
-Movia-0.3.14.apk
-86309938e5eff74ed38797d6dbae45c475ee190cd1ddb65eccc224cfc966f28f
+Movia-0.3.15.apk
+45a31f9c7e37308da976a0950adcad3c05f4dba0830d0db5138dedab5b7c2111
 ```
 
 ---
