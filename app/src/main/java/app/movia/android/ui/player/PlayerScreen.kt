@@ -147,8 +147,8 @@ import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaGlowLuminescence
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 
-private val PLAYER_CENTER_CONTROL_SIZE = 57.5.dp
-private val PLAYER_CENTER_ICON_SIZE = 28.75.dp
+private val PLAYER_CENTER_CONTROL_SIZE = 66.1.dp
+private val PLAYER_CENTER_ICON_SIZE = 33.1.dp
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private data class SelectableTrackOption(
     val label: String,
@@ -856,8 +856,8 @@ fun PlayerScreen(
                             CircularProgressIndicator(
                                 color = scheme.onSurface,
                                 trackColor = scheme.onSurface.copy(alpha = 0.14f),
-                                strokeWidth = 2.25.dp,
-                                modifier = Modifier.size(27.6.dp),
+                                strokeWidth = 2.6.dp,
+                                modifier = Modifier.size(31.7.dp),
                             )
                         } else {
                             IconButton(
@@ -912,8 +912,8 @@ fun PlayerScreen(
                 enter = fadeIn(),
                 exit = fadeOut(),
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 16.dp),
+                    .align(Alignment.Center)
+                    .offset(x = (-100).dp),
             ) {
                 SeekFeedbackBubble(forward = false, pulseKey = seekFeedbackTick, seconds = seekFeedbackSeconds)
             }
@@ -923,8 +923,8 @@ fun PlayerScreen(
                 enter = fadeIn(),
                 exit = fadeOut(),
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp),
+                    .align(Alignment.Center)
+                    .offset(x = 100.dp),
             ) {
                 SeekFeedbackBubble(forward = true, pulseKey = seekFeedbackTick, seconds = seekFeedbackSeconds)
             }
@@ -2037,11 +2037,11 @@ private fun SeekFeedbackBubble(
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(132.dp),
+        modifier = Modifier.size(152.dp),
     ) {
         Box(
             modifier = Modifier
-                .size(112.dp)
+                .size(129.dp)
                 .graphicsLayer {
                     scaleX = rippleScale.value
                     scaleY = rippleScale.value
@@ -2053,14 +2053,14 @@ private fun SeekFeedbackBubble(
                         startAngle = if (forward) -70f else 110f,
                         sweepAngle = 140f,
                         useCenter = false,
-                        style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round),
+                        style = Stroke(width = 2.9.dp.toPx(), cap = StrokeCap.Round),
                     )
                 },
         )
         Surface(
             shape = CircleShape,
             color = scheme.background.copy(alpha = 0.54f),
-            modifier = Modifier.size(58.dp),
+            modifier = Modifier.size(66.7.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -2071,7 +2071,7 @@ private fun SeekFeedbackBubble(
                         "Перемотка назад на $seconds секунд"
                     },
                     tint = scheme.onSurface,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(36.8.dp),
                 )
             }
         }
