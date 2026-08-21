@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="viora_icon_background">#0C0D0F</color>
+    <color name="movia_icon_background">#0E1015</color>
+    <color name="movia_accent_base">#D4AF37</color>
 </resources>
