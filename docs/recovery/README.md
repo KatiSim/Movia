@@ -1,10 +1,16 @@
-# Recovery
+# Recovery architecture
 
-Start with [RESTORE.md](../../RESTORE.md), then run:
+Recovery has three layers:
 
-~~~bash
-scripts/restore-check.sh
-scripts/verify-project.sh
-~~~
+1. Git repository: source, schema, scripts, tests, docs and manifests.
+2. GitHub Release: current APK, SHA256SUMS.txt, baseline manifest and an
+   optional compressed catalog snapshot.
+3. Private Termux state: credentials, live catalog DB/WAL/SHM, runtime caches
+   and service state.
 
-Do not delete the pre-sync remote branch or local recovered assets until the GitHub source/checkpoint and any Release artifact have been independently verified.
+RESTORE.md is the only required starting document for a new agent. It points to
+the current paths, explains the deliberate exclusions and gives the commands
+for rebuild, restore, service startup and verification.
+
+Never delete private source, DB, cache or backup directories until the pushed
+commit and the GitHub Release assets have been independently verified.

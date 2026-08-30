@@ -19,53 +19,52 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaBrandAmber
-import app.movia.android.ui.theme.MoviaRatingBadgeBackground
 import java.util.Locale
 
 /**
  * Authoritative Movia media-card hierarchy for all ordinary movie/series/TV tiles:
- * poster + optional rating -> title -> year • age -> duration/live state.
+ * poster -> title -> explicit metadata: rating • year • content type, then genres.
  * Artwork is loaded through the shared MoviaArtwork memory/disk cache.
  */
 @Composable
 fun MediaContentCard(
     item: MediaContent,
     modifier: Modifier = Modifier,
-    posterShape: Shape = RoundedCornerShape(12.dp),
-    titleFontSize: TextUnit = 15.sp,
+    posterShape: Shape = RoundedCornerShape(14.dp),
+    posterBorder: Color = MoviaBorderSubtle,
+    titleFontSize: TextUnit = 16.sp,
     onClick: () -> Unit,
 ) {
-    val facts = listOfNotNull(
+    val typeLabel = moviaContentTypeLabel(item)
+    val mainGenre = moviaPrimaryGenre(item)
+    val genreOrType = mainGenre ?: typeLabel
+    val country = item.country.takeIf { it.isNotBlank() }
+    val metadataFacts = listOfNotNull(
         item.year.takeIf { it > 0 }?.toString(),
-        item.ageRating.takeIf { it > 0 }?.let { "$it+" },
-        item.durationMinutes.takeIf { it > 0 }?.let { formatDuration(it) },
+        country,
+        genreOrType,
     ).joinToString(" • ")
-    val ratingBadge = item.rating.takeIf { it > 0.0 }?.let { String.format(Locale.US, "★ %.1f", it) }
-    val genres = item.genres
-        .filter { it.isNotBlank() && !it.equals("Фильмы", true) && !it.equals("Сериалы", true) }
-        .take(3)
-        .joinToString(" • ")
-    val duration = when {
-        item.type == ContentType.TV -> "Прямой эфир"
-        item.durationMinutes <= 0 -> null
-        item.durationMinutes >= 60 -> {
-            val hours = item.durationMinutes / 60
-            val minutes = item.durationMinutes % 60
-            if (minutes == 0) "$hours ч" else "$hours ч $minutes мин"
-        }
-        else -> "${item.durationMinutes} мин"
+
+    val showRating = item.rating > 0.0
+    val ratingLabel = if (showRating) {
+        String.format(Locale.US, "%.1f", item.rating)
+    } else {
+        null
     }
 
     Column(
@@ -74,12 +73,11 @@ fun MediaContentCard(
             .semantics(mergeDescendants = true) {
                 contentDescription = listOfNotNull(
                     item.title,
-                    ratingBadge,
-                    facts.takeIf { it.isNotBlank() },
-                    duration,
+                    ratingLabel?.let { "★ $it" },
+                    metadataFacts.takeIf { it.isNotBlank() },
                 ).joinToString(". ")
             },
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         Box(
@@ -87,7 +85,7 @@ fun MediaContentCard(
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
                 .clip(posterShape)
-                .border(1.dp, MoviaBorderSubtle, posterShape),
+                .border(1.dp, posterBorder, posterShape),
         ) {
             MoviaArtwork(
                 url = item.posterUrl,
@@ -96,23 +94,16 @@ fun MediaContentCard(
                 placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
             )
 
-            if (ratingBadge != null) {
+            if (!item.playbackUrl.isNullOrBlank() || item.streams.isNotEmpty()) {
                 Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    color = MoviaRatingBadgeBackground,
-                    contentColor = MoviaBrandAmber,
-                    border = BorderStroke(1.dp, MoviaBrandAmber),
+                    shape = RoundedCornerShape(topStart = 0.dp, bottomEnd = 8.dp),
+                    color = Color.Black.copy(alpha = 0.72f),
+                    modifier = Modifier.align(Alignment.TopStart),
                 ) {
                     Text(
-                        text = ratingBadge,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
+                        text = "🎬",
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                     )
                 }
             }
@@ -129,21 +120,22 @@ fun MediaContentCard(
             overflow = TextOverflow.Ellipsis,
         )
 
-        if (facts.isNotBlank()) {
+        if (ratingLabel != null || metadataFacts.isNotBlank()) {
             Text(
-                text = facts,
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        if (genres.isNotBlank()) {
-            Text(
-                text = genres,
+                text = buildAnnotatedString {
+                    ratingLabel?.let { label ->
+                        withStyle(
+                            SpanStyle(
+                                color = MoviaBrandAmber,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                        ) {
+                            append("★ $label")
+                        }
+                        if (metadataFacts.isNotBlank()) append(" • ")
+                    }
+                    append(metadataFacts)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
@@ -155,12 +147,6 @@ fun MediaContentCard(
     }
 }
 
-private fun formatDuration(minutes: Int): String {
-    if (minutes < 60) return "$minutes мин"
-    val hours = minutes / 60
-    val rest = minutes % 60
-    return if (rest == 0) "$hours ч" else "$hours ч $rest мин"
-}
 
 @Composable
 fun MediaCard(

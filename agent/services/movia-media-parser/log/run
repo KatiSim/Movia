@@ -1,0 +1,6 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+D="$HOME/.local/share/movia-media-parser/log"
+mkdir -p "$D"
+chmod 700 "$D"
+exec "$PREFIX/bin/svlogd" -tt "$D"

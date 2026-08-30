@@ -1,0 +1,26 @@
+PASS headless bridge available
+PASS CLI token is present
+PASS GET /health
+PASS GET /snapshot
+PASS GET /actions
+PASS GET /ui
+PASS GET /ui/controls
+PASS GET /events?limit=5
+PASS GET /settings
+PASS GET /streams
+PASS GET /diagnostics
+PASS GET /capabilities
+PASS GET /manifest
+PASS health declares headless, loopback, non-Shizuku operation
+PASS actions expose stable machine action IDs
+PASS events response contains an event array
+PASS settings response contains a settings array
+PASS streams response contains quality groups
+PASS diagnostics response contains player and selection sections
+PASS capabilities advertise domain operation without UI or Shizuku
+PASS manifest describes explicit headless bootstrap and action endpoint
+PASS unauthenticated request is rejected with HTTP 401
+PASS POST app.health completes through the ordinary API
+PASS POST app.capabilities completes through the ordinary API
+PASS POST catalog.search returns machine-readable items
+{"script":"02_smoke","pass":true,"checks":[{"name":"headless bridge available","pass":true},{"name":"CLI token is present","pass":true},{"name":"GET /health","pass":true,"detail":"HTTP 200"},{"name":"GET /snapshot","pass":true,"detail":"HTTP 200"},{"name":"GET /actions","pass":true,"detail":"HTTP 200"},{"name":"GET /ui","pass":true,"detail":"HTTP 200"},{"name":"GET /ui/controls","pass":true,"detail":"HTTP 200"},{"name":"GET /events?limit=5","pass":true,"detail":"HTTP 200"},{"name":"GET /settings","pass":true,"detail":"HTTP 200"},{"name":"GET /streams","pass":true,"detail":"HTTP 200"},{"name":"GET /diagnostics","pass":true,"detail":"HTTP 200"},{"name":"GET /capabilities","pass":true,"detail":"HTTP 200"},{"name":"GET /manifest","pass":true,"detail":"HTTP 200"},{"name":"health declares headless, loopback, non-Shizuku operation","pass":true,"detail":""},{"name":"actions expose stable machine action IDs","pass":true,"detail":{"missing":[]}},{"name":"events response contains an event array","pass":true},{"name":"settings response contains a settings array","pass":true},{"name":"streams response contains quality groups","pass":true},{"name":"diagnostics response contains player and selection sections","pass":true},{"name":"capabilities advertise domain operation without UI or Shizuku","pass":true},{"name":"manifest describes explicit headless bootstrap and action endpoint","pass":true},{"name":"unauthenticated request is rejected with HTTP 401","pass":true,"detail":"{\"schemaVersion\":2,\"status\":\"failed\",\"code\":\"UNAUTHORIZED\",\"message\":\"Valid local bridge token required\",\"retryable\":false}"},{"name":"POST app.health completes through the ordinary API","pass":true,"detail":""},{"name":"POST app.capabilities completes through the ordinary API","pass":true,"detail":""},{"name":"POST catalog.search returns machine-readable items","pass":true,"detail":""}]}

@@ -1,0 +1,25 @@
+{
+  "device": "24069PC21G",
+  "transport": "Jarvis 2.0 / Shizuku-rish",
+  "installedPackage": {
+    "package": "app.movia.android",
+    "versionName": "0.9.23",
+    "versionCode": 293
+  },
+  "canonicalRoot": "/storage/emulated/0/Movia/Movia_project",
+  "sourceRoots": {
+    "android": "/data/data/com.termux/files/home/projects/movia",
+    "backend": "/data/data/com.termux/files/home/projects/media-parser",
+    "agentMcp": "/data/data/com.termux/files/home/termux-mcp",
+    "zonaReference": "/data/data/com.termux/files/home/projects/zona-reference-20260829-223618"
+  },
+  "externalData": {
+    "catalogDb": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
+    "catalogDbSidecars": [
+      "/data/data/com.termux/files/home/projects/media-parser/catalog.db-wal",
+      "/data/data/com.termux/files/home/projects/media-parser/catalog.db-shm"
+    ],
+    "rawZonaReference": "/data/data/com.termux/files/home/projects/zona-reference-20260829-223618"
+  },
+  "policy": "Large DB, caches, old APKs, raw reference captures, logs and secrets are external or ignored; restore manifests point to them."
+}

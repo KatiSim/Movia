@@ -1,126 +1,133 @@
-# Movia — RESTORE
+# Movia restore procedure
 
-Эта инструкция рассчитана на нового агента. Она не зависит от памяти предыдущего агента и не разрешает восстанавливать отсутствующие компоненты по догадкам.
+This file is the recovery entry point. It describes how to restore the current
+baseline without relying on the memory of the previous agent.
 
-## 1. Clone repository
+## 1. Clone the repository
 
-~~~bash
-git clone https://github.com/KatiSim/Movia.git Movia
-cd Movia
-git checkout main
-~~~
+    git clone https://github.com/KatiSim/Movia.git
+    cd Movia
+    git checkout main
 
-Перед работой проверить remote, branch и baseline:
+For a reproducible checkpoint, checkout the current movia-baseline-YYYYMMDD tag
+or the current baseline tag listed in the GitHub Release.
 
-~~~bash
-git remote -v
-git status --short --branch
-cat CURRENT_BASELINE.json
-~~~
+## 2. Install Termux requirements
 
-## 2. Required Termux packages
+Install Termux packages:
 
-Установить только необходимые пакеты:
+    pkg update
+    pkg install git python nodejs openjdk-17 curl openssl
 
-~~~bash
-pkg update
-pkg install git curl jq openssl python node
-~~~
+Install Python dependencies:
 
-Для Android build нужны Java 17, Android SDK/Build Tools и Gradle Wrapper. Не копировать `.gradle/` или build outputs из другого проекта.
+    python -m pip install -r backend/requirements.txt
 
-## 3. Android/Gradle
+Install/build MCP dependencies:
 
-~~~bash
-java -version
-./android/gradlew -p android --version
-./android/gradlew -p android assembleDebug
-~~~
+    cd agent/mcp
+    npm ci
+    npm run build
+    cd ../..
 
-Если Gradle/SDK не настроены, установить их отдельно и сохранить только инструкции/config.example; реальные credentials/keystore не помещать в Git.
+Android SDK/command-line tools and an Android SDK platform/build-tools version
+compatible with the Gradle files under android/ are also required. Do not commit
+android/local.properties; create it locally with the SDK path.
 
-## 4. Backend
+## 3. Restore backend
 
-Ожидаемый backend — media-parser. Сначала открыть:
+The repository contains the backend source, tests, service definitions and
+catalog schema. It intentionally does not contain the live multi-hundred-
+megabyte database, WAL, runtime caches or secrets.
 
-~~~bash
-cat backend/STATUS.md
-cat reference/CURRENT_PHONE_ASSETS.json
-~~~
+The observed current SSOT is:
 
-На текущем checkpoint backend source не найден. Восстановление возможно только из проверенного source snapshot или из release backup artifact с совпадающим checksum. Не создавать backend из памяти.
+    /data/data/com.termux/files/home/projects/media-parser/catalog.db
 
-## 5. Catalog
+To restore the catalog, use a verified GitHub Release catalog snapshot when one
+is attached, or rebuild it from the schema and discovery code:
 
-Schema находится в `database/schema` и ссылается на Android Room schemas. Mutable `catalog.db` в Git не хранится.
+    python backend/restore_all.py
 
-~~~bash
-scripts/restore-check.sh
-scripts/create-baseline.sh --db /absolute/path/catalog.db
-~~~
+Before replacing a live DB, stop writers and validate the snapshot checksum from
+the release SHA256SUMS.txt. If no snapshot is attached, run the documented
+discovery/import pipeline and record the resulting DB path and checksum in
+database/CATALOG_DB_STATUS.md.
 
-Если есть release DB snapshot, проверить SHA256SUMS и только потом развернуть его в согласованный runtime path. Не заменять пользовательские данные без отдельной проверки.
+## 4. Configure services
 
-## 6. Configure services
+Copy or install the service definitions from agent/services/ into the Termux
+runit service directory:
 
-Прочитать `agent/STATUS.md` и backend status. Скопировать только проверенные service definitions в локальную runit/service directory. Не запускать неизвестные сервисы и не использовать общий Chipupa service как Movia backend.
+    mkdir -p "$PREFIX/var/service"
+    cp -a agent/services/movia-media-parser "$PREFIX/var/service/"
+    cp -a agent/services/movia-stream-enricher "$PREFIX/var/service/"
+    cp -a agent/services/movia-stream-enricher-log "$PREFIX/var/service/"
+    cp -a agent/services/movia-cache-pruner "$PREFIX/var/service/"
 
-## 7. Configure secrets
+The definitions expect the backend checkout at $HOME/projects/media-parser.
+Either restore the backend there or adapt the working directory locally; do
+not put the DB into Git.
 
-~~~bash
-cat SECRETS_SETUP.md
-cp .env.example .env
-~~~
+Start/check services with sv up <service> and sv status <service>. The MCP
+process is started by bash agent/mcp/start.sh after npm ci and npm run build.
 
-Реальные token/cookies/API keys/credentials вводятся только в локальное secret storage. Они не должны попадать в Git diff, logs, manifests или release assets.
+## 5. Configure secrets
 
-## 8. Build APK
+Read SECRETS_SETUP.md. Copy examples and fill them only in Termux/private
+configuration locations. Never put values in this repository, GitHub Issues,
+logs or release assets.
 
-~~~bash
-./android/gradlew -p android testDebugUnitTest
-./android/gradlew -p android lintDebug
-./android/gradlew -p android assembleDebug
-~~~
+The backend reads environment values through backend/config.py. The MCP server
+reads TERMUX_MCP_SECRET and related values through agent/mcp/src/config.ts. The
+native Android agent token is provisioned by
+agent/tools/provision-agent-token.sh into the private agent config area.
 
-Перед публикацией записать versionName/versionCode автоматически:
+## 6. Build and install APK
 
-~~~bash
-scripts/create-baseline.sh --apk android/app/build/outputs/apk/debug/app-debug.apk
-~~~
+    bash scripts/build.sh
+    bash scripts/install.sh --apk android/app/build/outputs/apk/debug/app-debug.apk
 
-## 9. Install APK
+Install with replacement using adb install -r and verify app.movia.android,
+versionName and versionCode. Do not clear app data as a restore step.
 
-~~~bash
-scripts/install.sh android/app/build/outputs/apk/debug/app-debug.apk
-~~~
+## 7. Provision agent
 
-Установка выполняется с сохранением данных; `pm uninstall`, очистка данных и force install не являются частью restore.
+After the APK is installed and the private token is available:
 
-## 10. Provision agent token
+    agent/tools/provision-agent-token.sh
 
-Положить токен в локальное secret storage согласно `SECRETS_SETUP.md`. В репозитории хранится только `.env.example` и описание переменной.
+The value is supplied interactively or via the private environment expected by
+that script. The value must not be written to Git-tracked files.
 
-## 11. Start services
+## 8. Start services
 
-Запускать только после успешных backend/agent health checks:
+    sv up movia-media-parser
+    sv up movia-stream-enricher
+    sv up movia-stream-enricher-log
+    sv up movia-cache-pruner
+    bash agent/mcp/start.sh
 
-~~~bash
-scripts/health-check.sh
-~~~
+## 9. Verify health
 
-## 12. Verify health
+    bash scripts/health-check.sh
+    bash scripts/verify-project.sh
+    bash scripts/restore-check.sh
 
-~~~bash
-scripts/verify-project.sh
-scripts/restore-check.sh
-~~~
+A health failure is a real failure to resolve, not a reason to write PASS into
+the manifest.
 
-Ожидается явный `PASS`. `NOT_FOUND`, `NOT_VERIFIED` и timeout означают FAIL.
+## 10. Verify MCP
 
-## 13. Verify MCP
+Confirm the MCP process is listening on the configured local port, then run the
+current MCP smoke/acceptance script and verify the native Movia tool inventory
+contains the 29 source-registered tools. The MCP endpoint is HTTP POST /mcp; a
+GET request may return 404/405 and is not by itself a protocol failure.
 
-Проверить наличие актуального Movia Agent API и native MCP tools по контракту под `agent/`. Не считать общие Termux MCP tools Movia-native tools.
+## 11. Verify installed version
 
-## 14. Verify installed version
+    adb shell dumpsys package app.movia.android | grep -E 'versionCode|versionName'
+    adb shell pm path app.movia.android
 
-Сверить package, versionName, versionCode и SHA256 APK с `CURRENT_BASELINE.json`. Если установленный пакет отсутствует или версия отличается, baseline не считается восстановленным.
+The current phone baseline is package app.movia.android, versionName 0.9.23,
+versionCode 293.

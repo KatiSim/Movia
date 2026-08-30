@@ -1,0 +1,2 @@
+PASS MCP first-class tool inventory
+{"script":"06_mcp_inventory","pass":true,"checks":{"registeredToolCount":29,"expectedToolsPresent":true,"missingTools":[],"realActionIdsPresent":true,"missingActionIds":[],"canonicalActionBindings":true,"missingActionBindings":[],"noLegacyActionIds":true,"legacyActionFragments":[],"noTokenLiteral":true,"noTokenPlumbingInToolRegistration":true}}

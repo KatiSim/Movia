@@ -1,10 +1,18 @@
-# Playback known issues
+# Playback known issues at current baseline
 
-These are recorded reports, not PASS claims:
+This is a current checkpoint, not a stability claim.
 
-- requested quality/voice can be replaced by another active stream after reopening settings;
-- playback can time out even when a stream was discovered;
-- switching streams was associated with macroblock/image corruption;
-- full playback acceptance and fallback integrity are not verified on this checkpoint.
+Open evidence:
 
-A fix requires a reproducible test, exact media identity, selected and active stream metadata, relevant commit and a passing acceptance record.
+- media identity can be lost or mismatched across episode selection;
+- stream candidates can exist while playback still times out;
+- Zona aggregation/P2P exact-episode selection needs a reproducible
+  end-to-end acceptance case;
+- a full playback run was not executed during this synchronization.
+
+Relevant source areas include Android playback session/player code, backend
+streamer/torrent resolver code and the playback decision records under
+docs/decisions/.
+
+Any fix must add a focused regression test, update the evidence, document the
+acceptance result and then be committed/pushed as one logical change.

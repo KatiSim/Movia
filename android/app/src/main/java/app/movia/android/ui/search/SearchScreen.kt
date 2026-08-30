@@ -42,30 +42,49 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.movia.android.data.catalog.DemoCatalogRepository
+import app.movia.android.data.catalog.CanonicalTextNormalizer
+import app.movia.android.data.catalog.SearchStatus
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
 import app.movia.android.ui.components.MediaArtworkPlaceholder
 import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
 import app.movia.android.ui.components.MediaContentCard
+import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MoviaPageTitle
 import app.movia.android.ui.components.SectionHeader
+import app.movia.android.ui.components.moviaPrimaryGenre
 import app.movia.android.ui.theme.MoviaBorderFocused
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaBrandAmber
@@ -74,6 +93,7 @@ import java.util.Locale
 private val discoveryGenres = listOf("Фантастика", "Драма", "Комедия", "Триллер")
 private val resultFilters = listOf("Все", "Фильмы", "Сериалы", "Люди")
 
+@OptIn(FlowPreview::class)
 @Composable
 fun SearchScreen(
     contentPadding: PaddingValues,
@@ -89,12 +109,64 @@ fun SearchScreen(
     var committed by rememberSaveable { mutableStateOf(false) }
     var selectedFilter by rememberSaveable { mutableStateOf("Все") }
 
-    val results = DemoCatalogRepository.search(query)
-    val people = DemoCatalogRepository.searchPeople(query)
-    val popularItems = remember {
-        DemoCatalogRepository.all()
-            .sortedWith(compareByDescending<MediaContent> { it.popularity }.thenByDescending { it.rating })
-            .take(8)
+    var results by remember { mutableStateOf<List<MediaContent>>(emptyList()) }
+    var people by remember { mutableStateOf<List<Person>>(emptyList()) }
+    var isSearching by remember { mutableStateOf(false) }
+    var searchStatus by remember { mutableStateOf(SearchStatus.EMPTY_QUERY) }
+    var searchError by remember { mutableStateOf<String?>(null) }
+    val popularItems = remember { DemoCatalogRepository.getPopular(8) }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { CanonicalTextNormalizer.normalize(query) }
+            .debounce(150L)
+            .distinctUntilChanged()
+            .collectLatest { normalized ->
+                if (normalized.isBlank()) {
+                    results = emptyList()
+                    people = emptyList()
+                    searchStatus = SearchStatus.EMPTY_QUERY
+                    searchError = null
+                    isSearching = false
+                    return@collectLatest
+                }
+
+                isSearching = true
+                searchError = null
+                val local = withContext(Dispatchers.IO) {
+                    DemoCatalogRepository.searchDetailed(
+                        normalized,
+                        limit = 20,
+                        discover = false,
+                    )
+                }
+                ensureActive()
+                results = local.items
+                people = local.people
+                searchStatus = local.status
+                searchError = local.errorMessage
+                isSearching = false
+
+                // Remote discovery is deliberately separated from the first local
+                // response and is never eligible for one- or two-character input.
+                if (normalized.length >= 3 && local.weakLocal) {
+                    isSearching = true
+                    delay(400L)
+                    ensureActive()
+                    val enriched = withContext(Dispatchers.IO) {
+                        DemoCatalogRepository.searchDetailed(
+                            normalized,
+                            limit = 20,
+                            discover = true,
+                        )
+                    }
+                    ensureActive()
+                    results = enriched.items
+                    people = enriched.people
+                    searchStatus = enriched.status
+                    searchError = enriched.errorMessage
+                    isSearching = false
+                }
+            }
     }
 
     fun commitSearch(value: String) {
@@ -154,7 +226,7 @@ fun SearchScreen(
                     query = query,
                     onQueryChange = {
                         query = it
-                        committed = false
+                        committed = it.isNotBlank()
                         selectedFilter = "Все"
                     },
                     focused = searchFocused,
@@ -213,8 +285,31 @@ fun SearchScreen(
                 }
                 val visiblePeople = if (selectedFilter == "Все" || selectedFilter == "Люди") people else emptyList()
                 val totalVisible = visibleMedia.size + visiblePeople.size
+                val searchStatusError = searchStatus !in setOf(
+                    SearchStatus.OK,
+                    SearchStatus.NO_RESULTS,
+                    SearchStatus.EMPTY_QUERY,
+                )
 
-                if (totalVisible == 0) {
+                if (totalVisible == 0 && isSearching) {
+                    item(key = "searching") {
+                        Text(
+                            text = "Ищем в каталоге…",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                        )
+                    }
+                } else if (totalVisible == 0 && searchStatusError) {
+                    item(key = "search-error") {
+                        Text(
+                            text = searchError ?: "Поиск временно недоступен. Локальный каталог не был заменён пустой выдачей.",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                        )
+                    }
+                } else if (totalVisible == 0) {
                     item(key = "empty-results") {
                         SearchEmptyState(
                             onClear = {
@@ -562,11 +657,16 @@ private fun SearchResultRow(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        MediaArtworkPlaceholder(
+        MoviaArtwork(
+            url = item.posterUrl,
             modifier = Modifier
                 .width(92.dp)
-                .aspectRatio(2f / 3f),
-            style = MediaArtworkPlaceholderStyle.POSTER,
+                .aspectRatio(2f / 3f)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(10.dp)),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
         )
         Column(
             modifier = Modifier.weight(1f),
@@ -581,30 +681,9 @@ private fun SearchResultRow(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(
-                text = metadataLine(item),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp,
-                lineHeight = 18.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (item.genres.isNotEmpty()) {
-                Text(
-                    text = item.genres.joinToString(" • "),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Text(
-                text = if (item.type == ContentType.TV || item.durationMinutes <= 0) "Прямой эфир" else formatDuration(item.durationMinutes),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp,
-                lineHeight = 18.sp,
-                maxLines = 1,
+            SearchMetadataLine(
+                item = item,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -709,23 +788,43 @@ private fun contentTypeLabel(type: ContentType): String = when (type) {
     ContentType.TV -> "ТВ"
 }
 
-private fun metadataLine(item: MediaContent): String {
-    val parts = buildList {
-        if (item.rating > 0.0) add("★ ${String.format(Locale.US, "%.1f", item.rating)}")
-        if (item.year > 0) add(item.year.toString())
-        if (item.ageRating > 0) add("${item.ageRating}+")
-        add(contentTypeLabel(item.type))
+@Composable
+private fun SearchMetadataLine(
+    item: MediaContent,
+    modifier: Modifier = Modifier,
+) {
+    val parts = listOfNotNull(
+        item.year.takeIf { it > 0 }?.toString(),
+        contentTypeLabel(item.type),
+        moviaPrimaryGenre(item),
+    )
+    val showRating = item.rating >= 5.0
+    val rating = if (showRating) {
+        String.format(Locale.US, "%.1f", item.rating)
+    } else {
+        null
     }
-    return parts.joinToString(" • ")
-}
 
-private fun formatDuration(minutes: Int): String {
-    if (minutes <= 0) return ""
-    val hours = minutes / 60
-    val rest = minutes % 60
-    return when {
-        hours <= 0 -> "$minutes мин"
-        rest == 0 -> "$hours ч"
-        else -> "$hours ч $rest мин"
-    }
+    Text(
+        text = buildAnnotatedString {
+            rating?.let {
+                withStyle(
+                    SpanStyle(
+                        color = MoviaBrandAmber,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                ) {
+                    append("★ $it")
+                }
+                if (parts.isNotEmpty()) append(" • ")
+            }
+            append(parts.joinToString(" • "))
+        },
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }

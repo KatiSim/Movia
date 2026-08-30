@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+exec 2>&1
+log_dir="$HOME/.local/share/movia-stream-enricher/log"
+mkdir -p "$log_dir"
+chmod 700 "$log_dir"
+exec tail -F "$HOME/projects/media-parser/logs/content_filler.log" | "$PREFIX/bin/svlogd" -tt "$log_dir"

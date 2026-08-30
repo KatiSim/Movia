@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+exec 2>&1
+export PYTHONUNBUFFERED=1
+export SSL_CERT_FILE="$PREFIX/etc/tls/cert.pem"
+cd "$HOME/projects/media-parser"
+exec "$PREFIX/bin/python3" -u streamer.py

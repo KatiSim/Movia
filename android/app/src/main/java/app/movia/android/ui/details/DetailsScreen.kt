@@ -1,12 +1,16 @@
 package app.movia.android.ui.details
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -38,11 +44,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Button
@@ -52,10 +58,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,21 +73,22 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -90,25 +97,32 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.movia.android.data.catalog.DemoCatalogRepository
+import app.movia.android.domain.model.CatalogCategory
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
+import app.movia.android.domain.model.Person
 import app.movia.android.domain.model.PlaybackProgress
 import app.movia.android.ui.components.MediaArtworkPlaceholder
 import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
+import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MediaContentCard
+import app.movia.android.ui.components.moviaContentTypeLabel
+import app.movia.android.ui.components.moviaLocalizedGenreList
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
-import app.movia.android.ui.theme.MoviaDividerSubtle
 import app.movia.android.ui.theme.MoviaScrim40
-import app.movia.android.ui.theme.MoviaScrim70
-import app.movia.android.ui.theme.MoviaRatingBadgeBackground
+import app.movia.android.ui.theme.MoviaScrim60
 import app.movia.android.ui.theme.MoviaPrimaryAccentHover
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.Locale
 import kotlin.math.ceil
 
 private val DetailsInfoFontSize = 16.sp
@@ -153,10 +167,17 @@ fun DetailsScreen(
     progressByTitle: Map<String, PlaybackProgress> = emptyMap(),
     latestProgress: PlaybackProgress = PlaybackProgress(),
 ) {
-    val content = remember(title) { DemoCatalogRepository.findByTitle(title) }
+    val initialContent = remember(title) { DemoCatalogRepository.findByTitle(title) }
+    val contentState by produceState<MediaContent?>(initialValue = initialContent, title) {
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.findFullByTitle(title) ?: initialContent
+        }
+    }
+    val content = contentState ?: initialContent
     val isTv = content?.type == ContentType.TV
     val seasonEpisodeCounts = content?.seasonEpisodeCounts.orEmpty()
     val hasEpisodes = seasonEpisodeCounts.isNotEmpty()
+    val isSeries = content?.type == ContentType.SERIES || content?.type == ContentType.TV || hasEpisodes
     val resume = latestProgress.takeIf { it.title == title || it.title.startsWith("$title · S") }
     val initialSeason = seasonFromTitle(resume?.title.orEmpty())
         ?.coerceIn(1, seasonEpisodeCounts.size.coerceAtLeast(1)) ?: 1
@@ -164,13 +185,13 @@ fun DetailsScreen(
     var synopsisExpanded by remember(title) { mutableStateOf(false) }
     var seasonScreenOpen by remember(title) { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    LaunchedEffect(content?.id, title) {
+        listState.scrollToItem(0)
+    }
     val heroOutOfView by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
-    val appBarColor by animateColorAsState(
-        targetValue = if (heroOutOfView) MaterialTheme.colorScheme.background else Color.Transparent,
-        label = "detailsTopAppBar",
-    )
+    val appBarColor = if (heroOutOfView) MaterialTheme.colorScheme.background else Color.Transparent
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     val resumeEpisode = episodeFromTitle(resume?.title.orEmpty())
@@ -179,11 +200,13 @@ fun DetailsScreen(
         hasEpisodes -> episodeTitle(title, 1, 1)
         else -> title
     }
-    val genres = content?.genres?.sorted().orEmpty()
+    val genres = content?.let { moviaLocalizedGenreList(it.genres, limit = 3) }.orEmpty()
     val resumeRemainingMinutes = resume
         ?.takeIf { it.durationMs > 0L && it.positionMs > 0L }
         ?.let { ceil((it.durationMs - it.positionMs).coerceAtLeast(0L) / 60_000.0).toInt() }
     val hasStartedPlayback = resume?.positionMs?.let { it > 0L } == true
+    val downloadTarget = if (hasEpisodes && resumeEpisode != null) resume!!.title else title
+    val isDownloaded = downloadTarget in downloads
     val ctaPrimary = if (hasStartedPlayback) "Продолжить" else "Смотреть"
     val ctaSecondary = when {
         isTv -> if (hasStartedPlayback) "Продолжить эфир" else "Прямой эфир"
@@ -194,33 +217,30 @@ fun DetailsScreen(
         hasStartedPlayback && resumeRemainingMinutes != null -> "осталось $resumeRemainingMinutes мин"
         else -> null
     }
-    val catalogItems = remember { DemoCatalogRepository.all() }
-    val franchiseItems = remember(content, catalogItems) {
-        val franchiseIds = buildList {
-            addAll(content?.sequelPrequelIds.orEmpty())
-            addAll(content?.relatedContentIds.orEmpty())
-        }.distinct()
-        franchiseIds.mapNotNull { relatedId -> catalogItems.firstOrNull { it.id == relatedId } }
+    val franchiseItems by produceState<List<MediaContent>>(initialValue = emptyList(), content?.id) {
+        value = withContext(Dispatchers.IO) {
+            content?.id?.let { movieId ->
+                DemoCatalogRepository.getSequelsAndPrequels(movieId, limit = 15)
+            }.orEmpty()
+        }
     }
-    val similarItems = remember(content, catalogItems) {
-        content?.let { current -> similarContentFor(current, catalogItems, limit = 8) }.orEmpty()
-    }
-
-    if (hasEpisodes && seasonScreenOpen) {
-        SeasonEpisodesScreen(
-            baseTitle = title,
-            seasonEpisodeCounts = seasonEpisodeCounts,
-            initialSeason = selectedSeason,
-            progressByTitle = progressByTitle,
-            onSeasonChange = { selectedSeason = it },
-            onPlay = onPlay,
-            onBack = { seasonScreenOpen = false },
-            modifier = modifier,
-        )
-        return
+    val similarItems by produceState<List<MediaContent>>(initialValue = emptyList(), content?.id, franchiseItems) {
+        value = withContext(Dispatchers.IO) {
+            val excludedIds = franchiseItems.map { it.id }.toSet()
+            content?.let { current ->
+                DemoCatalogRepository.getSimilar(current, limit = 8)
+                    .filterNot { it.id in excludedIds }
+            }.orEmpty()
+        }
     }
 
-    BackHandler(onBack = onBack)
+    BackHandler {
+        if (seasonScreenOpen) {
+            seasonScreenOpen = false
+        } else {
+            onBack()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -234,7 +254,11 @@ fun DetailsScreen(
             contentPadding = PaddingValues(bottom = navBottom + 32.dp),
         ) {
             item(key = "hero") {
-                DetailsHero()
+                DetailsHero(
+                    backdropUrl = content?.backdropUrl,
+                    posterUrl = content?.posterUrl,
+                    onSwipeDown = onBack,
+                )
             }
 
             item(key = "identity") {
@@ -255,31 +279,14 @@ fun DetailsScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                     if (content != null) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            horizontalAlignment = Alignment.Start,
-                        ) {
-                            DetailsMetadataLine(
-                                content = content,
-                                isTv = isTv,
-                            )
-                            if (genres.isNotEmpty()) {
-                                Text(
-                                    text = genres.joinToString(" • "),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = DetailsInfoFontSize,
-                                    lineHeight = DetailsInfoLineHeight,
-                                    fontWeight = FontWeight.Normal,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        }
+                        DetailsMetadataLine(
+                            content = content,
+                            isTv = isTv,
+                        )
                     }
                 }
             }
+
 
             item(key = "primary-action") {
                 Column(
@@ -299,6 +306,14 @@ fun DetailsScreen(
                 }
             }
 
+            item(key = "quick-actions") {
+                QuickActionsRow(
+                    title = title,
+                    sourceUrl = content?.sourceUrl,
+                    isDownloaded = isDownloaded,
+                    onToggleDownload = { onDownloadTitle(downloadTarget) },
+                )
+            }
 
             item(key = "synopsis") {
                 InfoSection(
@@ -344,8 +359,9 @@ fun DetailsScreen(
             if (franchiseItems.isNotEmpty()) {
                 item(key = "franchise") {
                     MediaContentRowSection(
-                        title = "Франшиза",
+                        title = "Сиквелы и приквелы",
                         items = franchiseItems,
+                        activeId = content?.id,
                         onOpenDetails = onOpenDetails,
                     )
                 }
@@ -364,7 +380,8 @@ fun DetailsScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(appBarColor),
+                .background(appBarColor)
+                .swipeDownToDismiss(onBack),
         ) {
             TopAppBar(
                 title = {
@@ -431,19 +448,137 @@ fun DetailsScreen(
         }
     }
 
+    if (hasEpisodes && seasonScreenOpen) {
+        SeasonEpisodesSheet(
+            baseTitle = title,
+            seasonEpisodeCounts = seasonEpisodeCounts,
+            initialSeason = selectedSeason,
+            progressByTitle = progressByTitle,
+            onSeasonChange = { selectedSeason = it },
+            onPlay = { episodeTitle ->
+                seasonScreenOpen = false
+                onPlay(episodeTitle)
+            },
+            onDismiss = { seasonScreenOpen = false },
+        )
+    }
+
+}
+
+private fun Modifier.swipeDownToDismiss(
+    onDismiss: () -> Unit,
+): Modifier = pointerInput(onDismiss) {
+    var dragDistance = 0f
+    detectVerticalDragGestures(
+        onDragStart = { dragDistance = 0f },
+        onVerticalDrag = { _, dragAmount ->
+            if (dragAmount > 0f) {
+                dragDistance += dragAmount
+            } else if (dragAmount < 0f) {
+                dragDistance = 0f
+            }
+        },
+        onDragEnd = {
+            if (dragDistance >= 48.dp.toPx()) onDismiss()
+            dragDistance = 0f
+        },
+        onDragCancel = { dragDistance = 0f },
+    )
 }
 
 @Composable
-private fun DetailsHero() {
+private fun DetailsHero(
+    backdropUrl: String?,
+    posterUrl: String?,
+    onSwipeDown: () -> Unit,
+) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val heroHeight = if (isLandscape) {
+        (configuration.screenHeightDp * 0.58f).dp
+    } else {
+        (configuration.screenHeightDp * 0.42f).dp
+    }
+
+    val heroShape = RoundedCornerShape(
+        bottomStart = 24.dp,
+        bottomEnd = 24.dp,
+    )
+    val posterShape = RoundedCornerShape(18.dp)
+    val hasBackdrop = !backdropUrl.isNullOrBlank()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio((16f / 9f) / 1.10f),
+            .height(heroHeight)
+            .clip(heroShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .swipeDownToDismiss(onSwipeDown),
+        contentAlignment = Alignment.Center,
     ) {
-        MediaArtworkPlaceholder(
-            modifier = Modifier.fillMaxSize(),
-            style = MediaArtworkPlaceholderStyle.HERO,
-        )
+        when {
+            hasBackdrop -> {
+                // A real horizontal backdrop is the only artwork shown in the hero.
+                MoviaArtwork(
+                    url = backdropUrl,
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    placeholderStyle = MediaArtworkPlaceholderStyle.HERO,
+                )
+            }
+
+            !posterUrl.isNullOrBlank() -> {
+                // If no backdrop exists, build a cinematic fallback from the poster:
+                // a soft blurred/glowing background plus one correctly fitted poster.
+                MoviaArtwork(
+                    url = posterUrl,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            alpha = 0.34f
+                            scaleX = 1.16f
+                            scaleY = 1.16f
+                        }
+                        .blur(28.dp),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    placeholderStyle = MediaArtworkPlaceholderStyle.HERO,
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    MoviaBrandAmber.copy(alpha = 0.20f),
+                                    Color.Transparent,
+                                ),
+                                radius = 900f,
+                            ),
+                        ),
+                )
+                MoviaArtwork(
+                    url = posterUrl,
+                    modifier = Modifier
+                        .fillMaxHeight(0.88f)
+                        .aspectRatio(2f / 3f)
+                        .clip(posterShape)
+                        .border(1.dp, MoviaBorderSubtle, posterShape),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
+                )
+            }
+
+            else -> {
+                MediaArtworkPlaceholder(
+                    modifier = Modifier.fillMaxSize(),
+                    style = MediaArtworkPlaceholderStyle.HERO,
+                )
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -451,32 +586,89 @@ private fun DetailsHero() {
                     Brush.verticalGradient(
                         colorStops = arrayOf(
                             0.00f to Color.Transparent,
-                            0.54f to Color.Transparent,
+                            0.40f to Color.Transparent,
+                            0.70f to MoviaScrim40,
+                            0.86f to MoviaScrim60,
                             1.00f to MaterialTheme.colorScheme.background,
                         ),
                     ),
                 ),
         )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .border(1.dp, MoviaBorderSubtle, heroShape),
+        )
     }
 }
-
 @Composable
 private fun DetailsMetadataLine(
     content: MediaContent,
     isTv: Boolean,
 ) {
-    val metadata = buildList {
+    val showRating = content.rating > 0.0
+    val ratingText = if (showRating) String.format(Locale.US, "%.1f", content.rating) else null
+    val typeLabel = moviaContentTypeLabel(content)
+    val isSeries = content.type == ContentType.SERIES || content.category == CatalogCategory.TV_SERIES || content.category == CatalogCategory.LIMITED_SERIES || content.seasonEpisodeCounts.isNotEmpty() || content.seasonsCount > 0
+
+    val metadata = buildList<String> {
         if (content.year > 0) add(content.year.toString())
-        if (content.ageRating > 0) add("${content.ageRating}+")
-        add(if (isTv) "Прямой эфир" else if (content.durationMinutes > 0) formatDuration(content.durationMinutes) else "Длительность не указана")
-        content.licenseName?.takeIf { it.isNotBlank() }?.let(::add)
+        if (content.country.isNotBlank()) {
+            add(content.country)
+        } else {
+            add("Зарубежный")
+        }
+        if (isTv) {
+            add("ТВ")
+            add("Прямой эфир")
+        } else if (isSeries) {
+            val seasonCount = content.seasonsCount.takeIf { it > 0 } ?: content.seasonEpisodeCounts.size.takeIf { it > 0 }
+            val episodesCount = content.episodesCount.takeIf { it > 0 }
+            if (seasonCount != null) {
+                val sSuffix = when {
+                    seasonCount % 10 == 1 && seasonCount % 100 != 11 -> "сезон"
+                    seasonCount % 10 in 2..4 && seasonCount % 100 !in 12..14 -> "сезона"
+                    else -> "сезонов"
+                }
+                if (episodesCount != null) {
+                    add("$seasonCount $sSuffix ($episodesCount серий)")
+                } else {
+                    add("$seasonCount $sSuffix")
+                }
+            } else {
+                add("Сериал")
+            }
+            if (content.durationMinutes > 0) {
+                add("${content.durationMinutes} мин/серия")
+            }
+        } else {
+            add(typeLabel)
+            if (content.durationMinutes > 0) {
+                add("${content.durationMinutes} мин")
+            }
+        }
     }
-    val rating = content.imdbRating
+
     Text(
         text = buildAnnotatedString {
-            if (rating != null) {
-                withStyle(SpanStyle(color = MoviaBrandAmber, fontWeight = FontWeight.SemiBold)) {
-                    append("★ ${String.format(java.util.Locale.US, "%.1f", rating)}")
+            if (ratingText != null) {
+                withStyle(
+                    SpanStyle(
+                        color = MoviaBrandAmber,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                ) {
+                    append("★ $ratingText")
+                }
+                if (metadata.isNotEmpty()) append(" • ")
+            } else {
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium,
+                    ),
+                ) {
+                    append("—")
                 }
                 if (metadata.isNotEmpty()) append(" • ")
             }
@@ -492,153 +684,277 @@ private fun DetailsMetadataLine(
     )
 }
 
+@Composable
+private fun RatingStrip(
+    content: MediaContent,
+    modifier: Modifier = Modifier,
+) {
+    val ratings = buildList {
+        content.rating
+            .takeIf { it > 0.0 }
+            ?.let { add("Movia" to it) }
+        content.imdbRating
+            ?.takeIf { it > 0.0 }
+            ?.let { add("IMDb" to it) }
+    }
+    if (ratings.isEmpty()) return
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ratings.forEach { (source, value) ->
+            Surface(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MoviaBorderSubtle),
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = "★ " + String.format(java.util.Locale.US, "%.1f", value),
+                        color = MoviaBrandAmber,
+                        fontSize = 18.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = source,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickActionsRow(
+    title: String,
+    sourceUrl: String?,
+    isDownloaded: Boolean,
+    onToggleDownload: () -> Unit,
+) {
+    val context = LocalContext.current
+    val shareText = listOfNotNull(title, sourceUrl?.takeIf { it.isNotBlank() }).joinToString("\n")
+    val share = {
+        runCatching {
+            context.startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                    },
+                    "Поделиться",
+                ),
+            )
+        }
+        Unit
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        DetailsQuickAction(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Outlined.Download,
+            label = if (isDownloaded) "Скачано" else "Скачать",
+            active = isDownloaded,
+            onClick = onToggleDownload,
+        )
+        DetailsQuickAction(
+            modifier = Modifier.weight(1f),
+            icon = Icons.Outlined.Share,
+            label = "Поделиться",
+            active = false,
+            onClick = share,
+        )
+    }
+}
+
+@Composable
+private fun DetailsQuickAction(
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(64.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = if (active) MoviaBrandAmber else MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(1.dp, if (active) MoviaBrandAmber else MoviaBorderSubtle),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (active) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp),
+            )
+            Text(
+                text = label,
+                color = if (active) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SeasonEpisodesScreen(
+private fun SeasonEpisodesSheet(
     baseTitle: String,
     seasonEpisodeCounts: List<Int>,
     initialSeason: Int,
     progressByTitle: Map<String, PlaybackProgress>,
     onSeasonChange: (Int) -> Unit,
     onPlay: (String) -> Unit,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
 ) {
-    BackHandler(onBack = onBack)
-
     val pageCount = seasonEpisodeCounts.size.coerceAtLeast(1)
     val pagerState = rememberPagerState(
         initialPage = (initialSeason - 1).coerceIn(0, pageCount - 1),
         pageCount = { pageCount },
     )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val dismissThresholdPx = with(LocalDensity.current) { 96.dp.toPx() }
-    val swipeDownBack = remember(onBack, dismissThresholdPx) {
-        object : NestedScrollConnection {
-            var pullDistance = 0f
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                if (source == NestedScrollSource.UserInput) {
-                    when {
-                        available.y > 0f -> pullDistance += available.y
-                        available.y < 0f -> pullDistance = 0f
-                    }
-                }
-                return Offset.Zero
-            }
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                val shouldGoBack = pullDistance >= dismissThresholdPx
-                pullDistance = 0f
-                if (shouldGoBack) onBack()
-                return Velocity.Zero
-            }
-        }
-    }
 
     LaunchedEffect(pagerState.currentPage) {
         onSeasonChange(pagerState.currentPage + 1)
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .nestedScroll(swipeDownBack),
-    ) {
-        TopAppBar(
-            title = {},
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Назад",
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            },
-            actions = {},
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            windowInsets = WindowInsets.statusBars,
-        )
-
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        ) {
-            items((1..pageCount).toList(), key = { "season-$it" }) { season ->
-                val selected = pagerState.currentPage == season - 1
-                FilterChip(
-                    selected = selected,
-                    onClick = {
-                        scope.launch { pagerState.animateScrollToPage(season - 1) }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        dragHandle = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .semantics {
+                        contentDescription = "Потяните вниз, чтобы закрыть выбор сезонов и серий"
                     },
-                    modifier = Modifier.heightIn(min = 48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = selected,
-                        borderColor = MoviaBorderSubtle,
-                        selectedBorderColor = MoviaBrandAmber,
-                    ),
-                    label = {
-                        Text(
-                            text = "Сезон $season",
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        labelColor = MaterialTheme.colorScheme.onSurface,
-                        selectedContainerColor = MoviaBrandAmber,
-                        selectedLabelColor = MoviaOnBrandAmber,
-                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 36.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.42f)),
                 )
             }
-        }
-
-        HorizontalPager(
-            state = pagerState,
+        },
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-        ) { page ->
-            val season = page + 1
-            val episodeCount = seasonEpisodeCounts.getOrElse(page) { 0 }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = navBottom + 24.dp,
-                ),
+                .fillMaxHeight(0.88f)
+                .navigationBarsPadding(),
+        ) {
+            Text(
+                text = "Сезоны и серии",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 20.sp,
+                lineHeight = 26.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                items(
-                    count = episodeCount,
-                    key = { index -> "S$season-E${index + 1}" },
-                ) { index ->
-                    val number = index + 1
-                    val fullTitle = episodeTitle(baseTitle, season, number)
-                    EpisodeRow(
-                        episode = EpisodeUiState(
-                            season = season,
-                            number = number,
-                            progress = progressByTitle[fullTitle] ?: PlaybackProgress(title = fullTitle),
+                items((1..pageCount).toList(), key = { "season-$it" }) { season ->
+                    val selected = pagerState.currentPage == season - 1
+                    FilterChip(
+                        selected = selected,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(season - 1) } },
+                        modifier = Modifier.heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selected,
+                            borderColor = MoviaBorderSubtle,
+                            selectedBorderColor = MoviaBrandAmber,
                         ),
-                        onPlay = { onPlay(fullTitle) },
+                        label = {
+                            Text(
+                                text = "Сезон $season",
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedContainerColor = MoviaBrandAmber,
+                            selectedLabelColor = MoviaOnBrandAmber,
+                        ),
                     )
+                }
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            ) { page ->
+                val season = page + 1
+                val episodeCount = seasonEpisodeCounts.getOrElse(page) { 0 }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 4.dp,
+                        bottom = 24.dp,
+                    ),
+                ) {
+                    items(
+                        count = episodeCount,
+                        key = { index -> "S$season-E${index + 1}" },
+                    ) { index ->
+                        val number = index + 1
+                        val fullTitle = episodeTitle(baseTitle, season, number)
+                        EpisodeRow(
+                            episode = EpisodeUiState(
+                                season = season,
+                                number = number,
+                                progress = progressByTitle[fullTitle] ?: PlaybackProgress(title = fullTitle),
+                            ),
+                            onPlay = { onPlay(fullTitle) },
+                        )
+                    }
                 }
             }
         }
@@ -654,9 +970,9 @@ private fun SeasonEpisodesButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = RoundedCornerShape(14.dp),
+        color = Color(0xFF1E2129),
+        contentColor = Color.White,
         border = BorderStroke(1.dp, MoviaBorderSubtle),
     ) {
         Box(
@@ -666,8 +982,9 @@ private fun SeasonEpisodesButton(
             contentAlignment = Alignment.Center,
         ) {
             Row(
+                modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Box(
                     modifier = Modifier.size(30.dp),
@@ -676,12 +993,13 @@ private fun SeasonEpisodesButton(
                     Icon(
                         Icons.AutoMirrored.Outlined.PlaylistPlay,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(30.dp),
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
                     )
                 }
                 Text(
-                    text = "Сезоны и серии",
+                    text = "Выбор сезона и серий",
+                    color = Color.White,
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -691,10 +1009,10 @@ private fun SeasonEpisodesButton(
             Icon(
                 Icons.Outlined.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = Color.White.copy(alpha = 0.72f),
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .size(20.dp),
+                    .size(22.dp),
             )
         }
     }
@@ -702,7 +1020,7 @@ private fun SeasonEpisodesButton(
 
 @Composable
 private fun CastSection(
-    cast: List<String>,
+    cast: List<Person>,
     modifier: Modifier = Modifier,
 ) {
     InfoSection(
@@ -712,36 +1030,95 @@ private fun CastSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(cast, key = { "cast-$it" }) { actor ->
-                ActorCard(actor)
+            items(
+                items = cast,
+                key = { person -> "cast-${person.name}-${person.photoUrl.orEmpty()}" },
+            ) { person ->
+                ActorCard(person)
             }
         }
     }
 }
 
 @Composable
-private fun ActorCard(name: String) {
+private fun ActorCard(person: Person) {
     Column(
-        modifier = Modifier.width(96.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.Start,
+        modifier = Modifier.width(88.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        MediaArtworkPlaceholder(
+        val actorBitmap by produceState<Bitmap?>(initialValue = null, key1 = person.photoUrl) {
+            value = loadActorBitmap(person.photoUrl)
+        }
+        Box(
             modifier = Modifier
-                .size(76.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(14.dp)),
-            style = MediaArtworkPlaceholderStyle.POSTER,
-        )
+                .size(72.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF1B1E26))
+                .border(1.dp, MoviaBorderSubtle, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            val imageBitmap = actorBitmap?.asImageBitmap()
+            if (imageBitmap != null) {
+                Image(
+                    bitmap = imageBitmap,
+                    contentDescription = person.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                Text(
+                    text = person.name.trim().firstOrNull()?.uppercase() ?: "?",
+                    color = MoviaBrandAmber,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
         Text(
-            text = name,
+            text = person.name,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 13.sp,
-            lineHeight = 17.sp,
+            fontSize = 12.sp,
+            lineHeight = 15.sp,
             fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth(),
         )
+        if (!person.role.isNullOrBlank()) {
+            Text(
+                text = person.role,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp,
+                lineHeight = 13.sp,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+private suspend fun loadActorBitmap(url: String?): Bitmap? = withContext(Dispatchers.IO) {
+    if (url.isNullOrBlank()) return@withContext null
+    val connection = try {
+        URL(url).openConnection() as? HttpURLConnection
+    } catch (_: Exception) {
+        null
+    } ?: return@withContext null
+
+    try {
+        connection.connectTimeout = 5_000
+        connection.readTimeout = 8_000
+        connection.instanceFollowRedirects = true
+        if (connection.responseCode !in 200..299) return@withContext null
+        connection.inputStream.use { BitmapFactory.decodeStream(it) }
+    } catch (_: Exception) {
+        null
+    } finally {
+        connection.disconnect()
     }
 }
 
@@ -749,6 +1126,7 @@ private fun ActorCard(name: String) {
 private fun MediaContentRowSection(
     title: String,
     items: List<MediaContent>,
+    activeId: String? = null,
     onOpenDetails: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -761,6 +1139,7 @@ private fun MediaContentRowSection(
                 MediaContentCard(
                     item = item,
                     modifier = Modifier.width(136.dp),
+                    posterBorder = if (item.id == activeId) MoviaBrandAmber else MoviaBorderSubtle,
                     onClick = { onOpenDetails(item.title) },
                 )
             }
@@ -771,6 +1150,7 @@ private fun MediaContentRowSection(
 private fun similarContentFor(
     current: MediaContent,
     all: List<MediaContent>,
+    excludedIds: Set<String> = emptySet(),
     limit: Int,
 ): List<MediaContent> {
     fun score(candidate: MediaContent): Int {
@@ -788,7 +1168,11 @@ private fun similarContentFor(
 
     return all
         .asSequence()
-        .filterNot { it.id == current.id }
+        .filterNot { it.id == current.id || it.id in excludedIds }
+        .filter {
+            val candidateRating = it.rating.takeIf { value -> value > 0.0 } ?: it.imdbRating
+            candidateRating == null || candidateRating >= 5.5
+        }
         .sortedWith(
             compareByDescending<MediaContent> { score(it) }
                 .thenByDescending { it.rating }
@@ -833,7 +1217,7 @@ private fun SynopsisText(
             fontSize = DetailsInfoFontSize,
             lineHeight = 23.sp,
             fontWeight = FontWeight.Normal,
-            maxLines = if (expanded) Int.MAX_VALUE else 4,
+            maxLines = if (expanded) Int.MAX_VALUE else 3,
             overflow = TextOverflow.Ellipsis,
             onTextLayout = { layout ->
                 if (!expanded) canExpand = layout.hasVisualOverflow
@@ -864,11 +1248,8 @@ private fun PrimaryWatchButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.98f else 1f, label = "watchButtonScale")
-    val buttonColor by animateColorAsState(
-        targetValue = if (pressed) MoviaPrimaryAccentHover else MoviaBrandAmber,
-        label = "watchButtonColor",
-    )
+    val scale = if (pressed) 0.98f else 1f
+    val buttonColor = if (pressed) MoviaPrimaryAccentHover else MoviaBrandAmber
 
     Button(
         onClick = onClick,

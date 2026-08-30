@@ -1,0 +1,130 @@
+{
+  "database": {
+    "rows": 48674,
+    "integrity_check": "ok",
+    "foreign_key_violations": [],
+    "required_columns": {
+      "normalized_ru_title": true,
+      "normalized_original_title": true,
+      "updated_at": true
+    },
+    "trigram_rows": 48703
+  },
+  "query_plans": [
+    {
+      "query": "а",
+      "plan": [
+        [
+          2,
+          0,
+          103,
+          "SEARCH movies USING COVERING INDEX idx_movies_normalized_ru_title (normalized_ru_title>? AND normalized_ru_title<?)"
+        ]
+      ]
+    },
+    {
+      "query": "ав",
+      "plan": [
+        [
+          2,
+          0,
+          103,
+          "SEARCH movies USING COVERING INDEX idx_movies_normalized_ru_title (normalized_ru_title>? AND normalized_ru_title<?)"
+        ]
+      ]
+    },
+    {
+      "query": "ком",
+      "plan": [
+        [
+          2,
+          0,
+          103,
+          "SEARCH movies USING COVERING INDEX idx_movies_normalized_ru_title (normalized_ru_title>? AND normalized_ru_title<?)"
+        ]
+      ]
+    },
+    {
+      "query": "одис",
+      "plan": [
+        [
+          2,
+          0,
+          103,
+          "SEARCH movies USING COVERING INDEX idx_movies_normalized_ru_title (normalized_ru_title>? AND normalized_ru_title<?)"
+        ]
+      ]
+    }
+  ],
+  "search": {
+    "fixed_seed": 20260829,
+    "fixed_sample_size": 300,
+    "unseeded_sample_size": 100,
+    "full_title_found": 300,
+    "full_title_total": 300,
+    "full_title_rate": 1.0,
+    "prefix_checks": 1156,
+    "prefix_pass": 1156,
+    "prefix_rate": 1.0,
+    "monotone_total_pass": 300,
+    "monotone_rate": 1.0,
+    "normalization_pass": 300,
+    "normalization_rate": 1.0,
+    "exact_rank_pass": 300,
+    "unseeded_full_retrieval": 100,
+    "unseeded_full_rate": 1.0,
+    "strata_count": 44,
+    "performance": {
+      "requests": 1000,
+      "failures": 0,
+      "p50_ms": 4.975,
+      "p95_ms": 83.516,
+      "p99_ms": 103.489,
+      "max_ms": 107.878
+    }
+  },
+  "on_demand": {
+    "candidate_count": 2,
+    "records": [
+      {
+        "media_type": "movie",
+        "provider_id": 1599993,
+        "before_missing": true,
+        "discovery_error": null,
+        "inserted": 20,
+        "persisted_after": true,
+        "local_hit_after": true
+      },
+      {
+        "media_type": "tv",
+        "provider_id": 31132,
+        "before_missing": true,
+        "discovery_error": null,
+        "inserted": 2,
+        "persisted_after": true,
+        "local_hit_after": true
+      }
+    ],
+    "pass": true
+  },
+  "continuous": {
+    "rows_before": 48696,
+    "rows_after": 48703,
+    "max_updated_before": "2026-08-29T21:37:07.661523+00:00",
+    "max_updated_after": "2026-08-29T21:37:09.205595+00:00",
+    "revision_before": 32,
+    "revision_after": 33,
+    "sync_status": {
+      "last_run_ok": true,
+      "last_seen": 140,
+      "last_inserted": 7,
+      "last_updated": 133,
+      "last_error": null
+    },
+    "cursor_rows_before": 8,
+    "cursor_rows_after": 8,
+    "cursor_changed_or_initialized": true,
+    "pass": true
+  },
+  "hardcoded_test_titles_in_production": []
+}

@@ -1,63 +1,72 @@
-# Android/Gradle build outputs
-**/build/
-.gradle/
-**/.gradle/
-.kotlin/
-.idea/
-*.iml
-local.properties
-captures/
+# Movia canonical repository: source and reproducible metadata only
 
-# Runtime data and caches
-**/.cache/
-**/torrent_cache/
-**/stream_cache/
-**/media_cache/
-**/video_cache/
-**/logs/
+android/.gradle/
+android/**/build/
+android/**/.cxx/
+android/**/.externalNativeBuild/
+android/local.properties
+*.iml
+.idea/
+.kotlin/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
 *.log
 *.pid
-*.tmp
-tmp/
-temp/
+*.run
+backend/stream_cache/
+backend/torrent_cache/
+backend/logs/
+backend/backups/
+backend/snapshots/
+backend/catalog.db
+backend/catalog.db-*
+backend/.env
+backend/.env.*
+backend/*token*
+backend/*secret*
+backend/*credential*
+backend/*cookie*
 
-# Databases and mutable runtime state
-*.db
-*.db-*
-*.sqlite
-*.sqlite3
-database/snapshots/
-backend/runtime/
-agent/runtime/
+agent/mcp/node_modules/
+agent/mcp/dist/
+agent/mcp/.browser-test/
+agent/mcp/.movia-*-backup*/
+agent/mcp/*token*
+agent/mcp/*secret*
+agent/mcp/*credential*
+agent/mcp/*cookie*
 
-# Binary release artifacts are GitHub Release assets, not Git history
-*.apk
-*.aab
-*.apks
-release/.staging/
-release/artifacts/
-release/*.zip
-
-# Secrets and credentials
 .env
 .env.*
 !.env.example
-config.local.*
+*token*
+*secret*
+*credential*
 *credentials*
-*secrets*
+*cookie*
 *.pem
 *.key
 *.p12
-*.pfx
 *.jks
 *.keystore
-/data/
-/sdcard/
-/storage/
+id_rsa*
+authorization*
 
-# Old local backup files
-*.bak
-*.bak-*
+release/*.apk
+release/catalog*.db
+release/catalog*.db-*
+release/*.sqlite
+release/*.sqlite.gz
+release/*.tar
+release/*.tar.gz
+release/*.zip
+release/.staging/
 
-# Local recovered/decompiled files are referenced by symlink/manifest only
-# (android/recovered-jadx itself is a tracked symlink).
+reference/raw/
+reference/cache/
+reference/*.pcap
+reference/*.csv
+!SECRETS_SETUP.md
+!agent/tools/provision-agent-token.sh

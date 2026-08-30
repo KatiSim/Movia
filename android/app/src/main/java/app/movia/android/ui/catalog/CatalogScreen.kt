@@ -1,8 +1,14 @@
 package app.movia.android.ui.catalog
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,14 +35,26 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
@@ -44,6 +62,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -55,23 +74,38 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -94,13 +128,14 @@ import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
 import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.MoviaPageTitle
 import java.util.Locale
+import kotlin.math.roundToInt
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaScrim60
 
 private val contentTypes = ContentType.entries.toList()
-private val countries = listOf("Испания", "США", "Франция", "Германия", "Италия", "Норвегия", "Великобритания")
+private val countries = listOf("США", "Великобритания", "Франция", "Германия", "Италия", "Испания", "Россия", "СССР", "Южная Корея", "Турция", "Индия", "Япония", "Китай", "Канада", "Австралия", "Дания", "Швеция", "Норвегия", "Польша", "Мексика", "Бразилия")
 private val ratingOptions = listOf<Double?>(null, 7.0, 8.0, 8.5)
 private val resolutionOptions = listOf<String?>(null, "720p", "1080p", "4K")
 private val ageOptions = listOf<Int?>(null, 6, 12, 16, 18)
@@ -123,9 +158,32 @@ private val yearPresets = listOf(
     YearPreset("2000-е", 2000, 2009),
 )
 
-enum class CatalogLaunchPreset { ALL, NEW, RECOMMENDED }
+enum class CatalogLaunchPreset { ALL, POPULAR, NEW, RECOMMENDED }
 
 private enum class QuickSheet { GENRE, YEAR, RATING, RESOLUTION }
+
+/**
+ * Route-level retention for the catalog. DetailsScreen temporarily replaces the
+ * catalog subtree, so its loaded pages and exact grid position must live above
+ * that route boundary.
+ */
+class CatalogRetentionState {
+    var requestKey: String = ""
+    var itemIds: String = ""
+    var totalCount: Int = 0
+    var hasMore: Boolean = true
+    var firstVisibleItemIndex: Int = 0
+    var firstVisibleItemScrollOffset: Int = 0
+
+    fun reset(nextRequestKey: String) {
+        requestKey = nextRequestKey
+        itemIds = ""
+        totalCount = 0
+        hasMore = true
+        firstVisibleItemIndex = 0
+        firstVisibleItemScrollOffset = 0
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -133,7 +191,13 @@ fun CatalogScreen(
     contentPadding: PaddingValues,
     launchPreset: CatalogLaunchPreset?,
     onLaunchPresetConsumed: () -> Unit,
+    retention: CatalogRetentionState,
     history: List<String> = emptyList(),
+    favorites: Set<String> = emptySet(),
+    recentQueries: List<String> = emptyList(),
+    onSearchCommitted: (String) -> Unit = {},
+    onClearRecent: () -> Unit = {},
+    resetTrigger: Int = 0,
     modifier: Modifier = Modifier,
     onOpenDetails: (String) -> Unit,
 ) {
@@ -154,12 +218,97 @@ fun CatalogScreen(
     var sortName by rememberSaveable { mutableStateOf(CatalogSort.POPULAR.name) }
     var sortSheetOpen by remember { mutableStateOf(false) }
     var recommendedOnly by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<MediaContent>>(emptyList()) }
+    var searchFocused by remember { mutableStateOf(false) }
+    var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
+    var genreSheetOpen by remember { mutableStateOf(false) }
 
-    val allContent = remember { DemoCatalogRepository.all() }
+    val scope = rememberCoroutineScope()
+    var pagedItems by remember { mutableStateOf<List<MediaContent>>(emptyList()) }
+    var totalCount by remember { mutableIntStateOf(0) }
+    var isLoading by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(true) }
+
+    // Keep the grid position and already loaded pages when the details route temporarily replaces this screen.
+    val gridState = rememberSaveable(saver = LazyGridState.Saver) { LazyGridState() }
+    var savedRequestKey by rememberSaveable { mutableStateOf("") }
+    var savedItemIds by rememberSaveable { mutableStateOf("") }
+    var savedTotalCount by rememberSaveable { mutableIntStateOf(0) }
+    var savedHasMore by rememberSaveable { mutableStateOf(true) }
+    var retentionCaptureEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(resetTrigger) {
+        if (resetTrigger > 0 && launchPreset == null) {
+            selectedTypeName = "ALL"
+            selectedCategoryName = "ALL"
+            selectedGenresState = ""
+            yearFrom = null
+            yearTo = null
+            minRating = null
+            resolution = null
+            country = null
+            durationMode = "ANY"
+            newOnly = false
+            maxAgeRating = null
+            audioLanguage = null
+            subtitleLanguage = null
+            sortName = CatalogSort.POPULAR.name
+            recommendedOnly = false
+            searchQuery = ""
+            searchFocused = false
+            retention.reset("")
+            savedRequestKey = ""
+            savedItemIds = ""
+            savedTotalCount = 0
+            savedHasMore = true
+            gridState.scrollToItem(0)
+        }
+    }
+
     val selectedGenres = selectedGenresState.takeIf { it.isNotBlank() }?.split("|") ?: emptyList()
-    val allGenres = remember(allContent) { allContent.flatMap { it.genres }.distinct().sorted() }
+    val allGenres = remember { DemoCatalogRepository.getAllGenres() }
     val selectedType = selectedTypeName.takeUnless { it == "ALL" }?.let(ContentType::valueOf)
     val selectedCategory = selectedCategoryName.takeUnless { it == "ALL" }?.let(CatalogCategory::valueOf)
+
+    fun commitSearch(value: String) {
+        val normalized = value.trim()
+        searchQuery = normalized
+        scope.launch { gridState.scrollToItem(0) }
+        if (normalized.isNotEmpty()) {
+            onSearchCommitted(normalized)
+        }
+    }
+
+    val voiceLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val recognized = result.data
+                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                ?.firstOrNull()
+                ?.trim()
+            if (!recognized.isNullOrEmpty()) {
+                voiceUnavailable = false
+                commitSearch(recognized)
+            }
+        }
+    }
+
+    fun startVoiceSearch() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, java.util.Locale.getDefault().toLanguageTag())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Что найти в Movia?")
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        }
+        try {
+            voiceLauncher.launch(intent)
+            voiceUnavailable = false
+        } catch (_: ActivityNotFoundException) {
+            voiceUnavailable = true
+        }
+    }
 
     fun applyFilter(next: CatalogFilter) {
         selectedTypeName = next.type?.name ?: "ALL"
@@ -193,197 +342,533 @@ fun CatalogScreen(
 
     LaunchedEffect(launchPreset) {
         launchPreset?.let { preset ->
-            recommendedOnly = preset == CatalogLaunchPreset.RECOMMENDED
-            selectedCategoryName = "ALL"
-            applyFilter(
-                CatalogFilter(
-                    type = null,
-                    newOnly = preset == CatalogLaunchPreset.NEW,
-                ),
-            )
+            when (preset) {
+                CatalogLaunchPreset.NEW -> {
+                    sortName = CatalogSort.NEWEST.name
+                    recommendedOnly = false
+                    selectedCategoryName = "ALL"
+                    applyFilter(
+                        CatalogFilter(
+                            type = null,
+                            newOnly = false,
+                        ),
+                    )
+                }
+                CatalogLaunchPreset.POPULAR, CatalogLaunchPreset.ALL -> {
+                    sortName = CatalogSort.POPULAR.name
+                    recommendedOnly = false
+                    selectedCategoryName = "ALL"
+                    applyFilter(
+                        CatalogFilter(
+                            type = null,
+                            newOnly = false,
+                        ),
+                    )
+                }
+                CatalogLaunchPreset.RECOMMENDED -> {
+                    sortName = CatalogSort.RATING.name
+                    recommendedOnly = true
+                    selectedCategoryName = "ALL"
+                    applyFilter(
+                        CatalogFilter(
+                            type = null,
+                            newOnly = false,
+                        ),
+                    )
+                }
+            }
+            retention.reset("")
+            savedRequestKey = ""
+            savedItemIds = ""
+            savedTotalCount = 0
+            savedHasMore = true
+            searchQuery = ""
+            searchFocused = false
+            gridState.scrollToItem(0)
             onLaunchPresetConsumed()
         }
     }
 
     val sort = CatalogSort.valueOf(sortName)
-    val recommendationIds = remember(history) {
-        RecommendationEngine.recommend(history).items.mapTo(linkedSetOf()) { it.id }
+    val recommendationIds = remember(history, favorites) {
+        RecommendationEngine.recommend(history, favorites = favorites).items.mapTo(linkedSetOf()) { it.id }
     }
-    val filtered = sortCatalog(filterCatalog(allContent, filter), sort)
-        .filter { selectedCategory == null || it.category == selectedCategory }
-        .let { items ->
-            if (recommendedOnly) items.filter { it.id in recommendationIds } else items
+    val requestKey = listOf(
+        selectedCategoryName,
+        selectedTypeName,
+        selectedGenresState,
+        sortName,
+        yearFrom,
+        yearTo,
+        minRating,
+        resolution,
+        country,
+        durationMode,
+        newOnly,
+        maxAgeRating,
+        audioLanguage,
+        subtitleLanguage,
+        searchQuery.trim(),
+        recommendedOnly,
+        if (recommendedOnly) recommendationIds.joinToString(",") else "",
+    ).joinToString("|")
+    val showScrollToTop by remember {
+        derivedStateOf { gridState.firstVisibleItemIndex > 10 }
+    }
+
+    // Capture the exact grid position independently from the catalog subtree.
+    // The existing "Наверх" behavior remains unchanged and still uses gridState.
+    LaunchedEffect(gridState, requestKey) {
+        snapshotFlow {
+            gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset
+        }
+            .distinctUntilChanged()
+            .collect { (index, offset) ->
+                if (retentionCaptureEnabled) {
+                    retention.requestKey = requestKey
+                    retention.firstVisibleItemIndex = index
+                    retention.firstVisibleItemScrollOffset = offset
+                }
+            }
+    }
+
+    LaunchedEffect(requestKey) {
+        isLoading = true
+        retentionCaptureEnabled = false
+
+        if (searchQuery.isNotBlank()) {
+            val cleanQuery = searchQuery.trim()
+            if (cleanQuery.isNotEmpty()) {
+                kotlinx.coroutines.delay(150L)
+                val page = withContext(Dispatchers.IO) {
+                    val count = DemoCatalogRepository.getTotalCount(
+                        category = selectedCategory,
+                        filter = filter,
+                        query = cleanQuery,
+                    )
+                    val items = DemoCatalogRepository.getPaged(
+                        limit = 60,
+                        offset = 0,
+                        sort = sort,
+                        category = selectedCategory,
+                        filter = filter,
+                        query = cleanQuery,
+                    )
+                    count to items
+                }
+                searchResults = page.second
+                totalCount = page.first
+                hasMore = page.second.size >= 60 && page.second.size < page.first
+                isLoading = false
+                return@LaunchedEffect
+            }
         }
 
-    val effectiveFilterCount = filter.activeCount + if (selectedType != null) 1 else 0
+        val canRestoreLocal = savedRequestKey == requestKey && savedItemIds.isNotBlank()
+        val canRestoreRoute = retention.requestKey == requestKey && retention.itemIds.isNotBlank()
+        val restoreIds = when {
+            canRestoreRoute -> retention.itemIds
+            canRestoreLocal -> savedItemIds
+            else -> ""
+        }
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 168.dp),
-        modifier = modifier,
+        if (restoreIds.isNotBlank()) {
+            val restoredIds = restoreIds.split("|").filter { it.isNotBlank() }
+            val restored = withContext(Dispatchers.IO) {
+                restoredIds.mapNotNull { DemoCatalogRepository.findById(it) }
+            }
+            totalCount = if (canRestoreRoute) retention.totalCount else savedTotalCount
+            pagedItems = restored
+            hasMore = if (canRestoreRoute) retention.hasMore else savedHasMore
+            savedRequestKey = requestKey
+            savedItemIds = restored.joinToString("|") { it.id }
+            savedTotalCount = totalCount
+            savedHasMore = hasMore
+
+            if (canRestoreRoute && restored.isNotEmpty()) {
+                gridState.scrollToItem(
+                    retention.firstVisibleItemIndex.coerceAtLeast(0),
+                    retention.firstVisibleItemScrollOffset.coerceAtLeast(0),
+                )
+            }
+            retentionCaptureEnabled = true
+            isLoading = false
+            return@LaunchedEffect
+        }
+
+        retention.reset(requestKey)
+        savedRequestKey = requestKey
+        savedItemIds = ""
+        gridState.scrollToItem(0)
+
+        withContext(Dispatchers.IO) {
+            val count = DemoCatalogRepository.getTotalCount(
+                category = selectedCategory,
+                filter = filter,
+                query = null,
+            )
+            val initial = DemoCatalogRepository.getPaged(
+                limit = 40,
+                offset = 0,
+                sort = sort,
+                category = selectedCategory,
+                filter = filter,
+                query = null,
+            )
+            val finalInitial = if (recommendedOnly) {
+                initial.filter { it.id in recommendationIds }
+            } else {
+                initial
+            }
+            withContext(Dispatchers.Main) {
+                totalCount = count
+                pagedItems = finalInitial
+                savedItemIds = finalInitial.joinToString("|") { it.id }
+                savedTotalCount = count
+                hasMore = initial.size >= 40
+                savedHasMore = hasMore
+                retention.requestKey = requestKey
+                retention.itemIds = savedItemIds
+                retention.totalCount = count
+                retention.hasMore = hasMore
+                retention.firstVisibleItemIndex = 0
+                retention.firstVisibleItemScrollOffset = 0
+                retentionCaptureEnabled = true
+                isLoading = false
+            }
+        }
+    }
+
+    fun loadNextPage() {
+        if (isLoading || !hasMore) return
+        isLoading = true
+        val activeQuery = searchQuery.trim().takeIf { it.isNotBlank() }
+        val currentOffset = if (activeQuery != null) searchResults.size else pagedItems.size
+        val pageSize = if (activeQuery != null) 60 else 40
+        scope.launch(Dispatchers.IO) {
+            val nextPage = DemoCatalogRepository.getPaged(
+                limit = pageSize,
+                offset = currentOffset,
+                sort = sort,
+                category = selectedCategory,
+                filter = filter,
+                query = activeQuery,
+            )
+            val finalNext = if (recommendedOnly) {
+                nextPage.filter { it.id in recommendationIds }
+            } else {
+                nextPage
+            }
+            withContext(Dispatchers.Main) {
+                if (activeQuery != null) {
+                    if (nextPage.isNotEmpty()) searchResults = searchResults + finalNext
+                } else if (nextPage.isNotEmpty()) {
+                    pagedItems = pagedItems + finalNext
+                    savedItemIds = pagedItems.joinToString("|") { it.id }
+                    retention.itemIds = savedItemIds
+                }
+                hasMore = nextPage.size >= pageSize
+                savedHasMore = hasMore
+                retention.requestKey = requestKey
+                retention.totalCount = totalCount
+                retention.hasMore = hasMore
+                isLoading = false
+            }
+        }
+    }
+
+    // Quick type/genre chips are self-describing; this badge counts only deep filters.
+    val advancedFilterCount = (filter.activeCount - if (selectedGenres.isNotEmpty()) 1 else 0)
+        .coerceAtLeast(0)
+
+    Box(modifier = modifier) {
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Adaptive(minSize = 168.dp),
+            modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
-            top = contentPadding.calculateTopPadding() + 24.dp,
+            top = contentPadding.calculateTopPadding() + 16.dp,
             end = 16.dp,
             bottom = contentPadding.calculateBottomPadding(),
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-title") {
-            MoviaPageTitle(text = "Каталог")
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-categories") {
-            val categories = listOf<Pair<String, CatalogCategory?>>("ALL" to null) +
-                CatalogCategory.entries.map { it.name to it }
-            Box(modifier = Modifier.fillMaxWidth()) {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(end = 32.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MoviaPageTitle(text = "Каталог")
+                Spacer(modifier = Modifier.weight(1f))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
-                    items(categories, key = { it.first }) { (key, category) ->
-                        MoviaFilterChip(
-                            selected = selectedCategoryName == key,
-                            onClick = {
-                                recommendedOnly = false
-                                selectedCategoryName = key
-                                selectedTypeName = "ALL"
-                                selectedGenresState = ""
-                            },
-                            label = category?.label ?: "Все",
-                        )
-                    }
+                    Text(
+                        text = if (searchQuery.isNotBlank()) searchResults.size.toString() else if (totalCount > 0) totalCount.toString() else pagedItems.size.toString(),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .width(32.dp)
-                        .height(48.dp)
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.background.copy(alpha = 0f),
-                                    MaterialTheme.colorScheme.background,
-                                ),
-                            ),
-                        ),
-                )
             }
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-controls") {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text(
-                    text = catalogCountLabel(filtered.size, selectedType),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
+        item(span = { GridItemSpan(maxLineSpan) }, key = "explore-search") {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                CatalogSearchField(
+                    searchQuery = searchQuery,
+                    onQueryChange = {
+                        searchQuery = it
+                        searchFocused = true
+                    },
+                    focused = searchFocused,
+                    onFocusChange = { searchFocused = it },
+                    onClear = {
+                        searchQuery = ""
+                        searchFocused = false
+                        scope.launch { gridState.scrollToItem(0) }
+                    },
+                    onVoice = ::startVoiceSearch,
+                    onSearch = {
+                        searchFocused = false
+                        commitSearch(searchQuery)
+                        scope.launch { gridState.scrollToItem(0) }
+                    },
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    CatalogControlButton(
-                        label = if (effectiveFilterCount > 0) "Фильтры · $effectiveFilterCount" else "Фильтры",
-                        active = effectiveFilterCount > 0,
-                        onClick = { advancedOpen = true },
-                        modifier = Modifier.weight(0.42f),
+                if (voiceUnavailable) {
+                    Text(
+                        text = "На устройстве не найден сервис голосового ввода.",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
                     )
+                }
+            }
+        }
+
+        // One unified toolbar: deep filters and sort first, quick categories after them.
+        item(span = { GridItemSpan(maxLineSpan) }, key = "unified-filter-bar") {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(end = 24.dp),
+            ) {
+                item(key = "toolbar-filters") {
+                    CatalogControlButton(
+                        label = if (advancedFilterCount > 0) "Фильтры · $advancedFilterCount" else "Фильтры",
+                        active = advancedFilterCount > 0,
+                        onClick = { advancedOpen = true },
+                        modifier = Modifier.width(132.dp),
+                    )
+                }
+                item(key = "toolbar-sort") {
                     CatalogSortSelector(
                         label = sort.label,
                         onClick = { sortSheetOpen = true },
-                        modifier = Modifier.weight(0.58f),
+                        modifier = Modifier.width(156.dp),
+                    )
+                }
+                item(key = "quick-all") {
+                    MoviaFilterChip(
+                        selected = selectedTypeName == "ALL" &&
+                            selectedCategoryName == "ALL" &&
+                            selectedGenres.isEmpty() &&
+                            !recommendedOnly,
+                        onClick = {
+                            recommendedOnly = false
+                            selectedTypeName = "ALL"
+                            selectedCategoryName = "ALL"
+                            selectedGenresState = ""
+                        },
+                        label = "Все",
+                    )
+                }
+                item(key = "quick-movies") {
+                    val selected = selectedTypeName == ContentType.MOVIE.name &&
+                        selectedCategoryName == "ALL"
+                    MoviaFilterChip(
+                        selected = selected,
+                        onClick = {
+                            recommendedOnly = false
+                            if (selected) {
+                                selectedTypeName = "ALL"
+                            } else {
+                                selectedTypeName = ContentType.MOVIE.name
+                                selectedCategoryName = "ALL"
+                            }
+                        },
+                        label = if (selected) "Фильмы ✕" else "Фильмы",
+                    )
+                }
+                item(key = "quick-series") {
+                    val selected = selectedTypeName == ContentType.SERIES.name &&
+                        selectedCategoryName == "ALL"
+                    MoviaFilterChip(
+                        selected = selected,
+                        onClick = {
+                            recommendedOnly = false
+                            if (selected) {
+                                selectedTypeName = "ALL"
+                            } else {
+                                selectedTypeName = ContentType.SERIES.name
+                                selectedCategoryName = "ALL"
+                            }
+                        },
+                        label = if (selected) "Сериалы ✕" else "Сериалы",
+                    )
+                }
+                item(key = "quick-animation") {
+                    val selected = selectedCategoryName == CatalogCategory.ANIMATION.name
+                    MoviaFilterChip(
+                        selected = selected,
+                        onClick = {
+                            recommendedOnly = false
+                            if (selected) {
+                                selectedCategoryName = "ALL"
+                            } else {
+                                selectedCategoryName = CatalogCategory.ANIMATION.name
+                                selectedTypeName = "ALL"
+                            }
+                        },
+                        label = if (selected) "Мультфильмы ✕" else "Мультфильмы",
+                    )
+                }
+                item(key = "quick-genres") {
+                    MoviaFilterChip(
+                        selected = selectedGenres.isNotEmpty(),
+                        onClick = { genreSheetOpen = true },
+                        label = if (selectedGenres.isEmpty()) {
+                            "Жанры"
+                        } else {
+                            "Жанры · " + selectedGenres.size
+                        },
                     )
                 }
             }
         }
 
-        if (effectiveFilterCount > 0) {
-            item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-applied-filters") {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(end = 16.dp),
-                ) {
-                    if (selectedType != null) {
-                        item(key = "type-${selectedType.name}") {
-                            AppliedFilterChip(selectedType.label) { selectedTypeName = "ALL" }
-                        }
+        if (searchFocused && searchQuery.isBlank() && recentQueries.isNotEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "explore-recent") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Недавние запросы",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 18.sp,
+                            lineHeight = 24.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        TextButton(onClick = onClearRecent) { Text("Очистить") }
                     }
-                    items(selectedGenres, key = { "genre-$it" }) { genre ->
-                        AppliedFilterChip(genre) {
-                            selectedGenresState = selectedGenres.filterNot { it == genre }.sorted().joinToString("|")
-                        }
-                    }
-                    if (yearFrom != null || yearTo != null) {
-                        item(key = "year") {
-                            AppliedFilterChip(yearChipLabel(yearFrom, yearTo)) { yearFrom = null; yearTo = null }
-                        }
-                    }
-                    if (minRating != null) {
-                        item(key = "rating") {
-                            AppliedFilterChip("★ ${formatRating(minRating!!)}+") { minRating = null }
-                        }
-                    }
-                    if (resolution != null) {
-                        item(key = "resolution") {
-                            AppliedFilterChip(resolution!!) { resolution = null }
-                        }
-                    }
-                    if (country != null) {
-                        item(key = "country") {
-                            AppliedFilterChip(country!!) { country = null }
-                        }
-                    }
-                    if (durationMode != "ANY") {
-                        item(key = "duration") {
-                            AppliedFilterChip(if (durationMode == "SHORT") "≤100 мин" else "≥110 мин") { durationMode = "ANY" }
-                        }
-                    }
-                    if (newOnly) {
-                        item(key = "new") { AppliedFilterChip("Новинки") { newOnly = false } }
-                    }
-                    if (maxAgeRating != null) {
-                        item(key = "age") {
-                            AppliedFilterChip("до ${maxAgeRating!!}+") { maxAgeRating = null }
-                        }
-                    }
-                    if (audioLanguage != null) {
-                        item(key = "audio") {
-                            AppliedFilterChip("Аудио: ${catalogAudioLabel(audioLanguage)}") { audioLanguage = null }
-                        }
-                    }
-                    if (subtitleLanguage != null) {
-                        item(key = "subtitles") {
-                            AppliedFilterChip("Субтитры: ${catalogSubtitleLabel(subtitleLanguage)}") { subtitleLanguage = null }
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(recentQueries, key = { "recent-" + it }) { recent ->
+                            MoviaFilterChip(
+                                selected = false,
+                                onClick = { commitSearch(recent) },
+                                label = recent,
+                            )
                         }
                     }
                 }
             }
         }
 
-        if (filtered.isEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-empty") {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Ничего не найдено", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text("Снимите один или несколько фильтров.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (searchQuery.isNotBlank()) {
+            if (searchResults.isEmpty() && !isLoading) {
+                item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-search-empty") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "Ничего не найдено",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            "По запросу «$searchQuery» ничего не найдено.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            } else {
+                items(searchResults, key = { it.id }) { item ->
+                    MediaContentCard(
+                        item = item,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onOpenDetails(item.title) },
+                    )
                 }
             }
         } else {
-            items(filtered, key = { it.id }) { item ->
-                MediaContentCard(item = item, modifier = Modifier.fillMaxWidth(), onClick = { onOpenDetails(item.title) })
+            if (pagedItems.isEmpty() && !isLoading) {
+                item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-empty") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "Ничего не найдено",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            "Снимите один или несколько фильтров.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            } else {
+                itemsIndexed(pagedItems, key = { _, item -> item.id }) { index, item ->
+                    if (index >= pagedItems.size - 6 && !isLoading && hasMore) {
+                        LaunchedEffect(index) {
+                            loadNextPage()
+                        }
+                    }
+                    MediaContentCard(
+                        item = item,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onOpenDetails(item.title) },
+                    )
+                }
             }
         }
     }
 
+        AnimatedVisibility(
+            visible = showScrollToTop,
+            enter = EnterTransition.None,
+            exit = ExitTransition.None,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(
+                    end = 20.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 16.dp,
+                ),
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    scope.launch { gridState.scrollToItem(0) }
+                },
+                modifier = Modifier
+                    .size(52.dp)
+                    .semantics { contentDescription = "Наверх" },
+                containerColor = MoviaBrandAmber,
+                contentColor = MoviaOnBrandAmber,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "Наверх",
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+        }
+    }
 
     if (sortSheetOpen) {
         SingleChoiceSheet(
@@ -403,7 +888,15 @@ fun CatalogScreen(
         AdvancedFiltersSheet(
             filter = filter,
             allGenres = allGenres,
-            resultCount = { draftFilter -> filterCatalog(allContent, draftFilter).size },
+            minYear = 1920,
+            maxYear = 2026,
+            resultCount = { draftFilter ->
+                DemoCatalogRepository.getTotalCount(
+                    category = selectedCategory,
+                    filter = draftFilter,
+                    query = searchQuery.takeIf { it.isNotBlank() },
+                )
+            },
             onApply = {
                 applyFilter(it)
                 advancedOpen = false
@@ -411,6 +904,124 @@ fun CatalogScreen(
             onDismiss = { advancedOpen = false },
         )
     }
+
+    if (genreSheetOpen) {
+        GenreFilterSheet(
+            genres = allGenres,
+            selected = selectedGenres.toSet(),
+            resultCount = { draft ->
+                DemoCatalogRepository.getTotalCount(
+                    category = selectedCategory,
+                    filter = filter.copy(genres = draft),
+                    query = searchQuery.takeIf { it.isNotBlank() },
+                )
+            },
+            onApply = {
+                selectedGenresState = it.sorted().joinToString("|")
+                genreSheetOpen = false
+            },
+            onDismiss = { genreSheetOpen = false },
+        )
+    }
+}
+
+@Composable
+private fun CatalogSearchField(
+    searchQuery: String,
+    onQueryChange: (String) -> Unit,
+    focused: Boolean,
+    onFocusChange: (Boolean) -> Unit,
+    onClear: () -> Unit,
+    onVoice: () -> Unit,
+    onSearch: () -> Unit,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    val shape = RoundedCornerShape(16.dp)
+    val borderColor = if (focused) MoviaBrandAmber else MoviaBorderSubtle
+    BasicTextField(
+        value = searchQuery,
+        onValueChange = onQueryChange,
+        singleLine = true,
+        textStyle = TextStyle(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 15.sp,
+            lineHeight = 22.sp,
+        ),
+        cursorBrush = SolidColor(MoviaBrandAmber),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                onSearch()
+            },
+            onDone = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                onSearch()
+            },
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant, shape)
+            .border(1.dp, borderColor, shape)
+            .onFocusChanged { onFocusChange(it.isFocused) },
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                    tint = if (focused) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    if (searchQuery.isEmpty()) {
+                        Text(
+                            text = "Поиск фильмов и сериалов",
+                            color = Color.Gray,
+                            fontSize = 15.sp,
+                            lineHeight = 22.sp,
+                            maxLines = 1,
+                        )
+                    }
+                    innerTextField()
+                }
+                IconButton(
+                    onClick = {
+                        if (searchQuery.isNotEmpty()) {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                            onClear()
+                        } else {
+                            onVoice()
+                        }
+                    },
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        imageVector = if (searchQuery.isNotEmpty()) Icons.Outlined.Close else Icons.Outlined.Mic,
+                        contentDescription = if (searchQuery.isNotEmpty()) "Очистить поиск" else "Голосовой поиск",
+                        tint = if (focused) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -456,7 +1067,7 @@ private fun GenreFilterSheet(
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(visible, key = { it }) { genre ->
                     ListItem(
-                        headlineContent = { Text(genre) },
+                        headlineContent = { Text(genreDisplayLabel(genre)) },
                         leadingContent = {
                             Checkbox(
                                 checked = genre in draft,
@@ -532,17 +1143,48 @@ private fun <T> SingleChoiceSheet(
     }
 }
 
+@Composable
+private fun FilterGroup(
+    title: String,
+    content: @Composable () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text(
+            text = title.uppercase(Locale.ROOT),
+            color = MoviaBrandAmber,
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp,
+        )
+        content()
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun AdvancedFiltersSheet(
     filter: CatalogFilter,
     allGenres: List<String>,
+    minYear: Int,
+    maxYear: Int,
     resultCount: (CatalogFilter) -> Int,
     onApply: (CatalogFilter) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var draft by remember(filter) { mutableStateOf(filter) }
+    var showAllGenres by remember(filter) { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val visibleGenres = if (showAllGenres) allGenres else allGenres.take(8)
+    val safeMinYear = minYear.coerceAtMost(maxYear)
+    val safeMaxYear = maxYear.coerceAtLeast(safeMinYear)
+    val selectedStartYear = (draft.yearFrom ?: safeMinYear)
+        .coerceIn(safeMinYear, safeMaxYear)
+        .toFloat()
+    val selectedEndYear = (draft.yearTo ?: safeMaxYear)
+        .coerceIn(safeMinYear, safeMaxYear)
+        .toFloat()
+    val selectedRating = draft.minRating?.toFloat()?.coerceIn(0f, 10f) ?: 0f
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -552,7 +1194,9 @@ private fun AdvancedFiltersSheet(
     ) {
         Column(modifier = Modifier.fillMaxHeight(0.96f)) {
             Row(
-                modifier = Modifier.fillMaxWidth() .padding(horizontal = 24.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -561,157 +1205,306 @@ private fun AdvancedFiltersSheet(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = { draft = CatalogFilter(type = draft.type) }) { Text("Сбросить") }
+                TextButton(onClick = { draft = CatalogFilter(type = null) }) {
+                    Text("Сбросить")
+                }
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                     .padding(horizontal = 24.dp, vertical = 16.dp),
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                FilterSection("Тип") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        MoviaFilterChip(draft.type == null, { draft = draft.copy(type = null) }, "Все")
-                        contentTypes.forEach { type ->
-                            MoviaFilterChip(draft.type == type, { draft = draft.copy(type = type) }, type.label)
+                FilterGroup("Основное") {
+                    FilterSection("Тип контента") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            contentTypes.forEach { type ->
+                                val selected = draft.type == type
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(type = if (selected) null else type)
+                                    },
+                                    label = type.label,
+                                )
+                            }
                         }
+                        Text(
+                            "Пустой выбор = все типы",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                }
-                FilterSection("Жанры") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        allGenres.forEach { genre ->
-                            MoviaFilterChip(
-                                selected = genre in draft.genres,
-                                onClick = {
-                                    draft = draft.copy(
-                                        genres = if (genre in draft.genres) draft.genres - genre else draft.genres + genre,
+
+                    FilterSection("Жанры") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            visibleGenres.forEach { genre ->
+                                val selected = genre in draft.genres
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(
+                                            genres = if (selected) draft.genres - genre else draft.genres + genre,
+                                        )
+                                    },
+                                    label = genreDisplayLabel(genre),
+                                )
+                            }
+                            if (allGenres.size > 8) {
+                                TextButton(
+                                    onClick = { showAllGenres = !showAllGenres },
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                ) {
+                                    Text(
+                                        if (showAllGenres) "Скрыть" else "Ещё " + (allGenres.size - 8),
+                                        color = MoviaBrandAmber,
+                                        fontWeight = FontWeight.SemiBold,
                                     )
-                                },
-                                label = genre,
-                            )
+                                }
+                            }
                         }
+                        Text(
+                            "Выбрано: " + draft.genres.size,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                }
-                FilterSection("Год") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        yearPresets.forEach { preset ->
-                            MoviaFilterChip(
-                                selected = draft.yearFrom == preset.from && draft.yearTo == preset.to,
-                                onClick = { draft = draft.copy(yearFrom = preset.from, yearTo = preset.to) },
-                                label = preset.label,
-                            )
-                        }
-                    }
-                }
-                FilterSection("Рейтинг") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ratingOptions.forEach { rating ->
-                            MoviaFilterChip(
-                                selected = draft.minRating == rating,
-                                onClick = { draft = draft.copy(minRating = rating) },
-                                label = rating?.let { "★ от ${formatRating(it)}" } ?: "Любой",
-                            )
-                        }
-                    }
-                }
-                FilterSection("Разрешение") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        resolutionOptions.forEach { option ->
-                            MoviaFilterChip(
-                                selected = draft.resolution == option,
-                                onClick = { draft = draft.copy(resolution = option) },
-                                label = when (option) {
-                                    "720p" -> "720p"
-                                    "1080p" -> "1080p"
-                                    "4K" -> "4K (ультравысокое)"
-                                    else -> "Любое"
-                                },
-                            )
-                        }
-                    }
-                }
-                FilterSection("Страна") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        MoviaFilterChip(draft.country == null, { draft = draft.copy(country = null) }, "Все")
-                        countries.forEach { value ->
-                            MoviaFilterChip(draft.country == value, { draft = draft.copy(country = value) }, value)
-                        }
-                    }
-                }
-                FilterSection("Длительность") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("ANY" to "Любая", "SHORT" to "≤100 мин", "LONG" to "≥110 мин").forEach { (value, text) ->
-                            MoviaFilterChip(draft.durationMode == value, { draft = draft.copy(durationMode = value) }, text)
-                        }
-                    }
-                }
-                FilterSection("Возраст") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ageOptions.forEach { age ->
-                            MoviaFilterChip(
-                                draft.maxAgeRating == age,
-                                { draft = draft.copy(maxAgeRating = age) },
-                                age?.let { "до $it+" } ?: "Любой",
-                            )
-                        }
-                    }
-                }
-                FilterSection("Аудио") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        audioOptions.forEach { audio ->
-                            MoviaFilterChip(
-                                draft.audioLanguage == audio,
-                                { draft = draft.copy(audioLanguage = audio) },
-                                catalogAudioLabel(audio),
-                            )
-                        }
-                    }
-                }
-                FilterSection("Субтитры") {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        subtitleOptions.forEach { subtitle ->
-                            MoviaFilterChip(
-                                draft.subtitleLanguage == subtitle,
-                                { draft = draft.copy(subtitleLanguage = subtitle) },
-                                catalogSubtitleLabel(subtitle),
-                            )
-                        }
-                    }
-                }
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth() .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Только новинки", fontWeight = FontWeight.SemiBold)
-                            Text("Показывать только новые релизы", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(
-                            checked = draft.newOnly,
-                            onCheckedChange = { draft = draft.copy(newOnly = it) },
-                            colors = SwitchDefaults.colors(
-                                checkedTrackColor = MoviaBrandAmber,
-                                checkedThumbColor = MoviaOnBrandAmber,
+
+                    FilterSection("Год выхода") {
+                        Text(
+                            "Год выхода: " + selectedStartYear.roundToInt() + " — " + selectedEndYear.roundToInt(),
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        RangeSlider(
+                            value = selectedStartYear..selectedEndYear,
+                            onValueChange = { range ->
+                                val from = range.start.roundToInt()
+                                val to = range.endInclusive.roundToInt()
+                                draft = draft.copy(
+                                    yearFrom = if (from <= safeMinYear) null else from,
+                                    yearTo = if (to >= safeMaxYear) null else to,
+                                )
+                            },
+                            valueRange = safeMinYear.toFloat()..safeMaxYear.toFloat(),
+                            steps = (safeMaxYear - safeMinYear - 1).coerceAtLeast(0),
+                            colors = SliderDefaults.colors(
+                                thumbColor = MoviaBrandAmber,
+                                activeTrackColor = MoviaBrandAmber,
+                                inactiveTrackColor = MoviaBorderSubtle,
                             ),
+                        )
+                        Text(
+                            "Потяни границы, чтобы задать диапазон",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    FilterSection("Рейтинг") {
+                        Text(
+                            if (selectedRating <= 0f) {
+                                "Минимальный рейтинг: любой"
+                            } else {
+                                "Минимальный рейтинг: ★ " + formatRating(selectedRating.toDouble()) + "+"
+                            },
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Slider(
+                            value = selectedRating,
+                            onValueChange = { value ->
+                                val normalized = (value * 2f).roundToInt() / 2f
+                                draft = draft.copy(
+                                    minRating = if (normalized <= 0f) null else normalized.toDouble(),
+                                )
+                            },
+                            valueRange = 0f..10f,
+                            steps = 19,
+                            colors = SliderDefaults.colors(
+                                thumbColor = MoviaBrandAmber,
+                                activeTrackColor = MoviaBrandAmber,
+                                inactiveTrackColor = MoviaBorderSubtle,
+                            ),
+                        )
+                        Text(
+                            "0 = без ограничения",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
+
+                FilterGroup("Параметры воспроизведения") {
+                    FilterSection("Качество") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            resolutionOptions.filterNotNull().forEach { option ->
+                                val selected = draft.resolution == option
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(resolution = if (selected) null else option)
+                                    },
+                                    label = if (option == "4K") "4K Ultra HD" else option + " HD",
+                                )
+                            }
+                        }
+                    }
+
+                    FilterSection("Аудиодорожка") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            audioOptions.filterNotNull().forEach { option ->
+                                val selected = draft.audioLanguage == option
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(audioLanguage = if (selected) null else option)
+                                    },
+                                    label = catalogAudioLabel(option),
+                                )
+                            }
+                        }
+                    }
+
+                    FilterSection("Субтитры") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            subtitleOptions.filterNotNull().forEach { option ->
+                                val selected = draft.subtitleLanguage == option
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(subtitleLanguage = if (selected) null else option)
+                                    },
+                                    label = catalogSubtitleLabel(option),
+                                )
+                            }
+                        }
+                    }
+                }
+
+                FilterGroup("Дополнительно") {
+                    FilterSection("Страна производства") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            countries.forEach { value ->
+                                val selected = draft.country == value
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(country = if (selected) null else value)
+                                    },
+                                    label = value,
+                                )
+                            }
+                        }
+                    }
+
+                    FilterSection("Длительность") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf(
+                                "SHORT" to "≤100 мин",
+                                "MEDIUM" to "101–109 мин",
+                                "LONG" to "≥110 мин",
+                            ).forEach { (value, label) ->
+                                val selected = draft.durationMode == value
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(
+                                            durationMode = if (selected) "ANY" else value,
+                                        )
+                                    },
+                                    label = label,
+                                )
+                            }
+                        }
+                    }
+
+                    FilterSection("Возрастной рейтинг") {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            ageOptions.filterNotNull().forEach { age ->
+                                val selected = draft.maxAgeRating == age
+                                MoviaFilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        draft = draft.copy(maxAgeRating = if (selected) null else age)
+                                    },
+                                    label = "до " + age + "+",
+                                )
+                            }
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text("Только новинки", fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    "Показывать только новые релизы",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Switch(
+                                checked = draft.newOnly,
+                                onCheckedChange = { draft = draft.copy(newOnly = it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedTrackColor = MoviaBrandAmber,
+                                    checkedThumbColor = MoviaOnBrandAmber,
+                                ),
+                            )
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(8.dp))
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
             Button(
                 onClick = { onApply(draft) },
-                modifier = Modifier.fillMaxWidth() .padding(horizontal = 24.dp, vertical = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MoviaBrandAmber, contentColor = MoviaOnBrandAmber),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MoviaBrandAmber,
+                    contentColor = MoviaOnBrandAmber,
+                ),
             ) {
-                Text("Показать ${resultCount(draft)}")
+                Text("Показать " + resultCount(draft))
             }
         }
     }
@@ -930,6 +1723,17 @@ private fun catalogSubtitleLabel(value: String?): String = when (value) {
     "English" -> "Английские"
     "Русский" -> "Русские"
     else -> value
+}
+
+private fun genreDisplayLabel(value: String): String = when (value.trim().lowercase(Locale.ROOT)) {
+    "нф и фэнтези" -> "НФ и фэнтези"
+    "реалити-шоу" -> "Реалити-шоу"
+    "ток-шоу" -> "Ток-шоу"
+    "мыльная опера" -> "Мыльная опера"
+    "боевик и приключения" -> "Боевик и приключения"
+    "война и политика" -> "Война и политика"
+    "телевизионный фильм" -> "Телевизионный фильм"
+    else -> value.trim().replaceFirstChar { it.titlecase(Locale.ROOT) }
 }
 
 private fun genreChipLabel(genres: List<String>): String = when (genres.size) {

@@ -1,0 +1,155 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-08-27",
+  "trackers": [
+    {
+      "name": "YTS",
+      "type": "api_json",
+      "endpoint": "https://yts.mx/api/v2/list_movies.json",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "movies"
+      ],
+      "mirrors": [
+        "https://yts.mx/api/v2/list_movies.json",
+        "https://yts.lt/api/v2/list_movies.json",
+        "https://yts.am/api/v2/list_movies.json"
+      ]
+    },
+    {
+      "name": "Apibay",
+      "type": "api_json",
+      "endpoint": "https://apibay.org/q.php",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "movies",
+        "tv_series",
+        "anime"
+      ]
+    },
+    {
+      "name": "RuTracker",
+      "type": "torznab",
+      "endpoint": "https://rutracker.org/forum/tracker.php",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "movies",
+        "tv_series",
+        "anime",
+        "animation"
+      ]
+    },
+    {
+      "name": "Rutor",
+      "type": "torznab",
+      "endpoint": "https://rutor.info/search/",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "movies",
+        "tv_series",
+        "anime"
+      ]
+    },
+    {
+      "name": "Nyaa",
+      "type": "torznab",
+      "endpoint": "https://nyaa.si/?f=0&c=1_2&q=",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "anime",
+        "animation"
+      ]
+    },
+    {
+      "name": "EZTV",
+      "type": "api_json",
+      "endpoint": "https://eztvx.to/api/get-torrents",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "tv_series"
+      ]
+    },
+    {
+      "name": "1337x",
+      "type": "torznab",
+      "endpoint": "https://1337x.to/search/",
+      "enabled": true,
+      "timeout": 3,
+      "categories": [
+        "movies",
+        "tv_series"
+      ]
+    }
+  ],
+  "balancers": [
+    {
+      "name": "HDRezka",
+      "voice": "HDRezka",
+      "quality": "1080p",
+      "template": "https://stream.voidboost.cc/movie/{tmdb_id}/1080.m3u8",
+      "episode_template": "https://stream.voidboost.cc/serial/{tmdb_id}/s{season}e{episode}/1080.m3u8",
+      "stream_type": "hls",
+      "seeders": 950,
+      "enabled": true
+    },
+    {
+      "name": "Kodik",
+      "voice": "Дубляж",
+      "quality": "1080p",
+      "template": "https://kodik.info/video/{tmdb_id}/1080.mp4",
+      "episode_template": "https://kodik.info/serial/{tmdb_id}/s{season}e{episode}/1080.mp4",
+      "stream_type": "direct",
+      "seeders": 900,
+      "enabled": true
+    },
+    {
+      "name": "Collaps",
+      "voice": "LostFilm",
+      "quality": "1080p",
+      "template": "https://api.collaps.org/embed/movie/{tmdb_id}/index.m3u8",
+      "episode_template": "https://api.collaps.org/embed/series/{tmdb_id}/s{season}e{episode}/index.m3u8",
+      "stream_type": "hls",
+      "seeders": 870,
+      "enabled": true
+    },
+    {
+      "name": "Alloha",
+      "voice": "Red Head Sound",
+      "quality": "720p",
+      "template": "https://alloha.tv/stream/{tmdb_id}/720.mp4",
+      "episode_template": "https://alloha.tv/stream/{tmdb_id}/s{season}e{episode}/720.mp4",
+      "stream_type": "direct",
+      "seeders": 780,
+      "enabled": true
+    },
+    {
+      "name": "Archive.org",
+      "voice": "Original",
+      "quality": "1080p",
+      "template": "https://archive.org/advancedsearch.php",
+      "stream_type": "direct_http",
+      "seeders": 999,
+      "enabled": true
+    }
+  ],
+  "trackerslist": [
+    "udp://tracker.opentrackr.org:1337/announce",
+    "udp://open.tracker.cl:1337/announce",
+    "udp://open.demonii.com:1337/announce",
+    "udp://tracker.openbittorrent.com:6969/announce",
+    "http://tracker.openbittorrent.com:80/announce",
+    "udp://tracker.torrent.eu.org:451/announce",
+    "udp://tracker.tiny-vps.com:6969/announce",
+    "udp://tracker.moeking.me:6969/announce",
+    "udp://opentracker.i2p.rocks:6969/announce",
+    "udp://explodie.org:6969/announce",
+    "udp://tracker.dler.org:6969/announce",
+    "udp://p4p.arenabg.com:1337/announce"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-08-28",
+  "mirrors": [
+    {
+      "name": "Zona API Main",
+      "url": "http://apir0.mzona.net",
+      "enabled": true,
+      "timeout": 4.0,
+      "priority": 1
+    },
+    {
+      "name": "Zona Search Secondary",
+      "url": "http://vsr01.zonasearch.com",
+      "enabled": true,
+      "timeout": 4.0,
+      "priority": 2
+    },
+    {
+      "name": "Zona Mobile Mirror",
+      "url": "http://zstat.zona.mobi",
+      "enabled": true,
+      "timeout": 4.0,
+      "priority": 3
+    },
+    {
+      "name": "Zona HTTPS Gateway",
+      "url": "https://apir0.mzona.net",
+      "enabled": true,
+      "timeout": 4.0,
+      "priority": 4
+    }
+  ],
+  "default_trackers": [
+    "udp://tracker.opentrackr.org:1337/announce",
+    "udp://open.tracker.cl:1337/announce",
+    "udp://tracker.openbittorrent.com:6969/announce",
+    "udp://opentracker.i2p.rocks:6969/announce",
+    "https://opentracker.i2p.rocks:443/announce",
+    "udp://tracker.internetwarriors.net:1337/announce",
+    "udp://tracker.torrent.eu.org:451/announce",
+    "udp://explodie.org:6969/announce"
+  ]
+}

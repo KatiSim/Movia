@@ -76,22 +76,34 @@ private object MoviaArtworkLoader {
             ((value.allocationByteCount / 1024).coerceAtLeast(1))
     }
 
-    fun peek(url: String?): Bitmap? = if (url.isNullOrBlank()) null else synchronized(memoryCache) {
-        memoryCache.get(url)
+    private fun normalizeUrl(url: String?): String? {
+        if (url.isNullOrBlank()) return null
+        val trimmed = url.trim()
+        return if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+            "https://image.tmdb.org/t/p/w500$trimmed"
+        } else {
+            trimmed
+        }
+    }
+
+    fun peek(url: String?): Bitmap? {
+        val target = normalizeUrl(url) ?: return null
+        return synchronized(memoryCache) { memoryCache.get(target) }
     }
 
     suspend fun load(context: Context, url: String): Bitmap? = withContext(Dispatchers.IO) {
-        synchronized(memoryCache) { memoryCache.get(url) }?.let { return@withContext it }
+        val target = normalizeUrl(url) ?: return@withContext null
+        synchronized(memoryCache) { memoryCache.get(target) }?.let { return@withContext it }
 
         val cacheDir = File(context.cacheDir, "movia_artwork").apply { mkdirs() }
-        val cacheFile = File(cacheDir, sha256(url))
+        val cacheFile = File(cacheDir, sha256(target))
 
         decodeFile(cacheFile)?.let { decoded ->
-            synchronized(memoryCache) { memoryCache.put(url, decoded) }
+            synchronized(memoryCache) { memoryCache.put(target, decoded) }
             return@withContext decoded
         }
 
-        val bytes = download(url) ?: return@withContext null
+        val bytes = download(target) ?: return@withContext null
         val decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext null
 
         runCatching {

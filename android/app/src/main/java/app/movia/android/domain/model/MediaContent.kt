@@ -21,7 +21,31 @@ enum class CatalogCategory(val label: String) {
 
 data class Person(
     val name: String,
-    val knownFor: List<String>,
+    val photoUrl: String? = null,
+    val role: String? = null,
+    val knownFor: List<String> = emptyList(),
+)
+
+data class StreamOption(
+    val voice: String,
+    val quality: String,
+    val seeders: Int = 0,
+    val url: String = "",
+    val source: String? = null,
+    /** Stable provider/release identity. Never use voice+quality alone as identity. */
+    val streamId: String = "",
+    val providerItemId: String? = null,
+    val infoHash: String? = null,
+    val fileIndex: Int? = null,
+    val filePath: String? = null,
+    val seasonNumber: Int? = null,
+    val episodeNumber: Int? = null,
+    /** Optional authoritative MIME type supplied by the playback provider. */
+    val mimeType: String? = null,
+    /** Standard Android DRM scheme (widevine/playready/clearkey), if required. */
+    val drmScheme: String? = null,
+    /** Authorized license endpoint. Secrets/keys must never be embedded here. */
+    val drmLicenseUrl: String? = null,
 )
 
 data class MediaContent(
@@ -41,7 +65,7 @@ data class MediaContent(
     val subtitleLanguages: Set<String> = emptySet(),
     val originalTitle: String? = null,
     val director: String? = null,
-    val cast: List<String> = emptyList(),
+    val cast: List<Person> = emptyList(),
     val synopsis: String? = null,
     val seasonEpisodeCounts: List<Int> = emptyList(),
     val relatedContentIds: List<String> = emptyList(),
@@ -51,6 +75,11 @@ data class MediaContent(
     val sourceUrl: String? = null,
     val playbackUrl: String? = null,
     val posterUrl: String? = null,
+    val backdropUrl: String? = null,
     val licenseName: String? = null,
     val licenseUrl: String? = null,
+    val streams: List<StreamOption> = emptyList(),
+    val voteCount: Int = 0,
+    val seasonsCount: Int = 0,
+    val episodesCount: Int = 0,
 )

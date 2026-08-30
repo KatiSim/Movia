@@ -1,5 +1,6 @@
 package app.movia.android.ui.home
 
+import java.util.Locale
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -35,13 +36,16 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.animation.core.animateFloatAsState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -49,9 +53,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.movia.android.data.catalog.CatalogSort
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.data.catalog.RecommendationEngine
 import app.movia.android.domain.model.MediaContent
@@ -73,6 +76,8 @@ import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
 import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.SectionHeader
+import app.movia.android.ui.components.moviaContentTypeLabel
+import app.movia.android.ui.components.moviaPrimaryGenre
 import app.movia.android.ui.catalog.CatalogLaunchPreset
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaLogoGradientStart
@@ -99,22 +104,46 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     progress: PlaybackProgress = PlaybackProgress(),
     history: List<String> = emptyList(),
+    favorites: Set<String> = emptySet(),
     onOpenDetails: (String) -> Unit,
     onContinue: (String) -> Unit,
     onOpenCatalog: (CatalogLaunchPreset) -> Unit,
-    onOpenProfile: () -> Unit,
-    onOpenNotifications: () -> Unit,
 ) {
-    val recommendation = RecommendationEngine.recommend(history, limit = 8)
-    val allItems = DemoCatalogRepository.all()
-    val newItems = allItems
-        .filter { it.isNew }
-        .sortedByDescending { it.popularity }
-        .take(8)
-    val popularItems = allItems
-        .sortedByDescending { it.popularity }
-        .take(8)
-    val forYouItems = recommendation.items.take(8)
+    val recommendation = remember(history, favorites) {
+        RecommendationEngine.recommend(history, favorites = favorites, limit = 20)
+    }
+    val popularPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getPopular(12)) {
+        while (true) {
+            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getPopular(12) }
+            delay(5 * 60 * 1000L)
+        }
+    }
+    val newPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getNew(12)) {
+        while (true) {
+            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getNew(12) }
+            delay(5 * 60 * 1000L)
+        }
+    }
+    val forYouPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getForYou(12)) {
+        while (true) {
+            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getForYou(12) }
+            delay(5 * 60 * 1000L)
+        }
+    }
+    val seriesPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getSeries(12)) {
+        while (true) {
+            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getSeries(12) }
+            delay(5 * 60 * 1000L)
+        }
+    }
+
+    val newItems = remember(newPool) { newPool.take(12) }
+    val popularItems = remember(popularPool) { popularPool.take(12) }
+    val forYouItems = remember(forYouPool, recommendation.items) {
+        if (recommendation.items.isNotEmpty()) recommendation.items.take(12) else forYouPool.take(12)
+    }
+    val seriesItems = remember(seriesPool) { seriesPool.take(12) }
+    val topNewHit = remember(newItems, newPool) { newItems.firstOrNull() ?: newPool.firstOrNull() }
 
     LazyColumn(
         modifier = modifier,
@@ -127,16 +156,15 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         item(key = "home-header") {
-            HomeHeader(
-                onOpenNotifications = onOpenNotifications,
-                onOpenProfile = onOpenProfile,
-            )
+            HomeHeader()
         }
 
         item(key = "continue") {
             ContinueWatchingCard(
                 progress = progress,
+                fallbackItem = topNewHit,
                 onContinue = onContinue,
+                onOpenDetails = onOpenDetails,
             )
         }
 
@@ -154,36 +182,43 @@ fun HomeScreen(
         if (popularItems.isNotEmpty()) {
             item(key = "popular-now") {
                 HomeMediaSection(
-                    title = "Популярно сейчас",
+                    title = "Сейчас популярно",
                     items = popularItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.POPULAR) },
+                )
+            }
+        }
+
+        if (forYouItems.isNotEmpty()) {
+            item(key = "for-you") {
+                HomeMediaSection(
+                    title = "Для вас",
+                    items = forYouItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.RECOMMENDED) },
+                )
+            }
+        }
+
+        if (seriesItems.isNotEmpty()) {
+            item(key = "series-section") {
+                HomeMediaSection(
+                    title = "Сериалы и Мультсериалы",
+                    items = seriesItems,
                     onOpenDetails = onOpenDetails,
                     onViewAll = { onOpenCatalog(CatalogLaunchPreset.ALL) },
                 )
             }
         }
-
-        item(key = "for-you") {
-            HomeMediaSection(
-                title = "Для вас",
-                items = forYouItems,
-                onOpenDetails = onOpenDetails,
-                onViewAll = { onOpenCatalog(CatalogLaunchPreset.RECOMMENDED) },
-            )
-        }
     }
 }
 
 @Composable
-private fun HomeHeader(
-    onOpenNotifications: () -> Unit,
-    onOpenProfile: () -> Unit,
-) {
+private fun HomeHeader() {
     val profileInteractionSource = remember { MutableInteractionSource() }
     val profilePressed = profileInteractionSource.collectIsPressedAsState().value
-    val profileScale = animateFloatAsState(
-        targetValue = if (profilePressed) 0.96f else 1f,
-        label = "profile-press-scale",
-    ).value
+    val profileScale = if (profilePressed) 0.96f else 1f
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -220,106 +255,35 @@ private fun HomeHeader(
             )
         }
 
-        IconButton(
-            onClick = onOpenNotifications,
-            modifier = Modifier.size(48.dp),
-        ) {
-            MoviaBellIcon(
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        Spacer(Modifier.width(8.dp))
-
-        Box(
-            modifier = Modifier.size(48.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (profilePressed) {
-                Canvas(
-                    modifier = Modifier
-                        .requiredSize(52.dp)
-                        .blur(12.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded),
-                ) {
-                    drawCircle(MoviaGlowLuminescence)
-                }
-            }
-
-            Surface(
-                onClick = onOpenProfile,
-                modifier = Modifier
-                    .size(44.dp)
-                    .graphicsLayer {
-                        scaleX = profileScale
-                        scaleY = profileScale
-                    },
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                border = BorderStroke(2.dp, MoviaBrandAmber),
-                interactionSource = profileInteractionSource,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
-                        contentDescription = "Профиль",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoviaBellIcon(
-    tint: Color,
-    modifier: Modifier = Modifier,
-) {
-    androidx.compose.foundation.Canvas(modifier = modifier) {
-        val u = size.minDimension / 24f
-        val path = Path().apply {
-            moveTo(5.5f * u, 17.5f * u)
-            lineTo(7f * u, 15.5f * u)
-            lineTo(7f * u, 10.2f * u)
-            quadraticBezierTo(7f * u, 5.8f * u, 12f * u, 5.8f * u)
-            quadraticBezierTo(17f * u, 5.8f * u, 17f * u, 10.2f * u)
-            lineTo(17f * u, 15.5f * u)
-            lineTo(18.5f * u, 17.5f * u)
-            close()
-        }
-        drawPath(path, tint, style = Stroke(width = 1.8f * u, join = androidx.compose.ui.graphics.StrokeJoin.Round))
-        drawLine(
-            color = tint,
-            start = androidx.compose.ui.geometry.Offset(9.6f * u, 20f * u),
-            end = androidx.compose.ui.geometry.Offset(14.4f * u, 20f * u),
-            strokeWidth = 1.8f * u,
-            cap = androidx.compose.ui.graphics.StrokeCap.Round,
-        )
-        drawCircle(
-            color = tint,
-            radius = 1.2f * u,
-            center = androidx.compose.ui.geometry.Offset(12f * u, 4f * u),
-        )
     }
 }
 
 @Composable
 private fun ContinueWatchingCard(
     progress: PlaybackProgress,
+    fallbackItem: MediaContent?,
     onContinue: (String) -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
-    val playbackTitle = if (hasRealProgress) progress.title else "Нулевая орбита · S01E04 · Эпизод 4"
-    val displayTitle = playbackTitle.substringBefore(" · S").substringBefore(" · E")
-    val heroContent = progress.contentId?.let(DemoCatalogRepository::findById)
-        ?: DemoCatalogRepository.findByTitle(displayTitle)
-    val heroArtworkUrl = heroContent?.posterUrl
+    val heroContent = if (hasRealProgress) {
+        val display = progress.title.substringBefore(" · S").substringBefore(" · E")
+        progress.contentId?.let(DemoCatalogRepository::findById) ?: DemoCatalogRepository.findByTitle(display)
+    } else {
+        fallbackItem
+    }
+    val playbackTitle = if (hasRealProgress) progress.title else (fallbackItem?.title ?: "")
+    val displayTitle = if (hasRealProgress) {
+        playbackTitle.substringBefore(" · S").substringBefore(" · E")
+    } else {
+        fallbackItem?.title ?: "Новинка"
+    }
+
+    val heroBackdropUrl = heroContent?.backdropUrl?.takeIf { it.isNotBlank() } ?: heroContent?.posterUrl?.takeIf { it.isNotBlank() }
     val episodeMatch = Regex(""" · S(\d{2})E(\d{2})""").find(playbackTitle)
     val season = episodeMatch?.groupValues?.getOrNull(1)?.toIntOrNull()
     val episode = episodeMatch?.groupValues?.getOrNull(2)?.toIntOrNull()
-    val hasRealTimeline = progress.title.isNotBlank() && progress.durationMs > 0L && progress.positionMs >= 0L
+    val hasRealTimeline = hasRealProgress && progress.durationMs > 0L && progress.positionMs >= 0L
     val fraction = if (hasRealTimeline) {
         (progress.positionMs.toDouble() / progress.durationMs.toDouble()).toFloat().coerceIn(0f, 1f)
     } else {
@@ -330,39 +294,74 @@ private fun ContinueWatchingCard(
             .toInt()
             .coerceAtLeast(1)
     } else {
-        6
+        0
     }
-    val episodeLabel = if (season != null && episode != null) {
-        "Сезон $season, Эпизод $episode"
-    } else {
-        "Продолжить просмотр"
+    val episodeLabel = when {
+        season != null && episode != null -> "Сезон $season, Эпизод $episode"
+        hasRealProgress -> "Продолжить просмотр"
+        else -> "Главный хит"
     }
-    val subtitle = "$episodeLabel • Осталось $remainingMinutes мин"
+    val progressMeta = when {
+        season != null && episode != null -> {
+            if (remainingMinutes > 0) "Сезон $season • Серия $episode • Осталось $remainingMinutes мин"
+            else "Сезон $season • Серия $episode"
+        }
+        hasRealProgress && remainingMinutes > 0 -> {
+            "Осталось $remainingMinutes мин"
+        }
+        else -> {
+            val genreOrType = heroContent?.let(::moviaPrimaryGenre) ?: heroContent?.let(::moviaContentTypeLabel)
+            val country = heroContent?.country?.takeIf { it.isNotBlank() }
+            listOfNotNull(
+                heroContent?.rating?.takeIf { it > 0.0 }?.let { "★ " + String.format(Locale.US, "%.1f", it) },
+                heroContent?.year?.takeIf { it > 0 }?.toString(),
+                country,
+                genreOrType,
+            ).joinToString(" • ").ifBlank { "Премьера" }
+        }
+    }
+    val badgeLabel = if (hasRealProgress) "ПРОДОЛЖИТЬ" else "ГЛАВНЫЙ ХИТ"
     val shape = RoundedCornerShape(16.dp)
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed = interactionSource.collectIsPressedAsState().value
+    val cardScale = if (pressed) 0.97f else 1f
+    val glowBlur = if (pressed) 10.dp else 18.dp
+    val glowAlpha = if (pressed) 0.22f else 0.36f
+    val borderAlpha = if (pressed) 0.72f else 0.92f
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onContinue(playbackTitle) }
+            .graphicsLayer {
+                scaleX = cardScale
+                scaleY = cardScale
+            }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+            ) {
+                if (displayTitle.isNotBlank()) {
+                    onOpenDetails(displayTitle)
+                }
+            }
             .semantics(mergeDescendants = true) {
-                contentDescription = "Продолжить просмотр. $displayTitle. $subtitle"
+                contentDescription = "$badgeLabel. $displayTitle. $episodeLabel. $progressMeta"
             },
-        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        // The visual banner contains no duplicated title/episode text. Because MediaContent
-        // currently exposes no artwork URL, this is the truthful no-artwork placeholder.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f),
         ) {
+            // Outer ambient glow remains outside the clipped artwork surface.
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .blur(18.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded),
+                    .blur(glowBlur, edgeTreatment = BlurredEdgeTreatment.Unbounded),
             ) {
                 drawRoundRect(
-                    color = MoviaHeroGlow,
+                    color = MoviaHeroGlow.copy(alpha = glowAlpha),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx()),
                 )
             }
@@ -371,85 +370,143 @@ private fun ContinueWatchingCard(
                 modifier = Modifier.fillMaxSize(),
                 shape = shape,
                 color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MoviaBrandAmber),
+                border = BorderStroke(1.5.dp, MoviaBrandAmber.copy(alpha = borderAlpha)),
             ) {
                 MoviaArtwork(
-                    url = heroArtworkUrl,
+                    url = heroBackdropUrl,
                     modifier = Modifier.fillMaxSize(),
                     placeholderStyle = MediaArtworkPlaceholderStyle.HERO,
                 ) {
+                    // Designer-style text protection: atmospheric wash + long floor fade
+                    // + a localized blurred haze behind the title and progress.
                     Box(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 16.dp, bottom = 24.dp)
-                            .size(56.dp),
+                            .fillMaxSize()
+                            .background(Color(0xFF0E1015).copy(alpha = 0.12f)),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.22f to Color.Transparent,
+                                        0.42f to Color(0xFF0E1015).copy(alpha = 0.12f),
+                                        0.62f to Color(0xFF0E1015).copy(alpha = 0.44f),
+                                        0.80f to Color(0xFF0E1015).copy(alpha = 0.78f),
+                                        1.0f to Color(0xFF0E1015).copy(alpha = 0.98f),
+                                    ),
+                                ),
+                            ),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .fillMaxWidth()
+                            .height(116.dp)
+                            .blur(18.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+                            .background(Color(0xFF0E1015).copy(alpha = 0.38f)),
+                    )
+
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(12.dp),
+                        shape = RoundedCornerShape(9.dp),
+                        color = MoviaPlayBackground.copy(alpha = 0.82f),
+                        border = BorderStroke(1.dp, MoviaBrandAmber.copy(alpha = 0.84f)),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.PlayArrow,
+                                contentDescription = null,
+                                tint = MoviaBrandAmber,
+                                modifier = Modifier.size(15.dp),
+                            )
+                            Text(
+                                text = badgeLabel,
+                                color = Color.White,
+                                fontSize = 10.sp,
+                                lineHeight = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.45.sp,
+                            )
+                        }
+                    }
+
+                    // Centered play badge with a restrained local gold glow.
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(64.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Canvas(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .blur(18.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded),
+                                .blur(16.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded),
                         ) {
-                            drawCircle(MoviaGlowLuminescence.copy(alpha = 0.14f))
+                            drawCircle(MoviaGlowLuminescence.copy(alpha = 0.24f))
                         }
-                        Canvas(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .offset(y = 4.dp)
-                                .blur(10.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded),
+                        Surface(
+                            onClick = {
+                                if (playbackTitle.isNotBlank()) {
+                                    onContinue(playbackTitle)
+                                }
+                            },
+                            modifier = Modifier.size(58.dp),
+                            shape = CircleShape,
+                            color = MoviaPlayBackground.copy(alpha = 0.84f),
+                            border = BorderStroke(1.dp, MoviaBrandAmber.copy(alpha = 0.92f)),
+                            shadowElevation = 4.dp,
                         ) {
-                            drawCircle(MoviaPlayShadow)
-                        }
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            val oneDp = 1.dp.toPx()
-                            val centerPoint = Offset(size.width / 2f, size.height / 2f)
-                            val radius = size.minDimension / 2f - oneDp
-                            drawCircle(
-                                color = MoviaPlayBackground,
-                                radius = radius,
-                                center = centerPoint,
-                            )
-                            drawCircle(
-                                color = MoviaBrandAmber,
-                                radius = radius,
-                                center = centerPoint,
-                                style = Stroke(width = oneDp),
-                            )
-                            drawArc(
-                                color = MoviaPlayHighlight,
-                                startAngle = 205f,
-                                sweepAngle = 130f,
-                                useCenter = false,
-                                topLeft = Offset(oneDp * 2f, oneDp * 2f),
-                                size = androidx.compose.ui.geometry.Size(size.width - oneDp * 4f, size.height - oneDp * 4f),
-                                style = Stroke(width = oneDp),
-                            )
-
-                            val opticalOffset = 1.dp.toPx()
-                            val cx = size.width / 2f + opticalOffset
-                            val cy = size.height / 2f
-                            val halfH = 8.5.dp.toPx()
-                            val leftX = cx - 5.0.dp.toPx()
-                            val rightX = cx + 8.0.dp.toPx()
-                            val round = 2.5.dp.toPx()
-                            val playPath = Path().apply {
-                                moveTo(leftX, cy - halfH + round)
-                                quadraticTo(leftX, cy - halfH, leftX + round, cy - halfH + round * 0.18f)
-                                lineTo(rightX - round, cy - round * 0.55f)
-                                quadraticTo(rightX, cy, rightX - round, cy + round * 0.55f)
-                                lineTo(leftX + round, cy + halfH - round * 0.18f)
-                                quadraticTo(leftX, cy + halfH, leftX, cy + halfH - round)
-                                close()
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.PlayArrow,
+                                    contentDescription = "Смотреть $displayTitle",
+                                    tint = MoviaBrandAmber,
+                                    modifier = Modifier.size(34.dp),
+                                )
                             }
-                            drawPath(playPath, MoviaBrandAmber)
                         }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = displayTitle,
+                            color = Color.White,
+                            fontSize = 17.sp,
+                            lineHeight = 21.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = progressMeta,
+                            color = Color.White.copy(alpha = 0.86f),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
 
                     Canvas(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            // 12dp outer padding + 4dp thumb radius = exact 16dp track inset.
+                            // Track inset is 16dp including the 4dp thumb radius.
                             .padding(start = 12.dp, end = 12.dp, bottom = 10.dp)
                             .height(8.dp),
                     ) {
@@ -459,9 +516,11 @@ private fun ContinueWatchingCard(
                         val trackEnd = size.width - thumbRadius
                         val trackWidth = (trackEnd - trackStart).coerceAtLeast(0f)
                         val trackTop = (size.height - trackHeight) / 2f
-                        val trackCorner = androidx.compose.ui.geometry.CornerRadius(trackHeight / 2f, trackHeight / 2f)
-                        val clampedFraction = fraction.coerceIn(0f, 1f)
-                        val progressWidth = trackWidth * clampedFraction
+                        val trackCorner = androidx.compose.ui.geometry.CornerRadius(
+                            trackHeight / 2f,
+                            trackHeight / 2f,
+                        )
+                        val progressWidth = trackWidth * fraction
 
                         drawRoundRect(
                             color = MoviaProgressTrack,
@@ -469,7 +528,6 @@ private fun ContinueWatchingCard(
                             size = androidx.compose.ui.geometry.Size(trackWidth, trackHeight),
                             cornerRadius = trackCorner,
                         )
-
                         if (progressWidth > 0f) {
                             drawRoundRect(
                                 color = MoviaBrandAmber,
@@ -478,8 +536,6 @@ private fun ContinueWatchingCard(
                                 cornerRadius = trackCorner,
                             )
                         }
-
-                        // Thumb is data-bound, never decorative: no valid duration means no thumb.
                         if (hasRealTimeline) {
                             drawCircle(
                                 color = MoviaBrandAmber,
@@ -492,24 +548,6 @@ private fun ContinueWatchingCard(
             }
         }
 
-        // All text lives outside the artwork/placeholder area.
-        Text(
-            text = displayTitle,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 20.sp,
-            lineHeight = 24.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = subtitle,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 13.sp,
-            lineHeight = 18.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
     }
 }
 

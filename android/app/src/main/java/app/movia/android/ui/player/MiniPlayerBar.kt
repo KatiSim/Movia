@@ -22,15 +22,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.movia.android.ui.theme.MoviaBrandAmber
-import app.movia.android.ui.components.MediaArtworkPlaceholder
+import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
+import app.movia.android.ui.components.MoviaArtwork
 
 @Composable
 fun MiniPlayerBar(
@@ -41,6 +44,13 @@ fun MiniPlayerBar(
 ) {
     val playback by session.state.collectAsState()
     if (!playback.hasMedia) return
+
+    val mediaContent = remember(playback.mediaId, playback.displayTitle) {
+        DemoCatalogRepository.findById(playback.mediaId)
+            ?: DemoCatalogRepository.findByTitle(
+                playback.displayTitle.substringBefore(" · S").substringBefore(" · E"),
+            )
+    }
 
     Surface(
         modifier = modifier
@@ -58,11 +68,14 @@ fun MiniPlayerBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                MediaArtworkPlaceholder(
+                MoviaArtwork(
+                    url = mediaContent?.posterUrl,
                     modifier = Modifier
                         .size(width = 82.dp, height = 52.dp)
                         .clip(RoundedCornerShape(10.dp)),
-                    style = MediaArtworkPlaceholderStyle.POSTER,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
                 )
                 Text(
                     text = playback.displayTitle,

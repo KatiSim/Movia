@@ -1,66 +1,81 @@
 # Movia
 
-Movia — Android-клиент каталога и воспроизведения медиаконтента на Jetpack Compose и Media3.
-
-Этот репозиторий является канонической историей проекта. Текущий фактический статус не приравнивается к «stable» или «production-ready»: незавершённые функции и непроверенные компоненты явно помечаются в [PROJECT_STATE.md](PROJECT_STATE.md).
+Movia is an Android media catalog and playback client backed by the current
+media-parser service and a local agent/MCP control plane.
 
 ## Current version
 
-Версия и versionCode извлекаются автоматически из `android/app/build.gradle.kts` скриптом `scripts/create-baseline.sh` и записываются в [CURRENT_BASELINE.json](CURRENT_BASELINE.json).
+- versionName: 0.9.23
+- versionCode: 293
+- package: app.movia.android
+- status: current baseline/checkpoint; not labelled stable
 
-Этот checkpoint отражает проверенный source baseline репозитория. Наличие установленного APK, backend, catalog.db и Movia Agent на телефоне подтверждается отдельно; отсутствующие компоненты не считаются PASS.
+The installed phone control point is device 24069PC21G. The source of truth used
+for this canonicalization is the Termux workspace documented in
+reference/CURRENT_PHONE_STATE.json.
 
 ## Architecture
 
-- **Android** — полный Gradle/Compose/Media3 source под `android/`.
-- **Backend** — ожидаемый media-parser под `backend/`; фактический путь фиксируется manifest-файлом.
-- **Catalog** — Room schema и миграции под `database/`; большая runtime-база не хранится в Git.
-- **Playback** — Media3 player и playback baseline в `android/app/src/main/java/app/movia/android/ui/player/`.
-- **Agent/MCP** — контракты и service definitions под `agent/`; незнайденные на checkpoint компоненты отмечены явно.
+- Android — Compose UI, catalog/search, Media3 playback, Room schema, and the
+  native Movia Agent runtime. See android/.
+- Backend — media-parser catalog/search/discovery, playback resolver, streamer
+  and P2P helpers. See backend/.
+- Catalog — schema/migration documentation and an external catalog.db manifest.
+  The multi-hundred-megabyte DB is not stored in Git history.
+- Playback — Android Media3 client plus backend stream/torrent resolution.
+- Agent/MCP — native Android agent API and the Termux MCP integration. See
+  agent/.
 
 ## Build
 
-~~~bash
-./android/gradlew -p android testDebugUnitTest
-./android/gradlew -p android lintDebug
-./android/gradlew -p android assembleDebug
-~~~
+Requirements are listed in RESTORE.md.
 
-Сборка не означает, что внешний playback/backend полностью проверен.
+    cd android
+    ./gradlew --no-daemon assembleDebug
+
+Generated build directories are ignored. The current checked APK artifact is
+described by release/README.md and is uploaded to the baseline GitHub Release
+rather than committed to every source commit.
 
 ## Install
 
-Установка APK выполняется без очистки данных:
+Install without clearing application data:
 
-~~~bash
-scripts/install.sh path/to/Movia.apk
-~~~
+    adb install -r release/Movia-0.9.23-code293.apk
 
-Скрипт требует доступный `rish`/Shizuku и использует reinstall с сохранением данных. Старые APK не помещаются в Git.
+Verify the package and version after installation with
+bash scripts/health-check.sh --package.
 
 ## Services
 
-Список реально найденных сервисов и отсутствующих Movia-сервисов находится в [PROJECT_STATE.md](PROJECT_STATE.md). Общая инфраструктура Termux/Chipupa не является автоматически backend Movia.
+The current Termux service definitions are under agent/services/. The observed
+services are:
+
+- movia-media-parser — currently runs streamer.py;
+- movia-stream-enricher — catalog enrichment worker;
+- movia-stream-enricher-log — log forwarder;
+- movia-cache-pruner — runtime cache pruning;
+- Termux MCP — started from agent/mcp/start.sh.
+
+Runtime paths and current health observations are recorded in
+PROJECT_STATE.md. The source definitions do not contain runtime credentials.
 
 ## Verification
 
-~~~bash
-scripts/verify-project.sh
-scripts/restore-check.sh
-scripts/health-check.sh
-~~~
+Run:
 
-Каждая проверка возвращает `PASS` или `FAIL` с причиной. Текущий checkpoint не скрывает отсутствующий backend/APK/DB.
+    bash scripts/verify-project.sh
+    bash scripts/restore-check.sh
+    bash scripts/health-check.sh
 
-## Baseline and backup
-
-~~~bash
-scripts/create-baseline.sh
-scripts/create-baseline.sh --db /absolute/path/catalog.db
-~~~
-
-Без `--db` база не копируется. APK и DB snapshot предназначены для GitHub Release/backup artifacts, а не для обычной Git history.
+The verifier returns PASS only when every requested check, including live
+service checks, succeeds. A current baseline may therefore remain a valid
+source checkpoint while verification reports FAIL for a real unavailable
+service. No document in this repository treats an unverified playback path as
+fixed.
 
 ## Restore
 
-Полная инструкция восстановления находится в [RESTORE.md](RESTORE.md).
+Start with RESTORE.md. It is the single recovery entry point and documents
+source checkout, Termux setup, catalog recovery, secrets, services, APK
+build/install, agent provisioning and verification.

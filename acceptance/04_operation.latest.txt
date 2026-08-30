@@ -1,0 +1,7 @@
+PASS headless bridge available
+PASS CLI token is present
+PASS media.play is accepted with an operation ID
+PASS operation can be polled until a terminal state
+PASS media.play operation completes successfully
+PASS terminal operation identity is stable
+{"script":"04_operation","pass":true,"requestId":"acceptance-operation-a42fc4b4589a446481969c8cc90cec6a","request":{"title":"Breaking Bad","season":1,"episode":1,"resume":false,"persist":false},"operationId":"operation-5e327caa-6faf-4315-b02a-12e6feb42ad4","observedStatuses":["RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","COMPLETED"],"finalStatus":"COMPLETED","pollErrors":[],"checks":[{"name":"headless bridge available","pass":true},{"name":"CLI token is present","pass":true},{"name":"media.play is accepted with an operation ID","pass":true,"detail":""},{"name":"operation can be polled until a terminal state","pass":true,"detail":{"observed":["RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","RUNNING","COMPLETED"],"errors":[]}},{"name":"media.play operation completes successfully","pass":true,"detail":{"finalStatus":"COMPLETED","operationId":"operation-5e327caa-6faf-4315-b02a-12e6feb42ad4"}},{"name":"terminal operation identity is stable","pass":true}]}

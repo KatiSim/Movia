@@ -3,262 +3,282 @@ package app.movia.android.ui.profile
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
-import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.Devices
-import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import app.movia.android.ui.components.MoviaPageTitle
+import app.movia.android.data.preferences.AppPreferences
+import app.movia.android.data.preferences.PlaybackPreferences
+import app.movia.android.ui.settings.ChoiceSection
+import app.movia.android.ui.settings.SettingsDivider
+import app.movia.android.ui.settings.SettingsPage
+import app.movia.android.ui.settings.SettingsSectionLabel
+import app.movia.android.ui.settings.SettingsSwitch
+import app.movia.android.ui.theme.MoviaBrandAmber
+import app.movia.android.ui.theme.MoviaBorderSubtle
 
-data class ProfileEntry(val title: String, val subtitle: String, val icon: ImageVector, val route: String)
+private val profileAudioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
+private val profileQualityOptions = listOf("Auto", "4K", "1080p", "720p", "480p")
+private val profileThemeOptions = listOf("DARK", "SYSTEM")
 
-private val mediaEntries = listOf(
-    ProfileEntry("Воспроизведение", "Качество, язык и субтитры", Icons.Outlined.PlayCircleOutline, "playback"),
-    ProfileEntry("Загрузки", "Офлайн и мобильная сеть", Icons.Outlined.Download, "downloads"),
-    ProfileEntry("Уведомления", "Премьеры и новые серии", Icons.Outlined.NotificationsNone, "notifications"),
-)
-
-private val appEntries = listOf(
-    ProfileEntry("Внешний вид", "Тема приложения", Icons.Outlined.Palette, "appearance"),
-    ProfileEntry("Доступность", "Контраст и требования интерфейса", Icons.Outlined.AccessibilityNew, "accessibility"),
-)
-
-private val dataEntries = listOf(
-    ProfileEntry("Это устройство", "Локальные данные и синхронизация", Icons.Outlined.Devices, "devices"),
-)
-
-private val supportEntries = listOf(
-    ProfileEntry("Помощь", "Справка по Movia", Icons.AutoMirrored.Outlined.HelpOutline, "help"),
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    preferences: AppPreferences,
+    playbackPreferences: PlaybackPreferences,
+    downloadedCount: Int,
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     onOpenSettings: (String) -> Unit,
+    onAudioSelected: (String) -> Unit,
+    onQualitySelected: (String) -> Unit,
+    onSubtitlesChanged: (Boolean) -> Unit,
+    onAutoNextChanged: (Boolean) -> Unit,
+    onPersistentSeekButtonsChanged: (Boolean) -> Unit,
+    onWifiOnlyChanged: (Boolean) -> Unit,
+    onThemeModeChanged: (String) -> Unit,
+    onHighContrastChanged: (Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val versionName = remember(context) { installedVersionName(context) }
-    val navigationBottomPadding = WindowInsets.navigationBars
-        .asPaddingValues()
-        .calculateBottomPadding()
+    val deviceLabel = remember { Build.MODEL.ifBlank { "Android" } }
 
     BackHandler(onBack = onBack)
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+    SettingsPage(
+        title = "Настройки и профиль",
+        onBack = onBack,
+        modifier = modifier,
     ) {
-        TopAppBar(
-            title = {
-                MoviaPageTitle(text = "Профиль")
-            },
-            navigationIcon = {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Назад",
-                    )
-                }
-            },
-        )
+        item { LocalProfileCard(deviceLabel = deviceLabel) }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(
-                top = 16.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = navigationBottomPadding + 24.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            item { LocalProfileCard() }
-            item { ProfileSection("Медиа", mediaEntries, onOpenSettings) }
-            item { ProfileSection("Приложение", appEntries, onOpenSettings) }
-            item { ProfileSection("Данные", dataEntries, onOpenSettings) }
-            item { ProfileSection("Поддержка", supportEntries, onOpenSettings) }
-            item {
-                Text(
-                    text = "Movia $versionName",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier,
+        item { SettingsSectionLabel("ВОСПРОИЗВЕДЕНИЕ") }
+        item {
+            SettingsPanel {
+                ChoiceSection(
+                    title = "Предпочитаемое качество",
+                    options = profileQualityOptions,
+                    selected = playbackPreferences.quality,
+                    onSelected = onQualitySelected,
+                )
+                SettingsDivider()
+                ChoiceSection(
+                    title = "Предпочитаемая озвучка",
+                    options = profileAudioOptions,
+                    selected = playbackPreferences.audio,
+                    onSelected = onAudioSelected,
+                )
+                SettingsDivider()
+                SettingsSwitch(
+                    title = "Автопереход к следующей серии",
+                    checked = playbackPreferences.autoNextEnabled,
+                    onCheckedChange = onAutoNextChanged,
+                )
+                SettingsDivider()
+                SettingsSwitch(
+                    title = "Субтитры по умолчанию",
+                    checked = playbackPreferences.subtitlesEnabled,
+                    onCheckedChange = onSubtitlesChanged,
+                )
+                SettingsDivider()
+                SettingsSwitch(
+                    title = "Кнопки перемотки ±10 сек",
+                    checked = preferences.persistentSeekButtons,
+                    onCheckedChange = onPersistentSeekButtonsChanged,
                 )
             }
+        }
+
+        item { SettingsSectionLabel("ЗАГРУЗКИ И ПАМЯТЬ") }
+        item {
+            SettingsPanel {
+                SettingsSwitch(
+                    title = "Загружать только по Wi‑Fi",
+                    checked = playbackPreferences.wifiOnlyDownloads,
+                    onCheckedChange = onWifiOnlyChanged,
+                )
+                SettingsDivider()
+                SettingsLinkCard(
+                    title = "Скачанное и память",
+                    value = if (downloadedCount == 0) {
+                        "Нет файлов"
+                    } else {
+                        downloadedCount.toString() + " " + downloadCountLabel(downloadedCount)
+                    },
+                    onClick = { onOpenSettings("downloads") },
+                )
+            }
+        }
+
+        item { SettingsSectionLabel("ИНТЕРФЕЙС") }
+        item {
+            SettingsPanel {
+                ChoiceSection(
+                    title = "Тема",
+                    options = profileThemeOptions,
+                    selected = preferences.themeMode,
+                    onSelected = onThemeModeChanged,
+                    optionLabel = { if (it == "SYSTEM") "Системная" else "Тёмная" },
+                )
+                SettingsDivider()
+                SettingsSwitch(
+                    title = "Повышенный контраст",
+                    checked = preferences.highContrast,
+                    onCheckedChange = onHighContrastChanged,
+                )
+            }
+        }
+
+        item { SettingsSectionLabel("ПОДДЕРЖКА") }
+        item {
+            SettingsPanel {
+                SettingsLinkCard(
+                    title = "Частые вопросы и справка",
+                    onClick = { onOpenSettings("help") },
+                )
+            }
+        }
+
+        item {
+            Text(
+                text = "Movia " + versionName + " • Android " + Build.VERSION.RELEASE,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
 
 @Composable
-private fun LocalProfileCard() {
-    Card(
+private fun SettingsPanel(
+    content: @Composable () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MoviaBorderSubtle),
+    ) {
+        Column(content = { content() })
+    }
+}
+
+@Composable
+private fun SettingsLinkCard(
+    title: String,
+    value: String? = null,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        color = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 52.dp)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = title,
+                modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.Medium,
+            )
+            if (!value.isNullOrBlank()) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LocalProfileCard(deviceLabel: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MoviaBorderSubtle),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
-                contentAlignment = Alignment.Center,
+            Icon(
+                Icons.Outlined.Person,
+                contentDescription = null,
+                modifier = Modifier.size(36.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Icon(
-                    Icons.Outlined.Person,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Локальный профиль", fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Локальный профиль",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    "Данные сохраняются только на этом устройстве",
-                    style = MaterialTheme.typography.bodyMedium,
+                    "Movia • " + deviceLabel,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
     }
 }
 
-@Composable
-private fun ProfileSection(
-    title: String,
-    entries: List<ProfileEntry>,
-    onOpenSettings: (String) -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.5.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier,
-        )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        ) {
-            Column {
-                entries.forEachIndexed { index, entry ->
-                    ListItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 72.dp)
-                            .clickable { onOpenSettings(entry.route) },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        headlineContent = {
-                            Text(
-                                text = entry.title,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 15.sp,
-                                lineHeight = 20.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        },
-                        supportingContent = {
-                            Text(
-                                text = entry.subtitle,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 12.sp,
-                                lineHeight = 16.sp,
-                            )
-                        },
-                        leadingContent = {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    entry.icon,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp),
-                                )
-                            }
-                        },
-                        trailingContent = {
-                            Icon(
-                                Icons.Outlined.ChevronRight,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
-                            )
-                        },
-                    )
-                    if (index != entries.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(start = 72.dp),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
-                        )
-                    }
-                }
-            }
-        }
+private fun downloadCountLabel(count: Int): String {
+    val mod100 = count % 100
+    val mod10 = count % 10
+    return when {
+        mod100 in 11..14 -> "загрузок"
+        mod10 == 1 -> "загрузка"
+        mod10 in 2..4 -> "загрузки"
+        else -> "загрузок"
     }
 }
 

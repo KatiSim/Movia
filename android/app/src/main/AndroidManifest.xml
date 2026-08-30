@@ -4,11 +4,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <application
+        android:name=".MoviaApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Movia"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@android:style/Theme.Material.NoActionBar"
         tools:ignore="PictureInPictureIssue">
         <activity
@@ -22,9 +25,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver
+            android:name=".agent.AgentBootstrapReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="app.movia.android.agent.BOOTSTRAP" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".ui.player.MoviaPiPActionReceiver"
             android:exported="false" />
+
+        <provider
+            android:name=".data.catalog.CatalogInitProvider"
+            android:authorities="${applicationId}.cataloginitprovider"
+            android:exported="false"
+            android:initOrder="100" />
     </application>
 </manifest>

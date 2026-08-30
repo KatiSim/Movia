@@ -1,0 +1,122 @@
+SOURCE_01_URL=https://lostfilm.tv
+SOURCE_02_URL=https://lordix.net
+SOURCE_03_URL=https://rezka-ua.tv
+SOURCE_04_URL=https://kinogo-1.net
+SOURCE_05_URL=https://seasonvar.ru
+SOURCE_06_URL=https://rutracker.org
+SOURCE_07_URL=https://kinozal.tv
+SOURCE_08_URL=https://nnmclub.to
+SOURCE_09_URL=https://tapochek.net
+SOURCE_10_URL=https://zona.pub
+
+# === Дополнительные источники контента (SOURCE_11–SOURCE_50) ===
+
+# Онлайн-кинотеатры (фильмы, сериалы, мультфильмы)
+SOURCE_11_URL=https://fmovies.to
+SOURCE_12_URL=https://sflix.to
+SOURCE_13_URL=https://dopebox.to
+SOURCE_14_URL=https://myflixerz.to
+SOURCE_15_URL=https://warezforums.com
+SOURCE_16_URL=https://psarips.com
+SOURCE_17_URL=https://avaxhome.com
+SOURCE_18_URL=https://cineby.app
+SOURCE_19_URL=https://filmzone.com
+SOURCE_20_URL=https://moviefree8k.com
+
+# Аниме, дорамы, анимация
+SOURCE_21_URL=https://hianime.nz
+SOURCE_22_URL=https://9anime.to
+SOURCE_23_URL=https://aniwatch.to
+SOURCE_24_URL=https://gogoanime3.co
+SOURCE_25_URL=https://anitaku.to
+SOURCE_26_URL=https://nyaa.si
+SOURCE_27_URL=https://animeflv.net
+SOURCE_28_URL=https://anime-sama.fr
+SOURCE_29_URL=https://animelon.com
+SOURCE_30_URL=https://kisskh.co
+
+# Торрент-трекеры (источники ресурсов)
+SOURCE_31_URL=https://rutor.org
+SOURCE_32_URL=https://thepiratebay.org
+SOURCE_33_URL=https://1337x.to
+SOURCE_34_URL=https://yts.mx
+SOURCE_35_URL=https://eztv.re
+SOURCE_36_URL=https://limetorrents.lol
+SOURCE_37_URL=https://torrentdownloads.pro
+SOURCE_38_URL=https://torrentz2.eu
+SOURCE_39_URL=https://rarbg.to
+SOURCE_40_URL=https://kickasstorrents.to
+SOURCE_41_URL=https://free-torrents.org
+SOURCE_42_URL=https://torlock.com
+SOURCE_43_URL=https://elitetorrent.pl
+SOURCE_44_URL=https://ettv.tv
+
+# Дополнительные (игровые репаки, файлообменники)
+SOURCE_45_URL=https://fitgirl-repacks.site
+SOURCE_46_URL=https://skidrowreloaded.com
+SOURCE_47_URL=https://igg-games.com
+SOURCE_48_URL=https://mega.nz
+SOURCE_49_URL=https://rapidgator.net
+SOURCE_50_URL=https://doodstream.com
+
+# === Дополнительные источники (SOURCE_51–100) ===
+
+# Стриминговые сайты (фильмы, сериалы)
+SOURCE_51_URL=https://123moviesfree.net
+SOURCE_52_URL=https://putlocker.digital
+SOURCE_53_URL=https://watchseries.bar
+SOURCE_54_URL=https://cineby.gd
+SOURCE_55_URL=https://popcornmovies.to
+SOURCE_56_URL=https://67movies.net
+SOURCE_57_URL=https://flickystream.com
+SOURCE_58_URL=https://lordflix.org
+SOURCE_59_URL=https://xprime.su
+SOURCE_60_URL=https://rive.to
+SOURCE_61_URL=https://soap2day.to
+SOURCE_62_URL=https://cuevana3.com
+SOURCE_63_URL=https://vegamovies.com
+SOURCE_64_URL=https://solarmovie.to
+SOURCE_65_URL=https://yesmovies.to
+SOURCE_66_URL=https://lookmovie.to
+SOURCE_67_URL=https://gomovies.sx
+SOURCE_68_URL=https://m4uhd.tv
+
+# Торрент-трекеры (дополнительные)
+SOURCE_69_URL=https://ext.to
+SOURCE_70_URL=https://zooqle.com
+SOURCE_71_URL=https://demonoid.is
+SOURCE_72_URL=https://torrentsbay.org
+SOURCE_73_URL=https://piratebay.party
+SOURCE_74_URL=https://torrentgalaxy.to
+
+# Аниме, дорамы, анимация (дополнительные)
+SOURCE_75_URL=https://kisskh.co
+SOURCE_76_URL=https://animeflv.net
+SOURCE_77_URL=https://gogoanime3.co
+SOURCE_78_URL=https://anitaku.to
+SOURCE_79_URL=https://anime-sama.fr
+SOURCE_80_URL=https://animelon.com
+
+# Другие известные ресурсы
+SOURCE_81_URL=https://annas-archive.org
+SOURCE_82_URL=https://hollymoviehd.cc
+SOURCE_83_URL=https://pstream.org
+SOURCE_84_URL=https://zamunda.net
+SOURCE_85_URL=https://arenabg.com
+SOURCE_86_URL=https://zelka.org
+SOURCE_87_URL=https://mobilism.me
+SOURCE_88_URL=https://geniptv.com
+SOURCE_89_URL=https://magistv.com
+
+# Репаки, файлообменники (дополнительные)
+SOURCE_90_URL=https://turbobit.net
+SOURCE_91_URL=https://dfiles.ru
+SOURCE_92_URL=https://letitbit.net
+SOURCE_93_URL=https://hitfile.net
+SOURCE_94_URL=https://uploaded.net
+SOURCE_95_URL=https://rapidshare.com
+SOURCE_96_URL=https://depositfiles.com
+SOURCE_97_URL=https://filesmonster.com
+SOURCE_98_URL=https://shareflare.net
+SOURCE_99_URL=https://vip-file.com
+SOURCE_100_URL=https://savetube.com

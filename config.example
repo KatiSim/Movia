@@ -1,6 +1,13 @@
-# Copy to a local, ignored config file.
-# Do not put real values in this repository.
-backend_url=http://127.0.0.1:5001
-agent_url=http://127.0.0.1:8899
-catalog_db=
-agent_token_file=/data/data/com.termux/files/home/.config/movia-agent/token
+# Movia configuration reference (no secrets)
+
+Backend: PARSER_HOST and PARSER_PORT are consumed by backend/config.py.
+TMDB_API_KEY is private and must be provided through the Termux environment or
+private .env.
+
+MCP: TERMUX_MCP_HOST, TERMUX_MCP_PORT, TERMUX_MCP_SECRET, TERMUX_MCP_ROOTS and
+TERMUX_MCP_JOB_ROOT are consumed by agent/mcp/src/config.ts.
+
+Native agent: provision its token through agent/tools/provision-agent-token.sh.
+
+Runtime catalog: MOVIA_CATALOG_DB may point scripts/create-baseline.sh at the
+private catalog DB.

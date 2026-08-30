@@ -1,0 +1,5 @@
+PASS warm bridge preflight
+PASS benchmark /health p50=6.570ms p95=10.259ms p99=15.796ms failures=0
+PASS benchmark /snapshot p50=8.313ms p95=12.482ms p99=18.908ms failures=0
+PASS benchmark /actions p50=12.572ms p95=18.465ms p99=24.276ms failures=0
+{"script":"03_benchmark","pass":true,"warm":true,"iterationsPerEndpoint":1000,"totalRequests":3000,"endpoints":{"health":{"requests":1000,"successes":1000,"failures":0,"p50Ms":6.57,"p95Ms":10.259,"p99Ms":15.796},"snapshot":{"requests":1000,"successes":1000,"failures":0,"p50Ms":8.313,"p95Ms":12.482,"p99Ms":18.908},"actions":{"requests":1000,"successes":1000,"failures":0,"p50Ms":12.572,"p95Ms":18.465,"p99Ms":24.276}}}

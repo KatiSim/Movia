@@ -4,12 +4,11 @@ package app.movia.android.ui.player
 
 import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.media.AudioManager
 import android.provider.Settings
+import android.util.Log
 import android.os.SystemClock
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -20,14 +19,22 @@ import androidx.core.view.WindowInsetsControllerCompat
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +53,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
@@ -56,8 +62,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -65,9 +75,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Forward10
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Fullscreen
@@ -75,6 +89,8 @@ import androidx.compose.material.icons.outlined.FullscreenExit
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -85,6 +101,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -97,6 +114,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -110,9 +128,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -121,6 +138,8 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -132,9 +151,12 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import app.movia.android.agent.AgentControlRuntime
 import app.movia.android.R
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.ContentType
+import app.movia.android.domain.model.StreamOption
+import app.movia.android.domain.model.withCanonicalStreamId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -146,6 +168,60 @@ import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaGlowLuminescence
 import app.movia.android.ui.theme.MoviaOnBrandAmber
+
+@Composable
+private fun MoviaCenterLoadingSpinner(
+    modifier: Modifier = Modifier.size(40.dp),
+    strokeWidth: androidx.compose.ui.unit.Dp = 3.dp,
+    color: Color = MoviaBrandAmber,
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "movia_center_spinner")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "movia_center_spinner_rotation",
+    )
+
+    Canvas(
+        modifier = modifier
+            .graphicsLayer { rotationZ = rotation }
+            .semantics { contentDescription = "Буферизация видео" },
+    ) {
+        val stroke = strokeWidth.toPx()
+        val diameter = (size.minDimension - stroke).coerceAtLeast(0f)
+        val arcTopLeft = Offset(stroke / 2f, stroke / 2f)
+        val arcSize = androidx.compose.ui.geometry.Size(diameter, diameter)
+        drawArc(
+            color = color.copy(alpha = 0.18f),
+            startAngle = 0f,
+            sweepAngle = 360f,
+            useCenter = false,
+            topLeft = arcTopLeft,
+            size = arcSize,
+            style = Stroke(width = stroke),
+        )
+        drawArc(
+            brush = Brush.sweepGradient(
+                colorStops = arrayOf(
+                    0.00f to Color.Transparent,
+                    0.58f to color.copy(alpha = 0.32f),
+                    0.82f to color.copy(alpha = 0.72f),
+                    1.00f to color,
+                ),
+            ),
+            startAngle = -90f,
+            sweepAngle = 292f,
+            useCenter = false,
+            topLeft = arcTopLeft,
+            size = arcSize,
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+        )
+    }
+}
 
 private val PLAYER_CENTER_CONTROL_SIZE = 66.1.dp
 private val PLAYER_CENTER_ICON_SIZE = 33.1.dp
@@ -167,6 +243,7 @@ private enum class PlayerSettingsPicker {
     SUBTITLES,
     SPEED,
     QUALITY,
+    RESIZE,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -174,7 +251,6 @@ private enum class PlayerSettingsPicker {
 fun PlayerScreen(
     session: PlaybackSession,
     title: String,
-    onMinimize: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     preferredAudio: String = "Auto",
@@ -184,37 +260,52 @@ fun PlayerScreen(
     subtitlesEnabled: Boolean = false,
     autoNextEnabled: Boolean = true,
     persistentSeekButtons: Boolean = false,
-    onSubtitlesChanged: (Boolean) -> Unit,
-    onSubtitleTrackIdChanged: (String?) -> Unit,
-    onNextEpisode: () -> Unit,
-    onSelectEpisode: (Int, Int) -> Unit,
+    hasPreviousEpisode: Boolean = false,
+    hasNextEpisode: Boolean = false,
+    onSubtitlesChanged: (Boolean) -> Unit = {},
+    onSubtitleTrackIdChanged: (String?) -> Unit = {},
+    onPreviousEpisode: () -> Unit = {},
+    onNextEpisode: () -> Unit = {},
+    onSelectEpisode: (Int, Int) -> Unit = { _, _ -> },
+    onAutoNextChanged: (Boolean) -> Unit = {},
+    onPersistentSeekButtonsChanged: (Boolean) -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    val activity = remember(context) { context.findActivity() }
+    val activity: Activity? = remember(context) { context.findActivity() }
     val rootView = LocalView.current
     val gestureScope = rememberCoroutineScope()
     val playback by session.state.collectAsState()
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val resolvedStreamOptions by session.streamOptions.collectAsState()
+    val isLandscape = activity?.let(MoviaFullscreenController::isActuallyLandscape)
+        ?: (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
     val baseTitle = remember(title) { title.substringBefore(" · S").substringBefore(" · E") }
     val mediaContent = remember(baseTitle) { DemoCatalogRepository.findByTitle(baseTitle) }
-    val isSeries = mediaContent?.type == ContentType.SERIES
+    val isSeries = mediaContent?.type == ContentType.SERIES || mediaContent?.seasonEpisodeCounts?.isNotEmpty() == true
     val currentSeason = playback.seasonNumber ?: 1
     val currentEpisode = playback.episodeNumber
     val player = session.player
     var videoAspectRatio by remember { mutableFloatStateOf(moviaVideoAspectRatio(player.videoSize)) }
     val inPictureInPicture = MoviaPiPState.isInPictureInPicture
 
-    // The player owns an immersive fullscreen window while it is visible.
-    // Restore system bars when the composable leaves so the rest of Movia behaves normally.
-    DisposableEffect(activity, inPictureInPicture) {
+    // The full player is the sole owner of active playback. Any navigation path that
+    // removes this composable must terminate playback, even if a caller forgets to do so.
+    DisposableEffect(session) {
+        onDispose { session.stopAndClear() }
+    }
+
+    // Immersive bars belong to actual landscape fullscreen only. Portrait player and
+    // the rest of Movia keep normal system bars, avoiding stale window state after rotation.
+    DisposableEffect(activity, inPictureInPicture, isLandscape) {
         val window = activity?.window
         val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
-        if (!inPictureInPicture) {
+        if (!inPictureInPicture && isLandscape) {
             controller?.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller?.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+            controller?.show(WindowInsetsCompat.Type.systemBars())
         }
         onDispose {
             controller?.show(WindowInsetsCompat.Type.systemBars())
@@ -246,8 +337,14 @@ fun PlayerScreen(
     var gestureFeedbackLabel by remember { mutableStateOf<String?>(null) }
     var gestureFeedbackPercent by remember { mutableIntStateOf(0) }
     var gestureFeedbackTick by remember { mutableIntStateOf(0) }
-
-    val resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+    var controlsLocked by remember { mutableStateOf(false) }
+    var lockButtonDimmed by remember { mutableStateOf(false) }
+    var suppressControlsUntilTap by remember { mutableStateOf(false) }
+    var closingBySwipe by remember { mutableStateOf(false) }
+    val playerTranslationY = remember { Animatable(0f) }
+    var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var sleepTimerMinutes by remember { mutableIntStateOf(0) }
+    var sleepTimerStopsAtEnd by remember { mutableStateOf(false) }
     val effectiveAudioPreference = preferredAudio.takeIf { value ->
         value == "Auto" || audioTracks.any { it.label == value }
     } ?: "Auto"
@@ -258,17 +355,41 @@ fun PlayerScreen(
     val selectedQualityLabel = videoQualityTracks.firstOrNull { it.selected }?.label
     val audioAutoLabel = selectedAudioLabel?.let { "Авто · $it" } ?: "Авто"
     val qualityAutoLabel = selectedQualityLabel?.let { "Авто · $it" } ?: "Авто"
+    val resizeModeSummary = when (resizeMode) {
+        AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> "Заполнение"
+        AspectRatioFrameLayout.RESIZE_MODE_FILL -> "Растянуть"
+        else -> "16:9"
+    }
+    val resizeModeOptions = listOf("16:9 (Исходный)", "Заполнение (Zoom)", "Растянуть (Fill)")
+    val sleepTimerValue = when {
+        sleepTimerStopsAtEnd -> "Конец"
+        sleepTimerMinutes == 15 -> "15 мин"
+        sleepTimerMinutes == 30 -> "30 мин"
+        else -> "Выкл"
+    }
+    val sleepTimerOptions = listOf("Выкл", "15 мин", "30 мин", "Конец")
 
     fun showControls() {
         if (!inPictureInPicture) {
+            suppressControlsUntilTap = false
             controlsVisible = true
             interactionTick++
         }
     }
 
+    fun toggleControls() {
+        if (!inPictureInPicture && !controlsLocked) {
+            suppressControlsUntilTap = false
+            controlsVisible = !controlsVisible
+            if (controlsVisible) interactionTick++
+        }
+    }
+
     fun seekBy(deltaMs: Long, stackedSeconds: Int = 10) {
         val maxPosition = max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE)
-        val target = (session.state.value.currentPositionMs + deltaMs).coerceIn(0L, maxPosition)
+        val livePosition = player.currentPosition.coerceAtLeast(0L)
+        val target = (livePosition + deltaMs).coerceIn(0L, maxPosition)
+        Log.d("MoviaStreamDebug", "seekBy delta=$deltaMs live=$livePosition target=$target duration=${player.duration}")
         session.seekTo(target)
         scrubPositionMs = target
         seekFeedbackDirection = if (deltaMs < 0L) -1 else 1
@@ -320,7 +441,7 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = playback.playWhenReady,
+                autoEnter = false,
             )
             host.setPictureInPictureParams(params)
             host.enterPictureInPictureMode(params)
@@ -347,7 +468,7 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = playback.playWhenReady,
+                autoEnter = false,
             ),
         )
     }
@@ -399,6 +520,8 @@ fun PlayerScreen(
     LaunchedEffect(
         controlsVisible,
         interactionTick,
+        controlsLocked,
+        suppressControlsUntilTap,
         settingsOpen,
         episodesScreenOpen,
         scrubbing,
@@ -409,18 +532,38 @@ fun PlayerScreen(
     ) {
         val activePlayback = playback.isPlaying ||
             (playback.playWhenReady && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING)
-        if (controlsVisible && activePlayback && playbackError == null &&
+        if (controlsVisible && !controlsLocked && activePlayback && playbackError == null &&
             !settingsOpen && !episodesScreenOpen && !scrubbing
         ) {
             delay(3_500L)
-            controlsVisible = false
-        } else if (!activePlayback || playbackError != null) {
+            val stillPlaying = playback.isPlaying ||
+                (playback.playWhenReady && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING)
+            if (controlsVisible && stillPlaying && !controlsLocked &&
+                playbackError == null && !settingsOpen && !episodesScreenOpen && !scrubbing
+            ) {
+                // One shared gate hides the top bar, center controls and timeline together.
+                controlsVisible = false
+            }
+        } else if (!controlsLocked && !suppressControlsUntilTap &&
+            (!activePlayback || playbackError != null)
+        ) {
             controlsVisible = true
         }
     }
 
-    LaunchedEffect(player, title, autoNextEnabled) {
-        if (!autoNextEnabled) return@LaunchedEffect
+    LaunchedEffect(controlsLocked) {
+        if (controlsLocked) {
+            controlsVisible = false
+            lockButtonDimmed = false
+            delay(3_500L)
+            if (controlsLocked) lockButtonDimmed = true
+        } else {
+            lockButtonDimmed = false
+        }
+    }
+
+    LaunchedEffect(player, title, autoNextEnabled, sleepTimerStopsAtEnd) {
+        if (!autoNextEnabled || sleepTimerStopsAtEnd) return@LaunchedEffect
         while (true) {
             delay(500L)
             if (player.playbackState == Player.STATE_ENDED) {
@@ -430,6 +573,13 @@ fun PlayerScreen(
         }
     }
 
+    LaunchedEffect(player, sleepTimerMinutes) {
+        if (sleepTimerMinutes <= 0) return@LaunchedEffect
+        delay(sleepTimerMinutes * 60_000L)
+        player.pause()
+        sleepTimerMinutes = 0
+    }
+
     DisposableEffect(player, title) {
         val listener = object : Player.Listener {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
@@ -437,7 +587,16 @@ fun PlayerScreen(
                 showControls()
             }
 
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == androidx.media3.common.Player.STATE_READY) {
+                    playbackError = null
+                }
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (isPlaying) {
+                    playbackError = null
+                }
                 showControls()
             }
 
@@ -521,11 +680,11 @@ fun PlayerScreen(
     }
 
     val leavePlayer: () -> Unit = {
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        MoviaFullscreenController.leavePlayer(activity)
         onBack()
     }
     val exitFullscreen: () -> Unit = {
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        activity?.let(MoviaFullscreenController::exit)
         showControls()
     }
     val closePlaybackSettings: () -> Unit = {
@@ -533,16 +692,43 @@ fun PlayerScreen(
         settingsOpen = false
         showControls()
     }
+    SideEffect {
+        AgentControlRuntime.updatePlayerSettingsOpen(settingsOpen)
+        AgentControlRuntime.updatePresentation(isLandscape, inPictureInPicture)
+        AgentControlRuntime.registerPlayerSettingsHandlers(
+            open = {
+                settingsPicker = null
+                settingsOpen = true
+                controlsVisible = false
+            },
+            close = closePlaybackSettings,
+            enterFullscreen = { activity?.let(MoviaFullscreenController::enter) },
+            enterPip = { enterPictureInPicture() },
+        )
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            AgentControlRuntime.registerPlayerSettingsHandlers(open = null, close = null)
+        }
+    }
+
     val handlePlayerBack: () -> Unit = {
-        when {
-            settingsOpen && settingsPicker != null -> settingsPicker = null
-            settingsOpen -> closePlaybackSettings()
-            episodesScreenOpen -> {
-                episodesScreenOpen = false
-                showControls()
+        if (controlsLocked) {
+            controlsLocked = false
+            lockButtonDimmed = false
+            suppressControlsUntilTap = false
+            controlsVisible = true
+            interactionTick++
+        } else {
+            when {
+                settingsOpen -> closePlaybackSettings()
+                episodesScreenOpen -> {
+                    episodesScreenOpen = false
+                    showControls()
+                }
+                isLandscape -> exitFullscreen()
+                else -> leavePlayer()
             }
-            isLandscape -> exitFullscreen()
-            else -> leavePlayer()
         }
     }
 
@@ -551,7 +737,8 @@ fun PlayerScreen(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .background(scheme.background),
+            .background(scheme.background)
+            .graphicsLayer { translationY = playerTranslationY.value },
     ) {
         val landscapeVideoHorizontalInset = if (isLandscape && videoAspectRatio > 0f && maxHeight > 0.dp) {
             val fittedVideoWidth = (maxHeight * videoAspectRatio).coerceAtMost(maxWidth)
@@ -661,7 +848,7 @@ fun PlayerScreen(
             }
         }
 
-        if (!inPictureInPicture && !episodesScreenOpen && !settingsOpen) {
+        if (!inPictureInPicture && !episodesScreenOpen && !settingsOpen && !controlsLocked) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -671,7 +858,7 @@ fun PlayerScreen(
                         var lastTapDirection = 0
                         var tapChainCount = 0
                         awaitEachGesture {
-                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val down = awaitFirstDown(requireUnconsumed = true)
                             val startX = down.position.x
                             val startY = down.position.y
                             var previousX = startX
@@ -683,7 +870,7 @@ fun PlayerScreen(
                             val brightnessGesture = !centerGesture && startX < size.width / 2f
                             // Keep the entire lower player chrome + transient system gesture area free.
                             // Brightness/volume/swipe-down may only start inside the video gesture zone.
-                            val topGestureGuard = if (isLandscape) 72.dp.toPx() else 96.dp.toPx()
+                            val topGestureGuard = if (isLandscape) 96.dp.toPx() else 168.dp.toPx()
                             val bottomGestureGuard = if (isLandscape) 124.dp.toPx() else 196.dp.toPx()
                             val verticalGesturesAllowed = startY > topGestureGuard &&
                                 startY < size.height - bottomGestureGuard
@@ -746,10 +933,9 @@ fun PlayerScreen(
                                     if (verticalDrag && centerGesture && !isLandscape && totalY > 120.dp.toPx()) {
                                         pendingCenterTapJob?.cancel()
                                         rootView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                                        if (playback.playWhenReady && activity != null) {
-                                            enterPictureInPicture()
-                                        } else {
-                                            onMinimize()
+                                        if (!closingBySwipe) {
+                                            closingBySwipe = true
+                                            leavePlayer()
                                         }
                                     } else if (!verticalDrag &&
                                         abs(totalY) < viewConfiguration.touchSlop &&
@@ -757,13 +943,8 @@ fun PlayerScreen(
                                     ) {
                                         val now = SystemClock.uptimeMillis()
                                         if (centerGesture) {
-                                            // Delay the single tap so rapid gesture sequences do not flash the overlay.
                                             pendingCenterTapJob?.cancel()
-                                            pendingCenterTapJob = gestureScope.launch {
-                                                delay(280L)
-                                                controlsVisible = !controlsVisible
-                                                if (controlsVisible) interactionTick++
-                                            }
+                                            toggleControls()
                                             lastTapAt = 0L
                                             tapChainCount = 0
                                         } else {
@@ -778,6 +959,8 @@ fun PlayerScreen(
                                             } else {
                                                 tapChainCount = 1
                                                 lastTapDirection = direction
+                                                // A single tap anywhere toggles the full player chrome.
+                                                toggleControls()
                                             }
                                             lastTapAt = now
                                         }
@@ -791,32 +974,65 @@ fun PlayerScreen(
         }
 
 
+        // Persistent middle layer: a combined G-shaped scrim over the video/AI cover.
+        // It contains no pointer-input or click handler, so taps reach the gesture surface
+        // below and the controls above remain interactive.
+        if (!inPictureInPicture && !episodesScreenOpen && !settingsOpen && !controlsLocked) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0.00f to Color.Transparent,
+                                0.46f to Color.Transparent,
+                                0.70f to Color.Black.copy(alpha = 0.30f),
+                                1.00f to Color.Black.copy(alpha = 0.75f),
+                            ),
+                        ),
+                    ),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithCache {
+                        val bottomRightScrim = Brush.linearGradient(
+                            colorStops = arrayOf(
+                                0.00f to Color.Black.copy(alpha = 0.60f),
+                                0.30f to Color.Black.copy(alpha = 0.20f),
+                                0.60f to Color.Transparent,
+                            ),
+                            start = Offset(size.width, size.height),
+                            end = Offset.Zero,
+                        )
+                        onDrawBehind {
+                            drawRect(bottomRightScrim)
+                        }
+                    },
+            )
+        }
+
+        val transientControlsVisible =
+            !inPictureInPicture && controlsVisible && !controlsLocked && !settingsOpen && !episodesScreenOpen
+
         AnimatedVisibility(
-            visible = !inPictureInPicture && controlsVisible && !settingsOpen && !episodesScreenOpen,
-            enter = fadeIn(animationSpec = tween(180)),
-            exit = fadeOut(animationSpec = tween(180)),
+            visible = transientControlsVisible,
+            enter = EnterTransition.None,
+            exit = ExitTransition.None,
             modifier = Modifier.fillMaxSize(),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Reference-style cinema dimmer: one soft layer instead of separate heavy bands.
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(scheme.background.copy(alpha = 0.20f)),
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.22f)
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(scheme.background.copy(alpha = 0.34f), Color.Transparent),
-                            ),
-                        ),
-                )
-
                 PlayerTopBar(
+                    title = baseTitle,
+                    contextLabel = playerContextLabel(baseTitle, currentSeason, currentEpisode),
+                    locked = false,
+                    onLockToggle = {
+                        controlsLocked = true
+                        suppressControlsUntilTap = false
+                        controlsVisible = false
+                        lockButtonDimmed = false
+                        interactionTick++
+                    },
                     isLandscape = isLandscape,
                     onBack = handlePlayerBack,
                     onPictureInPicture = { enterPictureInPicture() },
@@ -826,91 +1042,176 @@ fun PlayerScreen(
                         controlsVisible = false
                     },
                     onInteraction = ::showControls,
+                    onEpisodes = if (isSeries && mediaContent != null) {
+                        {
+                            episodesScreenSeason = currentSeason
+                            episodesScreenOpen = true
+                            controlsVisible = false
+                        }
+                    } else {
+                        null
+                    },
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
 
-                Surface(
-                    color = Color.Transparent,
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(PLAYER_CENTER_CONTROL_SIZE)
-                        .border(1.dp, MoviaBrandAmber.copy(alpha = 0.48f), CircleShape),
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(
+                    if (isSeries) {
+                        Surface(
+                            onClick = {
+                                if (hasPreviousEpisode) {
+                                    onPreviousEpisode()
+                                    showControls()
+                                }
+                            },
+                            enabled = hasPreviousEpisode,
+                            shape = CircleShape,
+                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
+                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            modifier = Modifier
+                                .size(48.dp)
+                                .alpha(if (hasPreviousEpisode) 1.0f else 0.25f),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.SkipPrevious,
+                                    contentDescription = "Предыдущая серия",
+                                    tint = scheme.onSurface,
+                                    modifier = Modifier.size(26.dp),
+                                )
+                            }
+                        }
+                        if (persistentSeekButtons) {
+                            Spacer(modifier = Modifier.width(16.dp))
+                        } else {
+                            Spacer(modifier = Modifier.width(44.dp))
+                        }
+                    }
+
+                    if (persistentSeekButtons) {
+                        Surface(
+                            onClick = { seekBy(-10_000L) },
+                            shape = CircleShape,
+                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
+                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            modifier = Modifier.size(48.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.Replay10,
+                                    contentDescription = "Назад на 10 секунд",
+                                    tint = scheme.onSurface,
+                                    modifier = Modifier.size(26.dp),
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(20.dp))
+                    }
+
+                    Surface(
+                        color = Color.Transparent,
+                        shape = CircleShape,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.radialGradient(
-                                    colorStops = arrayOf(
-                                        0.00f to MoviaGlowLuminescence.copy(alpha = 0.20f),
-                                        0.38f to scheme.surfaceContainer.copy(alpha = 0.62f),
-                                        0.72f to scheme.surfaceContainer.copy(alpha = 0.44f),
-                                        1.00f to scheme.surface.copy(alpha = 0.28f),
+                            .size(PLAYER_CENTER_CONTROL_SIZE)
+                            .border(1.dp, MoviaBrandAmber.copy(alpha = 0.48f), CircleShape),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.radialGradient(
+                                        colorStops = arrayOf(
+                                            0.00f to MoviaGlowLuminescence.copy(alpha = 0.30f),
+                                            0.38f to scheme.surfaceContainer.copy(alpha = 0.92f),
+                                            0.72f to scheme.surfaceContainer.copy(alpha = 0.72f),
+                                            1.00f to scheme.surface.copy(alpha = 0.50f),
+                                        ),
                                     ),
                                 ),
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING) {
-                            CircularProgressIndicator(
-                                color = scheme.onSurface,
-                                trackColor = scheme.onSurface.copy(alpha = 0.14f),
-                                strokeWidth = 2.6.dp,
-                                modifier = Modifier.size(31.7.dp),
-                            )
-                        } else {
-                            IconButton(
-                                onClick = {
-                                    session.togglePlayPause()
-                                    showControls()
-                                },
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING) {
+                                MoviaCenterLoadingSpinner(
+                                    strokeWidth = 3.dp,
+                                )
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        session.togglePlayPause()
+                                        showControls()
+                                    },
+                                    modifier = Modifier.fillMaxSize(),
+                                ) {
+                                    Icon(
+                                        if (playback.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                        contentDescription = if (playback.isPlaying) "Пауза" else "Воспроизвести",
+                                        tint = scheme.onSurface.copy(alpha = 0.96f),
+                                        modifier = Modifier.size(PLAYER_CENTER_ICON_SIZE),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (persistentSeekButtons) {
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Surface(
+                            onClick = { seekBy(10_000L) },
+                            shape = CircleShape,
+                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
+                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            modifier = Modifier.size(48.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    if (playback.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                    contentDescription = if (playback.isPlaying) "Пауза" else "Воспроизвести",
-                                    tint = scheme.onSurface.copy(alpha = 0.96f),
-                                    modifier = Modifier.size(PLAYER_CENTER_ICON_SIZE),
+                                    imageVector = Icons.Filled.Forward10,
+                                    contentDescription = "Вперёд на 10 секунд",
+                                    tint = scheme.onSurface,
+                                    modifier = Modifier.size(26.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    if (isSeries) {
+                        if (persistentSeekButtons) {
+                            Spacer(modifier = Modifier.width(16.dp))
+                        } else {
+                            Spacer(modifier = Modifier.width(44.dp))
+                        }
+                        Surface(
+                            onClick = {
+                                if (hasNextEpisode) {
+                                    onNextEpisode()
+                                    showControls()
+                                }
+                            },
+                            enabled = hasNextEpisode,
+                            shape = CircleShape,
+                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
+                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            modifier = Modifier
+                                .size(48.dp)
+                                .alpha(if (hasNextEpisode) 1.0f else 0.25f),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.SkipNext,
+                                    contentDescription = "Следующая серия",
+                                    tint = scheme.onSurface,
+                                    modifier = Modifier.size(26.dp),
                                 )
                             }
                         }
                     }
                 }
 
-            if (persistentSeekButtons) {
-                Surface(
-                    onClick = { seekBy(-10_000L) },
-                    shape = CircleShape,
-                    color = scheme.background.copy(alpha = 0.62f),
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 32.dp)
-                        .size(64.dp),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Replay10, "Назад на 10 секунд", tint = scheme.onSurface, modifier = Modifier.size(34.dp))
-                    }
-                }
-                Surface(
-                    onClick = { seekBy(10_000L) },
-                    shape = CircleShape,
-                    color = scheme.background.copy(alpha = 0.62f),
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 32.dp)
-                        .size(64.dp),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Forward10, "Вперёд на 10 секунд", tint = scheme.onSurface, modifier = Modifier.size(34.dp))
-                    }
-                }
-            }
-
             AnimatedVisibility(
                 visible = seekFeedbackDirection < 0,
-                enter = fadeIn(),
-                exit = fadeOut(),
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(x = (-100).dp),
@@ -920,8 +1221,8 @@ fun PlayerScreen(
 
             AnimatedVisibility(
                 visible = seekFeedbackDirection > 0,
-                enter = fadeIn(),
-                exit = fadeOut(),
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(x = 100.dp),
@@ -961,30 +1262,52 @@ fun PlayerScreen(
                     scrubbing = false
                     showControls()
                 },
+                onOpenEpisodes = if (isSeries && mediaContent != null) {
+                    {
+                        episodesScreenSeason = currentSeason
+                        episodesScreenOpen = true
+                        controlsVisible = false
+                    }
+                } else null,
                 onToggleFullscreen = {
-                    activity?.requestedOrientation = if (isLandscape) {
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    val hostActivity = context.findActivity() ?: (context as? Activity)
+                    if (hostActivity != null) {
+                        val isNowLandscape = MoviaFullscreenController.toggle(hostActivity)
+                        android.util.Log.d("MoviaStreamDebug", "Fullscreen toggled to landscape=$isNowLandscape")
                     }
                     showControls()
                 },
-                showEpisodes = isSeries,
-                onEpisodes = {
-                    episodesScreenSeason = currentSeason
-                    episodesScreenOpen = true
-                    controlsVisible = false
-                },
                 isLandscape = isLandscape,
-                landscapeVideoHorizontalInset = landscapeVideoHorizontalInset,
-                onInteraction = ::showControls,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
+                isSeries = isSeries,
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
             }
         }
 
+
+        if (!inPictureInPicture && controlsLocked) {
+            PlayerTopBar(
+                title = baseTitle,
+                contextLabel = playerContextLabel(baseTitle, currentSeason, currentEpisode),
+                locked = true,
+                onLockToggle = {
+                    controlsLocked = false
+                    lockButtonDimmed = false
+                    suppressControlsUntilTap = false
+                    controlsVisible = true
+                    interactionTick++
+                },
+                isLandscape = isLandscape,
+                lockButtonAlpha = if (lockButtonDimmed) 0.28f else 1f,
+                onBack = {},
+                onPictureInPicture = {},
+                onSettings = {},
+                onInteraction = {},
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .zIndex(40f),
+            )
+        }
 
         if (!inPictureInPicture && episodesScreenOpen && isSeries && mediaContent != null) {
             PlayerEpisodeSelectionScreen(
@@ -1009,83 +1332,298 @@ fun PlayerScreen(
         }
 
         if (!inPictureInPicture && settingsOpen) {
-            val audioOptions = buildDisplayOptions(audioAutoLabel, audioTracks.map { it.label })
-            val qualityOptions = buildDisplayOptions(qualityAutoLabel, videoQualityTracks.map { it.label })
-            val subtitleOptions = if (subtitleTracks.isEmpty()) {
-                listOf("Нет")
-            } else {
-                (listOf("Нет", "Авто") + subtitleTracks.map { it.label }).distinct()
-            }
-            val speedOptions = SPEEDS.map { "${formatSpeed(it)}×" }
+            // Settings is a projection of PlaybackSession, never a second selection store.
+            // Keep every resolved option that belongs to this episode and address it by stable ID.
+            val contentStreams = (resolvedStreamOptions + mediaContent?.streams.orEmpty())
+                .map { it.withCanonicalStreamId(currentSeason, currentEpisode) }
+                .distinctBy { it.streamId }
 
-            PlayerPlaybackSettingsScreen(
-                picker = settingsPicker,
-                audioValue = audioSummary,
-                subtitleValue = subtitleSummary,
-                speedValue = speedSummary,
-                qualityValue = qualitySummary,
-                audioOptions = audioOptions,
-                subtitleOptions = subtitleOptions,
-                speedOptions = speedOptions,
-                qualityOptions = qualityOptions,
-                selectedAudio = audioSummary,
-                selectedSubtitle = subtitlePickerSelected,
-                selectedSpeed = speedSummary,
-                selectedQuality = qualitySummary,
+            fun normalizedQuality(stream: StreamOption): String =
+                stream.quality.ifBlank { mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p" }
+
+            fun normalizedVoice(stream: StreamOption): String =
+                stream.voice.ifBlank { "Не указано" }
+
+            fun qualityPriority(value: String): Int {
+                val q = value.lowercase()
+                return when {
+                    q.contains("2160") || q.contains("4k") -> 2160
+                    q.contains("1440") -> 1440
+                    q.contains("1080") -> 1080
+                    q.contains("720") -> 720
+                    q.contains("480") -> 480
+                    q.contains("360") -> 360
+                    else -> 0
+                }
+            }
+
+            fun voicePriority(value: String): Int {
+                val low = value.lowercase()
+                return when {
+                    low.contains("red head sound") || low.contains("rhs") -> 0
+                    low.contains("lostfilm") -> 1
+                    low.contains("кубик") -> 2
+                    low.contains("кураж") -> 3
+                    low.contains("newstudio") -> 4
+                    low.contains("jaskier") -> 5
+                    low.contains("alexfilm") -> 6
+                    low.contains("tvshows") -> 7
+                    low.contains("hdrezka") || low.contains("rezka") -> 8
+                    low.contains("дубляж") || low.contains("дублирован") -> 9
+                    low.contains("профессиональн") || low.contains("мво") -> 10
+                    low.contains("двухголос") || low.contains("дво") -> 11
+                    low.contains("русск") -> 12
+                    low.contains("не указано") -> 30
+                    low.contains("original") || low.contains("english") -> 40
+                    else -> 20
+                }
+            }
+
+            val streamQualities = contentStreams
+                .map(::normalizedQuality)
+                .distinctBy { it.lowercase() }
+                .sortedByDescending(::qualityPriority)
+                .ifEmpty { listOf(mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p") }
+
+            val selection = playback.activeStreamSelection
+            val requestedQuality = selection?.requestedQuality
+                ?: selection?.activeQuality
+                ?: effectiveQualityPreference
+            val selectedQuality = streamQualities.firstOrNull {
+                requestedQuality != "Auto" && it.equals(requestedQuality, ignoreCase = true)
+            } ?: streamQualities.firstOrNull() ?: "1080p"
+
+            val streamsForSelectedQuality = contentStreams.filter {
+                normalizedQuality(it).equals(selectedQuality, ignoreCase = true)
+            }
+            val streamVoicesForQuality = streamsForSelectedQuality
+                .map(::normalizedVoice)
+                .distinctBy { it.lowercase() }
+                .sortedBy(::voicePriority)
+                .ifEmpty {
+                    contentStreams.map(::normalizedVoice)
+                        .distinctBy { it.lowercase() }
+                        .sortedBy(::voicePriority)
+                }
+                .ifEmpty { listOf("Не указано") }
+
+            val requestedVoice = selection?.requestedVoice
+                ?: selection?.activeVoice
+                ?: effectiveAudioPreference
+            val selectedVoice = streamVoicesForQuality.firstOrNull {
+                requestedVoice != "Auto" && it.equals(requestedVoice, ignoreCase = true)
+            } ?: streamVoicesForQuality.firstOrNull() ?: "Не указано"
+
+            fun exactOrVariantMatch(
+                candidates: List<StreamOption>,
+                quality: String,
+                voice: String,
+            ): StreamOption? {
+                val requestedId = selection?.requestedStreamId
+                return candidates.firstOrNull {
+                    it.streamId == requestedId &&
+                        normalizedQuality(it).equals(quality, ignoreCase = true) &&
+                        normalizedVoice(it).equals(voice, ignoreCase = true)
+                } ?: candidates.firstOrNull {
+                    normalizedQuality(it).equals(quality, ignoreCase = true) &&
+                        normalizedVoice(it).equals(voice, ignoreCase = true)
+                }
+            }
+
+            StreamSettingsScreen(
+                audioOptions = streamVoicesForQuality,
+                qualityOptions = streamQualities,
+                selectedAudio = selectedVoice,
+                selectedQuality = selectedQuality,
+                autoNextEnabled = autoNextEnabled,
+                persistentSeekButtons = persistentSeekButtons,
                 onBack = {
-                    if (settingsPicker != null) {
-                        settingsPicker = null
-                    } else {
-                        closePlaybackSettings()
+                    settingsOpen = false
+                    showControls()
+                },
+                onAudioSelected = { newVoice ->
+                    val matchedStream = exactOrVariantMatch(
+                        streamsForSelectedQuality,
+                        selectedQuality,
+                        newVoice,
+                    )
+                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
+                        session.switchToStream(matchedStream, player.currentPosition.coerceAtLeast(0L))
+                        Log.d(
+                            "MoviaStreamDebug",
+                            "USER_SELECT voice quality=" + selectedQuality +
+                                " voice=" + newVoice +
+                                " streamId=" + matchedStream.streamId,
+                        )
+                    } else if (contentStreams.isEmpty()) {
+                        selectAudio(newVoice)
                     }
+                    onAudioSelected(newVoice)
                 },
-                onOpenPicker = { settingsPicker = it },
-                onAudioSelected = { value ->
-                    selectAudio(if (value == audioAutoLabel) "Auto" else value)
-                    settingsPicker = null
-                },
-                onSubtitleSelected = { value ->
-                    when (value) {
-                        "Нет" -> selectSubtitleTrack(null)
-                        "Авто" -> selectAutomaticSubtitles()
-                        else -> subtitleTracks.firstOrNull { it.label == value }?.let(::selectSubtitleTrack)
+                onQualitySelected = { newQuality ->
+                    val candidates = contentStreams.filter {
+                        normalizedQuality(it).equals(newQuality, ignoreCase = true)
                     }
-                    settingsPicker = null
+                    if (candidates.isNotEmpty()) {
+                        val availableVoices = candidates
+                            .map(::normalizedVoice)
+                            .distinctBy { it.lowercase() }
+                            .sortedBy(::voicePriority)
+                        val nextVoice = availableVoices.firstOrNull {
+                            it.equals(selectedVoice, ignoreCase = true)
+                        } ?: availableVoices.firstOrNull() ?: "Не указано"
+                        val matchedStream = exactOrVariantMatch(candidates, newQuality, nextVoice)
+                            ?: candidates.first()
+                        session.switchToStream(matchedStream, player.currentPosition.coerceAtLeast(0L))
+                        Log.d(
+                            "MoviaStreamDebug",
+                            "USER_SELECT quality=" + newQuality +
+                                " voice=" + nextVoice +
+                                " streamId=" + matchedStream.streamId,
+                        )
+                    } else if (contentStreams.isEmpty()) {
+                        selectQuality(newQuality)
+                    }
+                    onQualitySelected(newQuality)
                 },
-                onSpeedSelected = { value ->
-                    speed = value.removeSuffix("×").toFloatOrNull() ?: 1f
-                    settingsPicker = null
-                },
-                onQualitySelected = { value ->
-                    selectQuality(if (value == qualityAutoLabel) "Auto" else value)
-                    settingsPicker = null
-                },
+                onAutoNextChanged = onAutoNextChanged,
+                onPersistentSeekButtonsChanged = onPersistentSeekButtonsChanged,
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(30f),
+                    .zIndex(50f),
             )
         }
+        if (!inPictureInPicture && (playback.status == app.movia.android.domain.model.PlaybackStatus.FAILED || playback.switchState == app.movia.android.domain.model.PlaybackSwitchState.FAILED || playback.statusMessage?.contains("не удалось", ignoreCase = true) == true || playback.statusMessage == "Источники для данного тайтла временно недоступны")) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = scheme.surfaceContainerHigh.copy(alpha = 0.95f),
+                border = BorderStroke(1.dp, MoviaBorderSubtle),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp)
+                    .zIndex(20f),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    Text(
+                        text = "Сейчас не удалось найти доступный источник видео",
+                        color = scheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                    Text(
+                        text = playback.statusMessage ?: "Не удалось найти рабочий поток для выбранного тайтла. Попробуйте выбрать другую озвучку или повторите попытку позже.",
+                        color = scheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Surface(
+                            onClick = handlePlayerBack,
+                            color = scheme.surfaceContainerHighest,
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(
+                                text = "Вернуться назад",
+                                color = scheme.onSurface,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                            )
+                        }
+                        Surface(
+                            onClick = {
+                                mediaContent?.let { content ->
+                                    val streamCandidates = content.streams.filter { it.url.isNotBlank() }
+                                    session.start(
+                                        mediaId = content.id,
+                                        title = title,
+                                        contentYear = content.year,
+                                        seasonNumber = currentSeason,
+                                        episodeNumber = currentEpisode,
+                                        sourceUri = null,
+                                        startPositionMs = positionMs,
+                                        audioTrackId = preferredAudio,
+                                        subtitleTrackId = null,
+                                        preferredQuality = preferredQuality,
+                                        preferredVoice = preferredAudio,
+                                        candidateStreams = streamCandidates.map { it.url },
+                                        candidateStreamOptions = streamCandidates,
+                                    )
+                                }
+                            },
+                            color = MoviaBrandAmber,
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(
+                                text = "Повторить",
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        } else if (!inPictureInPicture && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING && !playback.isPlaying) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = scheme.surfaceContainerHigh.copy(alpha = 0.94f),
+                border = BorderStroke(1.dp, MoviaBrandAmber.copy(alpha = 0.35f)),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(top = 130.dp)
+                    .zIndex(15f),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    CircularProgressIndicator(
+                        color = MoviaBrandAmber,
+                        trackColor = MoviaBrandAmber.copy(alpha = 0.20f),
+                        strokeWidth = 2.5.dp,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = playback.statusMessage ?: "Поиск доступных источников...",
+                        color = MoviaBrandAmber,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
 
-        if (!inPictureInPicture) playbackError?.let { error ->
+        if (!inPictureInPicture && playback.status == app.movia.android.domain.model.PlaybackStatus.IDLE && !playback.isPlaying && !playback.hasMedia) playbackError?.let { error ->
             Text(
                 text = "Ошибка воспроизведения: $error",
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .windowInsetsPadding(WindowInsets.safeDrawing)
-                     .padding(horizontal = 24.dp, vertical = 80.dp),
+                    .padding(horizontal = 24.dp, vertical = 80.dp),
             )
         }
     }
 }
 
 private fun Modifier.playerSwipeDownBack(
-    gestureKey: Any?,
+    gestureKey: Any? = null,
+    minDistanceDp: androidx.compose.ui.unit.Dp = 70.dp,
+    topZoneDp: androidx.compose.ui.unit.Dp = 180.dp,
     onBack: () -> Unit,
 ): Modifier = pointerInput(gestureKey, onBack) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)
-        val topGestureZone = 112.dp.toPx()
+        val topGestureZone = topZoneDp.toPx()
         if (down.position.y > topGestureZone) {
             do {
                 val event = awaitPointerEvent()
@@ -1106,9 +1644,9 @@ private fun Modifier.playerSwipeDownBack(
             released = !change.pressed
         }
 
-        val minDistance = 96.dp.toPx()
+        val minDistance = minDistanceDp.toPx()
         val intentionalDown = totalY >= minDistance &&
-            totalY > abs(totalX) * 1.35f
+            totalY > abs(totalX) * 1.25f
         if (intentionalDown) onBack()
     }
 }
@@ -1144,123 +1682,187 @@ private fun Modifier.playerSeasonHorizontalSwipe(
 }
 
 @Composable
-private fun PlayerPlaybackSettingsScreen(
-    picker: PlayerSettingsPicker?,
-    audioValue: String,
-    subtitleValue: String,
-    speedValue: String,
-    qualityValue: String,
+private fun StreamSettingsScreen(
     audioOptions: List<String>,
-    subtitleOptions: List<String>,
-    speedOptions: List<String>,
     qualityOptions: List<String>,
     selectedAudio: String,
-    selectedSubtitle: String,
-    selectedSpeed: String,
     selectedQuality: String,
+    autoNextEnabled: Boolean,
+    persistentSeekButtons: Boolean,
     onBack: () -> Unit,
-    onOpenPicker: (PlayerSettingsPicker) -> Unit,
     onAudioSelected: (String) -> Unit,
-    onSubtitleSelected: (String) -> Unit,
-    onSpeedSelected: (String) -> Unit,
     onQualitySelected: (String) -> Unit,
+    onAutoNextChanged: (Boolean) -> Unit,
+    onPersistentSeekButtonsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val pickerTitle = when (picker) {
-        PlayerSettingsPicker.AUDIO -> "Аудиодорожка"
-        PlayerSettingsPicker.SUBTITLES -> "Субтитры"
-        PlayerSettingsPicker.SPEED -> "Скорость"
-        PlayerSettingsPicker.QUALITY -> "Качество"
-        null -> "Настройки воспроизведения"
-    }
-
     Column(
         modifier = modifier
             .background(scheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .playerSwipeDownBack(
-                gestureKey = picker,
+                gestureKey = "stream_settings",
+                minDistanceDp = 70.dp,
+                topZoneDp = 180.dp,
                 onBack = onBack,
-            ),
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        // Drag-полоска (индикатор свайпа вниз)
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
-            IconButton(
-                onClick = onBack,
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .size(48.dp),
+                    .size(48.dp)
+                    .clickable(onClick = onBack),
+                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = if (picker == null) "Назад в плеер" else "Назад к настройкам воспроизведения",
-                    tint = scheme.onSurface,
-                    modifier = Modifier.size(24.dp),
+                Box(
+                    modifier = Modifier
+                        .size(width = 36.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(scheme.onSurfaceVariant.copy(alpha = 0.40f)),
                 )
             }
         }
 
-        Column(
+        // Фиксированный Header
+        Text(
+            text = "Настройки воспроизведения",
+            color = scheme.onBackground,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = pickerTitle,
-                color = scheme.onBackground,
-                fontSize = 26.sp,
-                lineHeight = 32.sp,
-                fontWeight = FontWeight.Bold,
-            )
+                .padding(vertical = 8.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
 
-            if (picker == null) {
-                PlayerSettingsSectionLabel("АУДИО И СУБТИТРЫ")
-                PlayerSettingsNavigationRow(
-                    title = "Аудиодорожка",
-                    value = audioValue,
-                    onClick = { onOpenPicker(PlayerSettingsPicker.AUDIO) },
-                )
-                PlayerSettingsNavigationRow(
-                    title = "Субтитры",
-                    value = subtitleValue,
-                    onClick = { onOpenPicker(PlayerSettingsPicker.SUBTITLES) },
-                )
+        PlayerSettingsSectionLabel("КАЧЕСТВО ВИДЕО")
+        PlayerSettingsChipsRow(qualityOptions, selectedQuality, onQualitySelected, "quality")
 
-                PlayerSettingsSectionLabel("ВОСПРОИЗВЕДЕНИЕ")
-                PlayerSettingsNavigationRow(
-                    title = "Скорость",
-                    value = speedValue,
-                    onClick = { onOpenPicker(PlayerSettingsPicker.SPEED) },
-                )
+        PlayerSettingsSectionLabel("ОЗВУЧКА ДЛЯ $selectedQuality")
+        PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected, "voice")
 
-                PlayerSettingsSectionLabel("ВИДЕО")
-                PlayerSettingsNavigationRow(
-                    title = "Качество",
-                    value = qualityValue,
-                    onClick = { onOpenPicker(PlayerSettingsPicker.QUALITY) },
-                )
-            } else {
-                val (options, selected, onSelected) = when (picker) {
-                    PlayerSettingsPicker.AUDIO -> Triple(audioOptions, selectedAudio, onAudioSelected)
-                    PlayerSettingsPicker.SUBTITLES -> Triple(subtitleOptions, selectedSubtitle, onSubtitleSelected)
-                    PlayerSettingsPicker.SPEED -> Triple(speedOptions, selectedSpeed, onSpeedSelected)
-                    PlayerSettingsPicker.QUALITY -> Triple(qualityOptions, selectedQuality, onQualitySelected)
-                }
-                options.forEach { option ->
-                    PlayerSettingsOptionRow(
-                        label = option,
-                        selected = option == selected,
-                        onClick = { onSelected(option) },
+        PlayerSettingsSectionLabel("УПРАВЛЕНИЕ И ПЕРЕХОДЫ")
+        PlayerSettingsToggleRow(
+            title = "Автопереход к следующей серии",
+            settingKey = "player.autoNext",
+            subtitle = "Автоматически воспроизводить следующую серию после окончания",
+            checked = autoNextEnabled,
+            onCheckedChange = onAutoNextChanged,
+        )
+        PlayerSettingsToggleRow(
+            title = "Кнопки перемотки ±10 сек",
+            settingKey = "player.showSeekButtons",
+            subtitle = "Показывать кнопки быстрой перемотки в центре оверлея",
+            checked = persistentSeekButtons,
+            onCheckedChange = onPersistentSeekButtonsChanged,
+        )
+    }
+}
+
+@Composable
+private fun PlayerSettingsChipsRow(
+    options: List<String>,
+    selected: String,
+    onSelected: (String) -> Unit,
+    keyPrefix: String,
+) {
+    val scheme = MaterialTheme.colorScheme
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(horizontal = 2.dp),
+    ) {
+        items(options) { option ->
+            val isSelected = option == selected
+            Surface(
+                onClick = { onSelected(option) },
+                shape = RoundedCornerShape(12.dp),
+                color = if (isSelected) MoviaBrandAmber.copy(alpha = 0.16f) else scheme.surfaceContainer,
+                modifier = Modifier
+                    .heightIn(min = 46.dp)
+                    .testTag(agentSettingOptionTag(keyPrefix, option))
+                    .border(
+                        width = 1.dp,
+                        color = if (isSelected) MoviaBrandAmber else MoviaBorderSubtle,
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                    .semantics { this.selected = isSelected },
+            ) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = option,
+                        color = if (isSelected) MoviaBrandAmber else scheme.onSurface.copy(alpha = 0.92f),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                        maxLines = 1,
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PlayerSettingsToggleRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    settingKey: String,
+    subtitle: String? = null,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        onClick = { onCheckedChange(!checked) },
+        shape = RoundedCornerShape(14.dp),
+        color = scheme.surfaceContainer.copy(alpha = 0.72f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("settings." + settingKey)
+            .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(14.dp)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f).padding(end = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = title,
+                    color = scheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        color = scheme.onSurface.copy(alpha = 0.64f),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MoviaOnBrandAmber,
+                    checkedTrackColor = MoviaBrandAmber,
+                    uncheckedThumbColor = scheme.onSurface.copy(alpha = 0.74f),
+                    uncheckedTrackColor = scheme.onSurface.copy(alpha = 0.18f),
+                ),
+            )
         }
     }
 }
@@ -1387,104 +1989,204 @@ private fun PlayerEpisodeSelectionScreen(
 ) {
     val scheme = MaterialTheme.colorScheme
     val availableSeasons = (1..seasonEpisodeCounts.size.coerceAtLeast(1)).toList()
-    val safeSeason = selectedSeason.coerceIn(1, availableSeasons.size)
-    val episodeCount = seasonEpisodeCounts.getOrNull(safeSeason - 1) ?: 0
-    val episodeScrollState = rememberScrollState()
-    LaunchedEffect(safeSeason) {
-        episodeScrollState.scrollTo(0)
+    val initialPage = (selectedSeason - 1).coerceIn(0, availableSeasons.size - 1)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { availableSeasons.size })
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(pagerState.currentPage) {
+        val pageSeason = pagerState.currentPage + 1
+        if (pageSeason != selectedSeason) {
+            onSeasonSelected(pageSeason)
+        }
+    }
+
+    LaunchedEffect(selectedSeason) {
+        val targetPage = (selectedSeason - 1).coerceIn(0, availableSeasons.size - 1)
+        if (pagerState.currentPage != targetPage) {
+            pagerState.scrollToPage(targetPage)
+        }
     }
 
     Column(
         modifier = modifier
             .background(scheme.background)
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .playerSwipeDownBack(
-                gestureKey = safeSeason,
-                onBack = onBack,
-            )
-            .playerSeasonHorizontalSwipe(
-                selectedSeason = safeSeason,
-                seasonCount = availableSeasons.size,
-                onSeasonSelected = onSeasonSelected,
-            ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .windowInsetsPadding(WindowInsets.safeDrawing),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Box(
+        // Фиксированная верхняя зона (Drag-полоска + Header со свайпом вниз)
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .playerSwipeDownBack(
+                    gestureKey = "episodes_header",
+                    minDistanceDp = 70.dp,
+                    topZoneDp = 180.dp,
+                    onBack = onBack,
+                )
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            PlayerGlassAction(
-                onClick = onBack,
-                icon = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "Назад к плееру",
-                modifier = Modifier.align(Alignment.CenterStart),
+            // Drag-полоска (индикатор свайпа вниз)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp, bottom = 4.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 36.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(scheme.onSurfaceVariant.copy(alpha = 0.40f))
+                        .clickable { onBack() },
+                )
+            }
+
+            // Чистый заголовок «Сезоны и серии» (закрытие через жест/тап по Drag Handle)
+            Text(
+                text = "Сезоны и серии",
+                color = scheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
             )
         }
+
+        // Горизонтальный ряд сезонов
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp),
         ) {
             items(availableSeasons) { season ->
+                val isSelected = (pagerState.currentPage + 1) == season
                 MoviaChoiceChip(
-                    label = "Сезон $season",
-                    selected = safeSeason == season,
-                    onClick = { onSeasonSelected(season) },
+                    label = "$season сезон",
+                    selected = isSelected,
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.scrollToPage(season - 1)
+                        }
+                    },
                 )
             }
         }
-        Column(
+
+        // Вертикальный список серий для выбранного сезона
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(episodeScrollState)
-                .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            (1..episodeCount).forEach { episode ->
-                val selected = safeSeason == currentSeason && episode == currentEpisode
-                Surface(
-                    onClick = { onSelectEpisode(safeSeason, episode) },
-                    shape = RoundedCornerShape(14.dp),
-                    color = if (selected) {
-                        MoviaBrandAmber.copy(alpha = 0.12f)
-                    } else {
-                        scheme.surfaceContainer.copy(alpha = 0.58f)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 58.dp)
-                        .border(
-                            width = 1.dp,
-                            color = if (selected) MoviaBrandAmber else MoviaBorderSubtle,
-                            shape = RoundedCornerShape(14.dp),
-                        ),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = scheme.surfaceContainer,
-                            modifier = Modifier.size(36.dp),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.Filled.PlayArrow,
-                                    contentDescription = null,
-                                    tint = MoviaBrandAmber,
-                                    modifier = Modifier.size(20.dp),
-                                )
+                .weight(1f),
+        ) { page ->
+            val seasonNumber = page + 1
+            val episodeCount = seasonEpisodeCounts.getOrNull(page) ?: 0
+            val listState = rememberLazyListState()
+
+            LazyColumn(
+                state = listState,
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(listState, onBack) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            var previous = down.position
+                            var totalX = 0f
+                            var totalY = 0f
+                            var released = false
+                            while (!released) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull() ?: break
+                                totalX += change.position.x - previous.x
+                                totalY += change.position.y - previous.y
+                                previous = change.position
+                                released = !change.pressed
+                            }
+                            val isAtTop = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+                            val minDistance = 70.dp.toPx()
+                            if (isAtTop && totalY >= minDistance && totalY > abs(totalX) * 1.35f) {
+                                onBack()
                             }
                         }
-                        Text(
-                            text = "$episode. Эпизод $episode",
-                            color = scheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                        )
+                    },
+            ) {
+                items(episodeCount) { index ->
+                    val episode = index + 1
+                    val selected = seasonNumber == currentSeason && episode == currentEpisode
+                    Surface(
+                        onClick = { onSelectEpisode(seasonNumber, episode) },
+                        shape = RoundedCornerShape(14.dp),
+                        color = if (selected) {
+                            MoviaBrandAmber.copy(alpha = 0.14f)
+                        } else {
+                            scheme.surfaceContainer.copy(alpha = 0.58f)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 64.dp)
+                            .border(
+                                width = 1.dp,
+                                color = if (selected) MoviaBrandAmber else MoviaBorderSubtle,
+                                shape = RoundedCornerShape(14.dp),
+                            ),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        ) {
+                            // [Превью / Иконка воспроизведения]
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (selected) MoviaBrandAmber.copy(alpha = 0.22f) else scheme.surfaceContainerHigh.copy(alpha = 0.88f),
+                                border = BorderStroke(1.dp, if (selected) MoviaBrandAmber.copy(alpha = 0.48f) else MoviaBorderSubtle),
+                                modifier = Modifier.size(width = 48.dp, height = 38.dp),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Filled.PlayArrow,
+                                        contentDescription = null,
+                                        tint = if (selected) MoviaBrandAmber else scheme.onSurface.copy(alpha = 0.90f),
+                                        modifier = Modifier.size(22.dp),
+                                    )
+                                }
+                            }
+
+                            // [Название и Описание серии]
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Text(
+                                    text = "$episode. Эпизод $episode",
+                                    color = if (selected) MoviaBrandAmber else scheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Сезон $seasonNumber • Эпизод $episode",
+                                    color = scheme.onSurfaceVariant.copy(alpha = 0.78f),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+
+                            // [Длительность]
+                            Text(
+                                text = "45 мин",
+                                color = if (selected) MoviaBrandAmber.copy(alpha = 0.90f) else scheme.onSurfaceVariant.copy(alpha = 0.70f),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                     }
                 }
             }
@@ -1494,63 +2196,140 @@ private fun PlayerEpisodeSelectionScreen(
 
 @Composable
 private fun PlayerTopBar(
+    title: String,
+    contextLabel: String,
+    locked: Boolean,
+    onLockToggle: () -> Unit,
     isLandscape: Boolean,
     onBack: () -> Unit,
     onPictureInPicture: () -> Unit,
     onSettings: () -> Unit,
     onInteraction: () -> Unit,
+    onEpisodes: (() -> Unit)? = null,
+    lockButtonAlpha: Float = 1f,
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val animatedLockButtonAlpha = if (locked) lockButtonAlpha else 1f
+    val horizontalPadding = if (isLandscape) 24.dp else 16.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(
-                if (isLandscape) {
-                    Modifier
-                        .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-                         .padding(horizontal = 24.dp, vertical = 16.dp)
-                } else {
-                    Modifier
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Top + WindowInsetsSides.Horizontal,
-                            ),
-                        )
-                         .padding(horizontal = 16.dp, vertical = 16.dp)
-                }
-            ),
+            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+            .padding(horizontal = horizontalPadding, vertical = 8.dp),
     ) {
-        PlayerGlassAction(
-            onClick = { onInteraction(); onBack() },
-            icon = Icons.AutoMirrored.Outlined.ArrowBack,
-            contentDescription = "Назад",
-            modifier = Modifier.align(Alignment.CenterStart),
-        )
-        Row(
-            modifier = Modifier.align(Alignment.CenterEnd),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            PlayerGlassAction(
-                onClick = {
-                    onInteraction()
-                    onPictureInPicture()
-                },
-                icon = Icons.Outlined.PictureInPictureAlt,
-                contentDescription = "Picture-in-Picture",
-                iconSize = 22.dp,
-            )
-            PlayerGlassAction(
-                onClick = {
-                    onSettings()
-                },
-                icon = Icons.Outlined.Settings,
-                contentDescription = "Настройки плеера",
-            )
+        if (locked) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                PlayerGlassAction(
+                    onClick = onLockToggle,
+                    icon = Icons.Filled.LockOpen,
+                    contentDescription = "Разблокировать управление",
+                    iconSize = 22.dp,
+                    modifier = Modifier.alpha(animatedLockButtonAlpha),
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PlayerGlassAction(
+                    onClick = { onInteraction(); onBack() },
+                    icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Назад",
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(
+                            if (onEpisodes != null) {
+                                Modifier.clickable {
+                                    onInteraction()
+                                    onEpisodes()
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
+                ) {
+                    Text(
+                        text = title,
+                        color = scheme.onSurface,
+                        style = if (isLandscape) {
+                            MaterialTheme.typography.titleMedium
+                        } else {
+                            MaterialTheme.typography.titleLarge
+                        },
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee(),
+                    )
+                    if (contextLabel.isNotBlank()) {
+                        Text(
+                            text = contextLabel,
+                            color = scheme.onSurface.copy(alpha = 0.70f),
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                PlayerGlassAction(
+                    onClick = {
+                        onInteraction()
+                        onLockToggle()
+                    },
+                    icon = Icons.Filled.Lock,
+                    contentDescription = "Заблокировать управление",
+                    iconSize = 22.dp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                PlayerGlassAction(
+                    onClick = {
+                        onInteraction()
+                        onPictureInPicture()
+                    },
+                    icon = Icons.Outlined.PictureInPictureAlt,
+                    contentDescription = "Picture-in-Picture",
+                    iconSize = 22.dp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                PlayerGlassAction(
+                    onClick = onSettings,
+                    icon = Icons.Outlined.Settings,
+                    contentDescription = "Настройки плеера",
+                )
+            }
         }
     }
+}
+
+private fun playerActionTestTag(contentDescription: String): String = when (contentDescription) {
+    "Назад" -> "player.back"
+    "Разблокировать управление", "Заблокировать управление" -> "player.lock"
+    "Picture-in-Picture" -> "player.pip"
+    "Настройки плеера" -> "player.settings"
+    "Сезоны и серии" -> "player.episodes"
+    "Свернуть из полноэкранного режима", "Развернуть на весь экран" -> "player.fullscreen"
+    "Вперёд на 10 секунд" -> "player.seekForward"
+    "Назад на 10 секунд" -> "player.seekBack"
+    else -> "player.action"
+}
+
+private fun agentSettingOptionTag(prefix: String, value: String): String {
+    val normalized = value.lowercase(Locale.ROOT)
+    val stableName = when (normalized) {
+        "кубик в кубе" -> "kubik-v-kube"
+        "lostfilm" -> "lostfilm"
+        else -> normalized.replace(Regex("[^a-z0-9а-яё]+"), "-").trim('-')
+    }
+    return "settings." + prefix + "." + stableName
 }
 
 @Composable
@@ -1559,14 +2338,16 @@ private fun PlayerGlassAction(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    iconSize: androidx.compose.ui.unit.Dp = 24.dp,
+    iconSize: androidx.compose.ui.unit.Dp = 22.dp,
 ) {
     val scheme = MaterialTheme.colorScheme
     Surface(
         shape = CircleShape,
-        color = scheme.surfaceContainer.copy(alpha = 0.62f),
+        color = scheme.surfaceContainer.copy(alpha = 0.88f),
         modifier = modifier
-            .size(52.dp)
+            .size(44.dp)
+            .testTag(playerActionTestTag(contentDescription))
+            .semantics(mergeDescendants = true) { this.contentDescription = contentDescription }
             .border(1.dp, MoviaBorderSubtle, CircleShape),
     ) {
         IconButton(
@@ -1576,7 +2357,7 @@ private fun PlayerGlassAction(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = scheme.onSurface.copy(alpha = 0.94f),
+                tint = Color.White,
                 modifier = Modifier.size(iconSize),
             )
         }
@@ -1584,29 +2365,34 @@ private fun PlayerGlassAction(
 }
 
 @Composable
-private fun PlayerRoundSecondaryAction(
+private fun PlayerQuickChip(
+    label: String,
     onClick: () -> Unit,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     Surface(
-        shape = CircleShape,
-        color = scheme.surfaceContainer.copy(alpha = 0.62f),
-        modifier = modifier
-            .size(48.dp)
-            .border(1.dp, MoviaBorderSubtle, CircleShape),
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = scheme.surfaceContainer.copy(alpha = 0.82f),
+        modifier = Modifier
+            .heightIn(min = 44.dp)
+            .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(12.dp)),
     ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxSize(),
+        Row(
+            modifier = Modifier.padding(horizontal = 13.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = scheme.onSurface.copy(alpha = 0.94f),
-                modifier = Modifier.size(22.dp),
+            icon?.let {
+                Icon(it, contentDescription = null, tint = scheme.onSurface.copy(alpha = 0.88f), modifier = Modifier.size(20.dp))
+            }
+            Text(
+                text = label,
+                color = scheme.onSurface.copy(alpha = 0.92f),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
             )
         }
     }
@@ -1622,97 +2408,58 @@ private fun PlayerTimeline(
     scrubPreview: ImageBitmap?,
     onScrub: (Long) -> Unit,
     onScrubFinished: () -> Unit,
+    onOpenEpisodes: (() -> Unit)?,
     onToggleFullscreen: () -> Unit,
-    showEpisodes: Boolean,
-    onEpisodes: () -> Unit,
     isLandscape: Boolean,
-    landscapeVideoHorizontalInset: androidx.compose.ui.unit.Dp,
-    onInteraction: () -> Unit,
+    isSeries: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
     val safeDuration = max(1L, durationMs)
-    val thumbDiameter by animateDpAsState(
-        targetValue = if (isScrubbing) 14.dp else 10.dp,
-        animationSpec = tween(durationMillis = 120),
-        label = "playerScrubberThumb",
-    )
+    val thumbDiameter = if (isScrubbing) 18.dp else 14.dp
     val playedFraction = (positionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
     val bufferedFraction = (bufferedPositionMs.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
     val remainingMs = max(0L, durationMs - positionMs)
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val timelineInset = 5.dp
-    val landscapeSafeLeft = if (isLandscape) {
-        with(density) {
-            max(
-                WindowInsets.displayCutout.getLeft(density, layoutDirection),
-                WindowInsets.navigationBarsIgnoringVisibility.getLeft(density, layoutDirection),
-            ).toDp()
-        }
-    } else {
-        0.dp
-    }
-    val landscapeSafeRight = if (isLandscape) {
-        with(density) {
-            max(
-                WindowInsets.displayCutout.getRight(density, layoutDirection),
-                WindowInsets.navigationBarsIgnoringVisibility.getRight(density, layoutDirection),
-            ).toDp()
-        }
-    } else {
-        0.dp
-    }
-    val outerStart = if (isLandscape) {
-        (maxOf(landscapeVideoHorizontalInset + 5.dp, landscapeSafeLeft) - timelineInset)
-            .coerceAtLeast(0.dp)
-    } else {
-        0.dp
-    }
-    val outerEnd = if (isLandscape) {
-        (maxOf(landscapeVideoHorizontalInset + 5.dp, landscapeSafeRight) - timelineInset)
-            .coerceAtLeast(0.dp)
-    } else {
-        0.dp
-    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .then(
-                if (isLandscape) {
-                    Modifier.windowInsetsPadding(
-                        WindowInsets.navigationBarsIgnoringVisibility.only(WindowInsetsSides.Bottom),
-                    )
-                } else {
-                    Modifier
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                        .windowInsetsPadding(
-                            WindowInsets.navigationBarsIgnoringVisibility.only(WindowInsetsSides.Bottom),
-                        )
-                }
-            )
-            .padding(start = outerStart, end = outerEnd),
+            .navigationBarsPadding()
+            .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+            .padding(start = 16.dp, end = 16.dp, bottom = 28.dp),
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val timelineWidth = maxWidth
-            val thumbCenterX = timelineInset +
-                (timelineWidth - timelineInset * 2f) * playedFraction
-            val previewWidth = 120.dp
-            val previewX = (thumbCenterX - previewWidth / 2f)
-                .coerceIn(0.dp, maxWidth - previewWidth)
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = formatTime(positionMs),
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                modifier = Modifier.widthIn(min = 48.dp),
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            BoxWithConstraints(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp),
             ) {
+                val safeMaxWidth = maxWidth.coerceAtLeast(0.dp)
+                val trackInset = 5.dp
+                val trackWidth = (safeMaxWidth - trackInset * 2f).coerceAtLeast(1.dp)
+                val thumbCenterX = trackInset + trackWidth * playedFraction
+                val previewWidth = 120.dp
+                val maxPreviewX = (safeMaxWidth - previewWidth).coerceAtLeast(0.dp)
+                val previewX = if (maxPreviewX <= 0.dp) 0.dp else (thumbCenterX - previewWidth / 2f).coerceIn(0.dp, maxPreviewX)
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(22.dp)
+                        .fillMaxSize()
+                        .testTag("player.timeline")
                         .semantics {
                             contentDescription = "Позиция воспроизведения"
-                            stateDescription = "${formatTime(positionMs)} из ${formatTime(durationMs)}"
+                            stateDescription = formatTime(positionMs) + " из " + formatTime(durationMs)
                             progressBarRangeInfo = ProgressBarRangeInfo(
                                 current = positionMs.coerceIn(0L, safeDuration).toFloat(),
                                 range = 0f..safeDuration.toFloat(),
@@ -1726,7 +2473,7 @@ private fun PlayerTimeline(
                         .pointerInput(safeDuration) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                val trackInsetPx = timelineInset.toPx()
+                                val trackInsetPx = trackInset.toPx()
                                 val usableWidth = (size.width - trackInsetPx * 2f).coerceAtLeast(1f)
                                 fun positionForX(x: Float): Long {
                                     val fraction = ((x - trackInsetPx) / usableWidth).coerceIn(0f, 1f)
@@ -1744,13 +2491,13 @@ private fun PlayerTimeline(
                         }
                         .drawBehind {
                             val centerY = size.height / 2f
-                            val trackInsetPx = timelineInset.toPx()
+                            val trackInsetPx = trackInset.toPx()
                             val trackStart = trackInsetPx
-                            val trackEnd = size.width - trackInsetPx
+                            val trackEnd = (size.width - trackInsetPx).coerceAtLeast(trackStart)
                             val trackWidthPx = (trackEnd - trackStart).coerceAtLeast(1f)
                             val playedX = trackStart + trackWidthPx * playedFraction
                             val bufferedX = trackStart + trackWidthPx * bufferedFraction
-                            val stroke = 3.dp.toPx()
+                            val stroke = 4.5.dp.toPx()
                             drawLine(
                                 color = MoviaBorderSubtle,
                                 start = Offset(trackStart, centerY),
@@ -1787,95 +2534,71 @@ private fun PlayerTimeline(
                             )
                         },
                 )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = timelineInset),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = formatTime(positionMs),
-                        color = scheme.onSurface.copy(alpha = 0.92f),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        text = "−${formatTime(remainingMs)}",
-                        color = scheme.onSurface.copy(alpha = 0.78f),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (showEpisodes) {
-                        PlayerRoundSecondaryAction(
-                            onClick = {
-                                onInteraction()
-                                onEpisodes()
-                            },
-                            icon = Icons.AutoMirrored.Outlined.PlaylistPlay,
-                            contentDescription = "Выбор сезона и серий",
-                        )
-                    }
-                    PlayerRoundSecondaryAction(
-                        onClick = {
-                            onInteraction()
-                            onToggleFullscreen()
-                        },
-                        icon = if (isLandscape) Icons.Outlined.FullscreenExit else Icons.Outlined.Fullscreen,
-                        contentDescription = if (isLandscape) {
-                            "Свернуть из полноэкранного режима"
-                        } else {
-                            "Развернуть на весь экран"
-                        },
-                    )
-                }
-            }
-
-            if (isScrubbing) {
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = scheme.surface.copy(alpha = 0.93f),
-                    modifier = Modifier
-                        .offset(x = previewX, y = (-74).dp)
-                        .width(previewWidth)
-                        .height(68.dp)
-                        .zIndex(4f)
-                        .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(10.dp)),
-                ) {
-                    if (scrubPreview != null) {
-                        Image(
-                            bitmap = scrubPreview,
-                            contentDescription = "Предпросмотр кадра ${formatTime(positionMs)}",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(scheme.background.copy(alpha = 0.44f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = formatTime(positionMs),
-                                color = scheme.onSurface.copy(alpha = 0.92f),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
+                if (isScrubbing) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = scheme.surface.copy(alpha = 0.93f),
+                        modifier = Modifier
+                            .offset(x = previewX, y = (-74).dp)
+                            .width(previewWidth)
+                            .height(68.dp)
+                            .zIndex(4f)
+                            .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(10.dp)),
+                    ) {
+                        if (scrubPreview != null) {
+                            Image(
+                                bitmap = scrubPreview,
+                                contentDescription = "Предпросмотр кадра " + formatTime(positionMs),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
                             )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(scheme.background.copy(alpha = 0.44f)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = formatTime(positionMs),
+                                    color = scheme.onSurface.copy(alpha = 0.92f),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
                         }
                     }
                 }
             }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "−" + formatTime(remainingMs),
+                color = Color.White.copy(alpha = 0.90f),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                modifier = Modifier.widthIn(min = 68.dp),
+            )
+            if (isSeries && onOpenEpisodes != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                PlayerGlassAction(
+                    onClick = onOpenEpisodes,
+                    icon = Icons.AutoMirrored.Outlined.PlaylistPlay,
+                    contentDescription = "Сезоны и серии",
+                    iconSize = 22.dp,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            PlayerGlassAction(
+                onClick = onToggleFullscreen,
+                icon = if (isLandscape) Icons.Outlined.FullscreenExit else Icons.Outlined.Fullscreen,
+                contentDescription = if (isLandscape) {
+                    "Свернуть из полноэкранного режима"
+                } else {
+                    "Развернуть на весь экран"
+                },
+                iconSize = 22.dp,
+            )
         }
     }
 }
@@ -2030,10 +2753,10 @@ private fun SeekFeedbackBubble(
     val rippleScale = remember { Animatable(0.76f) }
     val rippleAlpha = remember { Animatable(0.58f) }
     LaunchedEffect(pulseKey) {
-        rippleScale.snapTo(0.76f)
-        rippleAlpha.snapTo(0.58f)
-        rippleScale.animateTo(1.10f, animationSpec = tween(280))
-        rippleAlpha.animateTo(0f, animationSpec = tween(200))
+        rippleScale.snapTo(1.0f)
+        rippleAlpha.snapTo(0.6f)
+        delay(150L)
+        rippleAlpha.snapTo(0f)
     }
     Box(
         contentAlignment = Alignment.Center,
@@ -2059,7 +2782,7 @@ private fun SeekFeedbackBubble(
         )
         Surface(
             shape = CircleShape,
-            color = scheme.background.copy(alpha = 0.54f),
+            color = scheme.background.copy(alpha = 0.80f),
             modifier = Modifier.size(66.7.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -2092,6 +2815,11 @@ private fun displayPlayerTitle(title: String): String {
         .trim()
 }
 
+private fun playerContextLabel(title: String, season: Int, episode: Int?): String {
+    val episodeNumber = episode ?: return ""
+    return "Сезон $season · Серия $episodeNumber"
+}
+
 private fun formatSpeed(speed: Float): String =
     if (speed % 1f == 0f) speed.toInt().toString() else speed.toString()
 
@@ -2105,10 +2833,4 @@ private fun formatTime(milliseconds: Long): String {
     } else {
         "%02d:%02d".format(minutes, seconds)
     }
-}
-
-private tailrec fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
 }

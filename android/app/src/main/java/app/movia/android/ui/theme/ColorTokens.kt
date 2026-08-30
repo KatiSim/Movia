@@ -27,12 +27,12 @@ val MoviaScrim70 = Color(0xB3000000)
 val MoviaShadow50 = Color(0x80000000)
 val MoviaHighlight15 = Color(0x26FFFFFF)
 
-val MoviaHeroTextSecondary = Color(0xFF8F96A3)
-val MoviaMetadataText = Color(0xFF8F96A3)
+val MoviaHeroTextSecondary = Color(0xFFA0A6B2)
+val MoviaMetadataText = Color(0xFFA0A6B2)
 val MoviaArtworkScrimClear = Color(0x000E1015)
 val MoviaArtworkScrimMid = Color(0x990E1015)
 val MoviaArtworkScrimStrong = Color(0xF20E1015)
-val MoviaProgressTrack = Color(0xFF6B7280)
+val MoviaProgressTrack = Color(0xFF788191)
 val MoviaRatingBadgeBackground = Color(0x26D4AF37) // accent 15%
 val MoviaPosterBadgeText = MoviaOnBrandAmber
 
@@ -48,7 +48,7 @@ val MoviaNavActiveGlow = MoviaGlowLuminescence
 val MoviaNavActiveGlowClear = MoviaGlowLuminescenceClear
 val MoviaHeroGlow = MoviaGlowLuminescence
 val MoviaHeroTextShadow = MoviaScrim70
-val MoviaPlayBackground = Color(0xFF222631)
+val MoviaPlayBackground = Color(0xFF20232C)
 val MoviaPlayShadow = MoviaShadow50
 val MoviaPlayHighlight = MoviaHighlight15
 
@@ -68,10 +68,10 @@ val MoviaLogoGradientEnd = Color(0xFFFFFFFF)        // 80–100%
 
 internal val MoviaDarkSurfaceCanvas = Color(0xFF0E1015)
 internal val MoviaDarkSurfaceCard = Color(0xFF181B22)
-internal val MoviaDarkSurfaceElevated = Color(0xFF222631)
+internal val MoviaDarkSurfaceElevated = Color(0xFF20232C)
 internal val MoviaDarkTextPrimary = Color(0xFFFFFFFF)
-internal val MoviaDarkTextSecondary = Color(0xFF8F96A3)
-internal val MoviaDarkTextMuted = Color(0xFF6B7280)
+internal val MoviaDarkTextSecondary = Color(0xFFA0A6B2)
+internal val MoviaDarkTextMuted = Color(0xFF788191)
 internal val MoviaDarkAccentText = MoviaBrandAmber
 
 // Runtime is dark-only. Dormant aliases deliberately stay in the same palette so

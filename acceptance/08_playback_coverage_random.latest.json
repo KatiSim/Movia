@@ -1,0 +1,771 @@
+{
+  "summary": {
+    "total_tested": 40,
+    "playable": 1,
+    "playable_percent": 2.5,
+    "no_source": 12,
+    "no_source_percent": 30.0,
+    "broken_source": 0,
+    "player_failure": 0,
+    "timeout": 27,
+    "playable_latency_p50_ms": 4997.06,
+    "playable_latency_p95_ms": 4997.06,
+    "distinct_voices_count": 11,
+    "distinct_qualities_count": 6,
+    "distinct_voices_sample": [
+      "AlexFilm",
+      "Flarrow Films",
+      "HDRezka",
+      "Jaskier",
+      "LostFilm",
+      "NewStudio",
+      "Original (с субтитрами)",
+      "Red Head Sound",
+      "TVShows",
+      "Дубляж"
+    ],
+    "distinct_qualities": [
+      "1080p",
+      "480p",
+      "4K",
+      "720p",
+      "TS / CAM",
+      "Не указано"
+    ]
+  },
+  "results": [
+    {
+      "media_id": "12546",
+      "title": "Конец лета",
+      "season": null,
+      "episode": null,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 8982.83,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "2457",
+      "title": "Грязные ангелы",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45335.12,
+      "stream_count": 27,
+      "voices": [
+        "Original (с субтитрами)",
+        "Red Head Sound",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "4K",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "29909",
+      "title": "Дитя Макона",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45235.11,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "26948",
+      "title": "Здесь и сейчас",
+      "season": null,
+      "episode": null,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 6360.33,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "24804",
+      "title": "Ангел мести",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45298.07,
+      "stream_count": 11,
+      "voices": [
+        "Original (с субтитрами)",
+        "Дубляж"
+      ],
+      "qualities": [
+        "1080p",
+        "480p",
+        "720p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "15899",
+      "title": "Финес и Ферб: Миссия Marvel",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45242.77,
+      "stream_count": 3,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "480p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "11432",
+      "title": "Спасибо за вашу службу",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45092.15,
+      "stream_count": 26,
+      "voices": [
+        "HDRezka",
+        "Original (с субтитрами)",
+        "Дубляж",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "55508",
+      "title": "Проект \"Любовь\"",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45088.35,
+      "stream_count": 4,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "9847",
+      "title": "Суперсемейка 2",
+      "season": null,
+      "episode": null,
+      "classification": "PLAYABLE",
+      "time_to_ready_ms": 4997.06,
+      "stream_count": 34,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "4K",
+        "720p",
+        "TS / CAM",
+        "Не указано"
+      ],
+      "active_stream": "stream:f1382b8c1dca0326125c83fb",
+      "active_voice": "Не указано",
+      "active_quality": "1080p"
+    },
+    {
+      "media_id": "59918",
+      "title": "Юность Максима",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45082.23,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "480p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "43037",
+      "title": "Бурная ночь",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45215.84,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "2935",
+      "title": "Охотница за временем",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45353.68,
+      "stream_count": 18,
+      "voices": [
+        "HDRezka",
+        "Дубляж",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "2791",
+      "title": "Месье Азнавур",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45336.85,
+      "stream_count": 12,
+      "voices": [
+        "Original (с субтитрами)",
+        "Дубляж",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "10344",
+      "title": "Фотограф из Маутхаузена",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45240.15,
+      "stream_count": 2,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "24330",
+      "title": "Синдром Альцгеймера",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45175.8,
+      "stream_count": 4,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "480p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "25738",
+      "title": "Отряд времени",
+      "season": null,
+      "episode": null,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 2568.68,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "51099",
+      "title": "Яга на нашу голову",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45035.47,
+      "stream_count": 8,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "4K",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "151748",
+      "title": "Не те девчонки",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45343.15,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "2561",
+      "title": "Истребитель",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45280.11,
+      "stream_count": 3,
+      "voices": [
+        "Flarrow Films",
+        "Jaskier",
+        "Дубляж"
+      ],
+      "qualities": [
+        "1080p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "56922",
+      "title": "Решение о ликвидации",
+      "season": null,
+      "episode": null,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45214.85,
+      "stream_count": 10,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "10995",
+      "title": "Мама",
+      "season": 1,
+      "episode": 1,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 3669.37,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "53433",
+      "title": "Вор, его жена и каноэ",
+      "season": 1,
+      "episode": 2,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45393.33,
+      "stream_count": 3,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "31178",
+      "title": "Мегрэ",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45176.99,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "480p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "12191",
+      "title": "Под одним небом",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 2606.96,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "45086",
+      "title": "Любовный контракт",
+      "season": 1,
+      "episode": 1,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 2954.7,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "60505",
+      "title": "Plava Krv",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 3292.65,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "15488",
+      "title": "Флеминг: человек, который хотел стать Бондом",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45212.24,
+      "stream_count": 1,
+      "voices": [
+        "Original (с субтитрами)"
+      ],
+      "qualities": [
+        "720p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "458",
+      "title": "Острые козырьки",
+      "season": 1,
+      "episode": 2,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45226.17,
+      "stream_count": 26,
+      "voices": [
+        "AlexFilm",
+        "LostFilm",
+        "Original (с субтитрами)",
+        "Red Head Sound",
+        "Дубляж",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "9350",
+      "title": "Wu-Tang: Американская сага",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45379.56,
+      "stream_count": 4,
+      "voices": [
+        "TVShows",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "32169",
+      "title": "Спасатели Малибу",
+      "season": 1,
+      "episode": 2,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45303.58,
+      "stream_count": 1,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "19965",
+      "title": "Остров Харпера",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45034.19,
+      "stream_count": 4,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "480p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "15481",
+      "title": "Присяжные",
+      "season": 1,
+      "episode": 2,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45178.06,
+      "stream_count": 14,
+      "voices": [
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "480p",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "9258",
+      "title": "Ради всего человечества",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45342.62,
+      "stream_count": 14,
+      "voices": [
+        "Jaskier",
+        "NewStudio",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "4K",
+        "720p",
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "12066",
+      "title": "Бунтарь Хон Гиль-дон",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 3380.64,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "19861",
+      "title": "Лига ",
+      "season": 1,
+      "episode": 1,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 2263.9,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "5969",
+      "title": "Почему О Су Джэ?",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 3301.98,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "5757",
+      "title": "Параллели",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45332.9,
+      "stream_count": 1,
+      "voices": [
+        "TVShows"
+      ],
+      "qualities": [
+        "Не указано"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "23903",
+      "title": "Звездочет",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 2217.8,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "5855",
+      "title": "Апокалипсис древних времен",
+      "season": 1,
+      "episode": 1,
+      "classification": "TIMEOUT",
+      "time_to_ready_ms": 45203.15,
+      "stream_count": 3,
+      "voices": [
+        "Red Head Sound",
+        "Не указано"
+      ],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    },
+    {
+      "media_id": "21663",
+      "title": "Контора",
+      "season": 1,
+      "episode": 2,
+      "classification": "NO_SOURCE",
+      "time_to_ready_ms": 4045.46,
+      "stream_count": 0,
+      "voices": [],
+      "qualities": [],
+      "active_stream": null,
+      "active_voice": null,
+      "active_quality": null
+    }
+  ]
+}

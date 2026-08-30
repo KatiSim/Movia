@@ -1,0 +1,9 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+exec 2>&1
+export PYTHONUNBUFFERED=1
+cd "$HOME/projects/media-parser"
+while true; do
+  "$PREFIX/bin/python3" -u cache_pruner.py
+  sleep 900
+done

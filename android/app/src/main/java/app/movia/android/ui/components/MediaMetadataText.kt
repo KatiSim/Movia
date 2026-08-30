@@ -21,7 +21,7 @@ fun MediaMetadataText(
         fontFamily = FontFamily.SansSerif,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        color = MaterialTheme.colorScheme.onSurface,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
     )

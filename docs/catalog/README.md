@@ -1,5 +1,22 @@
-# Catalog
+# Catalog architecture
 
-The canonical checkout contains the Android catalog schema link and the catalog status record. A live catalog database was not found during the 2026-08-30 inventory, so row counts and live catalog behavior are not marked PASS.
+The current catalog is the media-parser SQLite catalog. Its current metadata is
+catalog schema version 2, normalization version 1 and catalog revision 277 at
+the last generated baseline manifest.
 
-The catalog database SSOT must be recorded in `database/CATALOG_DB_STATUS.md` and `CURRENT_BASELINE.json`.
+The current SSOT is private:
+
+    /data/data/com.termux/files/home/projects/media-parser/catalog.db
+
+The repository stores:
+
+- backend discovery/sync/search code;
+- Android Room schema snapshots;
+- database schema and migration notes;
+- read-only row-count/checksum manifest;
+- restore instructions.
+
+The live DB is WAL-backed and must not be copied into the canonical project or
+ordinary Git history. A consistent compressed snapshot can be created only when
+requested through scripts/create-baseline.sh with MOVIA_DB_SNAPSHOT=1 and then
+attached to a GitHub Release.

@@ -1,19 +1,35 @@
 # Changelog
 
-## Current checkpoint — 2026-08-30
+## Current baseline — 0.9.23 / code 293
 
-- Canonical project root created from the existing `KatiSim/Movia` repository.
-- Android Gradle source moved under `android/` to separate it from backend, agent, database and operational documentation.
-- Recovered phone JADX output is referenced without duplicating it into Git.
-- Added explicit project state, restore contract, verification/backup scripts and secret handling documentation.
-- Added database schema pointer and acceptance-test pointer without copying mutable runtime data.
-- Added a pre-sync remote branch: `legacy-before-current-sync`.
-- Backend, installed APK, catalog.db and Movia Agent remain explicitly unresolved where they were not found on the checked phone.
+This checkpoint synchronizes the current phone/Termux Movia system into one
+canonical project root and the existing GitHub repository.
+
+- Android package app.movia.android, versionName 0.9.23, versionCode 293.
+- Current Android source includes Compose UI, catalog/search, Media3 playback,
+  Room schema and the native agent runtime.
+- Catalog architecture uses the media-parser backend and catalog schema v2.
+- Search/discovery and playback resolver/P2P source are present in backend.
+- Agent-native Android API and Termux MCP integration are included; current
+  source registers 29 native Movia MCP tools.
+- Current service definitions and acceptance/regression tests are included.
+- Large catalog DB, runtime caches, logs, old APKs and secrets are intentionally
+  external or ignored.
+
+Known limitations at this checkpoint:
+
+- The parser endpoint was not reachable during baseline inspection.
+- Playback still has documented media-identity and stream-timeout risks.
+- Full end-to-end playback verification has not been claimed.
 
 ## Legacy
 
-The repository history before this checkpoint contains the earlier Movia Android source and player/catalog decisions. Historical claims are not promoted to current runtime PASS.
+The repository contains earlier pre-current architecture history, including the
+old 0.3.x line. A remote branch named
+legacy-before-current-sync preserves the previous GitHub main state, and
+legacy-destination-before-current-sync preserves the prior phone canonical
+working tree before replacement.
 
-## Rule for future changes
+Future changes follow:
 
-One logical change → relevant tests → `git diff --check` → secret scan → commit → push. Significant verified checkpoints receive a `baseline/current/checkpoint` tag and, when an APK is actually verified, a GitHub Release.
+change -> relevant tests -> git diff --check -> secret scan -> commit -> push

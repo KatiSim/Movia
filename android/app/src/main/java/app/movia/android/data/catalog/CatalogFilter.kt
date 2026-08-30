@@ -1,13 +1,15 @@
 package app.movia.android.data.catalog
 
+import app.movia.android.domain.model.CatalogCategory
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 
 enum class CatalogSort(val label: String) {
     POPULAR("По популярности"),
     RATING("По рейтингу"),
-    NEWEST("Сначала новые"),
+    NEWEST("По дате выхода"),
     OLDEST("Сначала старые"),
+    CATEGORY("По типу и году"),
     TITLE("А–Я"),
 }
 
@@ -40,12 +42,57 @@ data class CatalogFilter(
         ).count { it }
 }
 
+fun searchCatalogLocally(
+    items: List<MediaContent>,
+    query: String,
+    limit: Int = 20,
+): List<MediaContent> {
+    val needle = query.trim().lowercase()
+    if (needle.isBlank()) return emptyList()
+    return items.asSequence()
+        .filter { item ->
+            item.title.lowercase().contains(needle) ||
+                item.originalTitle?.lowercase()?.contains(needle) == true ||
+                item.genres.any { it.lowercase().contains(needle) } ||
+                item.country.lowercase().contains(needle) ||
+                item.year.toString().contains(needle) ||
+                item.director?.lowercase()?.contains(needle) == true ||
+                item.cast.any { it.name.lowercase().contains(needle) }
+        }
+        .take(limit.coerceAtLeast(0))
+        .toList()
+}
+
+fun searchPeopleLocally(
+    items: List<MediaContent>,
+    query: String,
+    limit: Int = 20,
+): List<app.movia.android.domain.model.Person> {
+    val needle = query.trim().lowercase()
+    if (needle.isBlank()) return emptyList()
+    val byName = linkedMapOf<String, app.movia.android.domain.model.Person>()
+    items.forEach { item ->
+        item.cast.forEach { person ->
+            if (!person.name.lowercase().contains(needle)) return@forEach
+            val key = person.name.trim().lowercase()
+            val previous = byName[key]
+            byName[key] = if (previous == null) {
+                person.copy(knownFor = (person.knownFor + item.title).distinct())
+            } else {
+                previous.copy(knownFor = (previous.knownFor + person.knownFor + item.title).distinct())
+            }
+        }
+    }
+    return byName.values.take(limit.coerceAtLeast(0))
+}
+
 fun filterCatalog(
     items: List<MediaContent>,
     filter: CatalogFilter,
 ): List<MediaContent> = items.filter { item ->
     val durationMatches = when (filter.durationMode) {
         "SHORT" -> item.durationMinutes in 1..100
+        "MEDIUM" -> item.durationMinutes in 101..109
         "LONG" -> item.durationMinutes >= 110
         else -> true
     }
@@ -69,10 +116,61 @@ fun filterCatalog(
         (filter.subtitleLanguage == null || filter.subtitleLanguage in item.subtitleLanguages)
 }
 
+private val contentTypeOrder = mapOf(
+    ContentType.MOVIE to 0,
+    ContentType.SERIES to 1,
+    ContentType.TV to 2,
+)
+
+private val catalogCategoryOrder = mapOf(
+    CatalogCategory.MOVIES to 0,
+    CatalogCategory.TV_SERIES to 1,
+    CatalogCategory.LIMITED_SERIES to 2,
+    CatalogCategory.ANIMATION to 3,
+    CatalogCategory.ANIME to 4,
+    CatalogCategory.DRAMAS_ASIAN to 5,
+    CatalogCategory.DOCUMENTARIES to 6,
+    CatalogCategory.THEATER_MUSICALS to 7,
+    CatalogCategory.STANDUP to 8,
+    CatalogCategory.INTERACTIVE to 9,
+)
+
 fun sortCatalog(items: List<MediaContent>, sort: CatalogSort): List<MediaContent> = when (sort) {
-    CatalogSort.POPULAR -> items.sortedWith(compareByDescending<MediaContent> { it.popularity }.thenByDescending { it.rating })
-    CatalogSort.RATING -> items.sortedWith(compareByDescending<MediaContent> { it.rating }.thenByDescending { it.popularity })
-    CatalogSort.NEWEST -> items.sortedWith(compareByDescending<MediaContent> { it.year }.thenByDescending { it.popularity })
-    CatalogSort.OLDEST -> items.sortedWith(compareBy<MediaContent> { it.year }.thenByDescending { it.popularity })
-    CatalogSort.TITLE -> items.sortedBy { it.title.lowercase() }
+    CatalogSort.POPULAR -> items.sortedWith(
+        compareByDescending<MediaContent> { it.popularity }
+            .thenByDescending { it.rating }
+            .thenBy { it.title.lowercase() }
+            .thenBy { it.id },
+    )
+    CatalogSort.RATING -> items.sortedWith(
+        compareByDescending<MediaContent> { it.rating }
+            .thenByDescending { it.popularity }
+            .thenBy { it.title.lowercase() }
+            .thenBy { it.id },
+    )
+    CatalogSort.NEWEST -> items.sortedWith(
+        compareByDescending<MediaContent> { it.year }
+            .thenByDescending { it.popularity }
+            .thenBy { it.title.lowercase() }
+            .thenBy { it.id },
+    )
+    CatalogSort.OLDEST -> items.sortedWith(
+        compareBy<MediaContent> { it.year }
+            .thenByDescending { it.popularity }
+            .thenBy { it.title.lowercase() }
+            .thenBy { it.id },
+    )
+    CatalogSort.CATEGORY -> items.sortedWith(
+        compareBy<MediaContent> { contentTypeOrder[it.type] ?: Int.MAX_VALUE }
+            .thenBy { catalogCategoryOrder[it.category] ?: Int.MAX_VALUE }
+            .thenByDescending { it.year }
+            .thenByDescending { it.rating }
+            .thenBy { it.title.lowercase() }
+            .thenBy { it.id },
+    )
+    CatalogSort.TITLE -> items.sortedWith(
+        compareBy<MediaContent> { it.title.lowercase() }
+            .thenBy { it.year }
+            .thenBy { it.id },
+    )
 }

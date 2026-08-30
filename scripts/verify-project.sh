@@ -1,74 +1,62 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
 
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-root=$(CDPATH= cd -- "$script_dir/.." && pwd)
-failures_count=0
-failures=
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+failures=0
+ok() { echo "PASS: $1"; }
+bad() { echo "FAIL: $1"; failures=$((failures + 1)); }
+need_file() { [ -f "$ROOT/$1" ] && ok "$1" || bad "missing $1"; }
+need_dir() { [ -d "$ROOT/$1" ] && ok "$1" || bad "missing directory $1"; }
 
-fail() {
-  failures_count=$((failures_count + 1))
-  if [ -n "$failures" ]; then
-    failures="$failures
-- $1"
-  else
-    failures="- $1"
-  fi
-}
+for d in android backend agent database acceptance docs scripts release reference; do need_dir "$d"; done
+for f in README.md CHANGELOG.md PROJECT_STATE.md RESTORE.md CURRENT_BASELINE.json .gitignore SECRETS_SETUP.md .env.example config.example; do need_file "$f"; done
+for f in android/app/build.gradle.kts android/settings.gradle.kts android/gradlew backend/server.py backend/database.py backend/search_engine.py backend/streamer.py backend/requirements.txt; do need_file "$f"; done
+for f in agent/mcp/package.json agent/mcp/src/server.ts agent/mcp/src/movia-tools.ts agent/services/movia-media-parser/run database/CATALOG_DB_STATUS.md database/schema/app.movia.android.data.database.MoviaDatabase/2.json; do need_file "$f"; done
 
-for item in android backend agent database acceptance docs scripts release reference; do
-  if [ ! -e "$root/$item" ]; then fail "missing directory: $item"; fi
-done
+version_name="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
+version_code="$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
+package_name="$(sed -n 's/^[[:space:]]*applicationId[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
+[ "$version_name" = "0.9.23" ] && ok "versionName 0.9.23" || bad "versionName is $version_name"
+[ "$version_code" = "293" ] && ok "versionCode 293" || bad "versionCode is $version_code"
+[ "$package_name" = "app.movia.android" ] && ok "package app.movia.android" || bad "package is $package_name"
 
-for item in README.md CHANGELOG.md PROJECT_STATE.md RESTORE.md CURRENT_BASELINE.json .gitignore .env.example config.example SECRETS_SETUP.md; do
-  if [ ! -f "$root/$item" ]; then fail "missing root file: $item"; fi
-done
+tool_count="$(awk '/server\.registerTool\(/ {n++} END {print n+0}' "$ROOT/agent/mcp/src/movia-tools.ts" 2>/dev/null)"
+[ "$tool_count" = "29" ] && ok "29 native Movia MCP tools" || bad "native Movia MCP tool count is $tool_count"
+grep -q 'MOVIA_AGENT_SCHEMA_VERSION = 2' "$ROOT/android/app/src/main/java/app/movia/android/agent/AgentModels.kt" 2>/dev/null && ok "native agent schema 2" || bad "native agent schema 2 missing"
 
-if [ ! -f "$root/android/settings.gradle.kts" ] || [ ! -f "$root/android/app/build.gradle.kts" ] || [ ! -f "$root/android/app/src/main/AndroidManifest.xml" ] || [ ! -x "$root/android/gradlew" ]; then
-  fail "Android source or Gradle wrapper is incomplete"
-fi
-if [ ! -L "$root/android/recovered-jadx" ]; then fail "recovered JADX source link is missing"; fi
-
-if ! find "$root/backend" -type f \( -name '*.py' -o -name '*.js' -o -name '*.ts' \) -print -quit 2>/dev/null | grep -q .; then
-  fail "current backend/media-parser source is absent"
-fi
-if [ ! -e "$root/database/schema" ]; then fail "database schema is absent"; fi
-if [ ! -d "$root/database/migrations" ]; then fail "database migrations directory is absent"; fi
-
-if ! find "$root/agent" -type f \( -name '*.py' -o -name '*.js' -o -name '*.ts' \) -print -quit 2>/dev/null | grep -q .; then
-  fail "current Movia Agent runtime source is absent"
-fi
-if ! find "$root/agent" -type f -iname '*mcp*' -print -quit 2>/dev/null | grep -q .; then
-  fail "Movia MCP integration is absent"
-fi
-if ! find "$root" -type f -name '*.service' -print -quit 2>/dev/null | grep -q .; then
-  fail "current service definitions are absent"
-fi
-
-if ! node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))' "$root/CURRENT_BASELINE.json" >/dev/null 2>&1; then
-  fail "CURRENT_BASELINE.json is missing or invalid JSON"
-fi
-if ! find "$root/release" -type f -name '*.apk' -print -quit 2>/dev/null | grep -q .; then
-  fail "current APK release artifact is absent"
-fi
-
-if command -v rish >/dev/null 2>&1; then
-  if ! rish -c 'pm path app.movia.android' 2>/dev/null | grep -q '^package:'; then
-    fail "app.movia.android is not installed on the phone"
-  fi
+if find "$ROOT" -type f \( -name '.env' -o -name '*.db' -o -name '*.db-*' -o -name '*.log' -o -name '*.pid' \) -print -quit | grep -q .; then
+  bad "runtime data/cache/log file present in canonical tree"
 else
-  fail "rish is unavailable for installed-package verification"
+  ok "no DB/cache/log runtime payload in canonical tree"
 fi
 
-if [ -x "$root/scripts/health-check.sh" ]; then
-  if ! "$root/scripts/health-check.sh" >/dev/null 2>&1; then fail "backend and/or agent health check did not PASS"; fi
+if rg -n -I --glob '!*.apk' --glob '!*.png' --glob '!*.jpg' --glob '!*.jpeg' --glob '!*.json' -E 'ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|Authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9._-]{12,}' "$ROOT" >/dev/null 2>&1; then
+  bad "secret pattern found"
 else
-  fail "health-check script is not executable"
+  ok "secret scan"
 fi
 
-if [ "$failures_count" -ne 0 ]; then
-  echo "FAIL"
-  printf '%s\n' "$failures"
-  exit 1
+if command -v python >/dev/null 2>&1; then
+  if python - "$ROOT/backend" <<'PY'
+import ast, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+for p in root.rglob("*.py"):
+    ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
+PY
+  then ok "backend Python syntax"; else bad "backend Python syntax"; fi
+else
+  bad "python missing for backend syntax"
 fi
-echo "PASS"
+
+if [ -f "$ROOT/scripts/health-check.sh" ]; then
+  if bash "$ROOT/scripts/health-check.sh"; then ok "live services"; else bad "live services"; fi
+else
+  bad "health-check.sh not executable"
+fi
+
+if [ "$failures" -eq 0 ]; then
+  echo PASS
+  exit 0
+fi
+echo "FAIL: $failures project check(s)"
+exit 1

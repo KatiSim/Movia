@@ -1,74 +1,95 @@
-# Movia — PROJECT_STATE
+# Movia project state
 
-Дата и значения baseline генерируются скриптом `scripts/create-baseline.sh`. Этот файл описывает только подтверждённое состояние checkpoint; отсутствие данных обозначается `NOT_FOUND` или `NOT_VERIFIED`.
+This file is an evidence summary for the current phone baseline. It deliberately
+does not turn unavailable checks into PASS.
 
-## CURRENT VERSION
+## Current version
 
-- Source versionName: см. `CURRENT_BASELINE.json`, извлекается из `android/app/build.gradle.kts`.
-- Source versionCode: см. `CURRENT_BASELINE.json`, извлекается автоматически.
-- Installed version: `NOT_FOUND` на проверенном Termux/Android endpoint.
-- Package name: извлекается автоматически; ожидаемый namespace source — `app.movia.android`.
+- versionName: 0.9.23
+- versionCode: 293
+- package: app.movia.android
+- device: 24069PC21G
+- installed package: verified by Jarvis 2.0; APK path is present in release/
 
-## ANDROID
+## Android
 
-- Status: source baseline присутствует под `android/`.
-- Gradle project: присутствует.
-- Последняя проверка `testDebugUnitTest`: `FAIL` — Android SDK location not found (`ANDROID_HOME`/`sdk.dir` не задан).
-- Recovered phone artifact: `android/recovered-jadx` — ссылка на `~/movia_src`; это декомпилированный Java-вывод, не заменяющий buildable Kotlin source.
+Status: source synchronized from
+/data/data/com.termux/files/home/projects/movia into android/. The source
+contains the current Compose UI, catalog/search, Media3 playback, tests, Room
+schema and native agent runtime. The current APK is
+release/Movia-0.9.23-code293.apk. A fresh Gradle build was not claimed during
+this synchronization.
 
-## BACKEND
+## Backend
 
-- Status: `NOT_FOUND` в проверенных разрешённых корнях.
-- Current file: не установлен.
-- Restore: предоставить текущий media-parser source и его точный путь; не создавать новый backend по памяти.
+Status: source synchronized from
+/data/data/com.termux/files/home/projects/media-parser into backend/. DB files,
+runtime caches, logs and .env were excluded. The observed runit service
+movia-media-parser is running streamer.py. The parser HTTP endpoint on
+127.0.0.1:5001 was not reachable during verification.
 
-## CATALOG
+## Catalog
 
-- Row count: `NOT_FOUND`; catalog.db на телефоне не найдена.
-- Schema version: определяется автоматически из `database/schema`.
-- Current SSOT: versioned Room schema/source в репозитории; runtime catalog.db отсутствует в checkpoint.
-- Декомпилированный catalog-файл хранится вне Git и только описывается manifest-файлом.
+- row count: 50473 rows in movies
+- schema version: 2, from catalog_meta.schema_version
+- current SSOT: /data/data/com.termux/files/home/projects/media-parser/catalog.db
+- current SSOT sidecars: catalog.db-wal and catalog.db-shm in the same directory
+- canonical repository copy: schema, migration notes, recovery scripts and
+  checksums/manifest only; the live DB is not duplicated here
 
-## PLAYBACK
+## Playback
 
-Подтверждено наличием source-компонентов: Media3 PlayerScreen, PlaybackSession, PiP/UI и тестовые заготовки.
+Media3 player source, stream resolution and P2P helpers are present. Playback
+was not declared fully verified in this baseline. Known evidence remains a risk
+of media-identity mismatch after episode selection and stream timeouts even
+when stream candidates exist. See docs/FINAL_RELEASE_0_9_23_OR_NEXT.md and the
+playback decision records.
 
-Известные ранее зарегистрированные проблемы не считаются исправленными без воспроизведения:
+## Search
 
-- рассинхронизация выбранного качества/озвучки и фактически активного stream;
-- timeout при наличии найденного stream;
-- артефакты/разрушение изображения после переключения stream;
-- отсутствие доказанного полного playback acceptance на текущем checkpoint.
+Android and backend search/discovery source is present, including Russian
+normalization/search code and backend search service. End-to-end live search
+was not claimed because the parser endpoint was unavailable during this check.
 
-## SEARCH
+## Agent
 
-- Source search implementation: присутствует в Android source.
-- Live backend/discovery search: `NOT_VERIFIED`, backend отсутствует.
+- native Android agent source: present
+- native agent schema version: 2
+- Termux MCP source: present under agent/mcp/
+- native Movia MCP tools registered by current source: 29
+- MCP process: observed running on local port 8940
+- MCP HTTP GET /health: returned 404; this is not the MCP POST protocol check
+- full MCP handshake/tool inventory: not claimed as PASS in this baseline
 
-## AGENT
+## Services
 
-- Status: `NOT_FOUND` на проверенном телефоне.
-- Native Movia MCP tools: `NOT_FOUND`.
-- Контракты восстановления находятся под `agent/` и не являются рабочим runtime.
+Definitions are stored under agent/services/:
 
-## SERVICES
+- movia-media-parser
+- movia-stream-enricher
+- movia-stream-enricher-log
+- movia-cache-pruner
 
-- Общие Termux/Chipupa services работают отдельно.
-- Movia backend/agent service definitions на checkpoint не найдены.
-- Запуск неизвестных сервисов не выполняется автоматически.
+The first service was observed running. The other service definitions are
+captured for restore; their current health was not converted to PASS. The MCP
+process is managed separately by agent/mcp/start.sh.
 
-## KNOWN ISSUES
+## Known issues
 
-1. Backend media-parser отсутствует в доступных корнях.
-2. catalog.db и проверенный snapshot отсутствуют.
-3. Installed Movia APK отсутствует.
-4. Movia Agent/MCP runtime отсутствует.
-5. Playback identity/fallback issues зарегистрированы исторически и не имеют PASS на этом checkpoint.
-6. Репозиторий содержит source baseline, но не доказывает восстановление всей runtime-системы.
-7. На телефоне отсутствует настроенный Android SDK, поэтому локальная Gradle-проверка APK не прошла.
+- Parser health endpoint 127.0.0.1:5001 was unavailable at verification time.
+- Playback media identity mismatch remains an open risk.
+- Playback can time out even when stream candidates exist.
+- Full end-to-end playback and MCP protocol acceptance are not complete.
+- Live catalog DB is large and WAL-backed; it is external to Git history.
+- Existing runtime state and secrets require private Termux configuration.
 
-## LAST VERIFIED BASELINE
+## Last verified baseline
 
-- Git source commit и дата: см. `CURRENT_BASELINE.json`.
-- Remote pre-sync backup: branch `legacy-before-current-sync`.
-- Tag/release создаются только после diff/test/secret-scan verification.
+- source: /data/data/com.termux/files/home/projects/movia
+- backend: /data/data/com.termux/files/home/projects/media-parser
+- agent/MCP: /data/data/com.termux/files/home/termux-mcp
+- reference: /data/data/com.termux/files/home/projects/zona-reference-20260829-223618
+- canonical root: /storage/emulated/0/Movia/Movia_project
+- date: 2026-08-30
+- Git branch at synchronization: work/current-sync
+- status: current checkpoint; not stable/final/production-ready

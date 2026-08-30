@@ -4,14 +4,13 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.data.library.LibraryRepository
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
-
-private const val DEMO_VIDEO_URL = "https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4"
 
 class OfflineDownloadWorker(
     appContext: Context,
@@ -22,12 +21,21 @@ class OfflineDownloadWorker(
         val title = inputData.getString(KEY_TITLE).orEmpty()
         if (title.isBlank()) return Result.failure()
 
+        val downloadUrl = inputData.getString(KEY_URL)
+            ?: DemoCatalogRepository.findByTitle(title)?.let { content ->
+                content.playbackUrl ?: content.streams.firstOrNull { it.url.startsWith("http://") || it.url.startsWith("https://") }?.url
+            }
+
+        if (downloadUrl.isNullOrBlank()) {
+            return Result.failure()
+        }
+
         val directory = File(applicationContext.filesDir, "offline").apply { mkdirs() }
         val finalFile = File(directory, fileNameFor(title))
         val tempFile = File(directory, "${fileNameFor(title)}.part")
 
         return try {
-            val connection = (URL(DEMO_VIDEO_URL).openConnection() as HttpURLConnection).apply {
+            val connection = (URL(downloadUrl).openConnection() as HttpURLConnection).apply {
                 connectTimeout = 15_000
                 readTimeout = 30_000
                 instanceFollowRedirects = true
@@ -69,6 +77,7 @@ class OfflineDownloadWorker(
 
     companion object {
         const val KEY_TITLE = "title"
+        const val KEY_URL = "download_url"
         const val KEY_PROGRESS = "progress"
         const val KEY_FILE_PATH = "file_path"
 

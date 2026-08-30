@@ -5,7 +5,28 @@ enum class PlaybackStatus {
     BUFFERING,
     READY,
     ENDED,
+    FAILED,
 }
+
+enum class PlaybackSwitchState {
+    IDLE,
+    RESOLVING,
+    SWITCHING,
+    BUFFERING,
+    READY,
+    FAILED,
+}
+
+data class ActiveStreamSelection(
+    val requestedStreamId: String? = null,
+    val activeStreamId: String? = null,
+    val requestedQuality: String? = null,
+    val requestedVoice: String? = null,
+    val activeQuality: String? = null,
+    val activeVoice: String? = null,
+    val source: String? = null,
+    val fallbackReason: String? = null,
+)
 
 data class PlaybackState(
     val mediaId: String = "",
@@ -22,6 +43,9 @@ data class PlaybackState(
     val isPlaying: Boolean = false,
     val playWhenReady: Boolean = false,
     val status: PlaybackStatus = PlaybackStatus.IDLE,
+    val statusMessage: String? = null,
+    val activeStreamSelection: ActiveStreamSelection? = null,
+    val switchState: PlaybackSwitchState = PlaybackSwitchState.IDLE,
 ) {
     val hasMedia: Boolean get() = mediaId.isNotBlank() && displayTitle.isNotBlank()
 }

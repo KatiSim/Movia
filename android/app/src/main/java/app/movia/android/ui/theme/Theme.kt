@@ -7,9 +7,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import java.util.Locale
 
 private val MoviaDarkColors = darkColorScheme(
     primary = MoviaBrandAmber,
@@ -36,7 +38,7 @@ private val MoviaDarkColors = darkColorScheme(
     onSurface = MoviaDarkTextPrimary,
     surfaceVariant = MoviaDarkSurfaceElevated,
     onSurfaceVariant = MoviaDarkTextSecondary,
-    outline = MoviaDarkTextMuted,
+    outline = MoviaBorderSubtle,
     outlineVariant = MoviaBorderSubtle,
     inverseSurface = MoviaDarkTextPrimary,
     inverseOnSurface = MoviaDarkSurfaceCard,
@@ -75,7 +77,7 @@ private val MoviaLightColors = lightColorScheme(
     onSurface = MoviaLightTextPrimary,
     surfaceVariant = MoviaLightSurfaceElevated,
     onSurfaceVariant = MoviaLightTextSecondary,
-    outline = MoviaLightTextMuted,
+    outline = MoviaBorderSubtle,
     outlineVariant = MoviaBorderSubtle,
     inverseSurface = MoviaLightTextPrimary,
     inverseOnSurface = MoviaLightSurfaceCard,
@@ -103,21 +105,19 @@ fun MoviaTheme(
     highContrast: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    // Movia v1 is intentionally dark-only. Keep the preference parameters and the dormant
-    // light token palette so a future light mode can be re-enabled without rewriting UI
-    // components; runtime rendering always resolves to Cinematic Gold dark semantics.
-    @Suppress("UNUSED_VARIABLE")
-    val preserveFutureThemeContract = themeMode to highContrast
-    val colors = MoviaDarkColors
+    val isDark = when (themeMode.uppercase(Locale.ROOT)) {
+        "SYSTEM" -> isSystemInDarkTheme()
+        else -> true
+    }
+    val colors = if (isDark) MoviaDarkColors else MoviaLightColors
 
     val view = LocalView.current
-    DisposableEffect(view) {
+    DisposableEffect(view, isDark) {
         val window = view.context.findActivity()?.window
         if (window != null) {
             WindowCompat.getInsetsController(window, view).apply {
-                // Dark canvas => light system icons in both status and navigation bars.
-                isAppearanceLightStatusBars = false
-                isAppearanceLightNavigationBars = false
+                isAppearanceLightStatusBars = !isDark
+                isAppearanceLightNavigationBars = !isDark
             }
         }
         onDispose { }
