@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Viora"
+rootProject.name = "Movia"
 include(":app")

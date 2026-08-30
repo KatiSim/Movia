@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "app.viora.android"
+    namespace = "app.movia.android"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "app.viora.android"
+        applicationId = "app.movia.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 42
-        versionName = "0.2.40"
+        versionCode = 124
+        versionName = "0.3.22"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

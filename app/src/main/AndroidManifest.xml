@@ -7,7 +7,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:label="Viora"
+        android:label="Movia"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar"
         tools:ignore="PictureInPictureIssue">
@@ -24,7 +24,7 @@
         </activity>
 
         <receiver
-            android:name=".ui.player.VioraPiPActionReceiver"
+            android:name=".ui.player.MoviaPiPActionReceiver"
             android:exported="false" />
     </application>
 </manifest>

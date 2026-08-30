@@ -1,1 +1,1 @@
-# Viora release rules will be added when minification is enabled.
+# Movia release rules will be added when minification is enabled.
