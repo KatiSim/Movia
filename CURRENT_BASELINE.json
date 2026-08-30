@@ -20,9 +20,9 @@
   },
   "backendService": "not-found",
   "agentSchemaVersion": null,
-  "gitCommit": "df0cf3db395a62dc7d4b6a81e65c8859e2f9fe71",
-  "gitDirtyFiles": 104,
-  "createdAt": "2026-08-30T10:50:44.129Z",
+  "gitCommit": "c7bccd1e60a0faa844e8f2a260af9d08b69815dc",
+  "gitDirtyFiles": 0,
+  "createdAt": "2026-08-30T10:51:41.341Z",
   "verification": {
     "build": "fail:sdk_missing",
     "backend": "not_found",
