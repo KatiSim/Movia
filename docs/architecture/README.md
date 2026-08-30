@@ -28,6 +28,6 @@ schema, migrations, recovery code and a baseline manifest.
 
 ## Canonical paths
 
-The user-facing root is /storage/emulated/0/Movia/Movia_project. The live source
-roots used for this synchronization are recorded in
-reference/CURRENT_PHONE_STATE.json and CURRENT_BASELINE.json.
+The user-facing root is /storage/emulated/0/Movia. The live source roots used for
+this synchronization are recorded in reference/CURRENT_PHONE_STATE.json and
+CURRENT_BASELINE.json.

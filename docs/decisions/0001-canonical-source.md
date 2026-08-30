@@ -3,7 +3,7 @@
 ## Decision
 
 The current Movia Android source, media-parser backend source and Termux MCP
-source are assembled under /storage/emulated/0/Movia/Movia_project with one Git
+source are assembled under /storage/emulated/0/Movia with one Git
 history. GitHub KatiSim/Movia main is the remote history for future changes.
 
 ## Exclusions

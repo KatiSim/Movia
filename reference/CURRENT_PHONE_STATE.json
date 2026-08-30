@@ -6,7 +6,7 @@
     "versionName": "0.9.23",
     "versionCode": 293
   },
-  "canonicalRoot": "/storage/emulated/0/Movia/Movia_project",
+  "canonicalRoot": "/storage/emulated/0/Movia",
   "sourceRoots": {
     "android": "/data/data/com.termux/files/home/projects/movia",
     "backend": "/data/data/com.termux/files/home/projects/media-parser",

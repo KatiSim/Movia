@@ -89,7 +89,7 @@ process is managed separately by agent/mcp/start.sh.
 - backend: /data/data/com.termux/files/home/projects/media-parser
 - agent/MCP: /data/data/com.termux/files/home/termux-mcp
 - reference: /data/data/com.termux/files/home/projects/zona-reference-20260829-223618
-- canonical root: /storage/emulated/0/Movia/Movia_project
+- canonical root: /storage/emulated/0/Movia
 - date: 2026-08-30
-- Git branch at synchronization: work/current-sync
+- Git branch at synchronization: main
 - status: current checkpoint; not stable/final/production-ready
