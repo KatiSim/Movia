@@ -1,0 +1,6 @@
+# Copy to a local, ignored config file.
+# Do not put real values in this repository.
+backend_url=http://127.0.0.1:5001
+agent_url=http://127.0.0.1:8899
+catalog_db=
+agent_token_file=/data/data/com.termux/files/home/.config/movia-agent/token

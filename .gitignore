@@ -1,5 +1,63 @@
-.gradle/
+# Android/Gradle build outputs
 **/build/
-local.properties
+.gradle/
+**/.gradle/
+.kotlin/
 .idea/
 *.iml
+local.properties
+captures/
+
+# Runtime data and caches
+**/.cache/
+**/torrent_cache/
+**/stream_cache/
+**/media_cache/
+**/video_cache/
+**/logs/
+*.log
+*.pid
+*.tmp
+tmp/
+temp/
+
+# Databases and mutable runtime state
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+database/snapshots/
+backend/runtime/
+agent/runtime/
+
+# Binary release artifacts are GitHub Release assets, not Git history
+*.apk
+*.aab
+*.apks
+release/.staging/
+release/artifacts/
+release/*.zip
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+config.local.*
+*credentials*
+*secrets*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+/data/
+/sdcard/
+/storage/
+
+# Old local backup files
+*.bak
+*.bak-*
+
+# Local recovered/decompiled files are referenced by symlink/manifest only
+# (android/recovered-jadx itself is a tracked symlink).

@@ -1,0 +1,7 @@
+# Example service definition only
+
+# No current Movia Agent service definition was found during inventory.
+# Tokens must be supplied from the local secret store, never from this file.
+name=movia-agent
+command=/path/to/recovered/agent/start
+health=http://127.0.0.1:8899/health

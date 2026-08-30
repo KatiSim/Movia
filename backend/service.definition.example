@@ -1,0 +1,7 @@
+# Example service definition only
+
+# No current Movia backend service definition was found during inventory.
+# Replace this example only after the actual media-parser service is recovered and verified.
+name=movia-backend
+command=/path/to/recovered/backend/start
+health=http://127.0.0.1:5001/health

@@ -1,0 +1,32 @@
+{
+  "project": "Movia",
+  "package": "app.movia.android",
+  "versionName": "0.3.22",
+  "versionCode": 124,
+  "apkPath": null,
+  "apkName": null,
+  "apkSha256": null,
+  "apkSizeBytes": null,
+  "catalogRows": null,
+  "catalogSchemaVersion": null,
+  "catalogDbPath": null,
+  "catalogDbSha256": null,
+  "catalogDbSizeBytes": null,
+  "installed": {
+    "package": "app.movia.android",
+    "apkPath": null,
+    "versionName": null,
+    "versionCode": null
+  },
+  "backendService": "not-found",
+  "agentSchemaVersion": null,
+  "gitCommit": "df0cf3db395a62dc7d4b6a81e65c8859e2f9fe71",
+  "gitDirtyFiles": 104,
+  "createdAt": "2026-08-30T10:50:44.129Z",
+  "verification": {
+    "build": "fail:sdk_missing",
+    "backend": "not_found",
+    "agent": "not_found",
+    "playback": "not_verified_known_issues"
+  }
+}

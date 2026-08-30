@@ -1,60 +1,66 @@
-# Movia (Android) 🎬
+# Movia
 
-[![Version](https://img.shields.io/badge/version-0.3.22-blue.svg)](https://github.com/KatiSim/Movia)
-[![Platform](https://img.shields.io/badge/platform-Android%208.0%2B%20(API%2026%2B)-green.svg)](https://developer.android.com)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.1.0-purple.svg)](https://kotlinlang.org)
-[![Compose BOM](https://img.shields.io/badge/Jetpack%20Compose-2025.01.01-brightgreen.svg)](https://developer.android.com/jetpack/compose)
+Movia — Android-клиент каталога и воспроизведения медиаконтента на Jetpack Compose и Media3.
 
-**Movia** — современный мультимедийный плеер и клиент онлайн-кинотеатра для Android, построенный на базе современных стандартов Jetpack Compose Material 3 и Media3 ExoPlayer.
+Этот репозиторий является канонической историей проекта. Текущий фактический статус не приравнивается к «stable» или «production-ready»: незавершённые функции и непроверенные компоненты явно помечаются в [PROJECT_STATE.md](PROJECT_STATE.md).
 
----
+## Current version
 
-## ✨ Основные возможности (v0.3.22)
+Версия и versionCode извлекаются автоматически из `android/app/build.gradle.kts` скриптом `scripts/create-baseline.sh` и записываются в [CURRENT_BASELINE.json](CURRENT_BASELINE.json).
 
-- 🎨 **Современный UI/UX на Jetpack Compose Material 3:**
-  - Адаптивный дизайн для смартфонов и планшетов
-  - Тёмная и светлая темы с кастомной палитрой
-  - Жестовая навигация и эргономичные элементы управления
+Этот checkpoint отражает проверенный source baseline репозитория. Наличие установленного APK, backend, catalog.db и Movia Agent на телефоне подтверждается отдельно; отсутствующие компоненты не считаются PASS.
 
-- 🎥 **Медиаплеер на базе Jetpack Media3 (ExoPlayer 1.9.3):**
-  - Поддержка фонового воспроизведения и Picture-in-Picture (PiP)
-  - Выбор аудиодорожек и субтитров
-  - Настройка скорости воспроизведения и масштабирования видео (Fit / Crop)
-  - Управление воспроизведением через системные уведомления и MediaSession
+## Architecture
 
-- 📚 **Каталог и поиск:**
-  - Интеллектуальный поиск по названиям, актёрам и режиссёрам
-  - Фильтры по жанрам, годам выпуска, рейтингу и типу контента
-  - Карусели рекомендаций и персональные подборки
+- **Android** — полный Gradle/Compose/Media3 source под `android/`.
+- **Backend** — ожидаемый media-parser под `backend/`; фактический путь фиксируется manifest-файлом.
+- **Catalog** — Room schema и миграции под `database/`; большая runtime-база не хранится в Git.
+- **Playback** — Media3 player и playback baseline в `android/app/src/main/java/app/movia/android/ui/player/`.
+- **Agent/MCP** — контракты и service definitions под `agent/`; незнайденные на checkpoint компоненты отмечены явно.
 
-- 💾 **Медиатека и офлайн-режим:**
-  - Сохранение истории просмотров и избранного (Room Database 2.8.4)
-  - Поддержка офлайн-загрузок через Android WorkManager
-  - Сохранение прогресса воспроизведения для каждого эпизода и фильма
+## Build
 
----
+~~~bash
+./android/gradlew -p android testDebugUnitTest
+./android/gradlew -p android lintDebug
+./android/gradlew -p android assembleDebug
+~~~
 
-## 🛠️ Стек технологий
+Сборка не означает, что внешний playback/backend полностью проверен.
 
-- **Язык:** Kotlin 2.1
-- **UI Framework:** Jetpack Compose (BOM 2025.01.01) + Material Design 3
-- **Медиа:** AndroidX Media3 (ExoPlayer, UI, Session 1.9.3)
-- **База данных:** AndroidX Room 2.8.4 (KAPT, Room KTX)
-- **Хранилище настроек:** AndroidX DataStore Preferences 1.2.1
-- **Фоновые задачи:** AndroidX WorkManager 2.11.0
-- **Минимальная версия:** Android 8.0 (API 26)
-- **Целевая версия:** Android 15 (API 35)
+## Install
 
----
+Установка APK выполняется без очистки данных:
 
-## 📦 Сборка и запуск
+~~~bash
+scripts/install.sh path/to/Movia.apk
+~~~
 
-Сборка debug APK с помощью Gradle:
-```bash
-./gradlew assembleDebug
-```
+Скрипт требует доступный `rish`/Shizuku и использует reinstall с сохранением данных. Старые APK не помещаются в Git.
 
-Сборка release APK:
-```bash
-./gradlew assembleRelease
-```
+## Services
+
+Список реально найденных сервисов и отсутствующих Movia-сервисов находится в [PROJECT_STATE.md](PROJECT_STATE.md). Общая инфраструктура Termux/Chipupa не является автоматически backend Movia.
+
+## Verification
+
+~~~bash
+scripts/verify-project.sh
+scripts/restore-check.sh
+scripts/health-check.sh
+~~~
+
+Каждая проверка возвращает `PASS` или `FAIL` с причиной. Текущий checkpoint не скрывает отсутствующий backend/APK/DB.
+
+## Baseline and backup
+
+~~~bash
+scripts/create-baseline.sh
+scripts/create-baseline.sh --db /absolute/path/catalog.db
+~~~
+
+Без `--db` база не копируется. APK и DB snapshot предназначены для GitHub Release/backup artifacts, а не для обычной Git history.
+
+## Restore
+
+Полная инструкция восстановления находится в [RESTORE.md](RESTORE.md).
