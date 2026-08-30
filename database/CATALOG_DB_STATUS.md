@@ -19,12 +19,12 @@ Observed facts at capture time:
 - catalog.db size: 793509888 bytes
 - catalog.db SHA256: 750d5f7f85cf41711f4347176e48d2cc557021ff42665a6528bf3f98a44c3a72
 - catalog.db-wal size: 202922392 bytes
-- catalog.db-wal SHA256: 9f5287704c1f749eddc3d409ab1fac5b4fdd50e56cb601467142d1ea24aff505
+- catalog.db-wal SHA256: a6540b0328d8ade617f673d71d9aff2b38ef63ba0ccbdb550ea13740bad1aff23
 - catalog.db-shm size: 425984 bytes
-- catalog.db-shm SHA256: 6c57294b65a908e8e82f918a3932b0d5fbea2878a21e9335d39891573dd6af8e
+- catalog.db-shm SHA256: 26ce3bde39275bb3a343e37358b47825db411660dd6414c11e7c5e4977281a5f
 - catalog_meta.schema_version: 2
-- catalog_meta.catalog_revision: 279
-- movies rows: 50473
+- catalog_meta.catalog_revision: 280
+- movies rows: 50491
 
 The database is live and changes as backend workers run. CURRENT_BASELINE.json is
 the machine-readable manifest generated from the same system; regenerate it

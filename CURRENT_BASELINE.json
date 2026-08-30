@@ -6,9 +6,9 @@
   "apkPath": "/storage/emulated/0/Movia/Movia_project/release/Movia-0.9.23-code293.apk",
   "apkSizeBytes": 23934072,
   "apkSha256": "c4c322f6ebf12482f20bee7baa6f15fc68bbe8f894330f685a9081ebd73c0918",
-  "catalogRows": 50473,
+  "catalogRows": 50491,
   "catalogSchemaVersion": "2",
-  "catalogRevision": "279",
+  "catalogRevision": "280",
   "catalogNormalizationVersion": "1",
   "catalogDbPath": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
   "catalogDbStatus": "read-only metadata query succeeded",
@@ -21,8 +21,8 @@
     "agentMcp": "/data/data/com.termux/files/home/termux-mcp"
   },
   "sourceCommit": "7762a3a7d9069d28def7f0658a0bc623f15cc9d4",
-  "gitCommit": "b77f6512b0a34c27b40e0c5b7d1b1889c5c2f4ab",
-  "createdAt": "2026-08-30T11:31:14Z",
+  "gitCommit": "0e776cfec1875f5b2d0c079ef6b3f4c5f49dfb31",
+  "createdAt": "2026-08-30T11:32:56Z",
   "verification": {
     "build": "TIMEOUT: Gradle assembleDebug exceeded 180 seconds",
     "backend": "FAIL: parser HTTP 000; streamer HTTP 200",

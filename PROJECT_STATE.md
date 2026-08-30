@@ -30,7 +30,7 @@ movia-media-parser is running streamer.py. The parser HTTP endpoint on
 
 ## Catalog
 
-- row count: 50473 rows in movies
+- row count: 50491 rows in movies
 - schema version: 2, from catalog_meta.schema_version
 - current SSOT: /data/data/com.termux/files/home/projects/media-parser/catalog.db
 - current SSOT sidecars: catalog.db-wal and catalog.db-shm in the same directory

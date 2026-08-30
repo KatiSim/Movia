@@ -1,1 +1,2 @@
 c4c322f6ebf12482f20bee7baa6f15fc68bbe8f894330f685a9081ebd73c0918  release/Movia-0.9.23-code293.apk
+2c615f43462f61af92a0c3b929dbc80b1628c2287a4fdd9866fd510b06405417  release/catalog-0.9.23-code293.sqlite.gz
