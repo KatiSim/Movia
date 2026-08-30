@@ -8,7 +8,7 @@ need_dir() { [ -d "$ROOT/$1" ] && echo "PASS: $1" || { echo "FAIL: missing direc
 
 for d in android backend agent database acceptance docs scripts reference; do need_dir "$d"; done
 for f in README.md CHANGELOG.md PROJECT_STATE.md RESTORE.md CURRENT_BASELINE.json .gitignore SECRETS_SETUP.md .env.example config.example; do need_file "$f"; done
-for f in android/app/build.gradle.kts android/gradlew backend/requirements.txt backend/catalog_schema_v2.py backend/restore_all.py backend/database.py agent/mcp/package.json agent/mcp/src/server.ts database/CATALOG_DB_STATUS.md database/schema/app.movia.android.data.database.MoviaDatabase/2.json agent/services/movia-media-parser/run; do need_file "$f"; done
+for f in android/app/build.gradle.kts android/gradlew backend/requirements.txt backend/catalog_schema_v2.py backend/restore_all.py backend/database.py agent/mcp/package.json agent/mcp/src/server.ts database/CATALOG_DB_STATUS.md database/schema/SCHEMA_SOURCE.md android/app/schemas/app.movia.android.data.database.MoviaDatabase/2.json agent/services/movia-media-parser/run; do need_file "$f"; done
 
 if grep -q '"apkSha256"' "$ROOT/CURRENT_BASELINE.json" 2>/dev/null; then echo "PASS: baseline APK manifest"; else echo "FAIL: baseline APK manifest"; failures=$((failures+1)); fi
 if grep -q 'catalogDbPath' "$ROOT/CURRENT_BASELINE.json" 2>/dev/null && grep -q 'schema_version' "$ROOT/database/CATALOG_DB_STATUS.md" 2>/dev/null; then echo "PASS: external catalog recovery metadata"; else echo "FAIL: external catalog recovery metadata"; failures=$((failures+1)); fi

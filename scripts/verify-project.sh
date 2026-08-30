@@ -11,7 +11,7 @@ need_dir() { [ -d "$ROOT/$1" ] && ok "$1" || bad "missing directory $1"; }
 for d in android backend agent database acceptance docs scripts release reference; do need_dir "$d"; done
 for f in README.md CHANGELOG.md PROJECT_STATE.md RESTORE.md CURRENT_BASELINE.json .gitignore SECRETS_SETUP.md .env.example config.example; do need_file "$f"; done
 for f in android/app/build.gradle.kts android/settings.gradle.kts android/gradlew backend/server.py backend/database.py backend/search_engine.py backend/streamer.py backend/requirements.txt; do need_file "$f"; done
-for f in agent/mcp/package.json agent/mcp/src/server.ts agent/mcp/src/movia-tools.ts agent/services/movia-media-parser/run database/CATALOG_DB_STATUS.md database/schema/app.movia.android.data.database.MoviaDatabase/2.json; do need_file "$f"; done
+for f in agent/mcp/package.json agent/mcp/src/server.ts agent/mcp/src/movia-tools.ts agent/services/movia-media-parser/run database/CATALOG_DB_STATUS.md database/schema/SCHEMA_SOURCE.md android/app/schemas/app.movia.android.data.database.MoviaDatabase/2.json; do need_file "$f"; done
 
 version_name="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
 version_code="$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
