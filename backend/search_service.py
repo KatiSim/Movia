@@ -38,6 +38,20 @@ def category_condition(category: Optional[str]) -> Optional[str]:
     return "category='movies'"
 
 
+def genre_values(genre: Any) -> list[str]:
+    """Return deterministic non-empty genre values from repeated or legacy params."""
+    if genre is None:
+        return []
+    values = genre if isinstance(genre, (list, tuple, set)) else [genre]
+    result: list[str] = []
+    for value in values:
+        for token in str(value or "").split("|"):
+            token = token.strip()
+            if token and token not in result:
+                result.append(token)
+    return result
+
+
 def _base_conditions(
     category: Optional[str],
     genre: Optional[str],
@@ -47,7 +61,15 @@ def _base_conditions(
     country: Optional[str],
     media_type: Optional[str] = None,
 ) -> tuple[list[str], list[Any]]:
-    conditions = ["poster_url IS NOT NULL"]
+    # Search may match original_title so a user can find a work by its
+    # international name, but only enriched Russian cards are returned.
+    conditions = [
+        "tmdb_id > 0",
+        "media_type IN ('movie','tv')",
+        "COALESCE(localized_ru_title, '') != ''",
+        "poster_url IS NOT NULL",
+        "poster_url != ''",
+    ]
     params: list[Any] = []
     category_sql = category_condition(category)
     if category_sql:
@@ -57,9 +79,10 @@ def _base_conditions(
     if media_type and str(media_type).lower() in {"movie", "tv"}:
         conditions.append("media_type=?")
         params.append(str(media_type).lower())
-    if genre:
-        conditions.append("genres LIKE ?")
-        params.append(f"%{genre}%")
+    genre_list = genre_values(genre)
+    if genre_list:
+        conditions.append("(" + " OR ".join("genres LIKE ?" for _ in genre_list) + ")")
+        params.extend(f"%{value}%" for value in genre_list)
     if year_from is not None:
         conditions.append("year >= ?")
         params.append(int(year_from))

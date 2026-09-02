@@ -8,21 +8,21 @@ import org.junit.Test
 class CatalogRepositoryTest {
     @Test
     fun searchMatchesTitleGenreCountryAndYear() {
-        assertTrue(searchCatalogLocally(catalogTestItems, "орбита").any { it.title == "Нулевая орбита" })
-        assertTrue(searchCatalogLocally(catalogTestItems, "фантастика").any { "Фантастика" in it.genres })
-        assertTrue(searchCatalogLocally(catalogTestItems, "испания").all { it.country == "Испания" })
-        assertTrue(searchCatalogLocally(catalogTestItems, "2026").all { it.year == 2026 })
+        assertTrue(DemoCatalogRepository.search("орбита").any { it.title == "Нулевая орбита" })
+        assertTrue(DemoCatalogRepository.search("фантастика").any { "Фантастика" in it.genres })
+        assertTrue(DemoCatalogRepository.search("испания").all { it.country == "Испания" })
+        assertTrue(DemoCatalogRepository.search("2026").all { it.year == 2026 })
     }
 
     @Test
     fun emptySearchReturnsNoResults() {
-        assertTrue(searchCatalogLocally(catalogTestItems, "   ").isEmpty())
+        assertTrue(DemoCatalogRepository.search("   ").isEmpty())
     }
 
     @Test
     fun combinedFilterRespectsRichQuickFilters() {
         val result = filterCatalog(
-            items = catalogTestItems,
+            items = DemoCatalogRepository.all(),
             filter = CatalogFilter(
                 type = ContentType.MOVIE,
                 genres = setOf("Комедия"),
@@ -43,7 +43,7 @@ class CatalogRepositoryTest {
     @Test
     fun multipleGenresUseInclusiveOrSelection() {
         val result = filterCatalog(
-            catalogTestItems,
+            DemoCatalogRepository.all(),
             CatalogFilter(type = null, genres = setOf("Комедия", "Фантастика")),
         )
 
@@ -54,7 +54,7 @@ class CatalogRepositoryTest {
     @Test
     fun exactYearAndRatingThresholdCompose() {
         val result = filterCatalog(
-            catalogTestItems,
+            DemoCatalogRepository.all(),
             CatalogFilter(type = null, yearFrom = 2026, yearTo = 2026, minRating = 8.0),
         )
 

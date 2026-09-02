@@ -9,7 +9,7 @@ class SeriesPlaybackTest {
     fun nextEpisodeIncrementsWithinSeason() {
         assertEquals(
             "Нулевая орбита · S01E05 · Эпизод 5",
-            nextEpisodeTitle("Нулевая орбита · S01E04 · Эпизод 4", seasonEpisodeCountsOverride = listOf(8, 8, 6)),
+            nextEpisodeTitle("Нулевая орбита · S01E04 · Эпизод 4"),
         )
     }
 
@@ -17,13 +17,13 @@ class SeriesPlaybackTest {
     fun nextEpisodeAdvancesToNextSeason() {
         assertEquals(
             "Нулевая орбита · S02E01 · Эпизод 1",
-            nextEpisodeTitle("Нулевая орбита · S01E08 · Эпизод 8", seasonEpisodeCountsOverride = listOf(8, 8, 6)),
+            nextEpisodeTitle("Нулевая орбита · S01E08 · Эпизод 8"),
         )
     }
 
     @Test
     fun finalEpisodeOfFinalSeasonHasNoNextEpisode() {
-        assertNull(nextEpisodeTitle("Нулевая орбита · S03E06 · Эпизод 6", seasonEpisodeCountsOverride = listOf(8, 8, 6)))
+        assertNull(nextEpisodeTitle("Нулевая орбита · S03E06 · Эпизод 6"))
     }
 
     @Test

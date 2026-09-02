@@ -17,10 +17,10 @@ def run_safe_import(target_records: int = 60000):
     cleanup_old_movies()
     print(f"=== Запуск импорта до {target_records} записей (Года: 1980–2026) ===")
     start_time = time.time()
-
+    
     start_year = 2026
     min_year = 1980  # Жесткая граница: не старше 1980 года
-
+    
     # 35 страниц фильмов (700 шт) + 25 страниц сериалов (500 шт) на каждый год
     pages_movies_per_year = 35
     pages_tv_per_year = 25

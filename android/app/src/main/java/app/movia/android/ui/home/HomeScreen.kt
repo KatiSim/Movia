@@ -44,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,7 +104,7 @@ fun HomeScreen(
     progress: PlaybackProgress = PlaybackProgress(),
     history: List<String> = emptyList(),
     favorites: Set<String> = emptySet(),
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
     onContinue: (String) -> Unit,
     onOpenCatalog: (CatalogLaunchPreset) -> Unit,
 ) {
@@ -113,27 +112,23 @@ fun HomeScreen(
         RecommendationEngine.recommend(history, favorites = favorites, limit = 20)
     }
     val popularPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getPopular(12)) {
-        while (true) {
-            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getPopular(12) }
-            delay(5 * 60 * 1000L)
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getPopular(12)
         }
     }
     val newPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getNew(12)) {
-        while (true) {
-            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getNew(12) }
-            delay(5 * 60 * 1000L)
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getNew(12)
         }
     }
     val forYouPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getForYou(12)) {
-        while (true) {
-            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getForYou(12) }
-            delay(5 * 60 * 1000L)
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getForYou(12)
         }
     }
     val seriesPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getSeries(12)) {
-        while (true) {
-            value = withContext(Dispatchers.IO) { DemoCatalogRepository.getSeries(12) }
-            delay(5 * 60 * 1000L)
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getSeries(12)
         }
     }
 
@@ -263,7 +258,7 @@ private fun ContinueWatchingCard(
     progress: PlaybackProgress,
     fallbackItem: MediaContent?,
     onContinue: (String) -> Unit,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
 ) {
     val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
     val heroContent = if (hasRealProgress) {
@@ -342,7 +337,7 @@ private fun ContinueWatchingCard(
                 indication = null,
             ) {
                 if (displayTitle.isNotBlank()) {
-                    onOpenDetails(displayTitle)
+                    onOpenDetails(displayTitle, heroContent?.id)
                 }
             }
             .semantics(mergeDescendants = true) {
@@ -555,7 +550,7 @@ private fun ContinueWatchingCard(
 private fun HomeMediaSection(
     title: String,
     items: List<MediaContent>,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
     onViewAll: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -568,7 +563,7 @@ private fun HomeMediaSection(
                 MediaContentCard(
                     item = item,
                     modifier = Modifier.width(134.dp),
-                    onClick = { onOpenDetails(item.title) },
+                    onClick = { onOpenDetails(item.title, item.id) },
                 )
             }
         }

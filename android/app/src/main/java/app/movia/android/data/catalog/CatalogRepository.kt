@@ -8,6 +8,7 @@ import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
 import app.movia.android.domain.model.StreamOption
+import app.movia.android.domain.model.StreamSubtitle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,8 +50,11 @@ interface CatalogRepository {
     fun searchPeople(query: String, limit: Int = 20): List<Person>
     fun findByTitle(title: String): MediaContent?
     fun findById(id: String): MediaContent?
-    fun findFullById(id: String): MediaContent?
-    fun findFullByTitle(title: String): MediaContent?
+
+    /** Compatibility defaults for lightweight repositories and tests. */
+    fun all(): List<MediaContent> = getPaged(limit = Int.MAX_VALUE)
+    fun findFullById(id: String): MediaContent? = findById(id)
+    fun findFullByTitle(title: String): MediaContent? = findByTitle(title)
 }
 
 enum class SearchStatus {
@@ -205,7 +209,7 @@ object DemoCatalogRepository : CatalogRepository {
             conn.readTimeout = 6000
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", "application/json")
-
+            
             if (conn.responseCode == 200) {
                 BufferedReader(InputStreamReader(conn.inputStream, "UTF-8")).use { reader ->
                     reader.readText()
@@ -318,7 +322,7 @@ object DemoCatalogRepository : CatalogRepository {
         (cachedPopular + cachedNew + cachedAnimations + cachedSeries + cachedForYou + cachedHero)
             .distinctBy { it.id }
 
-    fun all(): List<MediaContent> {
+    override fun all(): List<MediaContent> {
         val list = cachedCatalogItems()
         if (list.isNotEmpty()) return list
         return getPopular(40)
@@ -574,6 +578,71 @@ object DemoCatalogRepository : CatalogRepository {
             value.startsWith("file://", ignoreCase = true)
     }
 
+    private val allowedStreamHeaderNames = setOf(
+        "accept",
+        "accept-language",
+        "cache-control",
+        "content-type",
+        "if-modified-since",
+        "if-none-match",
+        "origin",
+        "range",
+        "referer",
+        "sec-fetch-dest",
+        "sec-fetch-mode",
+        "sec-fetch-site",
+        "user-agent",
+        "x-requested-with",
+    )
+
+    private fun isSafeStreamHeader(name: String, value: String): Boolean =
+        name.trim().lowercase() in allowedStreamHeaderNames &&
+            value.isNotBlank() &&
+            value.length <= 2048 &&
+            !value.contains("\r") &&
+            !value.contains("\n")
+
+    private fun parseStreamHeaders(value: JSONObject?): Map<String, String> {
+        if (value == null) return emptyMap()
+        val result = linkedMapOf<String, String>()
+        val keys = value.keys()
+        while (keys.hasNext()) {
+            val name = keys.next()
+            val headerValue = value.optString(name).trim()
+            if (isSafeStreamHeader(name, headerValue)) {
+                result[name] = headerValue
+            }
+        }
+        return result
+    }
+
+    private fun parseStreamSubtitles(value: JSONArray?): List<StreamSubtitle> {
+        if (value == null) return emptyList()
+        val result = mutableListOf<StreamSubtitle>()
+        for (i in 0 until minOf(value.length(), 16)) {
+            val obj = value.optJSONObject(i) ?: continue
+            val url = obj.optString("url").ifBlank {
+                obj.optString("uri").ifBlank { obj.optString("src") }
+            }.trim()
+            if (!url.startsWith("http://", ignoreCase = true) &&
+                !url.startsWith("https://", ignoreCase = true)
+            ) continue
+            result += StreamSubtitle(
+                url = url,
+                language = obj.optString("language").ifBlank {
+                    obj.optString("lang", "ru")
+                },
+                label = obj.optString("label").ifBlank {
+                    obj.optString("name", "Русские")
+                },
+                mimeType = obj.optString("mime_type").ifBlank {
+                    obj.optString("mimeType", "text/vtt")
+                },
+            )
+        }
+        return result
+    }
+
     private fun parseMediaObject(obj: JSONObject): MediaContent {
         val id = obj.optString("id", "")
         val title = obj.optString("title", "Без названия")
@@ -588,21 +657,21 @@ object DemoCatalogRepository : CatalogRepository {
         val isNew = obj.optBoolean("isNew", year >= 2024)
         val popularity = obj.optInt("popularity", 100)
         val ageRating = obj.optInt("ageRating", 16)
-
-        val synopsis = (obj.optString("description").takeIf { it.isNotBlank() }
+        
+        val synopsis = (obj.optString("description").takeIf { it.isNotBlank() } 
             ?: obj.optString("synopsis")).takeIf { it.isNotBlank() } ?: ""
-
+            
         val originalTitle = (obj.optString("original_title").takeIf { it.isNotBlank() }
             ?: obj.optString("originalTitle")).takeIf { it.isNotBlank() }
-
+            
         val director = obj.optString("director").takeIf { it.isNotBlank() }
-
+        
         val posterUrl = (obj.optString("poster_url").takeIf { it.isNotBlank() }
             ?: obj.optString("posterUrl")).takeIf { it.isNotBlank() }
-
+            
         val backdropUrl = (obj.optString("backdrop_url").takeIf { it.isNotBlank() }
             ?: obj.optString("backdropUrl")).takeIf { it.isNotBlank() } ?: posterUrl
-
+            
         val rawPlaybackUrl = obj.optString("playbackUrl").takeIf { it.isNotBlank() }
 
         val categoryStr = obj.optString("category", "MOVIES")
@@ -648,6 +717,26 @@ object DemoCatalogRepository : CatalogRepository {
                 val source = sObj.optString("source").takeIf { it.isNotBlank() }
                 val streamUrl = sObj.optString("url", "").trim()
                 if (!isStructurallyPlayableUrl(streamUrl, source)) continue
+                val subtitles = parseStreamSubtitles(
+                    sObj.optJSONArray("subtitle_list")
+                        ?: sObj.optJSONArray("subtitleList")
+                        ?: sObj.optJSONArray("subtitles")
+                )
+                val headers = parseStreamHeaders(
+                    sObj.optJSONObject("headers")
+                        ?: sObj.optJSONObject("http_headers")
+                        ?: sObj.optJSONObject("httpHeaders")
+                )
+                val userAgent = sObj.optString("user_agent").takeIf { it.isNotBlank() }
+                    ?: sObj.optString("userAgent").takeIf { it.isNotBlank() }
+                val videoTrackIndex = sObj.optInt("video_track_index", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("videoTrackIndex", -1).takeIf { it >= 0 }
+                val audioTrackIndex = sObj.optInt("audio_track_index", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("audioTrackIndex", -1).takeIf { it >= 0 }
+                val durationMs = sObj.optLong("duration_ms", 0L).takeIf { it > 0L }
+                    ?: sObj.optLong("duration", 0L).takeIf { it > 0L }
+                val sizeBytes = sObj.optLong("size_bytes", 0L).takeIf { it > 0L }
+                    ?: sObj.optLong("size", 0L).takeIf { it > 0L }
                 streamsList.add(
                     StreamOption(
                         voice = sObj.optString("voice", "Не указано"),
@@ -674,6 +763,19 @@ object DemoCatalogRepository : CatalogRepository {
                         drmLicenseUrl = sObj.optString("license_url").takeIf { it.isNotBlank() }
                             ?: sObj.optString("drm_license_url").takeIf { it.isNotBlank() }
                             ?: sObj.optString("drmLicenseUrl").takeIf { it.isNotBlank() },
+                        language = sObj.optString("language").ifBlank { "ru" },
+                        codec = sObj.optString("codec").takeIf { it.isNotBlank() },
+                        userAgent = userAgent,
+                        headers = headers,
+                        subtitles = subtitles,
+                        hasInternalSubtitles = sObj.optBoolean("is_use_internal_subtitles", false) ||
+                            sObj.optBoolean("isUseInternalSubtitles", false),
+                        videoTrackIndex = videoTrackIndex,
+                        audioTrackIndex = audioTrackIndex,
+                        durationMs = durationMs,
+                        sizeBytes = sizeBytes,
+                        reloadSupported = sObj.optBoolean("reload_supported", false) ||
+                            sObj.optBoolean("reloadSupported", false),
                     )
                 )
             }

@@ -42,50 +42,6 @@ data class CatalogFilter(
         ).count { it }
 }
 
-fun searchCatalogLocally(
-    items: List<MediaContent>,
-    query: String,
-    limit: Int = 20,
-): List<MediaContent> {
-    val needle = query.trim().lowercase()
-    if (needle.isBlank()) return emptyList()
-    return items.asSequence()
-        .filter { item ->
-            item.title.lowercase().contains(needle) ||
-                item.originalTitle?.lowercase()?.contains(needle) == true ||
-                item.genres.any { it.lowercase().contains(needle) } ||
-                item.country.lowercase().contains(needle) ||
-                item.year.toString().contains(needle) ||
-                item.director?.lowercase()?.contains(needle) == true ||
-                item.cast.any { it.name.lowercase().contains(needle) }
-        }
-        .take(limit.coerceAtLeast(0))
-        .toList()
-}
-
-fun searchPeopleLocally(
-    items: List<MediaContent>,
-    query: String,
-    limit: Int = 20,
-): List<app.movia.android.domain.model.Person> {
-    val needle = query.trim().lowercase()
-    if (needle.isBlank()) return emptyList()
-    val byName = linkedMapOf<String, app.movia.android.domain.model.Person>()
-    items.forEach { item ->
-        item.cast.forEach { person ->
-            if (!person.name.lowercase().contains(needle)) return@forEach
-            val key = person.name.trim().lowercase()
-            val previous = byName[key]
-            byName[key] = if (previous == null) {
-                person.copy(knownFor = (person.knownFor + item.title).distinct())
-            } else {
-                previous.copy(knownFor = (previous.knownFor + person.knownFor + item.title).distinct())
-            }
-        }
-    }
-    return byName.values.take(limit.coerceAtLeast(0))
-}
-
 fun filterCatalog(
     items: List<MediaContent>,
     filter: CatalogFilter,

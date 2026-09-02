@@ -49,7 +49,7 @@ def resolve_magnet_stream(title: str, year: int) -> list:
     streams = []
     clean_title = "".join(c for c in title if c.isalnum() or c in " -_").strip()
     query = f"{clean_title} {year}" if year else clean_title
-
+    
     # YTS API
     try:
         yts_url = f"https://yts.mx/api/v2/list_movies.json?query_term={urllib.parse.quote(clean_title)}&limit=2"
@@ -113,7 +113,7 @@ def fetch_single_item(item_summary: dict, is_tv: bool):
     year = int(date_str[:4]) if date_str and len(date_str) >= 4 else 0
 
     genres = [g["name"] for g in data.get("genres", [])]
-
+    
     # Фильтруем телепередачи, новости, мыльные оперы без сюжета
     ignored_genres = ["Новости", "Ток-шоу", "News", "Talk"]
     if any(ig.lower() in [g.lower() for g in genres] for ig in ignored_genres):
@@ -214,7 +214,7 @@ def run_scale(pages: int = 5):
 
     collected_records = []
     print("\nМногопоточная загрузка (только русский контент)...")
-
+    
     with ThreadPoolExecutor(max_workers=6) as executor:
         futures = [executor.submit(fetch_single_item, item, is_tv) for item, is_tv in targets_to_fetch]
         for f in as_completed(futures):

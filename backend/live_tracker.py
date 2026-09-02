@@ -35,7 +35,7 @@ def monitor_aria2():
                     conns = t.get("connections", 0)
                     files = t.get("files", [])
                     file_name = files[0].get("path", "").split("/")[-1] if files else "metadata"
-
+                    
                     if gid not in last_gids:
                         last_gids.add(gid)
                         log_event("ARIA2-NEW", f"Task {gid} started: '{file_name}' | Conns: {conns} | Seeders: {seeders}")
@@ -79,12 +79,12 @@ if __name__ == "__main__":
     print("=" * 60, flush=True)
     log_event("SYSTEM", "🚀 Movia Real-Time Monitor Started")
     print("=" * 60, flush=True)
-
+    
     t_aria = threading.Thread(target=monitor_aria2, daemon=True)
     t_aria.start()
-
+    
     t_logcat = threading.Thread(target=monitor_logcat, daemon=True)
     t_logcat.start()
-
+    
     while True:
         time.sleep(1)

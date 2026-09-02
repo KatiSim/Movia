@@ -3,7 +3,7 @@ import json, requests
 def test_query():
     with open('/data/data/com.termux/files/home/projects/media-parser/config/zona_api.json') as f:
         cfg = json.load(f)
-
+    
     for mirror in cfg.get("mirrors", []):
         url = f"{mirror}/api/search"
         try:

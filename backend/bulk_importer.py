@@ -10,7 +10,7 @@ def fetch_and_save_chunk(media_type: str, start_page: int, end_page: int) -> int
     for p in range(start_page, end_page + 1):
         items = tmdb.fetch_discover_page(media_type=media_type, page=p)
         all_items.extend(items)
-
+    
     if all_items:
         return save_or_update_movies_bulk(all_items)
     return 0

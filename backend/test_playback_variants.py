@@ -139,51 +139,40 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
             )
 
         self.assertEqual(set(started), {"torrent", "balancer"})
-        self.assertEqual(result[0]["url"], "https://media.example.test/title.m3u8")
+        self.assertEqual(result[0]["url"], "magnet:?xt=urn:btih:" + "a" * 40)
+        self.assertEqual(result[1]["url"], "https://media.example.test/title.m3u8")
         self.assertEqual(len(result), 2)
 
-    def test_zona_mirrors_merge_same_locator_variants(self):
+    def test_zona_contract_merges_same_locator_variants(self):
         import balancer_integration
+        from zona_contract import ZonaLookup
 
-        class FakeResponse:
-            status = 200
-
-            def __init__(self, payload):
-                self.payload = payload
-
-            def __enter__(self):
-                return self
-
-            def __exit__(self, *args):
-                return False
-
-            def read(self):
-                return json.dumps(self.payload).encode("utf-8")
-
-        def fake_urlopen(request, timeout):
-            if "mirror-one" in request.full_url:
-                voice, quality = "LostFilm", "1080p"
-            else:
-                voice, quality = "Original", "720p"
-            return FakeResponse([{
-                "id": voice,
+        direct_variants = [
+            {
+                "source": "Zona",
+                "provider": "extractor-a",
                 "url": "https://media.example.test/shared.m3u8",
-                "voice": voice,
-                "quality": quality,
-                "seeders": 10,
-            }])
-
+                "voice": "LostFilm",
+                "quality": "1080p",
+            },
+            {
+                "source": "Zona",
+                "provider": "extractor-b",
+                "url": "https://media.example.test/shared.m3u8",
+                "voice": "Original",
+                "quality": "720p",
+            },
+        ]
         with patch.object(
             balancer_integration,
-            "load_zona_mirrors_config",
-            return_value=(
-                ["https://mirror-one.test", "https://mirror-two.test"],
-                1.0,
-                {},
-            ),
-        ), patch.object(balancer_integration.urllib.request, "urlopen", side_effect=fake_urlopen):
+            "resolve_zona_for_title",
+            return_value=ZonaLookup("OK", direct_variants, suggestions=1, source_refs=2),
+        ):
             streams = balancer_integration.query_zona_api(
-                "Example", year=2024, allow_torrent_fallback=False
+                "Example",
+                year=2024,
+                allow_torrent_fallback=False,
+                allow_zona_content_lookup=True,
             )
 
         self.assertEqual(len(streams), 2)
@@ -224,6 +213,94 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         self.assertEqual(result["p2p_count"], 1)
         self.assertEqual(result["first_playable_candidate"]["stream_id"], "stream:direct")
 
+
+
+    def test_refresh_replaces_same_direct_variant_only(self):
+        import sqlite3
+        import tempfile
+        from pathlib import Path
+        import database
+
+        old_magnet = "magnet:?xt=urn:btih:" + "c" * 40 + "&dn=Generic%20title%20%282020%29"
+        old_streams = [
+            {
+                "source": "Zona",
+                "source_type_id": 7,
+                "url": "https://media.example.test/old-1080.m3u8",
+                "voice": "Дубляж",
+                "quality": "1080p",
+            },
+            {
+                "source": "Zona",
+                "source_type_id": 7,
+                "url": "https://media.example.test/old-720.m3u8",
+                "voice": "Дубляж",
+                "quality": "720p",
+            },
+            {
+                "source": "Rutor",
+                "title": "Generic title",
+                "url": old_magnet,
+                "voice": "Original",
+                "quality": "1080p",
+            },
+        ]
+        incoming = [
+            {
+                "source": "Zona",
+                "source_type_id": 7,
+                "url": "https://media.example.test/new-1080.m3u8",
+                "voice": "Дубляж",
+                "quality": "1080p",
+            },
+        ]
+
+        with tempfile.TemporaryDirectory() as temp:
+            db_path = Path(temp) / "catalog.db"
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("""
+                    CREATE TABLE movies (
+                        id INTEGER PRIMARY KEY, streams TEXT, title TEXT,
+                        original_title TEXT, year INTEGER, media_type TEXT,
+                        category TEXT, playback_url TEXT, voice TEXT,
+                        quality TEXT, seeders INTEGER, link_verified INTEGER,
+                        link_updated_at TEXT
+                    )
+                """)
+                conn.execute(
+                    "INSERT INTO movies VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        1, json.dumps(old_streams), "Generic title",
+                        "Generic title", 2020, "movie", "movies",
+                        old_magnet, "Дубляж", "1080p", 0, 1,
+                        "2026-08-30 10:00:00",
+                    ),
+                )
+                conn.commit()
+
+            with patch.object(database, "DB_PATH", db_path):
+                saved = database.save_content({
+                    "id": 1,
+                    "streams": incoming,
+                    "link_verified": 1,
+                    "replace_direct_variants": True,
+                })
+                with database.get_db() as conn:
+                    raw = conn.execute("SELECT streams FROM movies WHERE id=1").fetchone()[0]
+
+        self.assertTrue(saved)
+        urls = {item["url"] for item in json.loads(raw)}
+        self.assertIn("https://media.example.test/new-1080.m3u8", urls)
+        self.assertIn("https://media.example.test/old-720.m3u8", urls)
+        self.assertIn(old_magnet, urls)
+        self.assertNotIn("https://media.example.test/old-1080.m3u8", urls)
+
+    def test_catalog_refresh_uses_timestamp_without_media_probe(self):
+        import streamer
+        direct = [{"source": "Zona", "url": "https://media.example.test/title.m3u8"}]
+        self.assertFalse(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, direct, now=1000 + streamer.DIRECT_STREAM_REFRESH_SECONDS - 1))
+        self.assertTrue(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, direct, now=1000 + streamer.DIRECT_STREAM_REFRESH_SECONDS))
+        self.assertFalse(streamer.catalog_streams_need_refresh({}, [{"source": "Rutor", "url": "magnet:?xt=urn:btih:" + "a" * 40}], now=10_000_000))
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,13 +5,12 @@ enum class PlaybackStatus {
     BUFFERING,
     READY,
     ENDED,
-    FAILED,
 }
 
+/** Selection state is separate from Media3's transport state. */
 enum class PlaybackSwitchState {
     IDLE,
     RESOLVING,
-    SWITCHING,
     BUFFERING,
     READY,
     FAILED,
@@ -44,8 +43,8 @@ data class PlaybackState(
     val playWhenReady: Boolean = false,
     val status: PlaybackStatus = PlaybackStatus.IDLE,
     val statusMessage: String? = null,
-    val activeStreamSelection: ActiveStreamSelection? = null,
     val switchState: PlaybackSwitchState = PlaybackSwitchState.IDLE,
+    val activeStreamSelection: ActiveStreamSelection? = null,
 ) {
     val hasMedia: Boolean get() = mediaId.isNotBlank() && displayTitle.isNotBlank()
 }

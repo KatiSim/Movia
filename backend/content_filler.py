@@ -14,6 +14,7 @@ import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from collections import Counter
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -25,7 +26,10 @@ sys.path.insert(0, str(DIR))
 from database import filter_streams_for_content, get_db, save_content
 from stream_validation import sanitize_streams
 from torrent_resolver import resolve_torrent
-from balancer_integration import resolve_balancer
+from balancer_integration import (
+    get_last_resolution_diagnostics,
+    resolve_balancer,
+)
 from streamer import set_cached_streams
 
 LOG_DIR = DIR / "logs"
@@ -244,7 +248,7 @@ def load_state() -> Dict[str, Any]:
     return state
 def _fetch_rows(db: Any, last_id: int) -> List[Any]:
     query = f"""
-        SELECT id, tmdb_id, title, original_title, year, category, rating
+        SELECT id, tmdb_id, media_type, title, original_title, year, category, rating, streams, link_verified
         FROM movies
         WHERE ({UNRESOLVED_SQL})
     """
@@ -321,6 +325,8 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             )),
             media_type=category,
         )
+        diagnostics = get_last_resolution_diagnostics()
+        row_provider_errors += _as_int(diagnostics.get("error_count"))
         if isinstance(balancer_result, dict) and balancer_result.get("playback_url"):
             found_stream = balancer_result
     except Exception as exc:
@@ -340,7 +346,22 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             row_provider_errors += 1
             logger.debug("Torrent error for %s: %s", title, exc)
 
-    clean_streams = _candidate_streams(found_stream)
+    resolved_streams = _candidate_streams(found_stream)
+    # The fetched row includes media_type, so this pre-filter is identical to
+    # the persistence-boundary identity check in database.save_content().
+    clean_streams = filter_streams_for_content(resolved_streams, dict(row))
+    duplicate_candidate = False
+    if clean_streams:
+        try:
+            existing_raw = json.loads(row["streams"] or "[]")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            existing_raw = []
+        existing_clean = sanitize_streams(existing_raw, require_source=True)
+        from stream_validation import stream_variant_key
+        existing_keys = {stream_variant_key(item) for item in existing_clean}
+        duplicate_candidate = bool(existing_keys) and all(
+            stream_variant_key(item) in existing_keys for item in clean_streams
+        )
     if clean_streams:
         payload = {
             "id": content_id,
@@ -349,6 +370,7 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             "seeders": _as_int(found_stream.get("seeders"), 0),
             "streams": clean_streams,
             "link_verified": 1,
+            "replace_direct_variants": True,
         }
         try:
             saved = bool(save_content(payload))
@@ -372,13 +394,25 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
                 content_id,
             )
 
+    if persisted_ok:
+        status = "duplicate" if duplicate_candidate else "persisted"
+    elif clean_streams:
+        status = "persistence_error"
+    elif found_stream:
+        status = "rejected_by_identity"
+    elif row_provider_errors:
+        status = "provider_error"
+    else:
+        status = "no_source"
+
     return {
         "content_id": content_id,
+        "status": status,
         "resolver_hit": bool(found_stream),
         "persisted_ok": persisted_ok,
-        "no_source": not found_stream,
-        "invalid_result": bool(found_stream) and not clean_streams,
-        "persist_failure": bool(clean_streams) and not persisted_ok,
+        "no_source": status == "no_source",
+        "invalid_result": status == "rejected_by_identity",
+        "persist_failure": status == "persistence_error",
         "provider_errors": row_provider_errors,
     }
 
@@ -431,6 +465,7 @@ def fill_content(
     invalid_results = 0
     persist_failures = 0
     provider_errors = 0
+    status_counts = Counter()
     started = time.monotonic()
 
     configured_workers = _as_int(
@@ -465,6 +500,7 @@ def fill_content(
                     logger.exception("Unexpected worker failure for ID=%s", content_id)
                     result = {
                         "content_id": content_id,
+                        "status": "provider_error",
                         "resolver_hit": False,
                         "persisted_ok": False,
                         "no_source": False,
@@ -483,6 +519,10 @@ def fill_content(
                 invalid_results += int(bool(result.get("invalid_result")))
                 persist_failures += int(bool(result.get("persist_failure")))
                 provider_errors += _as_int(result.get("provider_errors"))
+                status = str(result.get("status") or "provider_error")
+                status_counts[status] += 1
+                status_totals = state.setdefault("status_totals", {})
+                status_totals[status] = _as_int(status_totals.get(status)) + 1
 
                 state["resolver_hit_total"] = _as_int(state.get("resolver_hit_total")) + int(
                     bool(result.get("resolver_hit"))
@@ -534,6 +574,7 @@ def fill_content(
         "invalid_results": invalid_results,
         "persist_failures": persist_failures,
         "provider_errors": provider_errors,
+        "status_counts": dict(status_counts),
         "pass_completed": False,
     }
 

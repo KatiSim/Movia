@@ -48,6 +48,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from stream_validation import is_valid_btih, sanitize_streams, stream_variant_key
 from catalog_schema_v2 import normalize_ru_text
+from archive_source import fetch_archive_streams
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
@@ -345,10 +346,20 @@ _RUSSIAN_VOICE_HINTS = (
 
 
 def _stream_rank(stream: Dict[str, Any]) -> tuple:
-    voice = str(stream.get("voice") or "").lower()
-    source = str(stream.get("source") or "").lower()
-    russian_rank = 0 if any(h in voice for h in _RUSSIAN_VOICE_HINTS) else (2 if "original" in voice else 1)
-    source_rank = 0 if source == "rutor" else (1 if "zona" in source else (3 if source == "apibay" else 4))
+    """Rank torrent candidates by language, health and swarm evidence.
+
+    Provider/translator names are deliberately not a preference dimension.
+    This helper is also used before the shared playback ranker, so it must not
+    encode a direct-first or provider-first policy of its own.
+    """
+    voice = str(stream.get("voice") or stream.get("translation") or "").strip().casefold()
+    language = str(stream.get("language") or "").strip().casefold()
+    if language.startswith("ru") or any(token in voice for token in ("рус", "russian")):
+        language_rank = 0
+    elif language.startswith("en") or any(token in voice for token in ("original", "english", "оригинал")):
+        language_rank = 2
+    else:
+        language_rank = 1
     try:
         seeders = int(stream.get("seeders") or 0)
     except (TypeError, ValueError):
@@ -366,14 +377,27 @@ def _stream_rank(stream: Dict[str, Any]) -> tuple:
         quality_rank = 5
     else:
         quality_rank = 4
+    try:
+        health = min(1.0, max(0.0, float(stream.get("health_score", 0.5))))
+    except (TypeError, ValueError):
+        health = 0.5
+    try:
+        latency = max(0.0, float(stream.get("startup_latency_ms", 0.0)))
+    except (TypeError, ValueError):
+        latency = 0.0
+    transport = str(stream.get("transport") or "").strip().casefold()
+    is_p2p = transport in {"torrent", "p2p", "torrent_p2p", "magnet"} or str(stream.get("url") or "").lower().startswith("magnet:")
     return (
-        russian_rank,
-        source_rank,
-        quality_rank,
+        language_rank,
+        1 if stream.get("unavailable_quality") else 0,
+        round((1.0 - health) * 10.0, 3),
+        round(latency / 1000.0, 3),
+        0 if not is_p2p or seeders > 0 else 1,
         -seeders,
+        quality_rank,
         voice,
         quality,
-        str(stream.get("title") or "").strip().casefold(),
+        str(stream.get("source") or "").strip().casefold(),
         repr(stream_variant_key(stream)),
     )
 
@@ -987,12 +1011,28 @@ async def async_resolve_torrents(
             continue
         active_torrents.append(stream)
 
-    # Russian dubbing/voice-over is the product default; within the same class,
-    # prefer the Russian-focused provider and then the healthier swarm.
+    if not active_torrents and not is_series:
+        # Archive is a bounded secondary source for explicitly public/CC
+        # material. It is queried only after normal providers return no
+        # identity-validated torrent, so broad catalog enrichment is not
+        # slowed by an extra remote lookup.
+        try:
+            direct_streams = await fetch_archive_streams(
+                title=title,
+                year=eff_year,
+                expected_titles=expected_titles,
+            )
+        except Exception as exc:
+            logger.debug("Archive source error for %s: %s", title, exc)
+
+    # Keep all validated transports in one ranking pool. The shared playback
+    # ranker may apply the caller's requested voice/quality and observed health.
     active_torrents.sort(key=_stream_rank)
 
-    # Combine: Direct HTTP/HLS streams FIRST, followed by validated P2P torrents.
+    # Combine all real transports before the final ranking; insertion order must
+    # not make HTTP win over a healthier P2P candidate.
     all_streams = sanitize_streams(direct_streams + active_torrents, require_source=True)
+    all_streams.sort(key=_stream_rank)
 
     # Apply quality filter if requested
     if quality_filter:

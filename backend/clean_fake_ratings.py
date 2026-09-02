@@ -22,7 +22,7 @@ DB_PATH = BASE_DIR / "catalog.db"
 ENV_PATH = BASE_DIR / ".env"
 
 load_dotenv(ENV_PATH)
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "6edd31b8201cbd29c437df73fcd3345d")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "")
 TMDB_ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN", "")
 
 def calculate_authentic_rating(vote_avg: float, vote_cnt: int, min_votes: int = 30, global_mean: float = 6.5) -> float:
@@ -56,7 +56,7 @@ async def sync_tmdb_ratings(batch_size: int = 50, limit: int = 2000):
         ORDER BY (rating * 1.5 + seeders / 1000.0) DESC
         LIMIT ?;
     """, (limit,))
-
+    
     rows = [dict(r) for r in cur.fetchall()]
     total_count = len(rows)
     print(f"🎯 Syncing real TMDB ratings for {total_count} prioritized titles...")

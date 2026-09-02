@@ -61,7 +61,7 @@ def resolve_magnet_stream(title: str, year: int) -> list:
     streams = []
     clean_title = "".join(c for c in title if c.isalnum() or c in " -_").strip()
     query = f"{clean_title} {year}" if year else clean_title
-
+    
     # Поиск YTS
     try:
         yts_url = f"https://yts.mx/api/v2/list_movies.json?query_term={urllib.parse.quote(clean_title)}&limit=2"
@@ -115,7 +115,7 @@ def fetch_details_tmdb(tmdb_id: int, is_tv: bool = False):
 
     title = data.get("title") if not is_tv else data.get("name")
     orig_title = data.get("original_title") if not is_tv else data.get("original_name")
-
+    
     date_str = data.get("release_date") if not is_tv else data.get("first_air_date")
     year = int(date_str[:4]) if date_str and len(date_str) >= 4 else 0
 
@@ -184,7 +184,7 @@ def run_import(pages: int = 1):
     print(f"\n=== [2/3] СБОР КОНТЕНТА ИЗ TMDB ({pages} СТР.) ===")
     for page in range(1, pages + 1):
         print(f"--- Скачивание страницы {page} ---")
-
+        
         # 1. Топ фильмы
         movie_url = f"https://api.themoviedb.org/3/movie/top_rated?api_key={TMDB_API_KEY}&language=ru-RU&page={page}"
         m_data = http_get_json(movie_url)

@@ -20,7 +20,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from catalog_localization import meta_localized_title, parse_alternative_titles
 from tmdb_client import tmdb
+from metadata_quality import bayesian_rating
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
@@ -238,10 +240,19 @@ def _summary_to_meta(item: Dict[str, Any], media_type: str) -> Dict[str, Any]:
         "tmdb_id": _positive_int(item.get("id")),
         "media_type": media_type,
         "title": str(title or original or "Без названия"),
+        "localized_ru_title": meta_localized_title({
+            "title": title,
+            "original_title": original,
+        }) or "",
+        "localization_source": "tmdb_ru" if meta_localized_title({
+            "title": title,
+            "original_title": original,
+        }) else "",
+        "alternative_titles": [],
         "original_title": str(original or ""),
         # Unknown dates remain unknown. Do not fabricate the current year.
         "year": year,
-        "rating": _safe_float(item.get("vote_average")),
+        "rating": bayesian_rating(_safe_float(item.get("vote_average")), _positive_int(item.get("vote_count"))),
         "vote_count": _positive_int(item.get("vote_count")),
         "vote_average": _safe_float(item.get("vote_average")),
         "duration_minutes": duration,
@@ -290,9 +301,14 @@ def _upsert(conn: sqlite3.Connection, meta: Dict[str, Any]) -> bool:
             synopsis=CASE WHEN excluded.synopsis!='' THEN excluded.synopsis ELSE movies.synopsis END,
             poster_url=CASE WHEN excluded.poster_url!='' THEN excluded.poster_url ELSE movies.poster_url END,
             backdrop_url=CASE WHEN excluded.backdrop_url!='' THEN excluded.backdrop_url ELSE movies.backdrop_url END,
-            genres=CASE WHEN excluded.genres!='[]' THEN excluded.genres ELSE movies.genres END,
-            country=CASE WHEN excluded.country!='Зарубежный' THEN excluded.country ELSE movies.country END,
+            genres=CASE
+                WHEN movies.metadata_source='tmdb_detail' THEN movies.genres
+                WHEN excluded.genres!='[]' THEN excluded.genres ELSE movies.genres END,
+            country=CASE
+                WHEN movies.metadata_source='tmdb_detail' THEN movies.country
+                WHEN excluded.country!='Зарубежный' THEN excluded.country ELSE movies.country END,
             category=CASE
+                WHEN movies.metadata_source='tmdb_detail' THEN movies.category
                 WHEN excluded.genres!='[]' THEN excluded.category
                 WHEN movies.media_type='tv' THEN 'tv_series'
                 ELSE movies.category
@@ -415,7 +431,9 @@ def sync_once(pages: int = DEFAULT_SYNC_PAGES) -> Dict[str, Any]:
         cache_error: Optional[str] = None
         try:
             import catalog_api
-            catalog_api.invalidate_home_cache()
+            invalidate_home_cache = getattr(catalog_api, "invalidate_home_cache", None)
+            if callable(invalidate_home_cache):
+                invalidate_home_cache()
         except Exception as exc:
             cache_error = f"{type(exc).__name__}: {exc}"
 
@@ -630,12 +648,33 @@ def _upsert(conn: sqlite3.Connection, meta: Dict[str, Any]) -> bool:
     media_type = str(meta.get("media_type") or "movie").lower()
     row = conn.execute(
         "SELECT id,title,original_title,normalized_ru_title,"
-        "normalized_original_title,updated_at FROM movies "
+        "normalized_original_title,localized_ru_title,alternative_titles,"
+        "localization_source,localization_updated_at,updated_at FROM movies "
         "WHERE media_type=? AND tmdb_id=?",
         (media_type, tmdb_id),
     ).fetchone()
     if row:
-        title_norm = _normalize_ru_title(row["title"])
+        localized = meta_localized_title(meta) or str(row["localized_ru_title"] or "").strip()
+        alternative_titles = parse_alternative_titles(
+            meta.get("alternative_titles") or row["alternative_titles"]
+        )
+        if localized:
+            conn.execute(
+                "UPDATE movies SET localized_ru_title=?, localization_source=?, "
+                "localization_updated_at=? WHERE id=?",
+                (
+                    localized,
+                    str(meta.get("localization_source") or "tmdb_ru"),
+                    _now(),
+                    int(row["id"]),
+                ),
+            )
+        if alternative_titles:
+            conn.execute(
+                "UPDATE movies SET alternative_titles=? WHERE id=?",
+                (json.dumps(alternative_titles, ensure_ascii=False, separators=(",", ":")), int(row["id"])),
+            )
+        title_norm = _normalize_ru_title(localized)
         original_norm = _normalize_ru_title(row["original_title"])
         conn.execute(
             "UPDATE movies SET normalized_ru_title=?,"
@@ -762,7 +801,9 @@ def sync_once(pages: int = DEFAULT_SYNC_PAGES) -> Dict[str, Any]:
 
         try:
             import catalog_api
-            catalog_api.invalidate_home_cache()
+            invalidate_home_cache = getattr(catalog_api, "invalidate_home_cache", None)
+            if callable(invalidate_home_cache):
+                invalidate_home_cache()
         except Exception as exc:
             feed_errors.append(
                 f"cache invalidation: {type(exc).__name__}: {exc}"

@@ -10,11 +10,19 @@ from __future__ import annotations
 import sqlite3
 import threading
 import unicodedata
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
-SCHEMA_VERSION = 2
+from catalog_localization import (
+    choose_localized_ru_title,
+    clean_title,
+    is_russian_display_title,
+    parse_alternative_titles,
+)
+
+SCHEMA_VERSION = 4
 NORMALIZATION_VERSION = 1
 _DASHES = frozenset("‐‑‒–—―−﹘﹣－")
 _SCHEMA_LOCK = threading.RLock()
@@ -194,6 +202,46 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                     "ALTER TABLE movies ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"
                 )
                 added.append("updated_at")
+            if "localized_ru_title" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN localized_ru_title TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("localized_ru_title")
+            if "alternative_titles" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN alternative_titles TEXT NOT NULL DEFAULT '[]'"
+                )
+                added.append("alternative_titles")
+            if "localization_source" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN localization_source TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("localization_source")
+            if "localization_updated_at" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN localization_updated_at TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("localization_updated_at")
+            if "imdb_id" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN imdb_id TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("imdb_id")
+            if "creators" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN creators TEXT NOT NULL DEFAULT '[]'"
+                )
+                added.append("creators")
+            if "metadata_source" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN metadata_source TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("metadata_source")
+            if "metadata_updated_at" not in columns:
+                conn.execute(
+                    "ALTER TABLE movies ADD COLUMN metadata_updated_at TEXT NOT NULL DEFAULT ''"
+                )
+                added.append("metadata_updated_at")
 
             conn.execute(
                 """
@@ -234,6 +282,10 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                 "ON movies(updated_at)"
             )
             conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_movies_localized_ru_title "
+                "ON movies(localized_ru_title COLLATE BINARY)"
+            )
+            conn.execute(
                 "CREATE VIRTUAL TABLE IF NOT EXISTS movies_search_trigram "
                 "USING fts5(movie_id UNINDEXED, normalized_ru_title, "
                 "normalized_original_title, tokenize='trigram')"
@@ -242,11 +294,15 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
             updated = 0
             rows = conn.execute(
                 """
-                SELECT id,title,original_title,created_at
+                SELECT id,title,original_title,localized_ru_title,
+                       alternative_titles,localization_source,localization_updated_at,
+                       created_at
                 FROM movies
                 WHERE normalized_ru_title='' OR normalized_ru_title IS NULL
                    OR normalized_original_title='' OR normalized_original_title IS NULL
                    OR updated_at='' OR updated_at IS NULL
+                   OR localized_ru_title='' OR localized_ru_title IS NULL
+                   OR alternative_titles='' OR alternative_titles IS NULL
                 ORDER BY id
                 """
             ).fetchall()
@@ -255,6 +311,12 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                 conn.executemany(
                     """
                     UPDATE movies SET
+                        localized_ru_title=?,
+                        alternative_titles=?,
+                        localization_source=?,
+                        localization_updated_at=CASE
+                            WHEN ?!='' THEN COALESCE(NULLIF(localization_updated_at,''),?)
+                            ELSE localization_updated_at END,
                         normalized_ru_title=?,
                         normalized_original_title=?,
                         updated_at=CASE WHEN updated_at='' OR updated_at IS NULL
@@ -263,7 +325,36 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                     """,
                     [
                         (
-                            normalize_ru_text(row["title"]),
+                            choose_localized_ru_title(
+                                localized_ru_title=row["localized_ru_title"],
+                                title=row["title"],
+                                original_title=row["original_title"],
+                                alternative_titles=row["alternative_titles"],
+                            ) or "",
+                            json_dumps_alternative_titles(row["alternative_titles"]),
+                            (
+                                str(row["localization_source"] or "").strip()
+                                or (
+                                    "legacy_cyrillic"
+                                    if is_russian_display_title(row["title"], row["original_title"])
+                                    else ""
+                                )
+                            ),
+                            choose_localized_ru_title(
+                                localized_ru_title=row["localized_ru_title"],
+                                title=row["title"],
+                                original_title=row["original_title"],
+                                alternative_titles=row["alternative_titles"],
+                            ) or "",
+                            utc_now(),
+                            normalize_ru_text(
+                                choose_localized_ru_title(
+                                    localized_ru_title=row["localized_ru_title"],
+                                    title=row["title"],
+                                    original_title=row["original_title"],
+                                    alternative_titles=row["alternative_titles"],
+                                ) or ""
+                            ),
                             normalize_ru_text(row["original_title"]),
                             utc_now(),
                             int(row["id"]),
@@ -326,7 +417,8 @@ def refresh_normalized_rows(
     """Refresh only rows written by an importer, preserving all other data."""
     if row_ids is None:
         rows = conn.execute(
-            "SELECT id,title,original_title FROM movies "
+            "SELECT id,title,original_title,localized_ru_title,alternative_titles "
+            "FROM movies "
             "WHERE normalized_ru_title='' OR normalized_ru_title IS NULL"
         ).fetchall()
     else:
@@ -335,17 +427,31 @@ def refresh_normalized_rows(
             return 0
         placeholders = ",".join("?" for _ in ids)
         rows = conn.execute(
-            f"SELECT id,title,original_title FROM movies WHERE id IN ({placeholders})",
+            f"SELECT id,title,original_title,localized_ru_title,alternative_titles "
+            f"FROM movies WHERE id IN ({placeholders})",
             ids,
         ).fetchall()
     if not rows:
         return 0
     conn.executemany(
-        "UPDATE movies SET normalized_ru_title=?,normalized_original_title=?,"
-        "updated_at=? WHERE id=?",
+        "UPDATE movies SET localized_ru_title=?,normalized_ru_title=?,"
+        "normalized_original_title=?,updated_at=? WHERE id=?",
         [
             (
-                normalize_ru_text(row["title"]),
+                choose_localized_ru_title(
+                    localized_ru_title=row["localized_ru_title"],
+                    title=row["title"],
+                    original_title=row["original_title"],
+                    alternative_titles=row["alternative_titles"],
+                ) or "",
+                normalize_ru_text(
+                    choose_localized_ru_title(
+                        localized_ru_title=row["localized_ru_title"],
+                        title=row["title"],
+                        original_title=row["original_title"],
+                        alternative_titles=row["alternative_titles"],
+                    ) or ""
+                ),
                 normalize_ru_text(row["original_title"]),
                 utc_now(),
                 int(row["id"]),
@@ -355,3 +461,10 @@ def refresh_normalized_rows(
     )
     bump_revision(conn)
     return len(rows)
+
+
+def json_dumps_alternative_titles(value: Any) -> str:
+    """Return a bounded canonical JSON representation for title aliases."""
+    return json.dumps(
+        parse_alternative_titles(value), ensure_ascii=False, separators=(",", ":")
+    )

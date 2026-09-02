@@ -4,11 +4,12 @@ package app.movia.android.ui.player
 
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.media.AudioManager
 import android.provider.Settings
-import android.util.Log
 import android.os.SystemClock
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -22,14 +23,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -53,6 +47,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawing
@@ -72,8 +67,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -84,11 +81,13 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Fullscreen
 import androidx.compose.material.icons.outlined.FullscreenExit
 import androidx.compose.material.icons.outlined.PictureInPictureAlt
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -101,7 +100,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -128,8 +126,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -151,12 +150,9 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import app.movia.android.agent.AgentControlRuntime
 import app.movia.android.R
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.ContentType
-import app.movia.android.domain.model.StreamOption
-import app.movia.android.domain.model.withCanonicalStreamId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -168,60 +164,6 @@ import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaGlowLuminescence
 import app.movia.android.ui.theme.MoviaOnBrandAmber
-
-@Composable
-private fun MoviaCenterLoadingSpinner(
-    modifier: Modifier = Modifier.size(40.dp),
-    strokeWidth: androidx.compose.ui.unit.Dp = 3.dp,
-    color: Color = MoviaBrandAmber,
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "movia_center_spinner")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "movia_center_spinner_rotation",
-    )
-
-    Canvas(
-        modifier = modifier
-            .graphicsLayer { rotationZ = rotation }
-            .semantics { contentDescription = "Буферизация видео" },
-    ) {
-        val stroke = strokeWidth.toPx()
-        val diameter = (size.minDimension - stroke).coerceAtLeast(0f)
-        val arcTopLeft = Offset(stroke / 2f, stroke / 2f)
-        val arcSize = androidx.compose.ui.geometry.Size(diameter, diameter)
-        drawArc(
-            color = color.copy(alpha = 0.18f),
-            startAngle = 0f,
-            sweepAngle = 360f,
-            useCenter = false,
-            topLeft = arcTopLeft,
-            size = arcSize,
-            style = Stroke(width = stroke),
-        )
-        drawArc(
-            brush = Brush.sweepGradient(
-                colorStops = arrayOf(
-                    0.00f to Color.Transparent,
-                    0.58f to color.copy(alpha = 0.32f),
-                    0.82f to color.copy(alpha = 0.72f),
-                    1.00f to color,
-                ),
-            ),
-            startAngle = -90f,
-            sweepAngle = 292f,
-            useCenter = false,
-            topLeft = arcTopLeft,
-            size = arcSize,
-            style = Stroke(width = stroke, cap = StrokeCap.Round),
-        )
-    }
-}
 
 private val PLAYER_CENTER_CONTROL_SIZE = 66.1.dp
 private val PLAYER_CENTER_ICON_SIZE = 33.1.dp
@@ -251,6 +193,7 @@ private enum class PlayerSettingsPicker {
 fun PlayerScreen(
     session: PlaybackSession,
     title: String,
+    onMinimize: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     preferredAudio: String = "Auto",
@@ -273,13 +216,11 @@ fun PlayerScreen(
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    val activity: Activity? = remember(context) { context.findActivity() }
+    val activity = remember(context) { context.findActivity() }
     val rootView = LocalView.current
     val gestureScope = rememberCoroutineScope()
     val playback by session.state.collectAsState()
-    val resolvedStreamOptions by session.streamOptions.collectAsState()
-    val isLandscape = activity?.let(MoviaFullscreenController::isActuallyLandscape)
-        ?: (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val baseTitle = remember(title) { title.substringBefore(" · S").substringBefore(" · E") }
     val mediaContent = remember(baseTitle) { DemoCatalogRepository.findByTitle(baseTitle) }
     val isSeries = mediaContent?.type == ContentType.SERIES || mediaContent?.seasonEpisodeCounts?.isNotEmpty() == true
@@ -289,23 +230,15 @@ fun PlayerScreen(
     var videoAspectRatio by remember { mutableFloatStateOf(moviaVideoAspectRatio(player.videoSize)) }
     val inPictureInPicture = MoviaPiPState.isInPictureInPicture
 
-    // The full player is the sole owner of active playback. Any navigation path that
-    // removes this composable must terminate playback, even if a caller forgets to do so.
-    DisposableEffect(session) {
-        onDispose { session.stopAndClear() }
-    }
-
-    // Immersive bars belong to actual landscape fullscreen only. Portrait player and
-    // the rest of Movia keep normal system bars, avoiding stale window state after rotation.
-    DisposableEffect(activity, inPictureInPicture, isLandscape) {
+    // The player owns an immersive fullscreen window while it is visible.
+    // Restore system bars when the composable leaves so the rest of Movia behaves normally.
+    DisposableEffect(activity, inPictureInPicture) {
         val window = activity?.window
         val controller = window?.let { WindowCompat.getInsetsController(it, it.decorView) }
-        if (!inPictureInPicture && isLandscape) {
+        if (!inPictureInPicture) {
             controller?.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller?.hide(WindowInsetsCompat.Type.systemBars())
-        } else {
-            controller?.show(WindowInsetsCompat.Type.systemBars())
         }
         onDispose {
             controller?.show(WindowInsetsCompat.Type.systemBars())
@@ -387,9 +320,7 @@ fun PlayerScreen(
 
     fun seekBy(deltaMs: Long, stackedSeconds: Int = 10) {
         val maxPosition = max(0L, player.duration.takeIf { it > 0L } ?: Long.MAX_VALUE)
-        val livePosition = player.currentPosition.coerceAtLeast(0L)
-        val target = (livePosition + deltaMs).coerceIn(0L, maxPosition)
-        Log.d("MoviaStreamDebug", "seekBy delta=$deltaMs live=$livePosition target=$target duration=${player.duration}")
+        val target = (session.state.value.currentPositionMs + deltaMs).coerceIn(0L, maxPosition)
         session.seekTo(target)
         scrubPositionMs = target
         seekFeedbackDirection = if (deltaMs < 0L) -1 else 1
@@ -441,7 +372,7 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = false,
+                autoEnter = playback.playWhenReady,
             )
             host.setPictureInPictureParams(params)
             host.enterPictureInPictureMode(params)
@@ -468,7 +399,7 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = false,
+                autoEnter = playback.playWhenReady,
             ),
         )
     }
@@ -680,11 +611,11 @@ fun PlayerScreen(
     }
 
     val leavePlayer: () -> Unit = {
-        MoviaFullscreenController.leavePlayer(activity)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         onBack()
     }
     val exitFullscreen: () -> Unit = {
-        activity?.let(MoviaFullscreenController::exit)
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         showControls()
     }
     val closePlaybackSettings: () -> Unit = {
@@ -692,26 +623,6 @@ fun PlayerScreen(
         settingsOpen = false
         showControls()
     }
-    SideEffect {
-        AgentControlRuntime.updatePlayerSettingsOpen(settingsOpen)
-        AgentControlRuntime.updatePresentation(isLandscape, inPictureInPicture)
-        AgentControlRuntime.registerPlayerSettingsHandlers(
-            open = {
-                settingsPicker = null
-                settingsOpen = true
-                controlsVisible = false
-            },
-            close = closePlaybackSettings,
-            enterFullscreen = { activity?.let(MoviaFullscreenController::enter) },
-            enterPip = { enterPictureInPicture() },
-        )
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            AgentControlRuntime.registerPlayerSettingsHandlers(open = null, close = null)
-        }
-    }
-
     val handlePlayerBack: () -> Unit = {
         if (controlsLocked) {
             controlsLocked = false
@@ -1133,8 +1044,11 @@ fun PlayerScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             if (playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING) {
-                                MoviaCenterLoadingSpinner(
+                                CircularProgressIndicator(
+                                    color = Color(0xFFE5A93C),
+                                    trackColor = Color(0xFFE5A93C).copy(alpha = 0.20f),
                                     strokeWidth = 3.dp,
+                                    modifier = Modifier.size(36.dp),
                                 )
                             } else {
                                 IconButton(
@@ -1270,10 +1184,10 @@ fun PlayerScreen(
                     }
                 } else null,
                 onToggleFullscreen = {
-                    val hostActivity = context.findActivity() ?: (context as? Activity)
-                    if (hostActivity != null) {
-                        val isNowLandscape = MoviaFullscreenController.toggle(hostActivity)
-                        android.util.Log.d("MoviaStreamDebug", "Fullscreen toggled to landscape=$isNowLandscape")
+                    activity?.requestedOrientation = if (isLandscape) {
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    } else {
+                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                     }
                     showControls()
                 },
@@ -1332,109 +1246,55 @@ fun PlayerScreen(
         }
 
         if (!inPictureInPicture && settingsOpen) {
-            // Settings is a projection of PlaybackSession, never a second selection store.
-            // Keep every resolved option that belongs to this episode and address it by stable ID.
-            val contentStreams = (resolvedStreamOptions + mediaContent?.streams.orEmpty())
-                .map { it.withCanonicalStreamId(currentSeason, currentEpisode) }
-                .distinctBy { it.streamId }
-
-            fun normalizedQuality(stream: StreamOption): String =
-                stream.quality.ifBlank { mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p" }
-
-            fun normalizedVoice(stream: StreamOption): String =
-                stream.voice.ifBlank { "Не указано" }
-
-            fun qualityPriority(value: String): Int {
-                val q = value.lowercase()
-                return when {
-                    q.contains("2160") || q.contains("4k") -> 2160
-                    q.contains("1440") -> 1440
-                    q.contains("1080") -> 1080
-                    q.contains("720") -> 720
-                    q.contains("480") -> 480
-                    q.contains("360") -> 360
-                    else -> 0
-                }
+            val contentStreams = mediaContent?.streams.orEmpty()
+            val streamVoices: List<String> = if (contentStreams.isNotEmpty()) {
+                contentStreams.map { it.voice.ifBlank { "Дубляж" } }.distinct().sortedWith(
+                    compareBy { v ->
+                        val low = v.lowercase()
+                        when {
+                            low.contains("дубляж") || low.contains("дублированный") -> 0
+                            low.contains("lostfilm") -> 1
+                            low.contains("red head sound") || low.contains("rhs") -> 2
+                            low.contains("hdrezka") || low.contains("rezka") -> 3
+                            low.contains("кубик") -> 4
+                            low.contains("кураж") -> 5
+                            low.contains("newstudio") -> 6
+                            low.contains("профессиональн") -> 7
+                            low.contains("русск") -> 8
+                            low.contains("original") || low.contains("english") -> 20
+                            else -> 10
+                        }
+                    }
+                )
+            } else {
+                listOf(mediaContent?.audioLanguages?.firstOrNull()?.takeIf { it.isNotBlank() } ?: "Дубляж")
             }
 
-            fun voicePriority(value: String): Int {
-                val low = value.lowercase()
-                return when {
-                    low.contains("red head sound") || low.contains("rhs") -> 0
-                    low.contains("lostfilm") -> 1
-                    low.contains("кубик") -> 2
-                    low.contains("кураж") -> 3
-                    low.contains("newstudio") -> 4
-                    low.contains("jaskier") -> 5
-                    low.contains("alexfilm") -> 6
-                    low.contains("tvshows") -> 7
-                    low.contains("hdrezka") || low.contains("rezka") -> 8
-                    low.contains("дубляж") || low.contains("дублирован") -> 9
-                    low.contains("профессиональн") || low.contains("мво") -> 10
-                    low.contains("двухголос") || low.contains("дво") -> 11
-                    low.contains("русск") -> 12
-                    low.contains("не указано") -> 30
-                    low.contains("original") || low.contains("english") -> 40
-                    else -> 20
-                }
+            val currentVoice: String = if (audioSummary in streamVoices) {
+                audioSummary
+            } else {
+                streamVoices.firstOrNull { !it.contains("Original", ignoreCase = true) && !it.contains("English", ignoreCase = true) }
+                    ?: streamVoices.firstOrNull() ?: "Дубляж"
             }
 
-            val streamQualities = contentStreams
-                .map(::normalizedQuality)
-                .distinctBy { it.lowercase() }
-                .sortedByDescending(::qualityPriority)
-                .ifEmpty { listOf(mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p") }
-
-            val selection = playback.activeStreamSelection
-            val requestedQuality = selection?.requestedQuality
-                ?: selection?.activeQuality
-                ?: effectiveQualityPreference
-            val selectedQuality = streamQualities.firstOrNull {
-                requestedQuality != "Auto" && it.equals(requestedQuality, ignoreCase = true)
-            } ?: streamQualities.firstOrNull() ?: "1080p"
-
-            val streamsForSelectedQuality = contentStreams.filter {
-                normalizedQuality(it).equals(selectedQuality, ignoreCase = true)
+            val streamQualitiesForVoice: List<String> = if (contentStreams.isNotEmpty()) {
+                val matching = contentStreams.filter { it.voice.equals(currentVoice, ignoreCase = true) }.map { it.quality.ifBlank { "1080p" } }.distinct()
+                if (matching.isNotEmpty()) matching else contentStreams.map { it.quality.ifBlank { "1080p" } }.distinct()
+            } else {
+                listOf(mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p")
             }
-            val streamVoicesForQuality = streamsForSelectedQuality
-                .map(::normalizedVoice)
-                .distinctBy { it.lowercase() }
-                .sortedBy(::voicePriority)
-                .ifEmpty {
-                    contentStreams.map(::normalizedVoice)
-                        .distinctBy { it.lowercase() }
-                        .sortedBy(::voicePriority)
-                }
-                .ifEmpty { listOf("Не указано") }
 
-            val requestedVoice = selection?.requestedVoice
-                ?: selection?.activeVoice
-                ?: effectiveAudioPreference
-            val selectedVoice = streamVoicesForQuality.firstOrNull {
-                requestedVoice != "Auto" && it.equals(requestedVoice, ignoreCase = true)
-            } ?: streamVoicesForQuality.firstOrNull() ?: "Не указано"
-
-            fun exactOrVariantMatch(
-                candidates: List<StreamOption>,
-                quality: String,
-                voice: String,
-            ): StreamOption? {
-                val requestedId = selection?.requestedStreamId
-                return candidates.firstOrNull {
-                    it.streamId == requestedId &&
-                        normalizedQuality(it).equals(quality, ignoreCase = true) &&
-                        normalizedVoice(it).equals(voice, ignoreCase = true)
-                } ?: candidates.firstOrNull {
-                    normalizedQuality(it).equals(quality, ignoreCase = true) &&
-                        normalizedVoice(it).equals(voice, ignoreCase = true)
-                }
+            val currentQuality: String = if (qualitySummary in streamQualitiesForVoice) {
+                qualitySummary
+            } else {
+                streamQualitiesForVoice.firstOrNull { it.equals(qualitySummary, ignoreCase = true) } ?: streamQualitiesForVoice.firstOrNull() ?: "1080p"
             }
 
             StreamSettingsScreen(
-                audioOptions = streamVoicesForQuality,
-                qualityOptions = streamQualities,
-                selectedAudio = selectedVoice,
-                selectedQuality = selectedQuality,
+                audioOptions = streamVoices,
+                qualityOptions = streamQualitiesForVoice,
+                selectedAudio = currentVoice,
+                selectedQuality = currentQuality,
                 autoNextEnabled = autoNextEnabled,
                 persistentSeekButtons = persistentSeekButtons,
                 onBack = {
@@ -1442,49 +1302,22 @@ fun PlayerScreen(
                     showControls()
                 },
                 onAudioSelected = { newVoice ->
-                    val matchedStream = exactOrVariantMatch(
-                        streamsForSelectedQuality,
-                        selectedQuality,
-                        newVoice,
-                    )
+                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) && it.quality.equals(currentQuality, ignoreCase = true) }
+                        ?: contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) }
                     if (matchedStream != null && matchedStream.url.isNotBlank()) {
-                        session.switchToStream(matchedStream, player.currentPosition.coerceAtLeast(0L))
-                        Log.d(
-                            "MoviaStreamDebug",
-                            "USER_SELECT voice quality=" + selectedQuality +
-                                " voice=" + newVoice +
-                                " streamId=" + matchedStream.streamId,
-                        )
-                    } else if (contentStreams.isEmpty()) {
-                        selectAudio(newVoice)
+                        val currentPosition = session.state.value.currentPositionMs
+                        session.switchToStream(matchedStream.url, currentPosition)
                     }
-                    onAudioSelected(newVoice)
+                    selectAudio(newVoice)
                 },
                 onQualitySelected = { newQuality ->
-                    val candidates = contentStreams.filter {
-                        normalizedQuality(it).equals(newQuality, ignoreCase = true)
+                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(currentVoice, ignoreCase = true) && it.quality.equals(newQuality, ignoreCase = true) }
+                        ?: contentStreams.firstOrNull { it.quality.equals(newQuality, ignoreCase = true) }
+                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
+                        val currentPosition = session.state.value.currentPositionMs
+                        session.switchToStream(matchedStream.url, currentPosition)
                     }
-                    if (candidates.isNotEmpty()) {
-                        val availableVoices = candidates
-                            .map(::normalizedVoice)
-                            .distinctBy { it.lowercase() }
-                            .sortedBy(::voicePriority)
-                        val nextVoice = availableVoices.firstOrNull {
-                            it.equals(selectedVoice, ignoreCase = true)
-                        } ?: availableVoices.firstOrNull() ?: "Не указано"
-                        val matchedStream = exactOrVariantMatch(candidates, newQuality, nextVoice)
-                            ?: candidates.first()
-                        session.switchToStream(matchedStream, player.currentPosition.coerceAtLeast(0L))
-                        Log.d(
-                            "MoviaStreamDebug",
-                            "USER_SELECT quality=" + newQuality +
-                                " voice=" + nextVoice +
-                                " streamId=" + matchedStream.streamId,
-                        )
-                    } else if (contentStreams.isEmpty()) {
-                        selectQuality(newQuality)
-                    }
-                    onQualitySelected(newQuality)
+                    selectQuality(newQuality)
                 },
                 onAutoNextChanged = onAutoNextChanged,
                 onPersistentSeekButtonsChanged = onPersistentSeekButtonsChanged,
@@ -1493,7 +1326,8 @@ fun PlayerScreen(
                     .zIndex(50f),
             )
         }
-        if (!inPictureInPicture && (playback.status == app.movia.android.domain.model.PlaybackStatus.FAILED || playback.switchState == app.movia.android.domain.model.PlaybackSwitchState.FAILED || playback.statusMessage?.contains("не удалось", ignoreCase = true) == true || playback.statusMessage == "Источники для данного тайтла временно недоступны")) {
+
+        if (!inPictureInPicture && playback.statusMessage == "Источники для данного тайтла временно недоступны") {
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = scheme.surfaceContainerHigh.copy(alpha = 0.95f),
@@ -1509,65 +1343,28 @@ fun PlayerScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Text(
-                        text = "Сейчас не удалось найти доступный источник видео",
+                        text = "Источники временно недоступны",
                         color = scheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                     Text(
-                        text = playback.statusMessage ?: "Не удалось найти рабочий поток для выбранного тайтла. Попробуйте выбрать другую озвучку или повторите попытку позже.",
+                        text = "Не удалось найти рабочий поток для выбранного тайтла. Попробуйте выбрать другую озвучку или повторите попытку позже.",
                         color = scheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                    Surface(
+                        onClick = handlePlayerBack,
+                        color = MoviaBrandAmber,
+                        shape = RoundedCornerShape(12.dp),
                     ) {
-                        Surface(
-                            onClick = handlePlayerBack,
-                            color = scheme.surfaceContainerHighest,
-                            shape = RoundedCornerShape(12.dp),
-                        ) {
-                            Text(
-                                text = "Вернуться назад",
-                                color = scheme.onSurface,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-                            )
-                        }
-                        Surface(
-                            onClick = {
-                                mediaContent?.let { content ->
-                                    val streamCandidates = content.streams.filter { it.url.isNotBlank() }
-                                    session.start(
-                                        mediaId = content.id,
-                                        title = title,
-                                        contentYear = content.year,
-                                        seasonNumber = currentSeason,
-                                        episodeNumber = currentEpisode,
-                                        sourceUri = null,
-                                        startPositionMs = positionMs,
-                                        audioTrackId = preferredAudio,
-                                        subtitleTrackId = null,
-                                        preferredQuality = preferredQuality,
-                                        preferredVoice = preferredAudio,
-                                        candidateStreams = streamCandidates.map { it.url },
-                                        candidateStreamOptions = streamCandidates,
-                                    )
-                                }
-                            },
-                            color = MoviaBrandAmber,
-                            shape = RoundedCornerShape(12.dp),
-                        ) {
-                            Text(
-                                text = "Повторить",
-                                color = Color.Black,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-                            )
-                        }
+                        Text(
+                            text = "Вернуться назад",
+                            color = Color.Black,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                        )
                     }
                 }
             }
@@ -1575,7 +1372,7 @@ fun PlayerScreen(
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = scheme.surfaceContainerHigh.copy(alpha = 0.94f),
-                border = BorderStroke(1.dp, MoviaBrandAmber.copy(alpha = 0.35f)),
+                border = BorderStroke(1.dp, Color(0xFFE5A93C).copy(alpha = 0.35f)),
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(top = 130.dp)
@@ -1587,14 +1384,14 @@ fun PlayerScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     CircularProgressIndicator(
-                        color = MoviaBrandAmber,
-                        trackColor = MoviaBrandAmber.copy(alpha = 0.20f),
+                        color = Color(0xFFE5A93C),
+                        trackColor = Color(0xFFE5A93C).copy(alpha = 0.20f),
                         strokeWidth = 2.5.dp,
                         modifier = Modifier.size(18.dp),
                     )
                     Text(
                         text = playback.statusMessage ?: "Поиск доступных источников...",
-                        color = MoviaBrandAmber,
+                        color = Color(0xFFE5A93C),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -1713,22 +1510,17 @@ private fun StreamSettingsScreen(
     ) {
         // Drag-полоска (индикатор свайпа вниз)
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp, bottom = 2.dp),
             contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clickable(onClick = onBack),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 36.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(scheme.onSurfaceVariant.copy(alpha = 0.40f)),
-                )
-            }
+                    .size(width = 36.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(scheme.onSurfaceVariant.copy(alpha = 0.40f)),
+            )
         }
 
         // Фиксированный Header
@@ -1743,23 +1535,21 @@ private fun StreamSettingsScreen(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
 
-        PlayerSettingsSectionLabel("КАЧЕСТВО ВИДЕО")
-        PlayerSettingsChipsRow(qualityOptions, selectedQuality, onQualitySelected, "quality")
+        PlayerSettingsSectionLabel("ОЗВУЧКА")
+        PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected)
 
-        PlayerSettingsSectionLabel("ОЗВУЧКА ДЛЯ $selectedQuality")
-        PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected, "voice")
+        PlayerSettingsSectionLabel("КАЧЕСТВО ВИДЕО")
+        PlayerSettingsChipsRow(qualityOptions, selectedQuality, onQualitySelected)
 
         PlayerSettingsSectionLabel("УПРАВЛЕНИЕ И ПЕРЕХОДЫ")
         PlayerSettingsToggleRow(
             title = "Автопереход к следующей серии",
-            settingKey = "player.autoNext",
             subtitle = "Автоматически воспроизводить следующую серию после окончания",
             checked = autoNextEnabled,
             onCheckedChange = onAutoNextChanged,
         )
         PlayerSettingsToggleRow(
             title = "Кнопки перемотки ±10 сек",
-            settingKey = "player.showSeekButtons",
             subtitle = "Показывать кнопки быстрой перемотки в центре оверлея",
             checked = persistentSeekButtons,
             onCheckedChange = onPersistentSeekButtonsChanged,
@@ -1772,7 +1562,6 @@ private fun PlayerSettingsChipsRow(
     options: List<String>,
     selected: String,
     onSelected: (String) -> Unit,
-    keyPrefix: String,
 ) {
     val scheme = MaterialTheme.colorScheme
     LazyRow(
@@ -1788,7 +1577,6 @@ private fun PlayerSettingsChipsRow(
                 color = if (isSelected) MoviaBrandAmber.copy(alpha = 0.16f) else scheme.surfaceContainer,
                 modifier = Modifier
                     .heightIn(min = 46.dp)
-                    .testTag(agentSettingOptionTag(keyPrefix, option))
                     .border(
                         width = 1.dp,
                         color = if (isSelected) MoviaBrandAmber else MoviaBorderSubtle,
@@ -1818,7 +1606,6 @@ private fun PlayerSettingsToggleRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    settingKey: String,
     subtitle: String? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -1828,7 +1615,6 @@ private fun PlayerSettingsToggleRow(
         color = scheme.surfaceContainer.copy(alpha = 0.72f),
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("settings." + settingKey)
             .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(14.dp)),
     ) {
         Row(
@@ -2037,22 +1823,34 @@ private fun PlayerEpisodeSelectionScreen(
                     modifier = Modifier
                         .size(width = 36.dp, height = 4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(scheme.onSurfaceVariant.copy(alpha = 0.40f))
-                        .clickable { onBack() },
+                        .background(scheme.onSurfaceVariant.copy(alpha = 0.40f)),
                 )
             }
 
-            // Чистый заголовок «Сезоны и серии» (закрытие через жест/тап по Drag Handle)
-            Text(
-                text = "Сезоны и серии",
-                color = scheme.onBackground,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-            )
+            // Фиксированный Header: [←]  Сезоны и серии  [ ✕ ]
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PlayerGlassAction(
+                    onClick = onBack,
+                    icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Назад к плееру",
+                )
+                Text(
+                    text = "Сезоны и серии",
+                    color = scheme.onBackground,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f),
+                )
+                PlayerGlassAction(
+                    onClick = onBack,
+                    icon = Icons.Filled.Close,
+                    contentDescription = "Закрыть",
+                )
+            }
         }
 
         // Горизонтальный ряд сезонов
@@ -2310,28 +2108,6 @@ private fun PlayerTopBar(
     }
 }
 
-private fun playerActionTestTag(contentDescription: String): String = when (contentDescription) {
-    "Назад" -> "player.back"
-    "Разблокировать управление", "Заблокировать управление" -> "player.lock"
-    "Picture-in-Picture" -> "player.pip"
-    "Настройки плеера" -> "player.settings"
-    "Сезоны и серии" -> "player.episodes"
-    "Свернуть из полноэкранного режима", "Развернуть на весь экран" -> "player.fullscreen"
-    "Вперёд на 10 секунд" -> "player.seekForward"
-    "Назад на 10 секунд" -> "player.seekBack"
-    else -> "player.action"
-}
-
-private fun agentSettingOptionTag(prefix: String, value: String): String {
-    val normalized = value.lowercase(Locale.ROOT)
-    val stableName = when (normalized) {
-        "кубик в кубе" -> "kubik-v-kube"
-        "lostfilm" -> "lostfilm"
-        else -> normalized.replace(Regex("[^a-z0-9а-яё]+"), "-").trim('-')
-    }
-    return "settings." + prefix + "." + stableName
-}
-
 @Composable
 private fun PlayerGlassAction(
     onClick: () -> Unit,
@@ -2346,8 +2122,6 @@ private fun PlayerGlassAction(
         color = scheme.surfaceContainer.copy(alpha = 0.88f),
         modifier = modifier
             .size(44.dp)
-            .testTag(playerActionTestTag(contentDescription))
-            .semantics(mergeDescendants = true) { this.contentDescription = contentDescription }
             .border(1.dp, MoviaBorderSubtle, CircleShape),
     ) {
         IconButton(
@@ -2438,7 +2212,7 @@ private fun PlayerTimeline(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
-                modifier = Modifier.widthIn(min = 48.dp),
+                modifier = Modifier.width(46.dp),
             )
             Spacer(modifier = Modifier.width(10.dp))
             BoxWithConstraints(
@@ -2456,7 +2230,6 @@ private fun PlayerTimeline(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .testTag("player.timeline")
                         .semantics {
                             contentDescription = "Позиция воспроизведения"
                             stateDescription = formatTime(positionMs) + " из " + formatTime(durationMs)
@@ -2577,7 +2350,7 @@ private fun PlayerTimeline(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
-                modifier = Modifier.widthIn(min = 68.dp),
+                modifier = Modifier.width(56.dp),
             )
             if (isSeries && onOpenEpisodes != null) {
                 Spacer(modifier = Modifier.width(8.dp))
@@ -2833,4 +2606,10 @@ private fun formatTime(milliseconds: Long): String {
     } else {
         "%02d:%02d".format(minutes, seconds)
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

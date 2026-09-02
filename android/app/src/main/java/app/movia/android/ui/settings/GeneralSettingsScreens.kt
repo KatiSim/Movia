@@ -19,7 +19,6 @@ import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,8 +49,6 @@ fun DownloadsSettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(onBack = onBack)
-    var pendingDeleteTitle by rememberSaveable { mutableStateOf<String?>(null) }
-    var confirmDeleteAll by rememberSaveable { mutableStateOf(false) }
     SettingsPage(title = "Загрузки и память", onBack = onBack, modifier = modifier) {
         item {
             SettingsInfoCard(
@@ -78,7 +75,7 @@ fun DownloadsSettingsScreen(
                     modifier = Modifier.weight(1f),
                 )
                 if (downloadedTitles.isNotEmpty()) {
-                    TextButton(onClick = { confirmDeleteAll = true }) {
+                    TextButton(onClick = onDeleteAll) {
                         Text("Удалить всё", color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -94,7 +91,7 @@ fun DownloadsSettingsScreen(
             }
         } else {
             items(downloadedTitles, key = { "download-" + it }) { title ->
-                DownloadedTitleRow(title = title, onDelete = { pendingDeleteTitle = title })
+                DownloadedTitleRow(title = title, onDelete = { onDeleteTitle(title) })
             }
         }
         item {
@@ -105,48 +102,6 @@ fun DownloadsSettingsScreen(
                 onCheckedChange = onWifiOnlyChanged,
             )
         }
-    }
-
-    pendingDeleteTitle?.let { title ->
-        AlertDialog(
-            onDismissRequest = { pendingDeleteTitle = null },
-            title = { Text("Удалить скачанный файл?") },
-            text = { Text("«$title» будет удалён с устройства. Это действие нельзя отменить.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingDeleteTitle = null
-                        onDeleteTitle(title)
-                    },
-                ) {
-                    Text("Удалить", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDeleteTitle = null }) { Text("Отмена") }
-            },
-        )
-    }
-
-    if (confirmDeleteAll) {
-        AlertDialog(
-            onDismissRequest = { confirmDeleteAll = false },
-            title = { Text("Удалить все загрузки?") },
-            text = { Text("Все офлайн-файлы Movia будут удалены, а активные загрузки отменены. Это действие нельзя отменить.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        confirmDeleteAll = false
-                        onDeleteAll()
-                    },
-                ) {
-                    Text("Удалить всё", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmDeleteAll = false }) { Text("Отмена") }
-            },
-        )
     }
 }
 

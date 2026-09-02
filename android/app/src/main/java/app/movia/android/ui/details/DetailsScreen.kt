@@ -2,6 +2,7 @@ package app.movia.android.ui.details
 
 import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 
@@ -10,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -44,11 +46,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Button
@@ -58,10 +64,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -78,6 +84,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -86,9 +93,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -97,6 +108,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.movia.android.data.catalog.DemoCatalogRepository
@@ -111,11 +123,15 @@ import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.moviaContentTypeLabel
 import app.movia.android.ui.components.moviaLocalizedGenreList
+import app.movia.android.ui.components.moviaPrimaryGenre
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
+import app.movia.android.ui.theme.MoviaDividerSubtle
 import app.movia.android.ui.theme.MoviaScrim40
 import app.movia.android.ui.theme.MoviaScrim60
+import app.movia.android.ui.theme.MoviaScrim70
+import app.movia.android.ui.theme.MoviaRatingBadgeBackground
 import app.movia.android.ui.theme.MoviaPrimaryAccentHover
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,9 +172,10 @@ private fun episodeFromTitle(title: String): Int? =
 @Composable
 fun DetailsScreen(
     title: String,
+    mediaId: String? = null,
     onBack: () -> Unit,
-    onPlay: (String) -> Unit,
-    onOpenDetails: (String) -> Unit,
+    onPlay: (MediaContent, String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
     modifier: Modifier = Modifier,
     inMyList: Boolean = false,
     onMyListChange: (Boolean) -> Unit,
@@ -167,10 +184,15 @@ fun DetailsScreen(
     progressByTitle: Map<String, PlaybackProgress> = emptyMap(),
     latestProgress: PlaybackProgress = PlaybackProgress(),
 ) {
-    val initialContent = remember(title) { DemoCatalogRepository.findByTitle(title) }
-    val contentState by produceState<MediaContent?>(initialValue = initialContent, title) {
+    val initialContent = remember(title, mediaId) {
+        mediaId?.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findById)
+            ?: DemoCatalogRepository.findByTitle(title)
+    }
+    val contentState by produceState<MediaContent?>(initialValue = initialContent, title, mediaId) {
         value = withContext(Dispatchers.IO) {
-            DemoCatalogRepository.findFullByTitle(title) ?: initialContent
+            mediaId?.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findFullById)
+                ?: DemoCatalogRepository.findFullByTitle(title)
+                ?: initialContent
         }
     }
     val content = contentState ?: initialContent
@@ -184,6 +206,9 @@ fun DetailsScreen(
     var selectedSeason by remember(title, initialSeason) { mutableIntStateOf(initialSeason) }
     var synopsisExpanded by remember(title) { mutableStateOf(false) }
     var seasonScreenOpen by remember(title) { mutableStateOf(false) }
+    var streamOptionsOpen by remember(title) { mutableStateOf(false) }
+    var selectedQuality by remember(title) { mutableStateOf("1080p") }
+    var selectedAudio by remember(title) { mutableStateOf("Дубляж") }
     val listState = rememberLazyListState()
     LaunchedEffect(content?.id, title) {
         listState.scrollToItem(0)
@@ -234,13 +259,21 @@ fun DetailsScreen(
         }
     }
 
-    BackHandler {
-        if (seasonScreenOpen) {
-            seasonScreenOpen = false
-        } else {
-            onBack()
-        }
+    if (hasEpisodes && seasonScreenOpen) {
+        SeasonEpisodesScreen(
+            baseTitle = title,
+            seasonEpisodeCounts = seasonEpisodeCounts,
+            initialSeason = selectedSeason,
+            progressByTitle = progressByTitle,
+            onSeasonChange = { selectedSeason = it },
+            onPlay = { episodeTitle -> content?.let { onPlay(it, episodeTitle) } },
+            onBack = { seasonScreenOpen = false },
+            modifier = modifier,
+        )
+        return
     }
+
+    BackHandler(onBack = onBack)
 
     Box(
         modifier = modifier
@@ -249,7 +282,9 @@ fun DetailsScreen(
     ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 64.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = navBottom + 32.dp),
         ) {
@@ -296,7 +331,7 @@ fun DetailsScreen(
                     PrimaryWatchButton(
                         primaryText = ctaPrimary,
                         secondaryText = ctaSecondary,
-                        onClick = { onPlay(playbackTitle) },
+                        onClick = { content?.let { onPlay(it, playbackTitle) } },
                     )
                     if (hasEpisodes) {
                         SeasonEpisodesButton(
@@ -342,7 +377,7 @@ fun DetailsScreen(
             if (director != null) {
                 item(key = "director") {
                     InfoSection(
-                        title = "Режиссёр",
+                        title = if (isSeries) "Создатель" else "Режиссёр",
                         modifier = Modifier.padding(horizontal = 16.dp),
                     ) {
                         Text(
@@ -448,21 +483,16 @@ fun DetailsScreen(
         }
     }
 
-    if (hasEpisodes && seasonScreenOpen) {
-        SeasonEpisodesSheet(
-            baseTitle = title,
-            seasonEpisodeCounts = seasonEpisodeCounts,
-            initialSeason = selectedSeason,
-            progressByTitle = progressByTitle,
-            onSeasonChange = { selectedSeason = it },
-            onPlay = { episodeTitle ->
-                seasonScreenOpen = false
-                onPlay(episodeTitle)
-            },
-            onDismiss = { seasonScreenOpen = false },
+    if (streamOptionsOpen) {
+        StreamQualityAudioSheet(
+            selectedQuality = selectedQuality,
+            onQualitySelected = { selectedQuality = it },
+            selectedAudio = selectedAudio,
+            onAudioSelected = { selectedAudio = it },
+            onPlay = { content?.let { onPlay(it, playbackTitle) } },
+            onDismiss = { streamOptionsOpen = false },
         )
     }
-
 }
 
 private fun Modifier.swipeDownToDismiss(
@@ -782,6 +812,118 @@ private fun QuickActionsRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StreamQualityAudioSheet(
+    selectedQuality: String,
+    onQualitySelected: (String) -> Unit,
+    selectedAudio: String,
+    onAudioSelected: (String) -> Unit,
+    onPlay: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val qualities = listOf("1080p", "720p", "480p", "4K")
+    val audios = listOf("Дубляж", "LostFilm", "HDRezka", "TVShows", "Кураж-Бамбей", "Оригинал")
+    val scheme = MaterialTheme.colorScheme
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = scheme.surface,
+        dragHandle = null,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Качество и озвучка",
+                    color = scheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Filled.Close, contentDescription = "Закрыть", tint = scheme.onSurface)
+                }
+            }
+
+            Text(
+                text = "КАЧЕСТВО ПОТОКА",
+                color = scheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(qualities) { q ->
+                    val isSelected = selectedQuality == q
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onQualitySelected(q) },
+                        label = { Text(q, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MoviaBrandAmber,
+                            selectedLabelColor = MoviaOnBrandAmber,
+                            containerColor = scheme.surfaceContainer,
+                            labelColor = scheme.onSurface,
+                        ),
+                    )
+                }
+            }
+
+            Text(
+                text = "ВАРИАНТ ОЗВУЧКИ / ИСТОЧНИК",
+                color = scheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(audios) { a ->
+                    val isSelected = selectedAudio == a
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onAudioSelected(a) },
+                        label = { Text(a, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MoviaBrandAmber,
+                            selectedLabelColor = MoviaOnBrandAmber,
+                            containerColor = scheme.surfaceContainer,
+                            labelColor = scheme.onSurface,
+                        ),
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    onDismiss()
+                    onPlay()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MoviaBrandAmber, contentColor = MoviaOnBrandAmber),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+            ) {
+                Text("Смотреть в $selectedQuality ($selectedAudio)", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
 @Composable
 private fun DetailsQuickAction(
     modifier: Modifier = Modifier,
@@ -824,137 +966,151 @@ private fun DetailsQuickAction(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SeasonEpisodesSheet(
+private fun SeasonEpisodesScreen(
     baseTitle: String,
     seasonEpisodeCounts: List<Int>,
     initialSeason: Int,
     progressByTitle: Map<String, PlaybackProgress>,
     onSeasonChange: (Int) -> Unit,
     onPlay: (String) -> Unit,
-    onDismiss: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    BackHandler(onBack = onBack)
+
     val pageCount = seasonEpisodeCounts.size.coerceAtLeast(1)
     val pagerState = rememberPagerState(
         initialPage = (initialSeason - 1).coerceIn(0, pageCount - 1),
         pageCount = { pageCount },
     )
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val dismissThresholdPx = with(LocalDensity.current) { 96.dp.toPx() }
+    val swipeDownBack = remember(onBack, dismissThresholdPx) {
+        object : NestedScrollConnection {
+            var pullDistance = 0f
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    when {
+                        available.y > 0f -> pullDistance += available.y
+                        available.y < 0f -> pullDistance = 0f
+                    }
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                val shouldGoBack = pullDistance >= dismissThresholdPx
+                pullDistance = 0f
+                if (shouldGoBack) onBack()
+                return Velocity.Zero
+            }
+        }
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         onSeasonChange(pagerState.currentPage + 1)
     }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        dragHandle = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .semantics {
-                        contentDescription = "Потяните вниз, чтобы закрыть выбор сезонов и серий"
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 36.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.42f)),
-                )
-            }
-        },
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .nestedScroll(swipeDownBack),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.88f)
-                .navigationBarsPadding(),
-        ) {
-            Text(
-                text = "Сезоны и серии",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp,
-                lineHeight = 26.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            ) {
-                items((1..pageCount).toList(), key = { "season-$it" }) { season ->
-                    val selected = pagerState.currentPage == season - 1
-                    FilterChip(
-                        selected = selected,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(season - 1) } },
-                        modifier = Modifier.heightIn(min = 48.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = selected,
-                            borderColor = MoviaBorderSubtle,
-                            selectedBorderColor = MoviaBrandAmber,
-                        ),
-                        label = {
-                            Text(
-                                text = "Сезон $season",
-                                fontSize = 14.sp,
-                                lineHeight = 20.sp,
-                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            labelColor = MaterialTheme.colorScheme.onSurface,
-                            selectedContainerColor = MoviaBrandAmber,
-                            selectedLabelColor = MoviaOnBrandAmber,
-                        ),
+        TopAppBar(
+            title = {},
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "Назад",
+                        modifier = Modifier.size(24.dp),
                     )
                 }
-            }
+            },
+            actions = {},
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            windowInsets = WindowInsets.statusBars,
+        )
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-            ) { page ->
-                val season = page + 1
-                val episodeCount = seasonEpisodeCounts.getOrElse(page) { 0 }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 4.dp,
-                        bottom = 24.dp,
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        ) {
+            items((1..pageCount).toList(), key = { "season-$it" }) { season ->
+                val selected = pagerState.currentPage == season - 1
+                FilterChip(
+                    selected = selected,
+                    onClick = {
+                        scope.launch { pagerState.scrollToPage(season - 1) }
+                    },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = selected,
+                        borderColor = MoviaBorderSubtle,
+                        selectedBorderColor = MoviaBrandAmber,
                     ),
-                ) {
-                    items(
-                        count = episodeCount,
-                        key = { index -> "S$season-E${index + 1}" },
-                    ) { index ->
-                        val number = index + 1
-                        val fullTitle = episodeTitle(baseTitle, season, number)
-                        EpisodeRow(
-                            episode = EpisodeUiState(
-                                season = season,
-                                number = number,
-                                progress = progressByTitle[fullTitle] ?: PlaybackProgress(title = fullTitle),
-                            ),
-                            onPlay = { onPlay(fullTitle) },
+                    label = {
+                        Text(
+                            text = "Сезон $season",
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                         )
-                    }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        labelColor = MaterialTheme.colorScheme.onSurface,
+                        selectedContainerColor = MoviaBrandAmber,
+                        selectedLabelColor = MoviaOnBrandAmber,
+                    ),
+                )
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) { page ->
+            val season = page + 1
+            val episodeCount = seasonEpisodeCounts.getOrElse(page) { 0 }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = navBottom + 24.dp,
+                ),
+            ) {
+                items(
+                    count = episodeCount,
+                    key = { index -> "S$season-E${index + 1}" },
+                ) { index ->
+                    val number = index + 1
+                    val fullTitle = episodeTitle(baseTitle, season, number)
+                    EpisodeRow(
+                        episode = EpisodeUiState(
+                            season = season,
+                            number = number,
+                            progress = progressByTitle[fullTitle] ?: PlaybackProgress(title = fullTitle),
+                        ),
+                        onPlay = { onPlay(fullTitle) },
+                    )
                 }
             }
         }
@@ -1086,9 +1242,10 @@ private fun ActorCard(person: Person) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth(),
         )
-        if (!person.role.isNullOrBlank()) {
+        val displayRole = castRoleForDisplay(person.role)
+        if (!displayRole.isNullOrBlank()) {
             Text(
-                text = person.role,
+                text = displayRole,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 11.sp,
                 lineHeight = 13.sp,
@@ -1099,6 +1256,16 @@ private fun ActorCard(person: Person) {
             )
         }
     }
+}
+
+private fun castRoleForDisplay(role: String?): String? {
+    val raw = role?.trim().orEmpty()
+    if (raw.isBlank()) return null
+    val hasCyrillic = Regex("[А-Яа-яЁё]").containsMatchIn(raw)
+    if (hasCyrillic) {
+        return raw.replace("(voice)", "(озвучка)", ignoreCase = true)
+    }
+    return if (raw.contains("(voice)", ignoreCase = true)) "Озвучка" else null
 }
 
 private suspend fun loadActorBitmap(url: String?): Bitmap? = withContext(Dispatchers.IO) {
@@ -1127,7 +1294,7 @@ private fun MediaContentRowSection(
     title: String,
     items: List<MediaContent>,
     activeId: String? = null,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionTitle(title, Modifier.padding(horizontal = 16.dp))
@@ -1140,7 +1307,7 @@ private fun MediaContentRowSection(
                     item = item,
                     modifier = Modifier.width(136.dp),
                     posterBorder = if (item.id == activeId) MoviaBrandAmber else MoviaBorderSubtle,
-                    onClick = { onOpenDetails(item.title) },
+                    onClick = { onOpenDetails(item.title, item.id) },
                 )
             }
         }

@@ -113,6 +113,8 @@ private fun media(
 private class FakeCatalogRepository(
     private val items: List<MediaContent>,
 ) : CatalogRepository {
+    override fun all(): List<MediaContent> = items
+
     override fun getPaged(
         limit: Int,
         offset: Int,
@@ -152,8 +154,4 @@ private class FakeCatalogRepository(
     override fun findByTitle(title: String): MediaContent? = items.firstOrNull { it.title.equals(title, ignoreCase = true) }
 
     override fun findById(id: String): MediaContent? = items.firstOrNull { it.id == id }
-
-    override fun findFullById(id: String): MediaContent? = findById(id)
-
-    override fun findFullByTitle(title: String): MediaContent? = findByTitle(title)
 }

@@ -199,7 +199,7 @@ fun CatalogScreen(
     onClearRecent: () -> Unit = {},
     resetTrigger: Int = 0,
     modifier: Modifier = Modifier,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
 ) {
     var selectedTypeName by rememberSaveable { mutableStateOf("ALL") }
     var selectedCategoryName by rememberSaveable { mutableStateOf("ALL") }
@@ -439,26 +439,13 @@ fun CatalogScreen(
         if (searchQuery.isNotBlank()) {
             val cleanQuery = searchQuery.trim()
             if (cleanQuery.isNotEmpty()) {
-                kotlinx.coroutines.delay(150L)
-                val page = withContext(Dispatchers.IO) {
-                    val count = DemoCatalogRepository.getTotalCount(
-                        category = selectedCategory,
-                        filter = filter,
-                        query = cleanQuery,
-                    )
-                    val items = DemoCatalogRepository.getPaged(
-                        limit = 60,
-                        offset = 0,
-                        sort = sort,
-                        category = selectedCategory,
-                        filter = filter,
-                        query = cleanQuery,
-                    )
-                    count to items
+                kotlinx.coroutines.delay(200L)
+                val results = withContext(Dispatchers.IO) {
+                    DemoCatalogRepository.searchFts(cleanQuery, limit = 60)
                 }
-                searchResults = page.second
-                totalCount = page.first
-                hasMore = page.second.size >= 60 && page.second.size < page.first
+                searchResults = results
+                totalCount = results.size
+                hasMore = false
                 isLoading = false
                 return@LaunchedEffect
             }
@@ -540,19 +527,17 @@ fun CatalogScreen(
     }
 
     fun loadNextPage() {
-        if (isLoading || !hasMore) return
+        if (isLoading || !hasMore || searchQuery.isNotBlank()) return
         isLoading = true
-        val activeQuery = searchQuery.trim().takeIf { it.isNotBlank() }
-        val currentOffset = if (activeQuery != null) searchResults.size else pagedItems.size
-        val pageSize = if (activeQuery != null) 60 else 40
+        val currentOffset = pagedItems.size
         scope.launch(Dispatchers.IO) {
             val nextPage = DemoCatalogRepository.getPaged(
-                limit = pageSize,
+                limit = 40,
                 offset = currentOffset,
                 sort = sort,
                 category = selectedCategory,
                 filter = filter,
-                query = activeQuery,
+                query = null,
             )
             val finalNext = if (recommendedOnly) {
                 nextPage.filter { it.id in recommendationIds }
@@ -560,18 +545,24 @@ fun CatalogScreen(
                 nextPage
             }
             withContext(Dispatchers.Main) {
-                if (activeQuery != null) {
-                    if (nextPage.isNotEmpty()) searchResults = searchResults + finalNext
-                } else if (nextPage.isNotEmpty()) {
-                    pagedItems = pagedItems + finalNext
-                    savedItemIds = pagedItems.joinToString("|") { it.id }
+                if (nextPage.isNotEmpty()) {
+                    val updatedItems = pagedItems + finalNext
+                    pagedItems = updatedItems
+                    savedItemIds = updatedItems.joinToString("|") { it.id }
+                    hasMore = nextPage.size >= 40
+                    savedHasMore = hasMore
+                    retention.requestKey = requestKey
                     retention.itemIds = savedItemIds
+                    retention.totalCount = totalCount
+                    retention.hasMore = hasMore
+                } else {
+                    hasMore = false
+                    savedHasMore = false
+                    retention.requestKey = requestKey
+                    retention.itemIds = savedItemIds
+                    retention.totalCount = totalCount
+                    retention.hasMore = false
                 }
-                hasMore = nextPage.size >= pageSize
-                savedHasMore = hasMore
-                retention.requestKey = requestKey
-                retention.totalCount = totalCount
-                retention.hasMore = hasMore
                 isLoading = false
             }
         }
@@ -590,7 +581,7 @@ fun CatalogScreen(
             start = 16.dp,
             top = contentPadding.calculateTopPadding() + 16.dp,
             end = 16.dp,
-            bottom = contentPadding.calculateBottomPadding(),
+            bottom = contentPadding.calculateBottomPadding() + 104.dp,
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -803,7 +794,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title) },
+                        onClick = { onOpenDetails(item.title, item.id) },
                     )
                 }
             }
@@ -833,7 +824,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title) },
+                        onClick = { onOpenDetails(item.title, item.id) },
                     )
                 }
             }
@@ -841,14 +832,14 @@ fun CatalogScreen(
     }
 
         AnimatedVisibility(
-            visible = showScrollToTop,
+            visible = showScrollToTop && !gridState.isScrollInProgress,
             enter = EnterTransition.None,
             exit = ExitTransition.None,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(
                     end = 20.dp,
-                    bottom = contentPadding.calculateBottomPadding() + 16.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 24.dp,
                 ),
         ) {
             FloatingActionButton(

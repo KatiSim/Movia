@@ -1,0 +1,29 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -u
+exec 2>&1
+export PYTHONUNBUFFERED=1
+export SSL_CERT_FILE="$PREFIX/etc/tls/cert.pem"
+cd "$HOME/projects/media-parser"
+
+child_pid=""
+stop_children() {
+  if [ -n "$child_pid" ]; then
+    kill -TERM "$child_pid" 2>/dev/null || true
+    wait "$child_pid" 2>/dev/null || true
+    child_pid=""
+  fi
+  exit 0
+}
+trap stop_children TERM INT HUP
+
+while true; do
+  "$PREFIX/bin/python3" -u metadata_repair.py --resume --limit 200 --workers 4 &
+  child_pid=$!
+  wait "$child_pid" 2>/dev/null || true
+  child_pid=""
+
+  sleep 300 &
+  child_pid=$!
+  wait "$child_pid" 2>/dev/null || true
+  child_pid=""
+done

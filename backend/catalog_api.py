@@ -1,14 +1,21 @@
 import os
 import re
 import json
+import math
 import time
 import sqlite3
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from stream_validation import sanitize_streams
+from catalog_localization import (
+    is_user_visible_row,
+    parse_alternative_titles,
+    row_display_title,
+)
+from stream_validation import bind_stream_identity, sanitize_streams
 from tmdb_client import tmdb
+from metadata_quality import EAST_ASIA_COUNTRIES
 
 # Keep the catalog reader and the sync writer on the same snapshot/deployment
 # root.  The previous absolute path made a snapshot refresh a different DB
@@ -16,31 +23,36 @@ from tmdb_client import tmdb
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
 
-COUNTRY_WEIGHT_SQL = """
-CASE
-    WHEN country IN ('США', 'Канада') THEN 1.25
-    WHEN country IN ('Великобритания', 'Франция', 'Германия', 'Италия', 'Испания', 'Швеция', 'Дания', 'Норвегия', 'Финляндия', 'Нидерланды', 'Бельгия', 'Польша', 'Ирландия', 'Австрия', 'Швейцария') THEN 1.20
-    WHEN country IN ('Россия', 'СССР', 'Беларусь', 'Казахстан') THEN 1.20
-    WHEN country IN ('Южная Корея', 'Турция', 'Индия', 'Мексика', 'Бразилия', 'Аргентина', 'Австралия') THEN 1.15
-    ELSE 1.00
-END
-"""
+# One feed gate is shared by Home, catalog pages, search, recommendations and
+# related titles.  Rows failing localization remain in catalog.db for later
+# enrichment but are never rendered as cards.
+_USER_VISIBLE_SQL = """
+tmdb_id > 0
+AND media_type IN ('movie','tv')
+AND COALESCE(localized_ru_title, '') != ''
+AND poster_url IS NOT NULL
+AND poster_url != ''
+""".strip()
 
-SCORE_SQL = f"""
+SCORE_SQL = """
 (
-    CASE
-        WHEN rating > 0 THEN
-            (rating * 1.5 * {COUNTRY_WEIGHT_SQL}) +
-            (CASE
-                WHEN vote_count > 10000 THEN 4.0
-                WHEN vote_count > 1000 THEN 3.0
-                WHEN vote_count > 100 THEN 2.0
-                WHEN vote_count > 30 THEN 1.0
-                ELSE 0.2
-            END) +
-            (seeders / 1000.0)
-        ELSE (seeders / 1000.0)
-    END
+    (rating * 1.35) +
+    (CASE
+        WHEN vote_count >= 50000 THEN 4.5
+        WHEN vote_count >= 10000 THEN 3.8
+        WHEN vote_count >= 3000 THEN 3.1
+        WHEN vote_count >= 1000 THEN 2.4
+        WHEN vote_count >= 300 THEN 1.6
+        WHEN vote_count >= 100 THEN 0.9
+        WHEN vote_count >= 30 THEN 0.3
+        ELSE -1.0
+    END) +
+    (CASE
+        WHEN seeders >= 2000 THEN 1.5
+        WHEN seeders >= 500 THEN 1.0
+        WHEN seeders >= 100 THEN 0.5
+        ELSE 0.0
+    END)
 )
 """
 
@@ -58,6 +70,58 @@ def parse_json_safely(val, default):
         return json.loads(val)
     except Exception:
         return default
+
+
+def _validated_row_streams(
+    row_data: Dict[str, Any],
+    *,
+    catalog_media_id: Any,
+    title: str,
+    original_title: str,
+    year: int,
+    media_type: str,
+    season: Optional[int] = None,
+    episode: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Expose only streams that belong to this exact catalog card.
+
+    Catalog rows are the last persisted boundary before Android.  Rebinding a
+    valid URL to the row here would make a wrong-media record look legitimate,
+    so identity filtering happens before the additive annotation.
+    """
+    raw_streams = parse_json_safely(row_data.get("streams"), [])
+    try:
+        # Lazy import keeps catalog_api usable during database initialization.
+        from database import filter_streams_for_content
+
+        raw_streams = filter_streams_for_content(
+            raw_streams,
+            {
+                "id": catalog_media_id,
+                "localized_ru_title": title,
+                "title": title,
+                "original_title": original_title,
+                "alternative_titles": row_data.get("alternative_titles"),
+                "year": year,
+                "media_type": media_type,
+                "season": season,
+                "episode": episode,
+            },
+        )
+    except Exception:
+        # Validation failures must fail closed.  Returning unvalidated row
+        # streams would violate the catalog-card identity invariant.
+        return []
+    return bind_stream_identity(
+        raw_streams,
+        catalog_media_id=catalog_media_id,
+        title=title,
+        original_title=original_title,
+        year=year,
+        media_type=media_type,
+        season=season,
+        episode=episode,
+    )
 
 def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     d = dict(row)
@@ -109,12 +173,21 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     # contains synthetic magnets; a playable URL must survive stream validation.
     playback_url = ""
     country = str(d.get("country") or "Зарубежный")
-    title = str(d.get("title") or "Без названия")
+    # The legacy title/original_title fields are metadata/search inputs only.
+    # A card has no display title until the verified Russian field exists.
+    title = row_display_title(d) or ""
     original_title = str(d.get("original_title") or "")
-    director = str(d.get("director") or "")
+    alternative_titles = parse_alternative_titles(d.get("alternative_titles"))
+    raw_director = str(d.get("director") or "").strip()
+    creators_raw = parse_json_safely(d.get("creators"), [])
+    creators = [str(x).strip() for x in creators_raw if str(x).strip()] if isinstance(creators_raw, list) else []
+    # Legacy TV rows can contain a stale movie director from old field-wise merges.
+    # Fail closed: a TV credit is shown only when TMDb supplied created_by.
+    director = ", ".join(creators) if media_type == "tv" else raw_director
     synopsis = str(d.get("synopsis") or "")
     if not synopsis and compact is False:
-        synopsis = f"Фильм «{title}» ({year}) — захватывающая история от режиссера {director or 'мирового кинематографа'} в жанре {', '.join(genres) if genres else 'кино'}."
+        kind = "Сериал" if ctype == "series" else "Фильм"
+        synopsis = f"{kind} «{title}» ({year})."
 
     if ctype == "series" and seasons_count > 0:
         s_word = "сезон" if (seasons_count % 10 == 1 and seasons_count % 100 != 11) else ("сезона" if (seasons_count % 10 in [2,3,4] and seasons_count % 100 not in [12,13,14]) else "сезонов")
@@ -127,8 +200,14 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     else:
         duration_str = f"{duration} мин"
 
-    streams_raw = parse_json_safely(d.get("streams"), [])
-    streams_list = sanitize_streams(streams_raw, require_source=True)
+    streams_list = _validated_row_streams(
+        d,
+        catalog_media_id=d.get("id"),
+        title=title,
+        original_title=original_title,
+        year=year,
+        media_type=media_type or ("tv" if ctype == "series" else "movie"),
+    )
     if streams_list:
         playback_url = streams_list[0]["url"]
 
@@ -136,7 +215,11 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         return {
             "id": str(d.get("id")),
             "title": title,
+            "localized_ru_title": title,
+            "localizedRuTitle": title,
             "original_title": original_title,
+            "alternative_titles": alternative_titles,
+            "alternativeTitles": alternative_titles,
             "originalTitle": original_title,
             "type": ctype,
             "mediaType": media_type or ("tv" if ctype == "series" else "movie"),
@@ -160,7 +243,7 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
             "duration": duration_str,
             "durationMinutes": duration,
             "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
-            "popularity": int(d.get("seeders") or 100),
+            "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
             "ageRating": 16,
             "category": category,
             "poster_url": poster,
@@ -168,7 +251,14 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
             "backdrop_url": backdrop,
             "backdropUrl": backdrop,
             "playbackUrl": playback_url,
+            "link_verified": int(d.get("link_verified") or 0),
+            "linkVerified": bool(d.get("link_verified") or 0),
+            "link_updated_at": d.get("link_updated_at"),
+            "linkUpdatedAt": d.get("link_updated_at"),
             "director": director,
+            "creators": creators,
+            "imdb_id": str(d.get("imdb_id") or ""),
+            "metadata_source": str(d.get("metadata_source") or ""),
             "description": synopsis,
             "synopsis": synopsis,
             "actors": [],
@@ -198,15 +288,25 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
                     "photoUrl": photo
                 })
 
-    streams_raw = parse_json_safely(d.get("streams"), [])
-    streams_list = sanitize_streams(streams_raw, require_source=True)
+    streams_list = _validated_row_streams(
+        d,
+        catalog_media_id=d.get("id"),
+        title=title,
+        original_title=original_title,
+        year=year,
+        media_type=media_type or ("tv" if ctype == "series" else "movie"),
+    )
     if streams_list:
         playback_url = streams_list[0]["url"]
 
     return {
         "id": str(d.get("id")),
         "title": title,
+        "localized_ru_title": title,
+        "localizedRuTitle": title,
         "original_title": original_title,
+        "alternative_titles": alternative_titles,
+        "alternativeTitles": alternative_titles,
         "originalTitle": original_title,
         "type": ctype,
         "mediaType": media_type or ("tv" if ctype == "series" else "movie"),
@@ -230,11 +330,14 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         "duration": duration_str,
         "durationMinutes": duration,
         "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
-        "popularity": int(d.get("seeders") or 100),
+        "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
         "ageRating": 16,
         "audioLanguages": ["Русский", "Оригинал"],
         "subtitleLanguages": ["Русские"],
         "director": director,
+        "creators": creators,
+        "imdb_id": str(d.get("imdb_id") or ""),
+        "metadata_source": str(d.get("metadata_source") or ""),
         "synopsis": synopsis,
         "description": synopsis,
         "category": category,
@@ -243,6 +346,10 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         "backdrop_url": backdrop,
         "backdropUrl": backdrop,
         "playbackUrl": playback_url,
+        "link_verified": int(d.get("link_verified") or 0),
+        "linkVerified": bool(d.get("link_verified") or 0),
+        "link_updated_at": d.get("link_updated_at"),
+        "linkUpdatedAt": d.get("link_updated_at"),
         "actors": cast_list,
         "cast": cast_list,
         "streams": streams_list
@@ -259,12 +366,12 @@ def get_balanced_selection(cur, base_where: str, target_limit: int = 12) -> List
         ("country IN ('Южная Корея', 'Турция', 'Индия', 'Мексика', 'Бразилия', 'Аргентина', 'Австралия')", 2),
         ("country IN ('Китай', 'Япония', 'Гонконг', 'Тайвань')", 1)
     ]
-
+    
     seen_ids = set()
     result = []
 
     for region_sql, count in regions:
-        where = f"{base_where} AND {region_sql}" if base_where else region_sql
+        where = f"{_USER_VISIBLE_SQL} AND ({base_where}) AND {region_sql}" if base_where else f"{_USER_VISIBLE_SQL} AND {region_sql}"
         query = f"SELECT * FROM movies WHERE {where} ORDER BY {SCORE_SQL} DESC LIMIT {count};"
         cur.execute(query)
         for r in cur.fetchall():
@@ -276,7 +383,7 @@ def get_balanced_selection(cur, base_where: str, target_limit: int = 12) -> List
     if len(result) < target_limit:
         needed = target_limit - len(result)
         exclude_sql = f"AND id NOT IN ({','.join(seen_ids)})" if seen_ids else ""
-        query = f"SELECT * FROM movies WHERE {base_where} {exclude_sql} ORDER BY {SCORE_SQL} DESC LIMIT {needed};"
+        query = f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND ({base_where}) {exclude_sql} ORDER BY {SCORE_SQL} DESC LIMIT {needed};" if base_where else f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} {exclude_sql} ORDER BY {SCORE_SQL} DESC LIMIT {needed};"
         cur.execute(query)
         for r in cur.fetchall():
             m = map_row_to_media(r, compact=True)
@@ -313,20 +420,22 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
 
         # 1. Hero Promo Item (Top-1 blockbuster with vote_count > 3000, rating >= 8.0, valid backdrop)
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE vote_count >= 3000
-              AND rating >= 8.0
-              AND backdrop_url IS NOT NULL
-              AND backdrop_url != ''
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND vote_count >= 3000 
+              AND rating >= 8.0 
+              AND backdrop_url IS NOT NULL 
+              AND backdrop_url != '' 
               AND LENGTH(backdrop_url) > 10
-            ORDER BY rating DESC, vote_count DESC, seeders DESC
+            ORDER BY rating DESC, vote_count DESC, seeders DESC 
             LIMIT 1;
         """)
         hero_row = cur.fetchone()
         if not hero_row:
-            cur.execute("""
-                SELECT * FROM movies
-                WHERE rating >= 7.5 AND backdrop_url IS NOT NULL AND backdrop_url != ''
+            cur.execute(f"""
+                SELECT * FROM movies 
+                WHERE {_USER_VISIBLE_SQL}
+                  AND rating >= 7.5 AND backdrop_url IS NOT NULL AND backdrop_url != ''
                 ORDER BY rating DESC, seeders DESC LIMIT 1;
             """)
             hero_row = cur.fetchone()
@@ -339,14 +448,15 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
         current_year = datetime.now(timezone.utc).year
         recent_years = (current_year - 1, current_year)
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE year IN (?, ?)
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND year IN (?, ?)
               AND vote_count >= 30
               AND rating >= 5.5
               AND country IN ('США', 'Канада')
               AND {not_in_sql()}
               AND poster_url IS NOT NULL AND poster_url != ''
-            ORDER BY year DESC, vote_average DESC, seeders DESC
+            ORDER BY year DESC, vote_average DESC, seeders DESC 
             LIMIT 6;
         """, recent_years)
         usa_new = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -354,14 +464,15 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
             excluded_ids.add(it["id"])
 
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE year IN (?, ?)
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND year IN (?, ?)
               AND vote_count >= 30
               AND rating >= 5.5
               AND country NOT IN ('США', 'Канада')
               AND {not_in_sql()}
               AND poster_url IS NOT NULL AND poster_url != ''
-            ORDER BY year DESC, vote_average DESC, seeders DESC
+            ORDER BY year DESC, vote_average DESC, seeders DESC 
             LIMIT 4;
         """, recent_years)
         world_new = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -384,11 +495,12 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
         if len(new_releases) < 10:
             needed = 10 - len(new_releases)
             cur.execute(f"""
-                SELECT * FROM movies
-                WHERE year IN (?, ?)
+                SELECT * FROM movies 
+                WHERE {_USER_VISIBLE_SQL}
+                  AND year IN (?, ?)
                   AND {not_in_sql()}
                   AND poster_url IS NOT NULL AND poster_url != ''
-                ORDER BY year DESC, rating DESC, seeders DESC
+                ORDER BY year DESC, rating DESC, seeders DESC 
                 LIMIT {needed};
             """, recent_years)
             for r in cur.fetchall():
@@ -398,10 +510,11 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
 
         # 3. Section «Сейчас популярно» (10 items: most seeded & viewed global hits)
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE {not_in_sql()}
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND {not_in_sql()} 
               AND poster_url IS NOT NULL AND poster_url != ''
-            ORDER BY (seeders * 10.0 + MIN(COALESCE(vote_count, 0), 20000) * 1.5) DESC
+            ORDER BY (seeders * 10.0 + MIN(COALESCE(vote_count, 0), 20000) * 1.5) DESC 
             LIMIT 10;
         """)
         popular = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -410,12 +523,13 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
 
         # 4. Section «Для вас» (10 items: Diverse IMDb Top masterpieces with genre alternation)
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE rating >= 7.8
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND rating >= 7.8 
               AND vote_count >= 300
-              AND {not_in_sql()}
+              AND {not_in_sql()} 
               AND poster_url IS NOT NULL AND poster_url != ''
-            ORDER BY (rating * 2.0 + (seeders / 500.0)) DESC
+            ORDER BY (rating * 2.0 + (seeders / 500.0)) DESC 
             LIMIT 40;
         """)
         candidates = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -443,11 +557,12 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
 
         # 5. Section «Сериалы и Мультсериалы» (10 items: Strictly TV / Series)
         cur.execute(f"""
-            SELECT * FROM movies
-            WHERE (category IN ('series', 'tv_series', 'tv', 'limited_series') OR seasons_count > 0)
-              AND {not_in_sql()}
+            SELECT * FROM movies 
+            WHERE {_USER_VISIBLE_SQL}
+              AND (category IN ('series', 'tv_series', 'tv', 'limited_series') OR seasons_count > 0)
+              AND {not_in_sql()} 
               AND poster_url IS NOT NULL AND poster_url != ''
-            ORDER BY (rating * 1.5 + (seeders / 1000.0)) DESC
+            ORDER BY (rating * 1.5 + (seeders / 1000.0)) DESC 
             LIMIT 10;
         """)
         series = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -564,10 +679,235 @@ def _enrich_tv_structure_if_needed(conn: sqlite3.Connection, row: sqlite3.Row) -
     return conn.execute("SELECT * FROM movies WHERE id=?", (int(row["id"]),)).fetchone()
 
 
+def _is_east_asian_item(item: Dict[str, Any]) -> bool:
+    return str(item.get("country") or "") in EAST_ASIA_COUNTRIES
+
+
+_EUROPE_CATALOG_COUNTRIES = frozenset({
+    "Великобритания", "Франция", "Германия", "Италия", "Испания", "Португалия",
+    "Швеция", "Дания", "Норвегия", "Финляндия", "Нидерланды", "Бельгия",
+    "Польша", "Ирландия", "Австрия", "Швейцария", "Чехия", "Венгрия",
+    "Румыния", "Исландия", "Греция", "Россия", "СССР", "Беларусь", "Украина",
+})
+
+
+def _catalog_region_bucket(item: Dict[str, Any]) -> str:
+    country = str(item.get("country") or "")
+    if country in {"США", "Канада"}:
+        return "north_america"
+    if country in EAST_ASIA_COUNTRIES:
+        return "east_asia"
+    if country in _EUROPE_CATALOG_COUNTRIES:
+        return "europe"
+    return "other"
+
+
+def _interleave_catalog_regions(items: List[Dict[str, Any]], max_streak: int = 2) -> List[Dict[str, Any]]:
+    """Preserve rank as much as possible while breaking regional blocks.
+
+    The input has already passed page-level regional caps. This second phase
+    only changes presentation order: after two cards from the same broad
+    region, the highest-ranked available card from another region is pulled
+    forward. No item is added or removed.
+    """
+    remaining = list(items)
+    result: List[Dict[str, Any]] = []
+    while remaining:
+        preferred_index = 0
+        if len(result) >= max_streak:
+            recent = [_catalog_region_bucket(x) for x in result[-max_streak:]]
+            if len(set(recent)) == 1:
+                blocked = recent[0]
+                for idx, candidate in enumerate(remaining):
+                    if _catalog_region_bucket(candidate) != blocked:
+                        preferred_index = idx
+                        break
+        result.append(remaining.pop(preferred_index))
+    return result
+
+
+def _balanced_catalog_items(items: List[Dict[str, Any]], target: int) -> List[Dict[str, Any]]:
+    """Return a ranked neutral feed with prefix-stable diversity.
+
+    Quotas are evaluated for every output position rather than only for the
+    final page size. Therefore the first 10 cards are already mixed, and the
+    first page stays a prefix of later pages. Ranking order is preserved inside
+    the constraints: each slot takes the highest-ranked still-eligible item.
+    """
+    if target <= 0:
+        return []
+
+    unique = []
+    seen: set[str] = set()
+    for item in items:
+        iid = str(item.get("id"))
+        if not iid or iid in seen:
+            continue
+        seen.add(iid)
+        unique.append(item)
+
+    selected: List[Dict[str, Any]] = []
+    selected_ids: set[str] = set()
+    asian = north_america = tv = animation = 0
+
+    def flags(item: Dict[str, Any]) -> tuple[bool, bool, bool, bool]:
+        is_asian = _is_east_asian_item(item)
+        is_north_america = str(item.get("country") or "") in {"США", "Канада"}
+        is_tv = str(item.get("mediaType") or "") == "tv"
+        is_anim = str(item.get("category") or "").upper() in {"ANIMATION", "ANIME"}
+        return is_asian, is_north_america, is_tv, is_anim
+
+    while len(selected) < target:
+        position = len(selected) + 1
+        # Prefix caps. ceil() allows a category to appear early, but prevents
+        # long homogeneous runs such as 12 US cards before any other region.
+        max_asian = max(1, int(math.ceil(position * 0.20)))
+        max_north_america = max(1, int(math.ceil(position * 0.45)))
+        max_tv = max(1, int(math.ceil(position * 0.55)))
+        max_animation = max(1, int(math.ceil(position * 0.25)))
+
+        chosen = None
+        # Pass 1: enforce both regional and content-form diversity.
+        for item in unique:
+            iid = str(item.get("id"))
+            if iid in selected_ids:
+                continue
+            is_asian, is_na, is_tv, is_anim = flags(item)
+            if is_asian and asian + 1 > max_asian:
+                continue
+            if is_na and north_america + 1 > max_north_america:
+                continue
+            if is_tv and tv + 1 > max_tv:
+                continue
+            if is_anim and animation + 1 > max_animation:
+                continue
+            chosen = item
+            break
+
+        # Pass 2: if the source pool is narrow, relax type/animation caps but
+        # keep regional caps strict. This is the user-visible anti-skew rule.
+        if chosen is None:
+            for item in unique:
+                iid = str(item.get("id"))
+                if iid in selected_ids:
+                    continue
+                is_asian, is_na, _, _ = flags(item)
+                if is_asian and asian + 1 > max_asian:
+                    continue
+                if is_na and north_america + 1 > max_north_america:
+                    continue
+                chosen = item
+                break
+
+        if chosen is None:
+            break
+
+        iid = str(chosen.get("id"))
+        is_asian, is_na, is_tv, is_anim = flags(chosen)
+        selected.append(chosen)
+        selected_ids.add(iid)
+        asian += int(is_asian)
+        north_america += int(is_na)
+        tv += int(is_tv)
+        animation += int(is_anim)
+
+    return _interleave_catalog_regions(selected)
+
+
+def _similar_items(
+    cur: sqlite3.Cursor,
+    *,
+    current: Dict[str, Any],
+    media_type: str,
+    excluded_ids: set[str],
+    limit: int = 8,
+) -> List[Dict[str, Any]]:
+    target_genres = {str(x).casefold() for x in (current.get("genres") or []) if x}
+    if not target_genres:
+        return []
+    cur.execute(
+        f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND media_type=? ORDER BY {SCORE_SQL} DESC LIMIT 1200",
+        (media_type,),
+    )
+    target_country = str(current.get("country") or "")
+    target_year = int(current.get("year") or 0)
+    target_category = str(current.get("category") or "")
+    target_is_asian = target_country in EAST_ASIA_COUNTRIES
+    ranked: list[tuple[float, Dict[str, Any]]] = []
+    for row in cur.fetchall():
+        item = map_row_to_media(row, compact=True)
+        if str(item.get("id")) in excluded_ids:
+            continue
+        cgenres = {str(x).casefold() for x in (item.get("genres") or []) if x}
+        shared = target_genres & cgenres
+        same_country = str(item.get("country") or "") == target_country and bool(target_country)
+        year = int(item.get("year") or 0)
+        close_era = bool(target_year and year and abs(year - target_year) <= 7)
+        if len(shared) < 2 and not (len(shared) == 1 and same_country and close_era):
+            continue
+        union = target_genres | cgenres
+        jaccard = len(shared) / max(1, len(union))
+        votes = int(item.get("vote_count") or 0)
+        score = len(shared) * 4.0 + jaccard * 7.0
+        score += 2.0 if str(item.get("category") or "") == target_category else 0.0
+        score += 1.5 if same_country else 0.0
+        score += 1.0 if close_era else 0.0
+        score += min(2.0, math.log10(max(1, votes)) / 2.0)
+        score += float(item.get("rating") or 0.0) * 0.20
+        if not target_is_asian and _is_east_asian_item(item):
+            score -= 2.5
+        ranked.append((score, item))
+    ranked.sort(key=lambda pair: (-pair[0], -int(pair[1].get("vote_count") or 0), -float(pair[1].get("rating") or 0), str(pair[1].get("id"))))
+    result: List[Dict[str, Any]] = []
+    max_asian = limit if target_is_asian else max(1, int(limit * 0.20))
+    asian_count = 0
+    for _, item in ranked:
+        is_asian = _is_east_asian_item(item)
+        if is_asian and asian_count >= max_asian:
+            continue
+        result.append(item)
+        asian_count += int(is_asian)
+        if len(result) >= limit:
+            break
+    return result
+
+
+def _refresh_authoritative_metadata_if_needed(conn: sqlite3.Connection, row: sqlite3.Row) -> sqlite3.Row:
+    d = dict(row)
+    source = str(d.get("metadata_source") or "")
+    updated = str(d.get("metadata_updated_at") or "")
+    stale = not updated
+    if updated:
+        try:
+            parsed = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            stale = (datetime.now(timezone.utc) - parsed).total_seconds() > 30 * 86400
+        except (TypeError, ValueError, OverflowError):
+            stale = True
+    if source == "tmdb_detail" and not stale:
+        return row
+    tmdb_id = int(d.get("tmdb_id") or 0)
+    media_type = str(d.get("media_type") or "").lower()
+    if tmdb_id <= 0 or media_type not in {"movie", "tv"}:
+        return row
+    try:
+        detail = tmdb.get_tv_details(tmdb_id) if media_type == "tv" else tmdb.get_movie_details(tmdb_id)
+        if detail:
+            from metadata_repair import apply_authoritative_metadata
+            apply_authoritative_metadata(conn, int(d.get("id")), detail)
+            conn.commit()
+            refreshed = conn.execute("SELECT * FROM movies WHERE id=?", (int(d.get("id")),)).fetchone()
+            return refreshed or row
+    except Exception as exc:
+        print(f"[METADATA] lazy detail refresh failed id={d.get('id')}: {type(exc).__name__}: {exc}")
+    return row
+
+
 def get_movie_details(movie_id: str) -> Optional[Dict[str, Any]]:
     with get_db() as conn:
         cur = conn.cursor()
-
+        
         # API ids emitted by Movia are local row ids. Prefer them deterministically;
         # only then fall back to external TMDb id or exact title.
         query_id = movie_id.replace("m_", "").strip()
@@ -575,30 +915,45 @@ def get_movie_details(movie_id: str) -> Optional[Dict[str, Any]]:
         if query_id.isdigit():
             cur.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (int(query_id),))
             row = cur.fetchone()
-            if row is None:
-                cur.execute("SELECT * FROM movies WHERE tmdb_id=? ORDER BY media_type='tv' DESC LIMIT 1", (int(query_id),))
-                row = cur.fetchone()
+        if row is None and query_id.isdigit():
+            external_rows = cur.execute(
+                "SELECT * FROM movies WHERE tmdb_id=? "
+                "AND media_type IN ('movie','tv') LIMIT 2",
+                (int(query_id),),
+            ).fetchall()
+            # An external id without media type is not enough to choose a
+            # canonical entity when the catalog contains both forms.
+            row = external_rows[0] if len(external_rows) == 1 else None
         if row is None:
-            cur.execute("SELECT * FROM movies WHERE title=? LIMIT 1", (movie_id,))
-            row = cur.fetchone()
-        if not row:
+            title_rows = cur.execute(
+                "SELECT * FROM movies WHERE localized_ru_title=? "
+                "OR original_title=? LIMIT 2",
+                (movie_id, movie_id),
+            ).fetchall()
+            row = title_rows[0] if len(title_rows) == 1 else None
+        if not row or not is_user_visible_row(dict(row)):
             return None
         row = _repair_media_type_if_ambiguous(conn, row)
+        row = _refresh_authoritative_metadata_if_needed(conn, row)
         row = _enrich_tv_structure_if_needed(conn, row)
+        if not row or not is_user_visible_row(dict(row)):
+            return None
         movie_dict = map_row_to_media(row, compact=False)
         current_id = movie_dict["id"]
         genres = movie_dict["genres"]
         country = movie_dict["country"]
         year = movie_dict["year"]
         title = movie_dict["title"]
+        media_type = str(row["media_type"] or "").lower()
 
         # 1. Sequels and Prequels (strictly by official TMDB collection_id)
         collection_id = movie_dict.get("collection_id") or (row["collection_id"] if "collection_id" in row.keys() else None)
         sequels = []
         if collection_id and int(collection_id) > 0:
             cur.execute(f"""
-                SELECT * FROM movies
-                WHERE collection_id = ? AND id != ? AND poster_url IS NOT NULL AND poster_url != ''
+                SELECT * FROM movies 
+                WHERE {_USER_VISIBLE_SQL}
+                  AND collection_id = ? AND id != ?
                 ORDER BY year ASC, rating DESC;
             """, (int(collection_id), current_id))
             sequels = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
@@ -606,46 +961,16 @@ def get_movie_details(movie_id: str) -> Optional[Dict[str, Any]]:
         sequel_ids = {s["id"] for s in sequels}
         sequel_ids.add(current_id)
 
-        # 2. Similar Movies (Intersection of >= 2 genres + same country/era, sorted by rating)
-        similar = []
-        if len(genres) >= 2:
-            g1, g2 = genres[0], genres[1]
-            cur.execute(f"""
-                SELECT * FROM movies
-                WHERE id NOT IN ({','.join(map(str, sequel_ids))})
-                  AND (genres LIKE ? AND genres LIKE ?)
-                  AND poster_url IS NOT NULL AND poster_url != ''
-                ORDER BY rating DESC, seeders DESC
-                LIMIT 8;
-            """, (f"%{g1}%", f"%{g2}%"))
-            similar = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
-
-        if len(similar) < 8 and genres:
-            g1 = genres[0]
-            exclude_ids = sequel_ids.union({s["id"] for s in similar})
-            needed = 8 - len(similar)
-            cur.execute(f"""
-                SELECT * FROM movies
-                WHERE id NOT IN ({','.join(map(str, exclude_ids))})
-                  AND genres LIKE ?
-                  AND (country = ? OR ABS(year - ?) <= 5)
-                  AND poster_url IS NOT NULL AND poster_url != ''
-                ORDER BY rating DESC, seeders DESC
-                LIMIT ?;
-            """, (f"%{g1}%", country, year, needed))
-            similar.extend([map_row_to_media(r, compact=True) for r in cur.fetchall()])
-
-        if len(similar) < 8:
-            exclude_ids = sequel_ids.union({s["id"] for s in similar})
-            needed = 8 - len(similar)
-            cur.execute(f"""
-                SELECT * FROM movies
-                WHERE id NOT IN ({','.join(map(str, exclude_ids))})
-                  AND poster_url IS NOT NULL
-                ORDER BY {SCORE_SQL} DESC
-                LIMIT ?;
-            """, (needed,))
-            similar.extend([map_row_to_media(r, compact=True) for r in cur.fetchall()])
+        # 2. Similar content uses the complete genre set, canonical type,
+        # era/country affinity and vote confidence. It never relies on the
+        # first two genre array positions.
+        similar = _similar_items(
+            cur,
+            current=movie_dict,
+            media_type=media_type,
+            excluded_ids={str(x) for x in sequel_ids},
+            limit=8,
+        )
 
         # Build universal JSON response supporting both direct fields and nested movie
         response = dict(movie_dict)
@@ -670,7 +995,7 @@ def get_catalog_paged(
     country: Optional[str] = None,
     query_text: Optional[str] = None
 ) -> Dict[str, Any]:
-    conditions = ["poster_url IS NOT NULL"]
+    conditions = [_USER_VISIBLE_SQL]
     params: List[Any] = []
 
     if category and category.upper() not in ["ALL", "ВСЕ"]:
@@ -728,15 +1053,28 @@ def get_catalog_paged(
 
     with get_db() as conn:
         cur = conn.cursor()
-
+        
         count_query = f"SELECT COUNT(*) FROM movies {where_sql};"
         cur.execute(count_query, tuple(params))
         total_count = cur.fetchone()[0]
 
-        items_query = f"SELECT * FROM movies {where_sql} {sort_sql} LIMIT ? OFFSET ?;"
-        query_params = list(params) + [limit, offset]
-        cur.execute(items_query, tuple(query_params))
-        items = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
+        neutral_popular = (
+            sort_u == "POPULAR" and not category and not genre and year_from is None
+            and year_to is None and not min_rating and not country and not query_text
+        )
+        if neutral_popular:
+            target = max(0, offset) + max(1, limit)
+            candidate_limit = min(max(600, target * 14), 20000)
+            items_query = f"SELECT * FROM movies {where_sql} {sort_sql} LIMIT ?;"
+            cur.execute(items_query, tuple(list(params) + [candidate_limit]))
+            candidates = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
+            balanced = _balanced_catalog_items(candidates, target)
+            items = balanced[offset:offset + limit]
+        else:
+            items_query = f"SELECT * FROM movies {where_sql} {sort_sql} LIMIT ? OFFSET ?;"
+            query_params = list(params) + [limit, offset]
+            cur.execute(items_query, tuple(query_params))
+            items = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
 
         return {
             "total": total_count,
@@ -748,18 +1086,18 @@ def get_catalog_paged(
 def search_catalog(query_text: str, limit: int = 20) -> Dict[str, Any]:
     if not query_text or not query_text.strip():
         return {"movies": [], "people": []}
-
+    
     q_clean = query_text.strip()
     q_wild = f"%{q_clean}%"
 
     with get_db() as conn:
         cur = conn.cursor()
-
+        
         cur.execute(f"""
-            SELECT * FROM movies
+            SELECT * FROM movies 
             WHERE title LIKE ? OR original_title LIKE ? OR director LIKE ?
-            ORDER BY
-                CASE
+            ORDER BY 
+                CASE 
                     WHEN title = ? THEN 1
                     WHEN title LIKE ? THEN 2
                     ELSE 3
@@ -767,7 +1105,7 @@ def search_catalog(query_text: str, limit: int = 20) -> Dict[str, Any]:
                 {SCORE_SQL} DESC
             LIMIT ?;
         """, (q_wild, q_wild, q_wild, q_clean, f"{q_clean}%", limit))
-
+        
         movies = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
 
         # A brand-new title may not have reached the periodic metadata sync yet.
@@ -793,11 +1131,11 @@ def search_catalog(query_text: str, limit: int = 20) -> Dict[str, Any]:
                 print(f"[CATALOG-SEARCH] live metadata discovery failed: {exc}")
 
         cur.execute("""
-            SELECT DISTINCT director, poster_url FROM movies
-            WHERE director LIKE ? AND director != ''
+            SELECT DISTINCT director, poster_url FROM movies 
+            WHERE director LIKE ? AND director != '' 
             LIMIT 5;
         """, (q_wild,))
-
+        
         people = []
         for r in cur.fetchall():
             d_name = r["director"]
@@ -850,6 +1188,7 @@ def clear_torrent_cache_dir() -> Dict[str, Any]:
 from catalog_schema_v2 import ensure_schema as _ensure_catalog_schema
 from catalog_schema_v2 import get_revision as _get_catalog_revision
 from search_service import category_condition as _search_category_condition
+from search_service import genre_values as _search_genre_values
 from search_service import search_page as _indexed_search_page
 
 try:
@@ -867,7 +1206,7 @@ def _catalog_conditions(
     country=None,
     media_type=None,
 ):
-    conditions = ["poster_url IS NOT NULL"]
+    conditions = [_USER_VISIBLE_SQL]
     params = []
     category_sql = _search_category_condition(category)
     if category_sql:
@@ -877,9 +1216,10 @@ def _catalog_conditions(
     if media_type and str(media_type).lower() in {"movie", "tv"}:
         conditions.append("media_type=?")
         params.append(str(media_type).lower())
-    if genre:
-        conditions.append("genres LIKE ?")
-        params.append(f"%{genre}%")
+    genre_list = _search_genre_values(genre)
+    if genre_list:
+        conditions.append("(" + " OR ".join("genres LIKE ?" for _ in genre_list) + ")")
+        params.extend(f"%{value}%" for value in genre_list)
     if year_from is not None:
         conditions.append("year >= ?")
         params.append(int(year_from))
@@ -905,7 +1245,7 @@ def _catalog_sort_sql(sort):
         return "year ASC, rating DESC, vote_count DESC, id ASC"
     if value == "TITLE":
         return "normalized_ru_title COLLATE BINARY ASC, id ASC"
-    return "seeders DESC, rating DESC, vote_count DESC, id ASC"
+    return f"{SCORE_SQL} DESC, id ASC"
 
 
 def _search_people_for_query(conn, normalized_query, limit):
@@ -1049,7 +1389,7 @@ def search_catalog(query_text: str, limit: int = 20, discover: bool = True) -> D
         }
 
 
-def get_catalog_paged(
+def _get_catalog_paged_base(
     limit=40,
     offset=0,
     sort="POPULAR",
@@ -1094,6 +1434,7 @@ def get_catalog_paged(
                     "prefixCount": page.prefix_count,
                     "exactCount": page.exact_count,
                     "topScore": page.top_score,
+                    "weakLocal": page.exact_count == 0 and (page.prefix_count == 0 or page.total < 3 or page.top_score < 700),
                 }
         except sqlite3.OperationalError as exc:
             return {
@@ -1115,16 +1456,53 @@ def get_catalog_paged(
             total = int(conn.execute(
                 "SELECT COUNT(*) FROM movies WHERE " + where, params
             ).fetchone()[0] or 0)
-            rows = conn.execute(
-                "SELECT * FROM movies WHERE " + where
-                + " ORDER BY " + _catalog_sort_sql(sort)
-                + " LIMIT ? OFFSET ?",
-                [*params, bounded_limit, bounded_offset],
-            ).fetchall()
+            neutral_popular = (
+                str(sort or "POPULAR").upper() == "POPULAR"
+                and not category and not genre and year_from is None and year_to is None
+                and not min_rating and not country and not media_type
+            )
+            if neutral_popular:
+                target = bounded_offset + bounded_limit
+                candidate_limit = min(max(800, target * 16), 20000)
+                candidate_rows = conn.execute(
+                    "SELECT * FROM movies WHERE " + where
+                    + " ORDER BY " + _catalog_sort_sql(sort)
+                    + " LIMIT ?",
+                    [*params, candidate_limit],
+                ).fetchall()
+                # Diversity only needs stable identity + region/form metadata.
+                # Do NOT map every candidate here: map_row_to_media validates
+                # persisted streams and is intentionally expensive. Mapping 800
+                # candidates made even limit=1 exceed Android's 6s read timeout.
+                proxies = [
+                    {
+                        "id": str(row["id"]),
+                        "country": str(row["country"] or ""),
+                        "mediaType": str(row["media_type"] or ""),
+                        "category": str(row["category"] or "").upper(),
+                    }
+                    for row in candidate_rows
+                ]
+                balanced = _balanced_catalog_items(proxies, target)
+                row_by_id = {str(row["id"]): row for row in candidate_rows}
+                page_proxies = balanced[bounded_offset:bounded_offset + bounded_limit]
+                items = [
+                    map_row_to_media(row_by_id[str(proxy["id"])], compact=True)
+                    for proxy in page_proxies
+                    if str(proxy["id"]) in row_by_id
+                ]
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM movies WHERE " + where
+                    + " ORDER BY " + _catalog_sort_sql(sort)
+                    + " LIMIT ? OFFSET ?",
+                    [*params, bounded_limit, bounded_offset],
+                ).fetchall()
+                items = [map_row_to_media(row, compact=True) for row in rows]
             return {
-                "status": "OK" if rows else ("NO_RESULTS" if total == 0 else "OK"),
+                "status": "OK" if items else ("NO_RESULTS" if total == 0 else "OK"),
                 "total": total,
-                "items": [map_row_to_media(row, compact=True) for row in rows],
+                "items": items,
                 "limit": bounded_limit,
                 "offset": bounded_offset,
                 "catalogRevision": _get_catalog_revision(conn),
@@ -1140,3 +1518,94 @@ def get_catalog_paged(
             "limit": bounded_limit,
             "offset": bounded_offset,
         }
+
+
+def get_catalog_paged(
+    limit=40,
+    offset=0,
+    sort="POPULAR",
+    category=None,
+    genre=None,
+    year_from=None,
+    year_to=None,
+    min_rating=None,
+    country=None,
+    query_text=None,
+    media_type=None,
+    discover=False,
+):
+    """Return a local page, optionally followed by bounded query discovery."""
+    from catalog_schema_v2 import normalize_ru_text
+
+    payload = _get_catalog_paged_base(
+        limit=limit,
+        offset=offset,
+        sort=sort,
+        category=category,
+        genre=genre,
+        year_from=year_from,
+        year_to=year_to,
+        min_rating=min_rating,
+        country=country,
+        query_text=query_text,
+        media_type=media_type,
+    )
+    normalized = normalize_ru_text(query_text)
+    if (
+        not discover
+        or not normalized
+        or len(normalized) < 3
+        or max(0, int(offset)) != 0
+        or payload.get("status") in {"DB_ERROR", "BACKEND_ERROR"}
+        or not payload.get("search")
+    ):
+        return payload
+
+    exact_count = int(payload.get("exactCount", 0) or 0)
+    prefix_count = int(payload.get("prefixCount", 0) or 0)
+    total = int(payload.get("total", 0) or 0)
+    top_score = int(payload.get("topScore", 0) or 0)
+    weak_local = exact_count == 0 and (
+        prefix_count == 0 or total < 3 or top_score < 700
+    )
+    if not weak_local:
+        return payload
+
+    try:
+        import live_catalog_sync
+        remote_result = live_catalog_sync.discover_query(
+            normalized,
+            limit=max(20, min(int(limit), 60)),
+        )
+    except Exception as exc:
+        remote_result = {
+            "error": f"{type(exc).__name__}: {exc}",
+            "seen": 0,
+            "inserted": 0,
+            "updated": 0,
+        }
+    refreshed = _get_catalog_paged_base(
+        limit=limit,
+        offset=offset,
+        sort=sort,
+        category=category,
+        genre=genre,
+        year_from=year_from,
+        year_to=year_to,
+        min_rating=min_rating,
+        country=country,
+        query_text=query_text,
+        media_type=media_type,
+    )
+    refreshed["discovery"] = remote_result
+    discovery_error = (
+        remote_result.get("error")
+        if isinstance(remote_result, dict) else None
+    )
+    if discovery_error and not refreshed.get("items"):
+        refreshed["status"] = "NETWORK_ERROR"
+        refreshed["errorCode"] = "PROVIDER_TIMEOUT_OR_NETWORK"
+        refreshed["error"] = str(discovery_error)
+    elif discovery_error:
+        refreshed["remoteError"] = str(discovery_error)
+    return refreshed

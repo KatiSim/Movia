@@ -51,7 +51,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -75,15 +74,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import app.movia.android.agent.AgentControlRuntime
 import app.movia.android.data.download.DownloadScheduler
 import app.movia.android.data.library.LibraryRepository
 import app.movia.android.data.preferences.AppPreferences
@@ -100,8 +94,8 @@ import app.movia.android.ui.catalog.CatalogScreen
 import app.movia.android.ui.details.DetailsScreen
 import app.movia.android.ui.home.HomeScreen
 import app.movia.android.ui.library.LibraryScreen
+import app.movia.android.ui.player.MiniPlayerBar
 import app.movia.android.ui.player.PlaybackSession
-import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlayerScreen
 import app.movia.android.ui.profile.ProfileScreen
 import app.movia.android.ui.settings.DownloadsSettingsScreen
@@ -110,7 +104,6 @@ import app.movia.android.ui.theme.MoviaTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
@@ -152,18 +145,27 @@ private val topLevelDestinations = listOf(
 internal fun playbackBaseTitle(current: String): String =
     current.substringBefore(" · S").substringBefore(" · E")
 
-internal fun nextEpisodeTitle(
-    current: String,
-    seasonEpisodeCountsOverride: List<Int>? = null,
-    plainTitleIsSeriesOverride: Boolean? = null,
-): String? {
+private const val DETAILS_ROUTE_SEPARATOR = "\u001F"
+
+private data class DetailsRoute(val title: String, val mediaId: String?)
+
+private fun encodeDetailsRoute(title: String, mediaId: String?): String =
+    "${mediaId.orEmpty()}$DETAILS_ROUTE_SEPARATOR$title"
+
+private fun decodeDetailsRoute(value: String): DetailsRoute {
+    val separatorIndex = value.indexOf(DETAILS_ROUTE_SEPARATOR)
+    if (separatorIndex < 0) return DetailsRoute(title = value, mediaId = null)
+    val id = value.substring(0, separatorIndex).takeIf { it.isNotBlank() }
+    return DetailsRoute(title = value.substring(separatorIndex + DETAILS_ROUTE_SEPARATOR.length), mediaId = id)
+}
+
+internal fun nextEpisodeTitle(current: String): String? {
     val seasonMatch = Regex("^(.*) · S(\\d{2})E(\\d{2})(?: · Эпизод (\\d+))?$").matchEntire(current)
     if (seasonMatch != null) {
         val base = seasonMatch.groupValues[1]
         val season = seasonMatch.groupValues[2].toIntOrNull() ?: return null
         val episode = seasonMatch.groupValues[3].toIntOrNull() ?: return null
-        val seasonEpisodeCounts = seasonEpisodeCountsOverride
-            ?: DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty()
+        val seasonEpisodeCounts = DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty()
         val episodeCount = seasonEpisodeCounts.getOrNull(season - 1) ?: 10
         return when {
             episode < episodeCount -> {
@@ -178,20 +180,18 @@ internal fun nextEpisodeTitle(
         }
     }
 
-    // Legacy formatted history is self-describing and must not require repository I/O.
-    val legacyMatch = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current)
-    if (legacyMatch != null) {
-        val base = legacyMatch.groupValues[1]
-        val episode = legacyMatch.groupValues[2].toIntOrNull() ?: return null
-        val next = episode + 1
-        if (next > 8) return null
-        return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
+    val content = DemoCatalogRepository.findByTitle(current)
+    if (content != null && (content.type == ContentType.SERIES || content.seasonEpisodeCounts.isNotEmpty() || content.category == CatalogCategory.TV_SERIES)) {
+        return "$current · S01E02 · Эпизод 2"
     }
 
-    val isSeries = plainTitleIsSeriesOverride ?: DemoCatalogRepository.findByTitle(current)?.let { content ->
-        content.type == ContentType.SERIES || content.seasonEpisodeCounts.isNotEmpty() || content.category == CatalogCategory.TV_SERIES
-    } ?: false
-    return if (isSeries) "$current · S01E02 · Эпизод 2" else null
+    // Legacy titles can still exist in persisted playback history from pre-season builds.
+    val legacyMatch = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
+    val base = legacyMatch.groupValues[1]
+    val episode = legacyMatch.groupValues[2].toIntOrNull() ?: return null
+    val next = episode + 1
+    if (next > 8) return null
+    return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
 }
 
 internal fun previousEpisodeTitle(current: String): String? {
@@ -255,8 +255,9 @@ private fun MoviaContent(
     appPreferences: AppPreferences,
 ) {
     val scope = rememberCoroutineScope()
-    val playbackSession = remember {
-        MoviaPlaybackRegistry.obtain(context.applicationContext)
+    val playbackSession = remember(context) { PlaybackSession(context.applicationContext) }
+    DisposableEffect(playbackSession) {
+        onDispose { playbackSession.release() }
     }
 
     LaunchedEffect(preferencesRepository, libraryRepository) {
@@ -306,13 +307,10 @@ private fun MoviaContent(
     // Survives the details route so CatalogScreen can restore its pages and grid offset.
     val catalogRetention = remember { CatalogRetentionState() }
     var detailsStack by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
-    val activeDetailsTitle = detailsStack.lastOrNull()
+    val activeDetailsRoute = detailsStack.lastOrNull()?.let(::decodeDetailsRoute)
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
     var profileOpen by rememberSaveable { mutableStateOf(false) }
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
-    // Invalidate any delayed title lookup when the user changes or closes playback.
-    var playbackLaunchJob by remember { mutableStateOf<Job?>(null) }
-    var playbackLaunchGeneration by remember { mutableStateOf(0L) }
 
     val persistActiveProgress: () -> Unit = {
         val state = playbackSession.state.value
@@ -329,17 +327,13 @@ private fun MoviaContent(
     }
 
     val closePlayback: () -> Unit = {
-        playbackLaunchGeneration += 1L
-        playbackLaunchJob?.cancel()
-        playbackLaunchJob = null
         persistActiveProgress()
         playbackSession.stopAndClear()
         fullPlayerOpen = false
     }
 
-    val startPlayback: (String) -> Unit = { title ->
+    val launchPlaybackForContent: (app.movia.android.domain.model.MediaContent, String) -> Unit = { content, title ->
         val baseTitle = playbackBaseTitle(title)
-        val content = DemoCatalogRepository.findByTitle(baseTitle)
         val episodeMatch = Regex(""".* · S(\d{2})E(\d{2})(?: · Эпизод \d+)?$""").matchEntire(title)
         val seasonNumber = episodeMatch?.groupValues?.getOrNull(1)?.toIntOrNull()
         val episodeNumber = episodeMatch?.groupValues?.getOrNull(2)?.toIntOrNull()
@@ -371,103 +365,34 @@ private fun MoviaContent(
         )
         val streamCandidates = sortedStreams.mapNotNull { it.url.takeIf { u -> u.isNotBlank() } }
         val preferredSource = streamCandidates.firstOrNull() ?: content?.playbackUrl
-        playbackLaunchGeneration += 1L
-        val requestGeneration = playbackLaunchGeneration
-        playbackLaunchJob?.cancel()
-        persistActiveProgress()
-        playbackSession.stopAndClear()
-        playbackLaunchJob = scope.launch {
-            try {
-                val titlePreferences = preferencesRepository
-                    .titlePlaybackPreferences(baseTitle)
-                    .first()
-                if (requestGeneration != playbackLaunchGeneration) return@launch
-                playbackSession.start(
-                    mediaId = content?.id ?: baseTitle,
-                    title = title,
-                    contentYear = content?.year,
-                    seasonNumber = seasonNumber,
-                    episodeNumber = episodeNumber,
-                    sourceUri = localSource ?: preferredSource,
-                    startPositionMs = saved?.positionMs ?: 0L,
-                    audioTrackId = playbackPreferences.audio,
-                    subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
-                    preferredQuality = titlePreferences.quality ?: playbackPreferences.quality,
-                    preferredVoice = titlePreferences.audio ?: playbackPreferences.audio,
-                    candidateStreams = streamCandidates,
-                    candidateStreamOptions = sortedStreams,
-                )
-                if (requestGeneration == playbackLaunchGeneration) {
-                    fullPlayerOpen = true
-                }
-            } finally {
-                if (requestGeneration == playbackLaunchGeneration) {
-                    playbackLaunchJob = null
-                }
-            }
-        }
-    }
-    SideEffect {
-        val logicalScreen = when {
-            fullPlayerOpen -> "PLAYER"
-            activeDetailsTitle != null -> "DETAILS"
-            settingsRoute != null -> "SETTINGS"
-            profileOpen -> "PROFILE"
-            selectedIndex == 1 -> "CATALOG"
-            selectedIndex == 2 -> "LIBRARY"
-            else -> "HOME"
-        }
-        AgentControlRuntime.updateNavigation(
-            screen = logicalScreen,
-            playerOpen = fullPlayerOpen,
-            settingsOpen = false,
+        playbackSession.start(
+            mediaId = content?.id ?: baseTitle,
+            title = title,
+            seasonNumber = seasonNumber,
+            episodeNumber = episodeNumber,
+            sourceUri = localSource ?: preferredSource,
+            startPositionMs = saved?.positionMs ?: 0L,
+            audioTrackId = playbackPreferences.audio,
+            subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
+            candidateStreams = streamCandidates,
         )
-        AgentControlRuntime.updateSetting("player.autoNext", playbackPreferences.autoNextEnabled)
-        AgentControlRuntime.updateSetting("player.showSeekButtons", appPreferences.persistentSeekButtons)
-        AgentControlRuntime.updateSetting("player.subtitlesEnabled", playbackPreferences.subtitlesEnabled)
-        AgentControlRuntime.updateSetting("downloads.wifiOnly", playbackPreferences.wifiOnlyDownloads)
-        AgentControlRuntime.registerUiHandlers(
-            playTitle = startPlayback,
-            navigate = { target ->
-                when (target) {
-                    "home" -> {
-                        if (fullPlayerOpen) closePlayback()
-                        detailsStack = emptyList()
-                        profileOpen = false
-                        settingsRoute = null
-                        selectedIndex = 0
-                    }
-                    "catalog" -> {
-                        if (fullPlayerOpen) closePlayback()
-                        detailsStack = emptyList()
-                        profileOpen = false
-                        settingsRoute = null
-                        selectedIndex = 1
-                    }
-                    "library" -> {
-                        if (fullPlayerOpen) closePlayback()
-                        detailsStack = emptyList()
-                        profileOpen = false
-                        settingsRoute = null
-                        selectedIndex = 2
-                    }
-                    "back" -> when {
-                        fullPlayerOpen -> closePlayback()
-                        settingsRoute != null -> settingsRoute = null
-                        profileOpen -> profileOpen = false
-                        detailsStack.isNotEmpty() -> detailsStack = detailsStack.dropLast(1)
-                    }
-                }
-            },
-            nextEpisode = {
-                nextEpisodeTitle(playbackSession.state.value.displayTitle)?.let(startPlayback)
-            },
-        )
-    }
-    DisposableEffect(Unit) {
-        onDispose { AgentControlRuntime.clearUiHandlers() }
+        fullPlayerOpen = true
     }
 
+    // Episode navigation may only reuse the canonical media already bound to the player.
+    // Initial playback from DetailsScreen always supplies the exact MediaContent object.
+    val startPlayback: (String) -> Unit = { title ->
+        val currentId = playbackSession.state.value.mediaId
+        val currentContent = currentId.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findById)
+        if (currentContent != null && playbackBaseTitle(title) == playbackBaseTitle(currentContent.title)) {
+            launchPlaybackForContent(currentContent, title)
+        } else {
+            android.util.Log.e(
+                "MoviaStreamDebug",
+                "Playback rejected without canonical media identity: title='$title' currentMediaId='$currentId'",
+            )
+        }
+    }
 
     LaunchedEffect(playbackSession, libraryRepository) {
         while (true) {
@@ -497,6 +422,7 @@ private fun MoviaContent(
         PlayerScreen(
             session = playbackSession,
             title = title,
+            onMinimize = { fullPlayerOpen = false },
             onBack = {
                 // Leaving the full player is an explicit playback exit: persist first,
                 // then stop/clear so audio/video cannot continue behind the app UI.
@@ -505,6 +431,7 @@ private fun MoviaContent(
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,
             onAudioSelected = { audio ->
+                playbackSession.setTrackPreferences(audio, playbackSession.state.value.subtitleTrackId)
                 scope.launch { preferencesRepository.setTitleAudio(baseTitle, audio) }
             },
             onQualitySelected = { quality ->
@@ -549,10 +476,12 @@ private fun MoviaContent(
         return
     }
 
-    val contentBottomPadding = 0.dp
+    val miniVisible = playbackState.hasMedia
+    val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
 
-    if (activeDetailsTitle != null) {
-        val title = activeDetailsTitle
+    if (activeDetailsRoute != null) {
+        val title = activeDetailsRoute.title
+        val detailsMediaId = activeDetailsRoute.mediaId
         val titlePreferencesFlow = remember(title, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(title)
         }
@@ -578,12 +507,13 @@ private fun MoviaContent(
         Box(modifier = Modifier.fillMaxSize()) {
             DetailsScreen(
                 title = title,
+                mediaId = detailsMediaId,
                 onBack = {
                     detailsStack = if (detailsStack.isNotEmpty()) detailsStack.dropLast(1) else emptyList()
                 },
-                onPlay = startPlayback,
-                onOpenDetails = { relatedTitle ->
-                    detailsStack = detailsStack + relatedTitle
+                onPlay = launchPlaybackForContent,
+                onOpenDetails = { relatedTitle, relatedMediaId ->
+                    detailsStack = detailsStack + encodeDetailsRoute(relatedTitle, relatedMediaId)
                     scope.launch { libraryRepository.addHistory(relatedTitle) }
                 },
                 inMyList = inMyList,
@@ -602,6 +532,16 @@ private fun MoviaContent(
                     .fillMaxSize()
                     .padding(bottom = contentBottomPadding),
             )
+            if (miniVisible) {
+                MiniPlayerBar(
+                    session = playbackSession,
+                    onOpen = { fullPlayerOpen = true },
+                    onClose = closePlayback,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding(),
+                )
+            }
         }
         return
     }
@@ -635,6 +575,16 @@ private fun MoviaContent(
                 "help" -> HelpSettingsScreen(
                     onBack = closeSettings,
                     modifier = settingsModifier,
+                )
+            }
+            if (miniVisible) {
+                MiniPlayerBar(
+                    session = playbackSession,
+                    onOpen = { fullPlayerOpen = true },
+                    onClose = closePlayback,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding(),
                 )
             }
         }
@@ -677,8 +627,8 @@ private fun MoviaContent(
         return
     }
 
-    val openDetails: (String) -> Unit = { title ->
-        detailsStack = detailsStack + title
+    val openDetails: (String, String?) -> Unit = { title, mediaId ->
+        detailsStack = detailsStack + encodeDetailsRoute(title, mediaId)
         scope.launch { libraryRepository.addHistory(title) }
     }
 
@@ -759,9 +709,7 @@ private fun MoviaContent(
                         NavigationRailItem(
                             selected = selected,
                             onClick = {
-                                // Normal top-level navigation must preserve catalog filters,
-                                // pagination and scroll position. Explicit catalog-entry actions
-                                // (for example an empty-state CTA or a Home preset) own resets.
+                                if (selectedIndex != index) catalogResetTrigger++
                                 selectedIndex = index
                             },
                             icon = {
@@ -787,19 +735,26 @@ private fun MoviaContent(
                             screenContent(WindowInsets.safeDrawing.asPaddingValues())
                         }
                     }
+                    if (miniVisible) {
+                        MiniPlayerBar(
+                            session = playbackSession,
+                            onOpen = { fullPlayerOpen = true },
+                            onClose = closePlayback,
+                        )
+                    }
                 }
             }
             SnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = if (miniVisible) 88.dp else 16.dp),
             )
         } else {
             val systemTop = WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
             val systemBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
             val navHeight = 68.dp + systemBottom
-            val miniPlayerHeight = 0.dp
+            val miniPlayerHeight = if (miniVisible) 76.dp else 0.dp
             // Every top-level scroll surface must be able to move its final row fully
             // above the fixed navigation stack. The 16dp breathing room is part of the
             // contract, not an ad-hoc per-screen spacer.
@@ -841,11 +796,17 @@ private fun MoviaContent(
                         // above the fixed bottom navigation stack.
                         .zIndex(1000f),
                 ) {
+                    if (miniVisible) {
+                        MiniPlayerBar(
+                            session = playbackSession,
+                            onOpen = { fullPlayerOpen = true },
+                            onClose = closePlayback,
+                        )
+                    }
                     MoviaBottomNavigation(
                         selectedIndex = selectedIndex,
                         onSelected = {
-                            // Switching tabs is not a reset command. CatalogScreen has a
-                            // retention contract and should resume exactly where the user left it.
+                            if (selectedIndex != it) catalogResetTrigger++
                             selectedIndex = it
                         },
                     )
@@ -960,19 +921,11 @@ private fun MoviaBottomNavigation(
                 val selected = selectedIndex == index
                 val isLibrary = destination.moviaIcon == MoviaNavIcon.LIBRARY
                 val contentColor = if (selected) activeColor else inactiveColor
-                val destinationTag = when (destination.moviaIcon) {
-                    MoviaNavIcon.HOME -> "navigation.home"
-                    MoviaNavIcon.CATALOG -> "navigation.catalog"
-                    MoviaNavIcon.SEARCH -> "navigation.search"
-                    MoviaNavIcon.LIBRARY -> "navigation.library"
-                }
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .height(64.dp)
-                        .testTag(destinationTag)
-                        .semantics { this.selected = selected }
-                        .clickable(role = Role.Tab) { onSelected(index) },
+                        .clickable { onSelected(index) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 ) {

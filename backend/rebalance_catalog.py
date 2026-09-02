@@ -13,7 +13,7 @@ COUNTRY_MAP = {
     "USA": "США",
     "United States": "США",
     "Canada": "Канада",
-
+    
     # Europe
     "United Kingdom": "Великобритания",
     "UK": "Великобритания",
@@ -37,7 +37,7 @@ COUNTRY_MAP = {
     "Greece": "Греция",
     "Portugal": "Португалия",
     "Iceland": "Исландия",
-
+    
     # Russia & CIS
     "Russia": "Россия",
     "Russian Federation": "Россия",
@@ -50,7 +50,7 @@ COUNTRY_MAP = {
     "Georgia": "Грузия",
     "Azerbaijan": "Азербайджан",
     "Uzbekistan": "Узбекистан",
-
+    
     # South Korea, Turkey, India, LatAm
     "South Korea": "Южная Корея",
     "Korea": "Южная Корея",
@@ -64,7 +64,7 @@ COUNTRY_MAP = {
     "Peru": "Перу",
     "Australia": "Австралия",
     "New Zealand": "Новая Зеландия",
-
+    
     # China, Japan, HK, Taiwan
     "Japan": "Япония",
     "China": "Китай",
@@ -100,12 +100,12 @@ def rebalance_database(db_path: Path):
     # 2. Delete entries with missing poster, missing synopsis, or rating < 5.0
     print("[3] Removing invalid/low-quality records (no poster, no synopsis, rating < 5.0)...")
     cur.execute("""
-        DELETE FROM movies
-        WHERE poster_url IS NULL
-           OR poster_url = ''
-           OR synopsis IS NULL
-           OR LENGTH(synopsis) < 10
-           OR rating < 5.0
+        DELETE FROM movies 
+        WHERE poster_url IS NULL 
+           OR poster_url = '' 
+           OR synopsis IS NULL 
+           OR LENGTH(synopsis) < 10 
+           OR rating < 5.0 
            OR rating IS NULL;
     """)
     deleted_general = cur.rowcount
@@ -114,8 +114,8 @@ def rebalance_database(db_path: Path):
     # 3. Filter China / Japan / Hong Kong / Taiwan: Keep ONLY masterpieces with rating >= 7.0
     print("[4] Filtering China & Japan: removing entries with rating < 7.0 (keeping only masterpieces)...")
     cur.execute("""
-        DELETE FROM movies
-        WHERE country IN ('Китай', 'Япония', 'Гонконг', 'Тайвань', 'China', 'Japan', 'Hong Kong', 'Taiwan')
+        DELETE FROM movies 
+        WHERE country IN ('Китай', 'Япония', 'Гонконг', 'Тайвань', 'China', 'Japan', 'Hong Kong', 'Taiwan') 
           AND (rating < 7.0 OR rating IS NULL);
     """)
     deleted_asian_slop = cur.rowcount
@@ -130,8 +130,8 @@ def rebalance_database(db_path: Path):
 
     print("\n--- REGIONAL DISTRIBUTION ---")
     cur.execute("""
-        SELECT
-            CASE
+        SELECT 
+            CASE 
                 WHEN country IN ('США', 'Канада') THEN '1. США и Сев. Америка'
                 WHEN country IN ('Великобритания', 'Франция', 'Германия', 'Италия', 'Испания', 'Швеция', 'Дания', 'Норвегия', 'Финляндия', 'Нидерланды', 'Бельгия', 'Польша', 'Чехия', 'Ирландия', 'Австрия', 'Швейцария', 'Венгрия', 'Греция', 'Португалия', 'Исландия') THEN '2. Европа'
                 WHEN country IN ('Россия', 'СССР', 'Беларусь', 'Казахстан', 'Украина', 'Армения', 'Грузия') THEN '3. Россия и СНГ'

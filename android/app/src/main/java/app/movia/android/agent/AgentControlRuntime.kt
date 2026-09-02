@@ -21,6 +21,7 @@ import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlaybackSession
+import androidx.media3.common.Player
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -313,25 +314,76 @@ object AgentControlRuntime {
     fun diagnosticsJson(): JSONObject {
         val session = MoviaPlaybackRegistry.current
         val state = session?.state?.value
-        val player = session?.player
-        val mediaItem = player?.currentMediaItem
-        val uri = mediaItem?.localConfiguration?.uri
+
+        var mediaItemId: String? = state?.mediaId
+        var uriScheme: String? = null
+        var uriHost: String? = null
+        var uriPath: String? = null
+        var videoWidth = 0
+        var videoHeight = 0
+        var bufferedPositionMs = 0L
+        var currentPositionMs = 0L
+        var actualPlaybackState = "IDLE"
+        var actualPlaybackStateCode = Player.STATE_IDLE
+        var actualIsPlaying = false
+        var actualPlayWhenReady = false
+        var playbackSuppressionReason = 0
+        var playerErrorCode: String? = null
+        var playerErrorCause: String? = null
+
+        // Media3 enforces application-thread access for player getters. The
+        // agent HTTP server runs on a pool thread, so snapshot only the
+        // player-owned fields through the existing main-thread bridge.
+        if (session != null) {
+            runOnMain {
+                val player = session.player
+                val mediaItem = player.currentMediaItem
+                val uri = mediaItem?.localConfiguration?.uri
+                mediaItemId = mediaItem?.mediaId ?: state?.mediaId
+                uriScheme = uri?.scheme
+                uriHost = uri?.host
+                uriPath = uri?.path
+                videoWidth = player.videoSize.width
+                videoHeight = player.videoSize.height
+                bufferedPositionMs = player.bufferedPosition
+                currentPositionMs = player.currentPosition
+                actualPlaybackStateCode = player.playbackState
+                actualPlaybackState = when (player.playbackState) {
+                    Player.STATE_IDLE -> "IDLE"
+                    Player.STATE_BUFFERING -> "BUFFERING"
+                    Player.STATE_READY -> "READY"
+                    Player.STATE_ENDED -> "ENDED"
+                    else -> player.playbackState.toString()
+                }
+                actualIsPlaying = player.isPlaying
+                actualPlayWhenReady = player.playWhenReady
+                playbackSuppressionReason = player.playbackSuppressionReason
+                playerErrorCode = player.playerError?.errorCodeName
+                playerErrorCause = player.playerError?.cause?.javaClass?.simpleName
+            }
+        }
+
         return JSONObject().apply {
             put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION)
             put("snapshot", stateRepository?.snapshotJson() ?: JSONObject())
             put("media3", JSONObject().apply {
-                put("playbackState", state?.status?.name ?: "IDLE")
+                put("playbackState", actualPlaybackState)
+                put("playbackStateCode", actualPlaybackStateCode)
+                put("domainPlaybackState", state?.status?.name ?: "IDLE")
                 put("switchState", state?.switchState?.name ?: "IDLE")
-                put("playWhenReady", state?.playWhenReady ?: false)
-                put("isPlaying", state?.isPlaying ?: false)
-                put("mediaItemId", mediaItem?.mediaId ?: state?.mediaId)
-                put("uriScheme", uri?.scheme)
-                put("uriHost", uri?.host)
-                put("uriPath", uri?.path)
-                put("videoWidth", player?.videoSize?.width ?: 0)
-                put("videoHeight", player?.videoSize?.height ?: 0)
-                put("bufferedPositionMs", player?.bufferedPosition ?: 0L)
-                put("currentPositionMs", player?.currentPosition ?: 0L)
+                put("playWhenReady", actualPlayWhenReady)
+                put("isPlaying", actualIsPlaying)
+                put("playbackSuppressionReason", playbackSuppressionReason)
+                put("playerErrorCode", playerErrorCode)
+                put("playerErrorCause", playerErrorCause)
+                put("mediaItemId", mediaItemId)
+                put("uriScheme", uriScheme)
+                put("uriHost", uriHost)
+                put("uriPath", uriPath)
+                put("videoWidth", videoWidth)
+                put("videoHeight", videoHeight)
+                put("bufferedPositionMs", bufferedPositionMs)
+                put("currentPositionMs", currentPositionMs)
             })
             put("streamSelection", JSONObject().apply {
                 val selection = state?.activeStreamSelection
@@ -430,6 +482,7 @@ object AgentControlRuntime {
         expectedStreamId: String?,
         expectedQuality: String?,
         expectedVoice: String?,
+        actualPlaybackEvidence: Boolean,
         persistTitle: String?,
         result: (PlaybackState, ActiveStreamSelection?) -> Map<String, Any?>,
     ): AgentOperation? = synchronized(selectionLock) {
@@ -441,7 +494,7 @@ object AgentControlRuntime {
         if (!isCurrentPlaybackSession(session)) return@synchronized null
         val state = session.state.value
         val selection = state.activeStreamSelection
-        if (state.status.name == "FAILED" || state.mediaId != expectedMediaId || state.switchState.name != "READY") return@synchronized null
+        if (!actualPlaybackEvidence || state.status.name == "FAILED" || state.mediaId != expectedMediaId || state.switchState.name != "READY") return@synchronized null
         if (!activeSelectionMatches(selection, expectedStreamId, expectedQuality, expectedVoice)) return@synchronized null
         if (!persistTitle.isNullOrBlank()) {
             persistVariant(persistTitle, selection?.activeQuality, selection?.activeVoice)
@@ -798,12 +851,14 @@ object AgentControlRuntime {
                         contentYear = content.year,
                         seasonNumber = season,
                         episodeNumber = episode,
-                        sourceUri = localFile?.toURI()?.toString() ?: exactKnown?.url ?: content.playbackUrl ?: knownStreams.firstOrNull()?.url,
+                        mediaType = content.type,
+                        sourceUri = localFile?.toURI()?.toString() ?: exactKnown?.url ?: knownStreams.firstOrNull()?.url,
                         startPositionMs = progress?.positionMs ?: 0L,
                         audioTrackId = playbackPrefs.audio,
                         subtitleTrackId = if (playbackPrefs.subtitlesEnabled) "Auto" else null,
                         preferredQuality = quality,
                         preferredVoice = voice,
+                        preferredStreamId = streamId,
                         candidateStreams = knownStreams.map { it.url },
                         candidateStreamOptions = knownStreams,
                     )
@@ -830,7 +885,14 @@ object AgentControlRuntime {
                     }
                     val exactStream = exact ?: throw IllegalArgumentException("STREAM_NOT_FOUND")
                     withContext(Dispatchers.Main) {
-                        if (isCurrentSelection(started.token)) playbackSession.switchToStream(exactStream)
+                        if (isCurrentSelection(started.token)) {
+                            val selection = playbackSession.state.value.activeStreamSelection
+                            val alreadyRequested = selection?.requestedStreamId == exactStream.streamId
+                            val alreadyActive = selection?.activeStreamId == exactStream.streamId
+                            if (!alreadyRequested && !alreadyActive) {
+                                playbackSession.switchToStream(exactStream)
+                            }
+                        }
                     }
                 }
                 awaitPlaybackOperation(
@@ -869,6 +931,8 @@ object AgentControlRuntime {
         persistTitle: String? = null,
     ) {
         val deadline = System.currentTimeMillis() + 60_000L
+        var previousPositionMs: Long? = null
+        var positionMoved = false
         while (System.currentTimeMillis() < deadline) {
             if (!isCurrentSelection(token)) return
             if (!isCurrentPlaybackSession(session)) {
@@ -912,6 +976,16 @@ object AgentControlRuntime {
                 return
             }
             if (ready && selectionMatches) {
+                val evidence = runOnMainResult { session.realPlaybackEvidence() }
+                if (evidence.first) {
+                    val previous = previousPositionMs
+                    if (previous != null && evidence.second > previous) positionMoved = true
+                }
+                previousPositionMs = evidence.second
+                if (!evidence.first || !positionMoved) {
+                    delay(200L)
+                    continue
+                }
                 val completed = completeSelectionIfCurrent(
                     token = token,
                     session = session,
@@ -919,6 +993,7 @@ object AgentControlRuntime {
                     expectedStreamId = expectedStreamId,
                     expectedQuality = expectedQuality,
                     expectedVoice = expectedVoice,
+                    actualPlaybackEvidence = true,
                     persistTitle = persistTitle,
                 ) { completedState, completedSelection ->
                     mapOf(
@@ -1043,6 +1118,8 @@ object AgentControlRuntime {
             markSelectionRunning(started.token)?.let { publishOperation("OPERATION_RUNNING", it) } ?: return@launch
             try {
                 val deadline = System.currentTimeMillis() + 45_000L
+                var previousPositionMs: Long? = null
+                var positionMoved = false
                 while (System.currentTimeMillis() < deadline) {
                     if (!isCurrentSelection(started.token)) return@launch
                     if (!isCurrentPlaybackSession(session)) {
@@ -1090,6 +1167,16 @@ object AgentControlRuntime {
                             }
                             return@launch
                         }
+                        val evidence = runOnMainResult { session.realPlaybackEvidence() }
+                        if (evidence.first) {
+                            val previous = previousPositionMs
+                            if (previous != null && evidence.second > previous) positionMoved = true
+                        }
+                        previousPositionMs = evidence.second
+                        if (!evidence.first || !positionMoved) {
+                            delay(150L)
+                            continue
+                        }
                         val baseTitle = state.displayTitle.substringBefore(" · S").substringBefore(" · E")
                         val completed = completeSelectionIfCurrent(
                             token = started.token,
@@ -1098,6 +1185,7 @@ object AgentControlRuntime {
                             expectedStreamId = candidate.streamId,
                             expectedQuality = candidate.quality,
                             expectedVoice = candidate.voice,
+                            actualPlaybackEvidence = true,
                             persistTitle = baseTitle.takeIf { persist },
                         ) { completedState, completedSelection ->
                             mapOf(
@@ -1137,7 +1225,6 @@ object AgentControlRuntime {
             ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
         if (!state.hasMedia) return error("NO_ACTIVE_MEDIA", "No active media", true)
         val content = DemoCatalogRepository.findById(state.mediaId)
-            ?: DemoCatalogRepository.findByTitle(state.displayTitle.substringBefore(" · S"))
             ?: return error("MEDIA_NOT_FOUND", "Current media metadata unavailable", true)
         var season = state.seasonNumber ?: 1
         var episode = state.episodeNumber ?: 1
@@ -1344,8 +1431,16 @@ object AgentControlRuntime {
     private fun streamJson(stream: StreamOption, requestedId: String?, activeId: String?): JSONObject = JSONObject().apply {
         put("streamId", stream.streamId)
         put("voice", stream.voice)
+        put("translation", stream.voice)
+        put("language", stream.language)
         put("quality", stream.quality)
+        put("resolution", stream.resolution)
         put("source", stream.source)
+        put("sourceId", stream.sourceId)
+        put("providerId", stream.providerId)
+        put("providerContentId", stream.providerContentId)
+        put("transport", stream.transport)
+        put("transportMetadata", safeMetadataJson(stream.transportMetadata))
         put("seeders", stream.seeders)
         put("infoHash", stream.infoHash)
         put("fileIndex", stream.fileIndex)
@@ -1353,8 +1448,61 @@ object AgentControlRuntime {
         put("season", stream.seasonNumber)
         put("episode", stream.episodeNumber)
         put("mimeType", stream.mimeType)
+        put("codec", stream.codec)
+        put("unavailableQuality", stream.unavailableQuality)
+        put("internalSubtitles", stream.hasInternalSubtitles)
+        put("subtitleList", JSONArray().apply {
+            stream.subtitles.forEach { subtitle ->
+                put(JSONObject()
+                    .put("url", subtitle.url)
+                    .put("language", subtitle.language)
+                    .put("label", subtitle.label)
+                    .put("mimeType", subtitle.mimeType))
+            }
+        })
+        put("userAgentPresent", !stream.userAgent.isNullOrBlank())
+        put("headersPresent", stream.headers.isNotEmpty())
+        put("headerNames", JSONArray(stream.headers.keys.map(String::lowercase).distinct().sorted()))
+        put("downloadUrlPresent", !stream.downloadUrl.isNullOrBlank())
+        put("downloadHeadersPresent", stream.downloadHeaders.isNotEmpty())
+        put("downloadHeaderNames", JSONArray(stream.downloadHeaders.keys.map(String::lowercase).distinct().sorted()))
+        put("skipIntervals", JSONArray().apply {
+            stream.skipIntervals.forEach { interval ->
+                put(JSONObject().put("startMs", interval.startMs).put("endMs", interval.endMs))
+            }
+        })
+        put("videoTrackIndex", stream.videoTrackIndex)
+        put("audioTrackIndex", stream.audioTrackIndex)
+        put("advertisementPresent", stream.advertisement != null)
+        put("advertisement", stream.advertisement?.let { ad ->
+            JSONObject()
+                .put("metadata", safeMetadataJson(ad.metadata))
+                .put("rawPresent", !ad.raw.isNullOrBlank())
+        })
+        put("reloadSupported", stream.reloadSupported)
+        put("reloadDataPresent", !stream.reloadData.isNullOrBlank())
+        put("durationMs", stream.durationMs)
+        put("sizeBytes", stream.sizeBytes)
+        put("catalogMediaId", stream.catalogMediaId)
+        put("canonicalTitle", stream.canonicalTitle)
+        put("canonicalYear", stream.canonicalYear)
+        put("canonicalMediaType", stream.canonicalMediaType?.name)
+        put("healthScore", stream.healthScore)
+        put("startupLatencyMs", stream.startupLatencyMs)
+        put("recentFailureCount", stream.recentFailureCount)
+        put("providerReliability", stream.providerReliability)
         put("requested", stream.streamId == requestedId)
         put("active", stream.streamId == activeId)
+    }
+
+    private fun safeMetadataJson(values: Map<String, String>): JSONObject = JSONObject().apply {
+        values.toSortedMap().forEach { (key, value) ->
+            val normalized = key.replace(Regex("[^A-Za-z0-9]"), "").lowercase()
+            if (normalized in setOf("authorization", "cookie", "token", "accesstoken", "password", "secret", "signature", "key", "privatekey", "apikey")) return@forEach
+            if (value.isNotBlank() && value.length <= 2048 && !value.contains("\r") && !value.contains("\n")) {
+                put(key, value)
+            }
+        }
     }
 
     private fun publishOperation(event: String, operation: AgentOperation) {
@@ -1441,6 +1589,26 @@ object AgentControlRuntime {
         check(latch.await(2, TimeUnit.SECONDS)) { "Main thread dispatch timed out" }
         error?.let { throw it }
         return true
+    }
+
+    private fun <T> runOnMainResult(block: () -> T): T {
+        if (Looper.myLooper() == Looper.getMainLooper()) return block()
+        val latch = CountDownLatch(1)
+        var result: T? = null
+        var error: Throwable? = null
+        mainHandler.post {
+            try {
+                result = block()
+            } catch (throwable: Throwable) {
+                error = throwable
+            } finally {
+                latch.countDown()
+            }
+        }
+        check(latch.await(2, TimeUnit.SECONDS)) { "Main thread dispatch timed out" }
+        error?.let { throw it }
+        @Suppress("UNCHECKED_CAST")
+        return result as T
     }
 
     private fun completed(action: String, vararg values: Pair<String, Any?>): JSONObject =

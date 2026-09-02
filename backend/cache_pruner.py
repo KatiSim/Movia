@@ -14,7 +14,22 @@ BASE_DIR = Path(__file__).resolve().parent
 CACHE_DIR = (BASE_DIR / "torrent_cache").resolve()
 ARIA2_RPC_URL = "http://127.0.0.1:6800/jsonrpc"
 ARIA2_RPC_TOKEN = "token:movia_secret"
-MAX_CACHE_BYTES = 64 * 1024 * 1024 * 1024
+def _configured_cache_limit_bytes() -> int:
+    """Return the disposable playback-cache quota in bytes.
+
+    The default is intentionally bounded to 8 GiB and can be adjusted for a
+    device with MOVIA_TORRENT_CACHE_MAX_GB without changing the code.
+    """
+    try:
+        quota_gb = float(os.environ.get("MOVIA_TORRENT_CACHE_MAX_GB", "8"))
+    except (TypeError, ValueError):
+        quota_gb = 8.0
+    if quota_gb <= 0:
+        quota_gb = 8.0
+    return int(quota_gb * 1024 * 1024 * 1024)
+
+
+MAX_CACHE_BYTES = _configured_cache_limit_bytes()
 MAX_ENTRY_AGE_SECONDS = 48 * 60 * 60
 RPC_TIMEOUT_SECONDS = 2.5
 
@@ -199,21 +214,22 @@ def main() -> int:
     removed: list[dict[str, Any]] = []
     current_bytes = before_bytes
 
-    # Age is the primary lifecycle policy. If the cache exceeds its budget,
-    # remove the oldest eligible entries first. Fresh or protected playback
-    # directories are retained for later passes.
-    eligible = sorted(
+    # LRU & Age lifecycle policy:
+    # 1. Always prune unprotected entries older than MAX_ENTRY_AGE_SECONDS.
+    # 2. If current cache size exceeds MAX_CACHE_BYTES budget, prune oldest unprotected entries (LRU) until within budget.
+    unprotected_entries = sorted(
         (
             (entry, size, mtime)
             for entry, size, mtime in entries
             if entry not in protected
-            and now - mtime >= MAX_ENTRY_AGE_SECONDS
         ),
         key=lambda item: (item[2], str(item[0])),
     )
-    for entry, size, mtime in eligible:
-        if current_bytes <= MAX_CACHE_BYTES:
-            break
+    for entry, size, mtime in unprotected_entries:
+        is_expired = (now - mtime >= MAX_ENTRY_AGE_SECONDS)
+        is_over_budget = (current_bytes > MAX_CACHE_BYTES)
+        if not (is_expired or is_over_budget):
+            continue
         if entry in protected or not entry.exists():
             continue
         try:
@@ -222,6 +238,7 @@ def main() -> int:
                 "path": entry.name,
                 "bytes": size,
                 "age_hours": round(max(0.0, now - mtime) / 3600.0, 1),
+                "reason": "expired" if is_expired else "quota_exceeded",
             })
             current_bytes = max(0, current_bytes - size)
         except OSError as exc:

@@ -9,15 +9,15 @@ class PeopleSearchTest {
     fun mediaSearchMatchesOriginalTitleDirectorAndCast() {
         assertEquals(
             listOf("Нулевая орбита"),
-            searchCatalogLocally(catalogTestItems, "Zero Orbit").map { it.title },
+            DemoCatalogRepository.search("Zero Orbit").map { it.title },
         )
         assertTrue(
-            searchCatalogLocally(catalogTestItems, "Lucía Vega")
+            DemoCatalogRepository.search("Lucía Vega")
                 .map { it.title }
                 .containsAll(listOf("Граница миров", "Город после дождя")),
         )
         assertTrue(
-            searchCatalogLocally(catalogTestItems, "Diego Ríos")
+            DemoCatalogRepository.search("Diego Ríos")
                 .map { it.title }
                 .containsAll(listOf("Граница миров", "Последний рейс")),
         )
@@ -25,7 +25,7 @@ class PeopleSearchTest {
 
     @Test
     fun peopleSearchReturnsKnownForTitles() {
-        val person = searchPeopleLocally(catalogTestItems, "Marta Soler").single()
+        val person = DemoCatalogRepository.searchPeople("Marta Soler").single()
         assertEquals("Marta Soler", person.name)
         assertTrue(person.knownFor.contains("Граница миров"))
         assertTrue(person.knownFor.contains("Город после дождя"))

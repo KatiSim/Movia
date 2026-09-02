@@ -5,8 +5,7 @@ import requests
 import time
 
 DB_PATH = os.path.expanduser("~/projects/media-parser/media_catalog.db")
-API_KEY = "6edd31b8201cbd29c437df73fcd3345d"
-
+API_KEY = os.getenv("TMDB_API_KEY", "")
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode = WAL;")
@@ -38,10 +37,10 @@ def init_db():
 def restore_catalog():
     init_db()
     print("=== Быстрое наполнение витрины Movia ===")
-
+    
     headers = {"User-Agent": "Mozilla/5.0"}
     all_movies = []
-
+    
     # Загружаем популярные фильмы и новинки (русские постеры и описания)
     for endpoint, cat in [("/movie/popular", "movies"), ("/movie/now_playing", "movies"), ("/tv/popular", "series")]:
         for page in range(1, 4):
@@ -53,15 +52,15 @@ def restore_catalog():
                     backdrop = item.get("backdrop_path")
                     if not poster:
                         continue
-
+                    
                     title = item.get("title") or item.get("name") or "Без названия"
                     orig_title = item.get("original_title") or item.get("original_name") or title
                     rel_date = item.get("release_date") or item.get("first_air_date") or "2026"
                     year = int(rel_date.split("-")[0]) if len(rel_date) >= 4 else 2026
-
+                    
                     poster_url = f"https://image.tmdb.org/t/p/w500{poster}"
                     backdrop_url = f"https://image.tmdb.org/t/p/original{backdrop}" if backdrop else poster_url
-
+                    
                     all_movies.append((
                         item.get("id"),
                         title,
@@ -85,8 +84,8 @@ def restore_catalog():
 
     conn = sqlite3.connect(DB_PATH)
     query = """
-        INSERT INTO movies
-        (tmdb_id, title, original_title, year, rating, popularity, duration_minutes,
+        INSERT INTO movies 
+        (tmdb_id, title, original_title, year, rating, popularity, duration_minutes, 
          synopsis, poster_url, backdrop_url, genres, cast, director, country, category, streams)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(tmdb_id) DO UPDATE SET

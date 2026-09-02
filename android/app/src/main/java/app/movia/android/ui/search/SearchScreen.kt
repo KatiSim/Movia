@@ -48,15 +48,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -73,8 +67,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.movia.android.data.catalog.DemoCatalogRepository
-import app.movia.android.data.catalog.CanonicalTextNormalizer
-import app.movia.android.data.catalog.SearchStatus
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
@@ -93,7 +85,6 @@ import java.util.Locale
 private val discoveryGenres = listOf("Фантастика", "Драма", "Комедия", "Триллер")
 private val resultFilters = listOf("Все", "Фильмы", "Сериалы", "Люди")
 
-@OptIn(FlowPreview::class)
 @Composable
 fun SearchScreen(
     contentPadding: PaddingValues,
@@ -101,7 +92,7 @@ fun SearchScreen(
     recentQueries: List<String> = emptyList(),
     onSearchCommitted: (String) -> Unit,
     onClearRecent: () -> Unit,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (String, String?) -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
@@ -112,61 +103,27 @@ fun SearchScreen(
     var results by remember { mutableStateOf<List<MediaContent>>(emptyList()) }
     var people by remember { mutableStateOf<List<Person>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
-    var searchStatus by remember { mutableStateOf(SearchStatus.EMPTY_QUERY) }
-    var searchError by remember { mutableStateOf<String?>(null) }
     val popularItems = remember { DemoCatalogRepository.getPopular(8) }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { CanonicalTextNormalizer.normalize(query) }
-            .debounce(150L)
-            .distinctUntilChanged()
-            .collectLatest { normalized ->
-                if (normalized.isBlank()) {
-                    results = emptyList()
-                    people = emptyList()
-                    searchStatus = SearchStatus.EMPTY_QUERY
-                    searchError = null
-                    isSearching = false
-                    return@collectLatest
-                }
-
-                isSearching = true
-                searchError = null
-                val local = withContext(Dispatchers.IO) {
-                    DemoCatalogRepository.searchDetailed(
-                        normalized,
-                        limit = 20,
-                        discover = false,
-                    )
-                }
-                ensureActive()
-                results = local.items
-                people = local.people
-                searchStatus = local.status
-                searchError = local.errorMessage
+    LaunchedEffect(query) {
+        val trimmed = query.trim()
+        if (trimmed.isBlank()) {
+            results = emptyList()
+            people = emptyList()
+            isSearching = false
+            return@LaunchedEffect
+        }
+        isSearching = true
+        delay(300L)
+        withContext(Dispatchers.IO) {
+            val foundResults = DemoCatalogRepository.search(trimmed, limit = 20)
+            val foundPeople = DemoCatalogRepository.searchPeople(trimmed, limit = 20)
+            withContext(Dispatchers.Main) {
+                results = foundResults
+                people = foundPeople
                 isSearching = false
-
-                // Remote discovery is deliberately separated from the first local
-                // response and is never eligible for one- or two-character input.
-                if (normalized.length >= 3 && local.weakLocal) {
-                    isSearching = true
-                    delay(400L)
-                    ensureActive()
-                    val enriched = withContext(Dispatchers.IO) {
-                        DemoCatalogRepository.searchDetailed(
-                            normalized,
-                            limit = 20,
-                            discover = true,
-                        )
-                    }
-                    ensureActive()
-                    results = enriched.items
-                    people = enriched.people
-                    searchStatus = enriched.status
-                    searchError = enriched.errorMessage
-                    isSearching = false
-                }
             }
+        }
     }
 
     fun commitSearch(value: String) {
@@ -226,7 +183,7 @@ fun SearchScreen(
                     query = query,
                     onQueryChange = {
                         query = it
-                        committed = it.isNotBlank()
+                        committed = false
                         selectedFilter = "Все"
                     },
                     focused = searchFocused,
@@ -285,31 +242,8 @@ fun SearchScreen(
                 }
                 val visiblePeople = if (selectedFilter == "Все" || selectedFilter == "Люди") people else emptyList()
                 val totalVisible = visibleMedia.size + visiblePeople.size
-                val searchStatusError = searchStatus !in setOf(
-                    SearchStatus.OK,
-                    SearchStatus.NO_RESULTS,
-                    SearchStatus.EMPTY_QUERY,
-                )
 
-                if (totalVisible == 0 && isSearching) {
-                    item(key = "searching") {
-                        Text(
-                            text = "Ищем в каталоге…",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        )
-                    }
-                } else if (totalVisible == 0 && searchStatusError) {
-                    item(key = "search-error") {
-                        Text(
-                            text = searchError ?: "Поиск временно недоступен. Локальный каталог не был заменён пустой выдачей.",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        )
-                    }
-                } else if (totalVisible == 0) {
+                if (totalVisible == 0) {
                     item(key = "empty-results") {
                         SearchEmptyState(
                             onClear = {
@@ -325,7 +259,7 @@ fun SearchScreen(
                             item = item,
                             onClick = {
                                 onSearchCommitted(query.trim())
-                                onOpenDetails(item.title)
+                                onOpenDetails(item.title, item.id)
                             },
                         )
                     }
@@ -372,7 +306,7 @@ fun SearchScreen(
                             supporting = "${contentTypeLabel(item.type)} • ${item.year}",
                             onClick = {
                                 onSearchCommitted(query.trim())
-                                onOpenDetails(item.title)
+                                onOpenDetails(item.title, item.id)
                             },
                         )
                     }
@@ -438,7 +372,7 @@ fun SearchScreen(
                                 MediaContentCard(
                                     item = item,
                                     modifier = Modifier.width(134.dp),
-                                    onClick = { onOpenDetails(item.title) },
+                                    onClick = { onOpenDetails(item.title, item.id) },
                                 )
                             }
                         }
@@ -828,3 +762,4 @@ private fun SearchMetadataLine(
         overflow = TextOverflow.Ellipsis,
     )
 }
+

@@ -52,7 +52,7 @@ def http_get_json(url: str, timeout: int = 7, retries: int = 2):
 def resolve_magnet_stream(title: str, year: int) -> list:
     streams = []
     clean_title = "".join(c for c in title if c.isalnum() or c in " -_").strip()
-
+    
     # 1. YTS
     try:
         yts_url = f"https://yts.mx/api/v2/list_movies.json?query_term={urllib.parse.quote(clean_title)}&limit=1"
@@ -352,7 +352,7 @@ def main():
 
     existing_ids = {row[0] for row in cursor.execute("SELECT tmdb_id FROM movies WHERE tmdb_id IS NOT NULL;").fetchall()}
     existing_titles = {(row[0].strip().lower(), row[1]) for row in cursor.execute("SELECT title, year FROM movies;").fetchall()}
-
+    
     current_count = len(existing_titles)
     print(f"Стартовое количество записей в базе: {current_count}")
 
@@ -380,7 +380,7 @@ def main():
 
                 media_type_url = "tv" if is_tv else "movie"
                 year_param = "first_air_date_year" if is_tv else "primary_release_year"
-
+                
                 page_start = start_page if year == start_year else 1
                 max_pages_for_year = 40
 

@@ -23,10 +23,10 @@ def parse_rss_feed(feed_url: str) -> List[Dict[str, Any]]:
             title = entry.findtext("title", "").strip()
             enclosure = entry.find("enclosure")
             link = enclosure.get("url") if enclosure is not None else entry.findtext("link", "").strip()
-
+            
             if not title or not link:
                 continue
-
+                
             items.append({
                 "title": title,
                 "playback_url": link,

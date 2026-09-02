@@ -34,10 +34,10 @@ def generate_stats():
 
     # 2. Source distribution
     cur.execute("""
-        SELECT
+        SELECT 
             SUM(CASE WHEN playback_url LIKE 'magnet:%' THEN 1 ELSE 0 END) AS magnet_count,
             SUM(CASE WHEN playback_url LIKE 'http%' THEN 1 ELSE 0 END) AS hls_count
-        FROM movies
+        FROM movies 
         WHERE playback_url IS NOT NULL AND playback_url != '' AND link_verified = 1;
     """)
     src_row = cur.fetchone()
@@ -48,20 +48,20 @@ def generate_stats():
 
     # 3. Quality distribution
     cur.execute("""
-        SELECT quality, COUNT(*) as cnt
-        FROM movies
+        SELECT quality, COUNT(*) as cnt 
+        FROM movies 
         WHERE playback_url IS NOT NULL AND playback_url != '' AND link_verified = 1
-        GROUP BY quality
+        GROUP BY quality 
         ORDER BY cnt DESC;
     """)
     quality_rows = cur.fetchall()
 
     # 4. Voice distribution
     cur.execute("""
-        SELECT voice, COUNT(*) as cnt
-        FROM movies
+        SELECT voice, COUNT(*) as cnt 
+        FROM movies 
         WHERE playback_url IS NOT NULL AND playback_url != '' AND link_verified = 1
-        GROUP BY voice
+        GROUP BY voice 
         ORDER BY cnt DESC;
     """)
     voice_rows = cur.fetchall()

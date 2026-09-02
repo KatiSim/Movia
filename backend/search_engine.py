@@ -4,6 +4,7 @@ import urllib3
 import xml.etree.ElementTree as ET
 from typing import List, Dict, Optional, Any
 from urllib.parse import quote, unquote
+from archive_source import search_archive_streams_sync
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -18,23 +19,23 @@ class VideoSearchEngine:
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
             "Accept": "application/json, application/xml, text/xml, */*",
         })
-
+        
         # Конфигурация локального/удалённого Jackett/Prowlarr (если запущен)
         self.jackett_host = "http://127.0.0.1:9117"
         self.jackett_api_key = ""  # Указать при наличии
 
     def search(self, query: str, year: Optional[int] = None) -> List[Dict[str, Any]]:
         results: List[Dict[str, Any]] = []
-
+        
         # 1. Запрос к открытым REST API
         results.extend(self._search_yts(query, year))
         results.extend(self._search_apibay(query, year))
         results.extend(self._search_archive_org(query, year))
-
+        
         # 2. Запрос к шлюзу Torznab (Jackett), если задан API-ключ
         if self.jackett_api_key:
             results.extend(self._search_torznab(query))
-
+            
         return results
 
     def _extract_year(self, text: str) -> Optional[int]:
@@ -84,7 +85,7 @@ class VideoSearchEngine:
             data = resp.json()
             if not isinstance(data, list) or (len(data) == 1 and data[0].get("name") == "No results returned"):
                 return []
-
+            
             items = []
             for item in data[:3]:
                 name, info_hash = item.get("name"), item.get("info_hash")
@@ -104,28 +105,34 @@ class VideoSearchEngine:
             return []
 
     def _search_archive_org(self, query: str, year: Optional[int] = None) -> List[Dict[str, Any]]:
-        url = "https://archive.org/advancedsearch.php"
-        params = {"q": f'title:("{query}") AND mediatype:(movies)', "fl[]": "identifier,title,year", "rows": 2, "output": "json"}
+        """Return only verified Archive media files, never a guessed filename."""
         try:
-            resp = self.session.get(url, params=params, timeout=self.timeout)
-            data = resp.json()
-            items = []
-            for doc in data.get("response", {}).get("docs", []):
-                ident, title = doc.get("identifier"), doc.get("title")
-                if not ident:
-                    continue
-                items.append({
-                    "title": f"[Archive.org] {title or ident}",
-                    "original_title": query,
-                    "year": doc.get("year") or self._extract_year(title or "") or year,
-                    "playback_url": f"https://archive.org/download/{ident}/{ident}.mp4",
-                    "source_id": "archive_org",
-                    "source_page": f"https://archive.org/details/{ident}",
-                    "media_type": "direct_http"
-                })
-            return items
+            verified = search_archive_streams_sync(
+                title=query,
+                year=year,
+                timeout=min(max(float(self.timeout), 1.0), 5.0),
+            )
         except Exception:
             return []
+
+        items: List[Dict[str, Any]] = []
+        for stream in verified:
+            playback_url = str(stream.get("playback_url") or "").strip()
+            if not playback_url:
+                continue
+            items.append({
+                "title": stream.get("title") or query,
+                "original_title": query,
+                "year": stream.get("year") or year,
+                "playback_url": playback_url,
+                "source_id": "archive_org",
+                "provider_item_id": stream.get("provider_item_id"),
+                "source_page": stream.get("source_page"),
+                "media_type": stream.get("media_type") or "direct_http",
+                "voice": stream.get("voice") or "Original",
+                "quality": stream.get("quality") or "Не указано",
+            })
+        return items
 
     def _search_torznab(self, query: str) -> List[Dict[str, Any]]:
         """Запрос к агрегаторам Jackett / Prowlarr по стандарту Torznab."""

@@ -1,8 +1,69 @@
 package app.movia.android.domain.model
 
 import java.security.MessageDigest
+import java.net.URI
 
 private val magnetHashRegex = Regex("(?:^|[?&])xt=urn:btih:([^&\\s]+)", RegexOption.IGNORE_CASE)
+
+private fun canonicalMagnetLocator(url: String): String {
+    val trimmed = url.trim()
+    val hash = magnetHashRegex.find(trimmed)?.groupValues?.getOrNull(1)?.trim()?.lowercase()
+        ?: return trimmed
+    val query = runCatching { URI(trimmed).rawQuery.orEmpty() }.getOrDefault("")
+    val selectors = query.split('&')
+        .mapNotNull { part ->
+            val key = part.substringBefore('=', "").lowercase()
+            if (key == "so" || key == "fl") part else null
+        }
+        .sorted()
+    return "magnet:btih:$hash" + selectors.joinToString("&", prefix = "|")
+}
+
+/** Stable locator for dedupe. Magnet trackers and display names are not identity. */
+fun StreamOption.canonicalLocator(): String {
+    val clean = url.trim()
+    return if (clean.startsWith("magnet:?", ignoreCase = true)) {
+        canonicalMagnetLocator(clean)
+    } else {
+        clean
+    }
+}
+
+private fun normalizedPart(value: String?): String = value.orEmpty().trim().lowercase()
+
+/** Variant identity mirrors Zona's UniqueStreamFilter contract. */
+fun StreamOption.variantIdentity(
+    seasonOverride: Int? = null,
+    episodeOverride: Int? = null,
+): String = listOf(
+    canonicalLocator(),
+    normalizedPart(voice),
+    normalizedPart(quality),
+    (seasonOverride ?: seasonNumber)?.toString().orEmpty(),
+    (episodeOverride ?: episodeNumber)?.toString().orEmpty(),
+    fileIndex?.toString().orEmpty(),
+    normalizedPart(filePath),
+).joinToString("|")
+
+/** Identity used only for same-logical-stream reload, excluding a rotated URL. */
+fun StreamOption.logicalSourceIdentity(
+    seasonOverride: Int? = null,
+    episodeOverride: Int? = null,
+): String? {
+    val source = listOf(sourceId, providerId, providerContentId, providerItemId, infoHash)
+        .firstOrNull { !it.isNullOrBlank() }
+        ?.trim()
+        ?: return null
+    return listOf(
+        source.lowercase(),
+        normalizedPart(voice),
+        normalizedPart(quality),
+        (seasonOverride ?: seasonNumber)?.toString().orEmpty(),
+        (episodeOverride ?: episodeNumber)?.toString().orEmpty(),
+        fileIndex?.toString().orEmpty(),
+        normalizedPart(filePath),
+    ).joinToString("|")
+}
 
 fun StreamOption.canonicalStreamId(
     seasonOverride: Int? = null,
@@ -16,8 +77,7 @@ fun StreamOption.canonicalStreamId(
     val season = seasonOverride ?: seasonNumber
     val episode = episodeOverride ?: episodeNumber
     val identity = listOf(
-        source.orEmpty().trim().lowercase(),
-        providerItemId.orEmpty().trim(),
+        canonicalLocator(),
         hash.orEmpty().lowercase(),
         fileIndex?.toString().orEmpty(),
         filePath.orEmpty().trim(),
@@ -25,7 +85,6 @@ fun StreamOption.canonicalStreamId(
         episode?.toString().orEmpty(),
         quality.trim().lowercase(),
         voice.trim().lowercase(),
-        url.trim(),
     ).joinToString("|")
 
     val digest = MessageDigest.getInstance("SHA-256")
@@ -52,8 +111,12 @@ fun StreamOption.sameRequestedVariant(
     val rightQuality = other.quality.trim().lowercase()
     val leftVoice = voice.trim().lowercase()
     val rightVoice = other.voice.trim().lowercase()
+    val leftSeason = seasonOverride ?: seasonNumber
+    val rightSeason = seasonOverride ?: other.seasonNumber
+    val leftEpisode = episodeOverride ?: episodeNumber
+    val rightEpisode = episodeOverride ?: other.episodeNumber
     return leftQuality == rightQuality &&
         leftVoice == rightVoice &&
-        (seasonOverride ?: seasonNumber) == (seasonOverride ?: other.seasonNumber) &&
-        (episodeOverride ?: episodeNumber) == (episodeOverride ?: other.episodeNumber)
+        leftSeason == rightSeason &&
+        leftEpisode == rightEpisode
 }

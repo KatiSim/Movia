@@ -4,8 +4,7 @@ import json
 import requests
 
 DB_PATH = os.path.expanduser("~/projects/media-parser/media_catalog.db")
-API_KEY = "6edd31b8201cbd29c437df73fcd3345d"
-
+API_KEY = os.getenv("TMDB_API_KEY", "")
 def init_db():
     if os.path.exists(DB_PATH):
         os.remove(DB_PATH)
@@ -39,7 +38,7 @@ def init_db():
 def restore():
     print("=== Восстановление стабильного состояния (80 фильмов) ===")
     init_db()
-
+    
     genres_map = {
         28: "Боевик", 12: "Приключения", 16: "Мультфильм", 35: "Комедия",
         80: "Криминал", 99: "Документальный", 18: "Драма", 10751: "Семейный",
@@ -63,7 +62,7 @@ def restore():
                 orig_title = m.get("original_title") or title
                 rel_date = m.get("release_date") or "2026"
                 year = int(rel_date.split("-")[0]) if len(rel_date) >= 4 else 2026
-
+                
                 poster_url = f"https://image.tmdb.org/t/p/w500{p_path}"
                 backdrop_url = f"https://image.tmdb.org/t/p/original{b_path}" if b_path else poster_url
 
@@ -99,8 +98,8 @@ def restore():
 
     conn = sqlite3.connect(DB_PATH)
     query = """
-        INSERT INTO movies
-        (tmdb_id, title, original_title, year, rating, popularity, duration_minutes,
+        INSERT INTO movies 
+        (tmdb_id, title, original_title, year, rating, popularity, duration_minutes, 
          synopsis, poster_url, backdrop_url, genres, cast, director, country, category, streams)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """

@@ -13,8 +13,8 @@ android {
         applicationId = "app.movia.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 293
-        versionName = "0.9.23"
+        versionCode = 296
+        versionName = "0.9.26"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))

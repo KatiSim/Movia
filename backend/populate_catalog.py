@@ -172,31 +172,31 @@ CURATED_ITEMS = [
 def sync_catalog():
     print("=== [1/3] WAL CHECKPOINT ПЕРЕД ЗАПИСЬЮ ===")
     init_wal_checkpoint()
-
+    
     conn = get_connection()
     cursor = conn.cursor()
-
+    
     # Получаем существующие ID и связки (title, year)
     existing_tmdb_ids = {row[0] for row in cursor.execute("SELECT tmdb_id FROM movies WHERE tmdb_id IS NOT NULL;").fetchall()}
     existing_titles = { (row[0].strip().lower(), row[1]) for row in cursor.execute("SELECT title, year FROM movies;").fetchall() }
-
+    
     print(f"Текущих записей в базе: {len(existing_titles)}")
-
+    
     added_count = 0
     skipped_count = 0
-
+    
     print("\n=== [2/3] ТРАНЗАКЦИОННАЯ ВСТАВКА НОВОГО КОНТЕНТА ===")
     try:
         conn.execute("BEGIN TRANSACTION;")
         for item in CURATED_ITEMS:
             t_id = item.get("tmdb_id")
             title_key = (item["title"].strip().lower(), item["year"])
-
+            
             # Проверка уникальности
             if (t_id and t_id in existing_tmdb_ids) or (title_key in existing_titles):
                 skipped_count += 1
                 continue
-
+                
             cursor.execute("""
                 INSERT INTO movies (
                     tmdb_id, title, original_title, year, rating, duration_minutes,
@@ -220,13 +220,13 @@ def sync_catalog():
                 item.get("category", "movies"),
                 json.dumps(item.get("streams", []), ensure_ascii=False)
             ))
-
+            
             if t_id:
                 existing_tmdb_ids.add(t_id)
             existing_titles.add(title_key)
             added_count += 1
             print(f"  + Добавлен: [{item.get('category').upper()}] {item['title']} ({item['year']})")
-
+        
         conn.commit()
         print(f"\n✅ Транзакция зафиксирована. Добавлено: {added_count}, Пропущено дубликатов: {skipped_count}")
     except Exception as e:
@@ -234,18 +234,18 @@ def sync_catalog():
         print(f"❌ ОШИБКА транзакции: {e}. Выполнен полный откат.")
         conn.close()
         sys.exit(1)
-
+        
     print("\n=== [3/3] ИТОГОВАЯ СТАТИСТИКА БАЗЫ ===")
     total_records = cursor.execute("SELECT COUNT(*) FROM movies;").fetchone()[0]
     movies_cnt = cursor.execute("SELECT COUNT(*) FROM movies WHERE category IN ('movies', 'movie');").fetchone()[0]
     series_cnt = cursor.execute("SELECT COUNT(*) FROM movies WHERE category IN ('series', 'tv_series', 'limited_series');").fetchone()[0]
     anime_cnt = cursor.execute("SELECT COUNT(*) FROM movies WHERE category IN ('anime', 'animation');").fetchone()[0]
-
+    
     print(f"Всего тайтлов в базе: {total_records}")
     print(f"  - Фильмы: {movies_cnt}")
     print(f"  - Сериалы: {series_cnt}")
     print(f"  - Аниме/Мультфильмы: {anime_cnt}")
-
+    
     conn.close()
     print("\n🎉 Шаг 1 успешно завершен!")
 

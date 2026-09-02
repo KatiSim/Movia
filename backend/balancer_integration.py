@@ -1,28 +1,27 @@
 #!/usr/bin/env python3
-"""
-Public Balancer & Open CDN Integration Module (HLS / MP4)
-Integrates direct video streams from open balancer catalogs (Kodik, Alloha, Collaps, HDRezka, Open CDN, Archive.org)
-by TMDB ID, Kinopoisk ID, and title for instant seedless playback.
+"""Integration boundary for the legacy Zona source protocol.
+
+The adapter is intentionally contract-driven: metadata suggestion, video
+source references, and exact extractor stream resolution are separate steps.
+No title-based URL templates or synthetic direct streams are accepted.
 """
 
-import os
-import sys
 import json
-import sqlite3
-import random
 import logging
+import sqlite3
+import sys
+import threading
 from logging.handlers import RotatingFileHandler
-import urllib.parse
-import urllib.request
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from stream_validation import sanitize_streams
-from torrent_resolver import _release_matches_expected
+from typing import Any, Dict, List, Optional
+
+import requests
+
+from stream_validation import is_test_stream_url, sanitize_streams
+from zona_contract import resolve_zona_for_title, resolve_zona_source_refs
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
-CONFIG_PATH = DIR / "config" / "sources.json"
 LOG_DIR = DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "balancer_integration.log"
@@ -30,159 +29,34 @@ LOG_FILE = LOG_DIR / "balancer_integration.log"
 logger = logging.getLogger("balancer_integration")
 logger.setLevel(logging.DEBUG)
 if not logger.handlers:
-    rfh = RotatingFileHandler(LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8")
+    rfh = RotatingFileHandler(
+        LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8"
+    )
     rfh.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     logger.addHandler(rfh)
     sh = logging.StreamHandler(sys.stdout)
     sh.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     logger.addHandler(sh)
 
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Linux; Android 14; 24069PC21G) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36 Movia/0.7.6",
-]
+_RESOLUTION_DIAGNOSTICS = threading.local()
 
-DEFAULT_BALANCER_MIRRORS = [
-    {
-        "name": "HDRezka",
-        "voice": "HDRezka",
-        "quality": "1080p",
-        "template": "https://stream.voidboost.cc/movie/{tmdb_id}/1080.m3u8",
-        "episode_template": "https://stream.voidboost.cc/serial/{tmdb_id}/s{season}e{episode}/1080.m3u8",
-        "stream_type": "hls",
-        "seeders": 950
-    },
-    {
-        "name": "Kodik",
-        "voice": "Дубляж",
-        "quality": "1080p",
-        "template": "https://v2.kodik.biz/video/{tmdb_id}/1080.mp4",
-        "episode_template": "https://v2.kodik.biz/serial/{tmdb_id}/s{season}e{episode}/1080.mp4",
-        "stream_type": "direct",
-        "seeders": 900
-    },
-    {
-        "name": "Collaps",
-        "voice": "LostFilm",
-        "quality": "1080p",
-        "template": "https://api.collaps.org/embed/movie/{tmdb_id}/index.m3u8",
-        "episode_template": "https://api.collaps.org/embed/series/{tmdb_id}/s{season}e{episode}/index.m3u8",
-        "stream_type": "hls",
-        "seeders": 870
-    },
-    {
-        "name": "Alloha",
-        "voice": "Red Head Sound",
-        "quality": "720p",
-        "template": "https://alloha.tv/stream/{tmdb_id}/720.mp4",
-        "episode_template": "https://alloha.tv/stream/{tmdb_id}/s{season}e{episode}/720.mp4",
-        "stream_type": "direct",
-        "seeders": 780
-    },
-    {
-        "name": "Archive.org",
-        "voice": "Original",
-        "quality": "1080p",
-        "template": "https://archive.org/advancedsearch.php",
-        "stream_type": "direct_http",
-        "seeders": 999
+
+def _set_resolution_diagnostics(status: str, error_count: int = 0) -> None:
+    """Keep provider outcome metadata local to the current worker thread."""
+    _RESOLUTION_DIAGNOSTICS.status = str(status or "NO_RESULTS")
+    try:
+        _RESOLUTION_DIAGNOSTICS.error_count = max(0, int(error_count))
+    except (TypeError, ValueError):
+        _RESOLUTION_DIAGNOSTICS.error_count = 0
+
+
+def get_last_resolution_diagnostics() -> Dict[str, Any]:
+    """Return the last provider outcome without exposing provider payloads."""
+    return {
+        "status": getattr(_RESOLUTION_DIAGNOSTICS, "status", "UNKNOWN"),
+        "error_count": getattr(_RESOLUTION_DIAGNOSTICS, "error_count", 0),
     }
-]
 
-def load_balancer_mirrors() -> List[Dict[str, Any]]:
-    if CONFIG_PATH.exists():
-        try:
-            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                b = data.get("balancers")
-                if b and isinstance(b, list):
-                    return b
-        except Exception as e:
-            logger.warning(f"Error loading balancer config: {e}")
-    return DEFAULT_BALANCER_MIRRORS
-
-import re
-import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-TEST_STREAM_PATTERNS = [
-    "devstreaming-cdn.apple.com",
-    "storage.googleapis.com",
-    "bipbop",
-    "bigbuckbunny",
-    "exoplayer-test-media"
-]
-
-def is_test_stream_url(url: Optional[str]) -> bool:
-    if not url:
-        return False
-    low = url.lower()
-    return any(p in low for p in TEST_STREAM_PATTERNS)
-
-def extract_direct_m3u8_from_html(embed_url: str, timeout: float = 3.0) -> Optional[str]:
-    """Fetches player HTML/JS from iframe embed and extracts the direct .m3u8 manifest URL."""
-    if not embed_url or not (embed_url.startswith("http://") or embed_url.startswith("https://")):
-        return None
-    if is_test_stream_url(embed_url):
-        return None
-    try:
-        r = requests.get(
-            embed_url,
-            timeout=timeout,
-            verify=False,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Linux; Android 14; 24069PC21G) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
-                "Referer": "https://stream.voidboost.cc/",
-                "Origin": "https://voidboost.net",
-                "Accept": "*/*"
-            }
-        )
-        if r.status_code in [200, 206]:
-            html_text = r.text
-            # Regex search for .m3u8 playlist links
-            matches = re.findall(r'https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*', html_text)
-            for m3u8_candidate in matches:
-                # Clean candidate
-                clean_candidate = m3u8_candidate.replace("\\/", "/").strip()
-                if not is_test_stream_url(clean_candidate) and verify_http_stream(clean_candidate, timeout=2.0):
-                    return clean_candidate
-    except Exception as e:
-        logger.debug(f"[extract_direct_m3u8] Failed on {embed_url}: {e}")
-    return None
-
-def verify_http_stream(url: str, timeout: float = 2.0) -> bool:
-    """Verifies that the stream URL returns HTTP 200/206 with valid media Content-Type."""
-    if not url or not (url.startswith("http://") or url.startswith("https://")):
-        return False
-    if is_test_stream_url(url):
-        logger.debug(f"[verify_http_stream] Rejected test stream URL: {url}")
-        return False
-    try:
-        r = requests.head(
-            url,
-            allow_redirects=True,
-            timeout=timeout,
-            verify=False,
-            headers={
-                "User-Agent": "Mozilla/5.0 (Linux; Android 14; 24069PC21G) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
-                "Referer": "https://stream.voidboost.cc/",
-                "Origin": "https://voidboost.net",
-                "Accept": "*/*"
-            }
-        )
-        ct = r.headers.get("Content-Type", "").lower()
-        logger.debug(f"[verify_http_stream] HEAD {url} -> status={r.status_code}, content-type={ct}")
-        if r.status_code in [200, 206] and ("video" in ct or "mpegurl" in ct or "octet-stream" in ct or "audio" in ct):
-            return True
-    except Exception as e:
-        logger.debug(f"[verify_http_stream] HEAD {url} failed: {e}")
-    return False
-
-validate_stream_url = verify_http_stream
-ZONA_API_CONFIG_PATH = DIR / "config" / "zona_api.json"
-ZONA_CONFIG_PATH = DIR / "config" / "zona_sources.json"
 
 def normalize_voice_name(voice: Optional[str]) -> str:
     if not voice:
@@ -199,8 +73,6 @@ def normalize_voice_name(voice: Optional[str]) -> str:
         return "HDRezka"
     elif "пифагор" in low or "pythagor" in low:
         return "Пифагор (Дубляж)"
-    elif "кубик в кубе" in low or "кубик" in low or "kubik" in low:
-        return "Кубик в Кубе"
     elif "newstudio" in low or "ньюстудио" in low:
         return "NewStudio"
     elif "alexfilm" in low or "алексфильм" in low:
@@ -229,225 +101,11 @@ def normalize_voice_name(voice: Optional[str]) -> str:
         return "Original (с субтитрами)"
     return v
 
-def load_zona_mirrors_config() -> Tuple[List[str], float, Dict[str, str]]:
-    if ZONA_API_CONFIG_PATH.exists():
-        try:
-            with open(ZONA_API_CONFIG_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                raw_mirrors = data.get("mirrors", [])
-                timeout = float(data.get("timeout_sec", 3.5))
-                headers = data.get("headers", {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-                    "Accept": "application/json, text/plain, */*",
-                    "X-Requested-With": "XMLHttpRequest"
-                })
-                m_list = []
-                for m in raw_mirrors:
-                    if isinstance(m, str):
-                        m_list.append(m)
-                    elif isinstance(m, dict) and m.get("url"):
-                        m_list.append(m["url"])
-                if m_list:
-                    return m_list, timeout, headers
-        except Exception as e:
-            logger.warning(f"Error reading zona_api.json: {e}")
-
-    if ZONA_CONFIG_PATH.exists():
-        try:
-            with open(ZONA_CONFIG_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                mirrors = [m["url"] for m in data.get("mirrors", []) if isinstance(m, dict) and m.get("enabled", True) and m.get("url")]
-                if mirrors:
-                    return mirrors, 3.5, {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                        "Accept": "application/json, text/plain, */*"
-                    }
-        except Exception:
-            pass
-
-    return [
-        "https://apir0.mzona.net",
-        "https://vsr01.zonasearch.com",
-        "https://zstat.zona.mobi"
-    ], 3.5, {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json, text/plain, */*"
-    }
-
-def load_zona_mirrors() -> List[Dict[str, Any]]:
-    mirrors, timeout, _ = load_zona_mirrors_config()
-    return [{"name": f"Mirror {i}", "url": m, "enabled": True, "timeout": timeout} for i, m in enumerate(mirrors)]
-
-
 def _safe_int(value: Any, default: int = 0) -> int:
     try:
         return max(0, int(value))
     except (TypeError, ValueError):
         return default
-
-
-def _zona_nested_objects(item: Dict[str, Any]) -> List[Dict[str, Any]]:
-    objects: List[Dict[str, Any]] = [item]
-    for key in ("metadata", "movie", "release", "content", "data"):
-        value = item.get(key)
-        if isinstance(value, dict):
-            objects.append(value)
-    return objects
-
-
-def _zona_item_titles(item: Dict[str, Any]) -> List[str]:
-    keys = (
-        "title", "name", "label", "release_name", "releaseName",
-        "title_ru", "titleRu", "original_title", "originalTitle",
-        "movie_title", "movieTitle",
-    )
-    result: List[str] = []
-    seen = set()
-    for obj in _zona_nested_objects(item):
-        for key in keys:
-            value = str(obj.get(key) or "").strip()
-            if value and value.casefold() not in seen:
-                seen.add(value.casefold())
-                result.append(value)
-    return result
-
-
-def _zona_item_year(item: Dict[str, Any]) -> Optional[int]:
-    for obj in _zona_nested_objects(item):
-        for key in ("year", "release_year", "releaseYear"):
-            value = obj.get(key)
-            try:
-                parsed = int(value)
-            except (TypeError, ValueError):
-                parsed = 0
-            if 1900 <= parsed <= 2100:
-                return parsed
-        for key in ("date", "release_date", "releaseDate"):
-            match = re.search(r"(?<!\d)(19\d{2}|20\d{2}|21\d{2})(?!\d)", str(obj.get(key) or ""))
-            if match:
-                return int(match.group(1))
-    return None
-
-
-def _zona_item_media_type(item: Dict[str, Any]) -> str:
-    for obj in _zona_nested_objects(item):
-        for key in ("media_type", "mediaType", "type", "kind", "content_type", "contentType"):
-            value = str(obj.get(key) or "").strip().casefold()
-            if not value:
-                continue
-            if any(token in value for token in ("tv", "series", "serial", "сериал")):
-                return "tv"
-            if any(token in value for token in ("movie", "film", "фильм", "кино")):
-                return "movie"
-    return ""
-
-
-def _zona_item_matches_expected(
-    item: Dict[str, Any],
-    expected_titles: List[str],
-    year: Optional[int],
-    media_type: Optional[str],
-    season: Optional[int],
-    episode: Optional[int],
-) -> Optional[str]:
-    """Return the matching provider title, or None on identity mismatch."""
-    titles = _zona_item_titles(item)
-    if not titles:
-        return None
-    if not any(
-        _release_matches_expected(candidate, expected_titles, year, season, episode)
-        for candidate in titles
-    ):
-        return None
-
-    item_year = _zona_item_year(item)
-    if year and item_year and item_year != int(year):
-        return None
-
-    expected_kind = "tv" if (
-        season is not None
-        or str(media_type or "").casefold() in {
-            "tv", "series", "tv_series", "serial", "limited_series",
-            "dramas_asian", "anime", "animation",
-        }
-    ) else ("movie" if str(media_type or "").casefold() in {"movie", "movies", "film"} else "")
-    item_kind = _zona_item_media_type(item)
-    if expected_kind and item_kind and expected_kind != item_kind:
-        return None
-
-    for candidate in titles:
-        if _release_matches_expected(candidate, expected_titles, year, season, episode):
-            return candidate
-    return None
-
-
-def _query_zona_mirror(
-    mirror_url: str,
-    clean_title: str,
-    expected_titles: List[str],
-    year: Optional[int],
-    media_type: Optional[str],
-    season: Optional[int],
-    episode: Optional[int],
-    timeout_sec: float,
-    headers: Dict[str, str],
-) -> List[Dict[str, Any]]:
-    """Fetch one configured Zona mirror and keep only identity-safe items."""
-    base_url = mirror_url.rstrip("/")
-    endpoint = f"{base_url}/search/items?query={urllib.parse.quote(clean_title)}"
-    try:
-        req = urllib.request.Request(endpoint, headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
-            if resp.status not in (200, 206):
-                return []
-            raw_data = resp.read().decode("utf-8", errors="ignore")
-        data = json.loads(raw_data)
-        items = data if isinstance(data, list) else data.get("results", data.get("items", []))
-        if not isinstance(items, list):
-            return []
-
-        streams: List[Dict[str, Any]] = []
-        for item in items:
-            if not isinstance(item, dict):
-                continue
-            provider_title = _zona_item_matches_expected(
-                item, expected_titles, year, media_type, season, episode
-            )
-            if not provider_title:
-                logger.debug(
-                    "[query_zona_api] Rejected non-matching provider item for %r",
-                    clean_title,
-                )
-                continue
-            stream_url = item.get("url") or item.get("magnet") or item.get("link")
-            if not stream_url or is_test_stream_url(str(stream_url)):
-                continue
-            raw_voice = item.get("voice") or item.get("translation") or item.get("audio")
-            provider_item_id = (
-                item.get("provider_item_id") or item.get("providerItemId")
-                or item.get("item_id") or item.get("id")
-            )
-            stream: Dict[str, Any] = {
-                "source": "Zona API",
-                "provider": item.get("provider") or item.get("source") or base_url,
-                "voice": normalize_voice_name(raw_voice),
-                "quality": item.get("quality") or item.get("resolution") or "Не указано",
-                "seeders": _safe_int(item.get("seeders", item.get("seeds", 120)), 120),
-                "url": str(stream_url).strip(),
-                "title": provider_title,
-                "season": season,
-                "episode": episode,
-            }
-            if provider_item_id is not None and str(provider_item_id).strip():
-                stream["provider_item_id"] = provider_item_id
-            for key in ("stream_type", "streamType", "mime_type", "mimeType"):
-                if item.get(key) is not None:
-                    stream[key] = item[key]
-            streams.append(stream)
-        return streams
-    except Exception as exc:
-        logger.debug(f"[query_zona_api] Mirror {base_url} failed ({exc})")
-        return []
 
 
 def query_zona_api(
@@ -458,88 +116,132 @@ def query_zona_api(
     allow_torrent_fallback: bool = True,
     expected_titles: Optional[List[str]] = None,
     media_type: Optional[str] = None,
+    kinopoisk_id: Optional[int] = None,
+    zona_sources: Optional[List[Dict[str, Any]]] = None,
+    allow_zona_content_lookup: bool = False,
+    force_refresh: bool = False,
 ) -> List[Dict[str, Any]]:
+    """Resolve real Zona streams through its metadata/source contract.
+
+    The legacy search shortcut and guessed URL templates are not used.
+    A stream is accepted only after the provider returns a source key and the
+    exact extractor endpoint returns a real URL; all output is sanitized before
+    it can reach cache, DB, or API.
     """
-    Queries Zona API gateway and mirrors with automatic failover and voice normalization.
-    Extracts stream metadata: source ('Zona API'), voice, quality, seeders, and stream URL.
-    Falls back gracefully to the multi-tracker swarm resolver unless the
-    caller already runs that resolver independently.
-    """
-    if not title:
+    clean_title = str(title or "").strip()
+    if not clean_title:
+        _set_resolution_diagnostics("NO_RESULTS", 0)
         return []
 
+    expected = list(dict.fromkeys(
+        str(value).strip()
+        for value in (expected_titles or [clean_title])
+        if str(value).strip()
+    ))
     streams: List[Dict[str, Any]] = []
-    clean_title = title.strip()
-    mirrors, timeout_sec, headers = load_zona_mirrors_config()
+    lookup_status = "NO_RESULTS"
+    lookup_error_count = 0
 
-    # 1. Query all configured mirrors concurrently. First-success behavior
-    # hid variants that existed only on a lower-priority mirror.
-    bounded_timeout = min(max(float(timeout_sec), 0.5), 5.0)
-    unique_mirrors = list(dict.fromkeys(str(m).strip() for m in mirrors if str(m).strip()))
-    if unique_mirrors:
-        with ThreadPoolExecutor(
-            max_workers=min(4, len(unique_mirrors)),
-            thread_name_prefix="zona-mirror",
-        ) as pool:
-            futures = [
-                pool.submit(
-                    _query_zona_mirror,
-                    mirror,
-                    clean_title,
-                    list(dict.fromkeys([str(value).strip() for value in (expected_titles or [clean_title]) if str(value).strip()])),
-                    year,
-                    media_type,
-                    season,
-                    episode,
-                    bounded_timeout,
-                    headers,
-                )
-                for mirror in unique_mirrors
-            ]
-            for future in futures:
-                try:
-                    streams.extend(future.result())
-                except Exception as exc:
-                    logger.debug(f"[query_zona_api] Mirror worker failed ({exc})")
+    if zona_sources:
+        lookup = resolve_zona_source_refs(
+            provider_id=kinopoisk_id,
+            sources=zona_sources,
+            season=season,
+            episode=episode,
+            force_refresh=force_refresh,
+            canonical_title=clean_title,
+            canonical_original_title=next(
+                (value for value in expected if value.casefold() != clean_title.casefold()),
+                None,
+            ),
+            canonical_year=year,
+            canonical_media_type=media_type,
+        )
+        streams.extend(lookup.streams)
+        logger.info(
+            "[Zona contract] source refs status=%s refs=%s streams=%s",
+            lookup.status, lookup.source_refs, len(lookup.streams),
+        )
+        lookup_status = str(lookup.status or "NO_RESULTS")
+        lookup_error_count += len(lookup.errors)
+    elif allow_zona_content_lookup:
+        lookup = resolve_zona_for_title(
+            title=clean_title,
+            expected_titles=expected,
+            year=year,
+            media_type=media_type,
+            season=season,
+            episode=episode,
+            force_refresh=force_refresh,
+        )
+        streams.extend(lookup.streams)
+        logger.info(
+            "[Zona contract] title lookup status=%s suggestions=%s refs=%s streams=%s errors=%s",
+            lookup.status, lookup.suggestions, lookup.source_refs,
+            len(lookup.streams), len(lookup.errors),
+        )
+        lookup_status = str(lookup.status or "NO_RESULTS")
+        lookup_error_count += len(lookup.errors)
 
-    # 2. Resilient multi-track resolution via torrent_resolver swarms. A
-    # mirror can return a non-empty but unusable payload, so decide based on
-    # structurally validated candidates rather than raw item count.
+    # Normalize provider voice labels once at the boundary, while keeping
+    # every returned audio/quality variant distinct.
+    for stream in streams:
+        if stream.get("voice") is not None:
+            stream["voice"] = normalize_voice_name(stream.get("voice"))
+        elif stream.get("translation") is not None:
+            stream["voice"] = normalize_voice_name(stream.get("translation"))
+
     validated_streams = sanitize_streams(streams, require_source=True)
+
+    # Torrent discovery remains a separate fallback branch. It is used only
+    # when no direct contract stream survived validation.
     if not validated_streams and allow_torrent_fallback:
         try:
             from torrent_resolver import resolve_torrents_for_query
             category = "tv_series" if season is not None else "movies"
-            t_streams = resolve_torrents_for_query(
+            torrent_streams = resolve_torrents_for_query(
                 title=clean_title,
                 year=year or 0,
                 category=category,
                 season=season,
-                episode=episode
+                episode=episode,
             )
-            for ts in t_streams:
-                if not is_test_stream_url(ts.get("url")):
-                    # Keep the real resolver source and release identity. The
-                    # fallback must not masquerade as a Zona result or lose the
-                    # title used by the identity validator.
-                    fallback = dict(ts)
-                    fallback["source"] = str(fallback.get("source") or "torrent_fallback")
-                    fallback["provider"] = str(fallback.get("provider") or "torrent_fallback")
-                    fallback["voice"] = normalize_voice_name(fallback.get("voice") or "Не указано")
-                    fallback["quality"] = fallback.get("quality") or "Не указано"
-                    fallback["seeders"] = _safe_int(fallback.get("seeders", 100), 100)
-                    fallback["url"] = str(fallback.get("url") or "").strip()
-                    if season is not None:
-                        fallback.setdefault("season", season)
-                    if episode is not None:
-                        fallback.setdefault("episode", episode)
-                    if fallback["url"]:
-                        streams.append(fallback)
-        except Exception as e:
-            logger.debug(f"[query_zona_api] Fallback error: {e}")
+            for candidate in torrent_streams:
+                if is_test_stream_url(candidate.get("url")):
+                    continue
+                fallback = dict(candidate)
+                fallback["source"] = str(fallback.get("source") or "torrent_fallback")
+                fallback["provider"] = str(fallback.get("provider") or "torrent_fallback")
+                fallback["voice"] = normalize_voice_name(
+                    fallback.get("voice") or "Не указано"
+                )
+                fallback["quality"] = fallback.get("quality") or "Не указано"
+                fallback["seeders"] = _safe_int(fallback.get("seeders", 100), 100)
+                fallback["url"] = str(fallback.get("url") or "").strip()
+                if season is not None:
+                    fallback.setdefault("season", season)
+                if episode is not None:
+                    fallback.setdefault("episode", episode)
+                if fallback["url"]:
+                    streams.append(fallback)
+        except Exception as exc:
+            logger.debug("[query_zona_api] torrent fallback error: %s", exc)
+            lookup_status = "PROVIDER_ERROR"
+            lookup_error_count += 1
 
-    # Keep same-locator audio/quality variants while removing exact duplicates.
-    return sanitize_streams(streams, require_source=True)
+    final_streams = sanitize_streams(streams, require_source=True)
+    if final_streams:
+        final_status = "OK"
+    else:
+        final_status = lookup_status if lookup_status != "OK" else "NO_RESULTS"
+    if final_status not in {
+        "OK", "NO_RESULTS", "NETWORK_ERROR", "PROVIDER_TIMEOUT",
+        "RATE_LIMIT", "INVALID_RESPONSE", "DB_ERROR", "PROVIDER_ERROR",
+        "AMBIGUOUS",
+    }:
+        final_status = "NO_RESULTS"
+    _set_resolution_diagnostics(final_status, lookup_error_count)
+    return final_streams
 
 def query_open_balancer_stream(
     title: str,
@@ -552,8 +254,11 @@ def query_open_balancer_stream(
     allow_torrent_fallback: bool = True,
     expected_titles: Optional[List[str]] = None,
     media_type: Optional[str] = None,
+    zona_sources: Optional[List[Dict[str, Any]]] = None,
+    allow_zona_content_lookup: bool = False,
+    force_refresh: bool = False,
 ) -> List[Dict[str, Any]]:
-    """Queries Zona API gateway and open balancer streams for instant seedless/P2P playback."""
+    """Return direct Zona variants, optionally followed by torrent fallback."""
     return query_zona_api(
         title=title,
         year=year,
@@ -562,6 +267,10 @@ def query_open_balancer_stream(
         allow_torrent_fallback=allow_torrent_fallback,
         expected_titles=expected_titles,
         media_type=media_type,
+        kinopoisk_id=kinopoisk_id,
+        zona_sources=zona_sources,
+        allow_zona_content_lookup=allow_zona_content_lookup,
+        force_refresh=force_refresh,
     )
 
 def resolve_balancer(
@@ -584,9 +293,17 @@ def resolve_balancer(
             allow_torrent_fallback=False,
             expected_titles=expected_titles,
             media_type=media_type,
+            allow_zona_content_lookup=True,
         )
+        diagnostics = get_last_resolution_diagnostics()
         if not streams:
-            logger.warning(f"❌ [Balancer] Нет доступных потоков для: {title} ({year})")
+            logger.warning(
+                "[Balancer] Нет доступных потоков: status=%s provider_errors=%s title=%s year=%s",
+                diagnostics.get("status"),
+                diagnostics.get("error_count"),
+                title,
+                year,
+            )
             return None
 
         best = streams[0]
@@ -600,6 +317,7 @@ def resolve_balancer(
             "link_verified": 1
         }
     except Exception as e:
+        _set_resolution_diagnostics("PROVIDER_ERROR", 1)
         logger.error(f"Error in resolve_balancer for {title}: {e}")
         return None
 
@@ -656,11 +374,11 @@ def fetch_new_releases(limit: int = 50) -> List[Dict[str, Any]]:
     return releases
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        test_title = sys.argv[1]
-        res = resolve_balancer(test_title, 2024)
-        print(f"Результат для '{test_title}':", json.dumps(res, indent=2, ensure_ascii=False))
-    else:
-        print("Тестирование resolve_balancer('Аватар: Путь воды', 2022, 76600):")
-        result = resolve_balancer("Аватар: Путь воды", 2022, 76600)
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+    if len(sys.argv) < 2:
+        raise SystemExit("usage: balancer_integration.py <title> [year]")
+    try:
+        requested_year = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    except ValueError:
+        requested_year = 0
+    result = resolve_balancer(sys.argv[1], requested_year)
+    print(json.dumps(result, indent=2, ensure_ascii=False))

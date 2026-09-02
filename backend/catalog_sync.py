@@ -6,7 +6,7 @@ from database import save_or_update_movie, get_catalog_count
 def sync_popular_from_tmdb(pages: int = 1):
     engine = VideoSearchEngine()
     print(f"=== Синхронизация каталога без дублей ({pages} стр. TMDb) ===")
-
+    
     total_saved = 0
     for page in range(1, pages + 1):
         movies = tmdb.get_popular_movies(page=page)

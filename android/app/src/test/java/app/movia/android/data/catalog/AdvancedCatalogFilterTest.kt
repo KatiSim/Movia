@@ -9,7 +9,7 @@ class AdvancedCatalogFilterTest {
     @Test
     fun countryNewAndDurationConstraintsCompose() {
         val result = filterCatalog(
-            catalogTestItems,
+            DemoCatalogRepository.all(),
             CatalogFilter(
                 type = ContentType.MOVIE,
                 country = "Испания",
@@ -23,7 +23,7 @@ class AdvancedCatalogFilterTest {
     @Test
     fun audioAndSubtitleFiltersUseMetadata() {
         val result = filterCatalog(
-            catalogTestItems,
+            DemoCatalogRepository.all(),
             CatalogFilter(
                 type = ContentType.MOVIE,
                 audioLanguage = "Русский",

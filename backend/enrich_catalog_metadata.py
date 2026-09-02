@@ -27,7 +27,7 @@ DB_PATH = BASE_DIR / "catalog.db"
 ENV_PATH = BASE_DIR / ".env"
 
 load_dotenv(ENV_PATH)
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "6edd31b8201cbd29c437df73fcd3345d")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY", "")
 TMDB_ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN", "")
 
 ISO_COUNTRY_MAP = {
@@ -124,7 +124,7 @@ class TMDBEnricher:
             search_query = clean_title(title)
             search_type = "tv" if is_tv else "movie"
             search_url = f"https://api.themoviedb.org/3/search/{search_type}"
-
+            
             search_params = {"query": search_query, "language": "ru-RU"}
             if year and year > 1900:
                 if search_type == "movie":
@@ -172,7 +172,7 @@ class TMDBEnricher:
         poster_path = tmdb_data.get("poster_path")
         backdrop_path = tmdb_data.get("backdrop_path")
         overview = (tmdb_data.get("overview") or "").strip()
-
+        
         poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
         backdrop_url = f"https://image.tmdb.org/t/p/original{backdrop_path}" if backdrop_path else poster_url
 
@@ -188,7 +188,7 @@ class TMDBEnricher:
         runtime = int(tmdb_data.get("runtime") or (tmdb_data.get("episode_run_time") or [0])[0] or 0)
         seasons_count = int(tmdb_data.get("number_of_seasons") or 0)
         episodes_count = int(tmdb_data.get("number_of_episodes") or 0)
-
+        
         belongs_col = tmdb_data.get("belongs_to_collection")
         collection_id = int(belongs_col.get("id") or 0) if isinstance(belongs_col, dict) else None
 
@@ -364,7 +364,7 @@ async def run_enrichment(limit: Optional[int] = None, priority_only: bool = Fals
                     fail_count += 1
 
             save_batch_updates(conn, valid_updates)
-
+            
             processed = min(i + batch_size, total_count)
             pct = (processed / total_count) * 100
             print(f"[{processed}/{total_count}] ({pct:.1f}%) | Enriched: {success_count} | Skipped/Missing: {fail_count}")

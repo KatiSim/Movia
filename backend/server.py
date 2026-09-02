@@ -4,8 +4,8 @@ from search_engine import VideoSearchEngine
 from tmdb_client import tmdb
 from streamer import stream_manager
 from database import (
-    get_catalog_items,
-    get_movie_by_id,
+    get_catalog_items, 
+    get_movie_by_id, 
     get_catalog_count
 )
 
@@ -50,15 +50,24 @@ def get_playback_info(content_id: int):
         return jsonify({"error": "Фильм не найден"}), 404
 
     streams = movie.get("streams", [])
-    primary_stream = streams[0] if streams else {
-        "playback_url": f"https://www.themoviedb.org/movie/{movie.get('tmdb_id')}",
-        "media_type": "info"
-    }
-
-    stream_info = stream_manager.resolve_stream_url(
-        playback_url=primary_stream["playback_url"],
-        title=movie["title"]
-    )
+    if streams:
+        primary_stream = streams[0]
+        stream_info = stream_manager.resolve_stream_url(
+            playback_url=(
+                primary_stream.get("url")
+                or primary_stream.get("playback_url")
+                or ""
+            ),
+            title=movie["title"]
+        )
+    else:
+        # Metadata/search pages are never playable media. Empty streams is NO_SOURCE.
+        primary_stream = {}
+        stream_info = {
+            "direct_url": "",
+            "stream_type": "none",
+            "status": "no_source",
+        }
 
     return jsonify({
         "id": movie["id"],

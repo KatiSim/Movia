@@ -202,7 +202,7 @@ object RecommendationEngine {
 
         if (explicitCategory || unique.size <= limit) return unique.take(limit)
 
-        val maxAsian = if (limit <= 3) 1 else (limit * 0.25).roundToInt().coerceAtLeast(1)
+        val maxAsian = if (limit <= 4) 1 else (limit * 0.20).toInt().coerceAtLeast(1)
         val maxPerCategory = (limit * 0.40).roundToInt().coerceAtLeast(2)
         val categoryCounts = mutableMapOf<String, Int>()
         var asianCount = 0
@@ -233,10 +233,12 @@ object RecommendationEngine {
             }
         }
 
-        // If the available catalog is narrow, do not leave empty slots.
+        // Keep the regional cap strict for a neutral shelf. If the remaining
+        // pool is narrow, prefer fewer high-quality cards to silently turning
+        // the shelf back into an Asian-category feed.
         unique.forEach { item ->
             if (selected.size >= limit || item.id in selected.map { it.id }) return@forEach
-            selected += item
+            if (!isAsianRelated(item)) selected += item
         }
 
         return selected.take(limit)

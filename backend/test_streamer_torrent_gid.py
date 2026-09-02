@@ -271,3 +271,101 @@ class CompletedTorrentCacheTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class MediaTaskProfileTests(unittest.TestCase):
+    def setUp(self):
+        STREAMER._TORRENT_GIDS.clear()
+        STREAMER._TORRENT_OWNED_GIDS.clear()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.task_dir = Path(self.temp_dir.name)
+
+    def tearDown(self):
+        STREAMER._TORRENT_GIDS.clear()
+        STREAMER._TORRENT_OWNED_GIDS.clear()
+        self.temp_dir.cleanup()
+
+    def test_materialized_media_task_beats_metadata_only_task(self):
+        info_hash = "ab12" * 10
+        active = [
+            {
+                "gid": "metadata-task",
+                "status": "active",
+                "completedLength": "999999",
+                "infoHash": info_hash,
+            },
+            {
+                "gid": "media-task",
+                "status": "active",
+                "completedLength": "1",
+                "infoHash": info_hash,
+            },
+        ]
+        files = {
+            "metadata-task": [
+                {"index": "1", "path": "[METADATA] release info", "length": "41998"},
+            ],
+            "media-task": [
+                {"index": "1", "path": "/cache/episode.s01e01.mkv", "length": "1000000"},
+            ],
+        }
+        calls = []
+        removed = []
+
+        def rpc(method, params, timeout):
+            calls.append(method)
+            if method == "aria2.tellActive":
+                return active
+            if method == "aria2.tellWaiting":
+                return []
+            if method == "aria2.getFiles":
+                return files[str(params[0])]
+            if method == "aria2.forceRemove":
+                removed.append(str(params[0]))
+                return "OK"
+            raise AssertionError(method)
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=rpc):
+            gid = STREAMER.get_or_create_torrent_gid(
+                info_hash,
+                f"magnet:?xt=urn:btih:{info_hash}",
+                self.task_dir,
+            )
+
+        self.assertEqual(gid, "media-task")
+        self.assertNotIn("metadata-task", removed)
+        self.assertIn("aria2.getFiles", calls)
+
+    def test_metadata_only_task_is_not_returned_as_playable_candidate(self):
+        info_hash = "cd34" * 10
+        added = []
+
+        def rpc(method, params, timeout):
+            if method in {"aria2.tellActive", "aria2.tellWaiting"}:
+                return [{
+                    "gid": "metadata-task",
+                    "status": "active",
+                    "completedLength": "1",
+                    "infoHash": info_hash,
+                }] if method == "aria2.tellActive" else []
+            if method == "aria2.getFiles":
+                return [{"index": "1", "path": "[METADATA] release info", "length": "41998"}]
+            if method == "aria2.addUri":
+                added.append(params)
+                return "fresh-task"
+            raise AssertionError(method)
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=rpc):
+            gid = STREAMER.get_or_create_torrent_gid(
+                info_hash,
+                f"magnet:?xt=urn:btih:{info_hash}",
+                self.task_dir,
+            )
+
+        self.assertEqual(gid, "fresh-task")
+        self.assertEqual(len(added), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
