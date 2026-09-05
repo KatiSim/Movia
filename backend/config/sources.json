@@ -87,57 +87,7 @@
       ]
     }
   ],
-  "balancers": [
-    {
-      "name": "HDRezka",
-      "voice": "HDRezka",
-      "quality": "1080p",
-      "template": "https://stream.voidboost.cc/movie/{tmdb_id}/1080.m3u8",
-      "episode_template": "https://stream.voidboost.cc/serial/{tmdb_id}/s{season}e{episode}/1080.m3u8",
-      "stream_type": "hls",
-      "seeders": 950,
-      "enabled": true
-    },
-    {
-      "name": "Kodik",
-      "voice": "Дубляж",
-      "quality": "1080p",
-      "template": "https://kodik.info/video/{tmdb_id}/1080.mp4",
-      "episode_template": "https://kodik.info/serial/{tmdb_id}/s{season}e{episode}/1080.mp4",
-      "stream_type": "direct",
-      "seeders": 900,
-      "enabled": true
-    },
-    {
-      "name": "Collaps",
-      "voice": "LostFilm",
-      "quality": "1080p",
-      "template": "https://api.collaps.org/embed/movie/{tmdb_id}/index.m3u8",
-      "episode_template": "https://api.collaps.org/embed/series/{tmdb_id}/s{season}e{episode}/index.m3u8",
-      "stream_type": "hls",
-      "seeders": 870,
-      "enabled": true
-    },
-    {
-      "name": "Alloha",
-      "voice": "Red Head Sound",
-      "quality": "720p",
-      "template": "https://alloha.tv/stream/{tmdb_id}/720.mp4",
-      "episode_template": "https://alloha.tv/stream/{tmdb_id}/s{season}e{episode}/720.mp4",
-      "stream_type": "direct",
-      "seeders": 780,
-      "enabled": true
-    },
-    {
-      "name": "Archive.org",
-      "voice": "Original",
-      "quality": "1080p",
-      "template": "https://archive.org/advancedsearch.php",
-      "stream_type": "direct_http",
-      "seeders": 999,
-      "enabled": true
-    }
-  ],
+  "balancers": [],
   "trackerslist": [
     "udp://tracker.opentrackr.org:1337/announce",
     "udp://open.tracker.cl:1337/announce",

@@ -142,14 +142,46 @@ def _configured_tracker_endpoints(name: str, defaults: List[str]) -> List[str]:
 
 
 def enrich_magnet_with_trackers(magnet: str, trackers: Optional[List[str]] = None) -> str:
-    """Enriches magnet URI with live announce trackers (&tr=) for maximum seeder swarm connectivity."""
+    """Merge configured announce trackers into a magnet without rewriting identity.
+
+    Provider magnets often ship with one or two tracker URLs. Treating the
+    presence of any ``tr=`` parameter as "already enriched" leaves aria2
+    dependent on that tiny provider set and can prevent BT metadata discovery.
+    Preserve all provider parameters and append only missing configured trackers.
+    """
     if not magnet or not magnet.startswith("magnet:?"):
         return magnet
-    tr_list = trackers or get_live_trackers()
-    tr_params = "&".join(f"tr={urllib.parse.quote(tr, safe='')}" for tr in tr_list if tr)
-    if "tr=" not in magnet and tr_params:
-        return f"{magnet}&{tr_params}"
-    return magnet
+
+    tr_list = trackers if trackers is not None else get_live_trackers()
+    try:
+        parsed = urllib.parse.urlsplit(magnet)
+        existing_pairs = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+        existing_trackers = {
+            str(value or "").strip()
+            for key, value in existing_pairs
+            if str(key or "").casefold() == "tr" and str(value or "").strip()
+        }
+    except Exception:
+        existing_trackers = set()
+
+    additions: List[str] = []
+    seen = set(existing_trackers)
+    for raw_tracker in tr_list or []:
+        tracker = str(raw_tracker or "").strip()
+        if not tracker or tracker in seen:
+            continue
+        seen.add(tracker)
+        additions.append(tracker)
+        if len(additions) >= 32:
+            break
+
+    if not additions:
+        return magnet
+    suffix = "".join(
+        f"&tr={urllib.parse.quote(tracker, safe='')}"
+        for tracker in additions
+    )
+    return f"{magnet}{suffix}"
 
 def _normalize_release_text(value: str) -> str:
     # Provider identity checks use the same canonical text contract as catalog
@@ -848,10 +880,7 @@ async def fetch_rutor_torrents(title: str, year: int = 2024, category: str = "mo
             if not magnet_match:
                 continue
             raw_magnet = magnet_match.group(1)
-            if "tr=" not in raw_magnet and tr_params:
-                magnet = f"{raw_magnet}&{tr_params}"
-            else:
-                magnet = raw_magnet
+            magnet = enrich_magnet_with_trackers(raw_magnet, tr_list)
 
             title_match = re.search(r'<a href="/torrent/[^>]+>(.*?)</a>', row)
             raw_title = re.sub(r'<[^>]+>', '', title_match.group(1)) if title_match else clean_q

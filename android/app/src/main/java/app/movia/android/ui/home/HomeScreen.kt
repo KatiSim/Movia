@@ -104,7 +104,7 @@ fun HomeScreen(
     progress: PlaybackProgress = PlaybackProgress(),
     history: List<String> = emptyList(),
     favorites: Set<String> = emptySet(),
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
     onContinue: (String) -> Unit,
     onOpenCatalog: (CatalogLaunchPreset) -> Unit,
 ) {
@@ -258,7 +258,7 @@ private fun ContinueWatchingCard(
     progress: PlaybackProgress,
     fallbackItem: MediaContent?,
     onContinue: (String) -> Unit,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
     val heroContent = if (hasRealProgress) {
@@ -337,7 +337,7 @@ private fun ContinueWatchingCard(
                 indication = null,
             ) {
                 if (displayTitle.isNotBlank()) {
-                    onOpenDetails(displayTitle, heroContent?.id)
+                    onOpenDetails(displayTitle)
                 }
             }
             .semantics(mergeDescendants = true) {
@@ -550,7 +550,7 @@ private fun ContinueWatchingCard(
 private fun HomeMediaSection(
     title: String,
     items: List<MediaContent>,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
     onViewAll: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -563,7 +563,7 @@ private fun HomeMediaSection(
                 MediaContentCard(
                     item = item,
                     modifier = Modifier.width(134.dp),
-                    onClick = { onOpenDetails(item.title, item.id) },
+                    onClick = { onOpenDetails(item.title) },
                 )
             }
         }

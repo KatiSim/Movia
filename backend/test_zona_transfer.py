@@ -60,7 +60,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
 
         with patch.object(zona_contract, "_mirrors", return_value=["https://api.example.test"]), \
              patch.object(zona_contract, "_request", side_effect=fake_request), \
-             patch.object(zona_contract, "_client_time", return_value="1700000000000.083"):
+             patch.object(zona_contract, "_client_time", return_value="1700000000000"):
             sources, errors = zona_contract._fetch_video_sources(
                 "101",
                 "episode-1",
@@ -89,7 +89,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
                 "installerPackage": "app.example",
             },
         )
-        self.assertEqual(dict(query)["client_time"], "1700000000000.083")
+        self.assertEqual(dict(query)["client_time"], "1700000000000")
 
     def test_legacy_get_video_sources_default_dto_is_minimal(self):
         params = zona_contract._normalized_video_sources_params(101, "")
@@ -98,6 +98,18 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             zona_contract._serialized_params_query(params),
             [("params", '{"kinopoiskId":101,"episodeKey":""}')]
         )
+
+    def test_default_movie_source_types_match_app_get_video_sources_request_list(self):
+        expected = {
+            "1", "2", "3", "5", "6", "7", "8", "9", "10", "12", "13", "14", "15",
+            "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27",
+            "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+            "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51",
+            "52", "53",
+        }
+        self.assertEqual(set(zona_contract.DEFAULT_MOVIE_SOURCE_TYPES), expected)
+        self.assertNotIn("11", zona_contract.DEFAULT_MOVIE_SOURCE_TYPES)
+        self.assertIn("18", zona_contract.DEFAULT_MOVIE_SOURCE_TYPES)
 
     def test_default_movie_source_registry_is_forwarded(self):
         calls = []
@@ -108,7 +120,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
                 {"id": 77, "videoSourceTypeId": 1, "downloadLinkKey": "opaque-source-key"}
             ]).encode("utf-8"), {}, None
 
-        with patch.object(zona_contract, "_mirrors", return_value=["https://api.example.test"]),              patch.object(zona_contract, "_request", side_effect=fake_request),              patch.object(zona_contract, "_client_time", return_value="1700000000000.083"):
+        with patch.object(zona_contract, "_mirrors", return_value=["https://api.example.test"]),              patch.object(zona_contract, "_request", side_effect=fake_request),              patch.object(zona_contract, "_client_time", return_value="1700000000000"):
             sources, errors = zona_contract._fetch_video_sources(101, "")
 
         self.assertEqual(errors, [])
@@ -188,7 +200,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             zona_contract._request(
                 "https://api.example.test",
                 "getVideoSources",
-                [("client_time", "1700000000000.083")],
+                [("client_time", "1700000000000")],
             )
             protected_request = open_mock.call_args.args[0]
             self.assertEqual(protected_request.get_header("Cookie"), "s=" + ("a" * 32))
@@ -196,7 +208,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             zona_contract._request(
                 "https://api.example.test",
                 "getMovieOrSerialSuggests/",
-                [("client_time", "1700000000000.083")],
+                [("client_time", "1700000000000")],
             )
             stream_request = open_mock.call_args.args[0]
             self.assertIsNone(stream_request.get_header("Cookie"))
@@ -217,7 +229,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
         self.assertRegex(first, r"^[0-9a-f]{32}$")
         self.assertEqual(len(first), 32)
 
-    def test_zona_cookie_reproduces_jvm_signed_int_shift(self):
+    def test_zona_cookie_reproduces_dex_long_shift_positions_1_through_63(self):
         with tempfile.NamedTemporaryFile() as handle:
             handle.write(b"\x00")
             handle.flush()
@@ -225,6 +237,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             stat = path.stat()
             identity = (path, int(stat.st_mtime_ns), int(stat.st_size))
             client_time_ms = (1 << 31) * 1000
+            zona_contract._COOKIE_CACHE.clear()
             with patch.object(zona_contract, "_legacy_apk_identity", return_value=identity), \
                  patch.object(zona_contract.secrets, "randbits", return_value=0):
                 cookie = zona_contract._zona_cookie(client_time_ms)
@@ -236,7 +249,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             sum_b = ((signed_byte + day) % 256 + sum_b) % zona_contract._ADLER_MOD
             sum_a = (sum_a + sum_b) % zona_contract._ADLER_MOD
         checksum = (sum_a << 16) + sum_b
-        expected_first = 0xFFFFFFFF80000000
+        expected_first = 1 << 63
         expected_second = (checksum ^ expected_first) & ((1 << 64) - 1)
         expected = (
             expected_first.to_bytes(8, "big").hex()
@@ -323,7 +336,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             ]
             return json.dumps(payload).encode("utf-8"), {}, None
 
-        with patch.object(zona_contract, "_mirrors", return_value=["https://api.example.test"]),                 patch.object(zona_contract, "_request", side_effect=fake_request),                 patch.object(zona_contract, "_client_time", return_value="1700000000000.083"):
+        with patch.object(zona_contract, "_mirrors", return_value=["https://api.example.test"]),                 patch.object(zona_contract, "_request", side_effect=fake_request),                 patch.object(zona_contract, "_client_time", return_value="1700000000000"):
             first, first_errors = zona_contract._fetch_video_sources(101, "episode-1")
             second, second_errors = zona_contract._fetch_video_sources(101, "episode-1")
             refreshed, refreshed_errors = zona_contract._fetch_video_sources(
@@ -618,7 +631,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
         ), patch.object(
             zona_contract,
             "_client_time",
-            return_value="1700000000000.083",
+            return_value="1700000000000",
         ), patch.object(
             zona_contract,
             "zona_user_agent",
@@ -633,7 +646,7 @@ class ZonaTransferArchitectureTests(unittest.TestCase):
             "getMobiVideo",
             [
                 ("id", "opaque-mobilink-id"),
-                ("client_time", "1700000000000.083"),
+                ("client_time", "1700000000000"),
             ],
         )])
         self.assertEqual(streams[0]["url"], "https://media.example.test/mobilink-lq.mp4")

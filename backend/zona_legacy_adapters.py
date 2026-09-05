@@ -22,6 +22,13 @@ from urllib.parse import quote, urljoin, urlparse
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from stream_validation import is_valid_stream_url
+from zona_playback_architecture import (
+    LegacyStreamBuilder,
+    VideoSourceRef,
+    ZONA_SOURCE_REGISTRY,
+    extractor_label,
+    source_capabilities,
+)
 
 
 # Extractor IDs and labels recovered from the old APK's source registry.
@@ -36,6 +43,7 @@ LEGACY_EXTRACTOR_REGISTRY: Dict[int, str] = {
     7: "kinomania",
     8: "alloha",
     9: "awmzone",
+    10: "bazon-czx",
     11: "ustore",
     12: "lordfilms",
     13: "kholobok",
@@ -88,6 +96,7 @@ PORTED_EXTRACTOR_IDS = frozenset({1, 2, 3, 6, 7, 8, 9, 14, 33, 35, 36, 39, 42, 4
 
 LEGACY_ADAPTER_BLOCKERS: Dict[int, str] = {
     5: "RECAPTCHA_RSA_AES_TRANSFORMER_REQUIRED",
+    10: "BAZON_SHARED_BROWSER_CONTRACT_NOT_PORTED",
 }
 
 # Every registry entry is classified.  The reference APK contains provider
@@ -96,6 +105,7 @@ LEGACY_ADAPTER_BLOCKERS: Dict[int, str] = {
 # unported provider cannot fall through to a guessed endpoint or URL.
 DOCUMENTED_BLOCKER_DETAILS: Dict[int, str] = {
     5: "RECAPTCHA_RSA_AES_TRANSFORMER_REQUIRED",
+    10: "BAZON_SHARED_BROWSER_CONTRACT_NOT_PORTED",
     11: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     12: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     13: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
@@ -151,8 +161,10 @@ def extractor_registry_status() -> List[Dict[str, Any]]:
         {
             "id": extractor_id,
             "name": name,
+            "provider_label": ZONA_SOURCE_REGISTRY.get(extractor_id, name),
             "status": EXTRACTOR_STATUS[extractor_id],
             "blocker": DOCUMENTED_BLOCKER_DETAILS.get(extractor_id),
+            "capabilities": source_capabilities(extractor_id),
         }
         for extractor_id, name in sorted(LEGACY_EXTRACTOR_REGISTRY.items())
     ]
@@ -383,20 +395,36 @@ def _stream_metadata(
         "id", "sourceId", "source_id",
         "videoSourceId", "video_source_id",
     ))
-    stream: Dict[str, Any] = {
-        "source": "Zona",
-        "provider": str(_first(source, (
-            "name", "title", "sourceName", "source_name",
-        )) or extractor_name(extractor)),
-        "provider_item_id": source_id if source_id is not None else extractor,
-        "source_type_id": extractor,
-        "url": url,
-        "voice": voice or "Не указано",
-        "quality": quality or "Не указано",
-        "userAgent": user_agent,
-        "headers": {"User-Agent": user_agent},
-    }
+    source_ref = VideoSourceRef.from_mapping(source)
+    # Compatibility source records can omit or alias the numeric type. The
+    # registry dispatch is authoritative at this point, so bind that exact ID.
+    source_ref = VideoSourceRef(
+        id=source_ref.id,
+        video_source_type_id=int(extractor),
+        video_content_type_id=source_ref.video_content_type_id,
+        kinopoisk_id=source_ref.kinopoisk_id,
+        download_link_key=source_ref.download_link_key,
+        episode_key=source_ref.episode_key,
+        info=source_ref.info,
+    )
+    provider_label = str(_first(source, (
+        "name", "title", "sourceName", "source_name",
+    )) or extractor_label(extractor))
+    headers = {"User-Agent": user_agent} if user_agent else {}
+    stream = LegacyStreamBuilder(
+        video_source=source_ref,
+        url=url,
+        translation=voice or "Не указано",
+        language=language or "",
+        quality=quality or "MEDIUM",
+        resolution=quality or "",
+        headers=headers,
+        provider_label=provider_label,
+    ).to_stream_dict()
+    # Preserve an opaque compatibility source ID when test/import data does not
+    # obey the real long-valued serializer. Runtime APK data remains numeric.
     if source_id is not None:
+        stream["provider_item_id"] = source_id
         stream["source_id"] = source_id
     content_type_id = _first(source, (
         "videoContentTypeId", "video_content_type_id",
@@ -404,8 +432,6 @@ def _stream_metadata(
     ))
     if content_type_id is not None:
         stream["content_type_id"] = content_type_id
-    if language:
-        stream["language"] = language
     return stream
 
 

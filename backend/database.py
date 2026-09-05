@@ -384,6 +384,16 @@ def _direct_stream_variant_identity(raw: Dict[str, Any]) -> Optional[tuple[str, 
                 return re.sub(r"\s+", " ", str(value).strip()).casefold()
         return ""
 
+    # A provider/public stream ID is the strongest URL-independent identity.
+    # Prefer it before provider metadata because source_type/provider annotations
+    # can be enriched over time while the logical stream remains the same.
+    stable_id = text("stream_id", "streamId")
+    # ``sanitize_streams`` synthesizes ``stream:<hash>`` IDs from the locator;
+    # those rotate with an expiring URL and therefore are not reload identity.
+    # Provider-supplied IDs (for example Collaps ``collaps_...``) are stable.
+    if stable_id and not stable_id.startswith("stream:"):
+        return ("stream-id", stable_id, "", "", "", "", "")
+
     source = text("source", "source_id", "sourceId")
     extractor = text("source_type_id", "video_source_type_id", "videoSourceTypeId")
     provider = text("provider", "provider_id", "providerId")

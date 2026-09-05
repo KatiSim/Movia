@@ -12,6 +12,7 @@ import math
 import re
 from typing import Any, Dict, Iterable, List, Optional
 from urllib.parse import parse_qsl, urlparse
+from lampa_compat import normalize_lampa_result
 
 _TEST_STREAM_PATTERNS = (
     "devstreaming-cdn.apple.com",
@@ -102,16 +103,28 @@ def _variant_text(value: Any) -> str:
     return re.sub(r"\s+", " ", str(value or "").strip()).casefold()
 
 
-def canonical_stream_locator(url: str) -> str:
+def canonical_stream_locator(url: str, source_type_id: Optional[int] = None) -> str:
     """Return the stable locator used for stream identity and deduplication.
 
-    Magnet tracker parameters and display names are mutable metadata. The
-    BTIH plus optional file-selection parameters identifies the content, while
-    HTTP URLs remain exact because signed query parameters may identify a
-    different playable object.
+    Magnet tracker parameters and display names are mutable metadata. HTTP is
+    exact by default. Only source types with a verified Zona V4
+    UniqueStreamFilter rule receive provider-aware path normalization.
     """
     value = str(url or "").strip()
     if not value.lower().startswith("magnet:?"):
+        try:
+            path = urlparse(value).path or ""
+        except Exception:
+            path = ""
+        if source_type_id in {2, 28} and path:
+            numeric_chain = re.search(r"(/\d+)+/", path)
+            basename = path.rsplit("/", 1)[-1].strip()
+            if numeric_chain and basename:
+                return numeric_chain.group(0) + basename
+        if source_type_id == 3 and path:
+            segments = [part for part in path.split("/") if part]
+            if len(segments) >= 2:
+                return "/".join(segments[-2:])
         return value
 
     btih = extract_btih(value)
@@ -136,14 +149,24 @@ def canonical_stream_locator(url: str) -> str:
 def stream_variant_key(raw: Dict[str, Any], url: Optional[str] = None) -> tuple:
     """Identify equivalent records while retaining voice/quality variants."""
     clean_url = str(url or raw.get("url") or raw.get("playback_url") or "").strip()
+    source_type_raw = _first_text(
+        raw,
+        "source_type_id", "sourceTypeId", "video_source_type_id", "videoSourceTypeId",
+    )
+    try:
+        source_type_id = int(source_type_raw) if source_type_raw else None
+    except (TypeError, ValueError):
+        source_type_id = None
     return (
-        canonical_stream_locator(clean_url),
+        canonical_stream_locator(clean_url, source_type_id),
         _variant_text(_first_text(raw, "voice", "translation") or "Не указано"),
         _variant_text(_first_text(raw, "quality") or "Не указано"),
         _variant_text(_first_text(raw, "season")),
         _variant_text(_first_text(raw, "episode")),
         _variant_text(_first_text(raw, "file_index", "fileIndex")),
         _variant_text(_first_text(raw, "file_path", "filePath")),
+        _variant_text(_first_text(raw, "video_track_index", "videoTrackIndex")),
+        _variant_text(_first_text(raw, "audio_track_index", "audioTrackIndex")),
     )
 
 
@@ -396,6 +419,9 @@ def sanitize_streams(
     seen_variants = set()
     result_indexes: Dict[tuple, int] = {}
     for raw in streams:
+        if not isinstance(raw, dict):
+            continue
+        raw = normalize_lampa_result(raw)
         if not isinstance(raw, dict):
             continue
         url = str(raw.get("url") or raw.get("playback_url") or "").strip()

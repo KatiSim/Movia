@@ -20,7 +20,7 @@ class VariantSanitizationTests(unittest.TestCase):
         self.assertEqual(len(streams), 3)
         self.assertEqual(
             {(item["voice"], item["quality"]) for item in streams},
-            {("LostFilm", "1080p"), ("Original", "1080p"), ("LostFilm", "720p")},
+            {("LostFilm", "1080p"), ("Original (с субтитрами)", "1080p"), ("LostFilm", "720p")},
         )
 
     def test_magnet_tracker_churn_does_not_duplicate_same_variant(self):
@@ -47,7 +47,7 @@ class VariantSanitizationTests(unittest.TestCase):
         ])
 
         self.assertEqual(len(streams), 2)
-        self.assertEqual({item["voice"] for item in streams}, {"LostFilm", "Original"})
+        self.assertEqual({item["voice"] for item in streams}, {"LostFilm", "Original (с субтитрами)"})
 
 
 class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
@@ -96,7 +96,7 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
             for item in self.streamer.enrich_stream_identity(second, 1, 1)
         }
         self.assertEqual(first_ids, second_ids)
-        self.assertNotEqual(first_ids["LostFilm"], first_ids["Original"])
+        self.assertNotEqual(first_ids["LostFilm"], first_ids["Original (с субтитрами)"])
 
     def test_independent_provider_branches_start_together(self):
         started = []
@@ -139,8 +139,15 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
             )
 
         self.assertEqual(set(started), {"torrent", "balancer"})
-        self.assertEqual(result[0]["url"], "magnet:?xt=urn:btih:" + "a" * 40)
-        self.assertEqual(result[1]["url"], "https://media.example.test/title.m3u8")
+        self.assertEqual(
+            {item["url"] for item in result},
+            {
+                "magnet:?xt=urn:btih:" + "a" * 40,
+                "https://media.example.test/title.m3u8",
+            },
+        )
+        # Provider fanout concurrency is the invariant under test. Ordering is
+        # delegated to health/reliability ranking; transport is not privileged.
         self.assertEqual(len(result), 2)
 
     def test_zona_contract_merges_same_locator_variants(self):
@@ -294,6 +301,70 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         self.assertIn("https://media.example.test/old-720.m3u8", urls)
         self.assertIn(old_magnet, urls)
         self.assertNotIn("https://media.example.test/old-1080.m3u8", urls)
+
+    def test_direct_refresh_uses_stable_stream_id_across_provider_metadata_enrichment(self):
+        import sqlite3
+        import tempfile
+        from pathlib import Path
+        import database
+        old_stream = {
+            "stream_id": "collaps_tt123_Dub",
+            "source": "Collaps",
+            "provider": "collaps",
+            "url": "https://media.example.test/old.m3u8",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }
+        fresh_stream = {
+            "stream_id": "collaps_tt123_Dub",
+            "source": "Collaps",
+            "provider": "collaps",
+            "source_type_id": 9,
+            "audio_track_index": 0,
+            "url": "https://media.example.test/fresh.m3u8",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }
+
+        with tempfile.TemporaryDirectory() as temp:
+            db_path = Path(temp) / "catalog.db"
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("""
+                    CREATE TABLE movies (
+                        id INTEGER PRIMARY KEY, streams TEXT, title TEXT,
+                        original_title TEXT, year INTEGER, media_type TEXT,
+                        category TEXT, playback_url TEXT, voice TEXT,
+                        quality TEXT, seeders INTEGER, link_verified INTEGER,
+                        link_updated_at TEXT
+                    )
+                """)
+                conn.execute(
+                    "INSERT INTO movies VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        1, json.dumps([old_stream]), "Generic title",
+                        "Generic title", 2020, "movie", "movies",
+                        old_stream["url"], "Дубляж", "1080p", 0, 1,
+                        "2026-08-30 10:00:00",
+                    ),
+                )
+                conn.commit()
+
+            with patch.object(database, "DB_PATH", db_path):
+                saved = database.save_content({
+                    "id": 1,
+                    "streams": [fresh_stream],
+                    "link_verified": 1,
+                    "replace_direct_variants": True,
+                })
+                with database.get_db() as conn:
+                    raw = conn.execute("SELECT streams FROM movies WHERE id=1").fetchone()[0]
+
+        self.assertTrue(saved)
+        persisted = json.loads(raw)
+        self.assertEqual(1, len(persisted))
+        self.assertEqual("https://media.example.test/fresh.m3u8", persisted[0]["url"])
+        self.assertEqual(9, persisted[0]["source_type_id"])
+        self.assertEqual(0, persisted[0]["audio_track_index"])
 
     def test_catalog_refresh_uses_timestamp_without_media_probe(self):
         import streamer

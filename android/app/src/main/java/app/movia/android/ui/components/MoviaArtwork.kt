@@ -23,6 +23,8 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -44,10 +46,15 @@ fun MoviaArtwork(
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     val appContext = LocalContext.current.applicationContext
-    var bitmap by remember(url) { mutableStateOf(MoviaArtworkLoader.peek(url)) }
+    val decodeSampleSize = if (placeholderStyle == MediaArtworkPlaceholderStyle.POSTER) 2 else 1
+    var bitmap by remember(url, decodeSampleSize) {
+        mutableStateOf(MoviaArtworkLoader.peek(url, decodeSampleSize))
+    }
 
-    LaunchedEffect(url) {
-        bitmap = if (url.isNullOrBlank()) null else MoviaArtworkLoader.load(appContext, url)
+    LaunchedEffect(url, decodeSampleSize) {
+        bitmap = if (url.isNullOrBlank()) null else {
+            MoviaArtworkLoader.load(appContext, url, decodeSampleSize)
+        }
     }
 
     Box(modifier = modifier) {
@@ -75,6 +82,7 @@ private object MoviaArtworkLoader {
         override fun sizeOf(key: String, value: Bitmap): Int =
             ((value.allocationByteCount / 1024).coerceAtLeast(1))
     }
+    private val inFlight = ConcurrentHashMap<String, CompletableDeferred<Bitmap?>>()
 
     private fun normalizeUrl(url: String?): String? {
         if (url.isNullOrBlank()) return null
@@ -86,47 +94,78 @@ private object MoviaArtworkLoader {
         }
     }
 
-    fun peek(url: String?): Bitmap? {
+    private fun memoryKey(target: String, sampleSize: Int): String =
+        "$target#sample=${sampleSize.coerceAtLeast(1)}"
+
+    fun peek(url: String?, sampleSize: Int): Bitmap? {
         val target = normalizeUrl(url) ?: return null
-        return synchronized(memoryCache) { memoryCache.get(target) }
+        val key = memoryKey(target, sampleSize)
+        return synchronized(memoryCache) { memoryCache.get(key) }
     }
 
-    suspend fun load(context: Context, url: String): Bitmap? = withContext(Dispatchers.IO) {
+    suspend fun load(context: Context, url: String, sampleSize: Int): Bitmap? = withContext(Dispatchers.IO) {
         val target = normalizeUrl(url) ?: return@withContext null
-        synchronized(memoryCache) { memoryCache.get(target) }?.let { return@withContext it }
+        val safeSampleSize = sampleSize.coerceAtLeast(1)
+        val key = memoryKey(target, safeSampleSize)
+        synchronized(memoryCache) { memoryCache.get(key) }?.let { return@withContext it }
 
-        val cacheDir = File(context.cacheDir, "movia_artwork").apply { mkdirs() }
-        val cacheFile = File(cacheDir, sha256(target))
+        // Home can render the same artwork in several rails at once. Without
+        // request coalescing every composable can race through the empty cache
+        // and download the same image independently. One URL now has one owner
+        // request; all duplicate callers await that result.
+        val owner = CompletableDeferred<Bitmap?>()
+        val existing = inFlight.putIfAbsent(key, owner)
+        if (existing != null) return@withContext existing.await()
 
-        decodeFile(cacheFile)?.let { decoded ->
-            synchronized(memoryCache) { memoryCache.put(target, decoded) }
-            return@withContext decoded
-        }
+        val result = try {
+            val cacheDir = File(context.cacheDir, "movia_artwork").apply { mkdirs() }
+            val cacheFile = File(cacheDir, sha256(target))
 
-        val bytes = download(target) ?: return@withContext null
-        val decoded = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext null
-
-        runCatching {
-            val temp = File(cacheDir, "${cacheFile.name}.tmp-${Thread.currentThread().id}")
-            temp.outputStream().use { it.write(bytes) }
-            if (!temp.renameTo(cacheFile)) {
-                cacheFile.outputStream().use { it.write(bytes) }
-                temp.delete()
+            decodeFile(cacheFile, safeSampleSize)?.also { decoded ->
+                synchronized(memoryCache) { memoryCache.put(key, decoded) }
+            } ?: run {
+                val bytes = download(target) ?: return@run null
+                val decoded = decodeBytes(bytes, safeSampleSize) ?: return@run null
+                runCatching {
+                    val temp = File(cacheDir, "${cacheFile.name}.tmp-${Thread.currentThread().id}")
+                    temp.outputStream().use { it.write(bytes) }
+                    if (!temp.renameTo(cacheFile)) {
+                        cacheFile.outputStream().use { it.write(bytes) }
+                        temp.delete()
+                    }
+                }
+                synchronized(memoryCache) { memoryCache.put(key, decoded) }
+                decoded
             }
+        } catch (_: Throwable) {
+            null
         }
-
-        synchronized(memoryCache) { memoryCache.put(url, decoded) }
-        decoded
+        owner.complete(result)
+        inFlight.remove(key, owner)
+        result
     }
 
-    private fun decodeFile(file: File): Bitmap? {
+    private fun decodeFile(file: File, sampleSize: Int): Bitmap? {
         if (!file.isFile || file.length() <= 0L) return null
-        return runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
-            ?: run {
-                file.delete()
-                null
-            }
+        return runCatching {
+            BitmapFactory.decodeFile(
+                file.absolutePath,
+                BitmapFactory.Options().apply { inSampleSize = sampleSize.coerceAtLeast(1) },
+            )
+        }.getOrNull() ?: run {
+            file.delete()
+            null
+        }
     }
+
+    private fun decodeBytes(bytes: ByteArray, sampleSize: Int): Bitmap? = runCatching {
+        BitmapFactory.decodeByteArray(
+            bytes,
+            0,
+            bytes.size,
+            BitmapFactory.Options().apply { inSampleSize = sampleSize.coerceAtLeast(1) },
+        )
+    }.getOrNull()
 
     private fun download(rawUrl: String): ByteArray? = runCatching {
         val connection = URL(rawUrl.replace(" ", "%20")).openConnection() as HttpURLConnection

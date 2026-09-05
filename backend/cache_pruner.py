@@ -31,6 +31,8 @@ def _configured_cache_limit_bytes() -> int:
 
 MAX_CACHE_BYTES = _configured_cache_limit_bytes()
 MAX_ENTRY_AGE_SECONDS = 48 * 60 * 60
+PLAYBACK_LEASE_SECONDS = 2 * 60 * 60
+PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
 RPC_TIMEOUT_SECONDS = 2.5
 
 
@@ -129,6 +131,31 @@ def _open_file_protected_entries() -> set[Path]:
     return protected
 
 
+def _lease_protected_entries(now: float | None = None) -> set[Path]:
+    """Protect cache entries recently used by an actual playback request.
+
+    aria2 moves completed downloads out of tellActive/tellWaiting. Without a
+    short lease, a completed season pack can be deleted by quota pruning while
+    Media3 is still about to consume its exact episode. Leases are deliberately
+    time-bounded; after expiry normal age/LRU/quota policy applies again.
+    """
+    current = time.time() if now is None else float(now)
+    protected: set[Path] = set()
+    if not CACHE_DIR.exists():
+        return protected
+    for entry in CACHE_DIR.iterdir():
+        if not entry.is_dir():
+            continue
+        lease = entry / PLAYBACK_LEASE_FILENAME
+        try:
+            age = current - lease.stat().st_mtime
+        except OSError:
+            continue
+        if age <= PLAYBACK_LEASE_SECONDS:
+            protected.add(entry)
+    return protected
+
+
 def _allocated_size(path: Path) -> int:
     total = 0
     try:
@@ -198,6 +225,7 @@ def main() -> int:
     try:
         aria2_protected = _aria2_protected_entries()
         open_protected = _open_file_protected_entries()
+        lease_protected = _lease_protected_entries()
     except Exception as exc:
         print(json.dumps({
             "cache": str(CACHE_DIR),
@@ -207,7 +235,7 @@ def main() -> int:
         }, ensure_ascii=False), flush=True)
         return 0
 
-    protected = aria2_protected | open_protected
+    protected = aria2_protected | open_protected | lease_protected
     entries = _scan_entries()
     before_bytes = sum(size for _, size, _ in entries)
     now = time.time()

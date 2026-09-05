@@ -172,10 +172,9 @@ private fun episodeFromTitle(title: String): Int? =
 @Composable
 fun DetailsScreen(
     title: String,
-    mediaId: String? = null,
     onBack: () -> Unit,
-    onPlay: (MediaContent, String) -> Unit,
-    onOpenDetails: (String, String?) -> Unit,
+    onPlay: (String) -> Unit,
+    onOpenDetails: (String) -> Unit,
     modifier: Modifier = Modifier,
     inMyList: Boolean = false,
     onMyListChange: (Boolean) -> Unit,
@@ -184,15 +183,10 @@ fun DetailsScreen(
     progressByTitle: Map<String, PlaybackProgress> = emptyMap(),
     latestProgress: PlaybackProgress = PlaybackProgress(),
 ) {
-    val initialContent = remember(title, mediaId) {
-        mediaId?.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findById)
-            ?: DemoCatalogRepository.findByTitle(title)
-    }
-    val contentState by produceState<MediaContent?>(initialValue = initialContent, title, mediaId) {
+    val initialContent = remember(title) { DemoCatalogRepository.findByTitle(title) }
+    val contentState by produceState<MediaContent?>(initialValue = initialContent, title) {
         value = withContext(Dispatchers.IO) {
-            mediaId?.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findFullById)
-                ?: DemoCatalogRepository.findFullByTitle(title)
-                ?: initialContent
+            DemoCatalogRepository.findFullByTitle(title) ?: initialContent
         }
     }
     val content = contentState ?: initialContent
@@ -266,7 +260,7 @@ fun DetailsScreen(
             initialSeason = selectedSeason,
             progressByTitle = progressByTitle,
             onSeasonChange = { selectedSeason = it },
-            onPlay = { episodeTitle -> content?.let { onPlay(it, episodeTitle) } },
+            onPlay = onPlay,
             onBack = { seasonScreenOpen = false },
             modifier = modifier,
         )
@@ -282,9 +276,7 @@ fun DetailsScreen(
     ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 64.dp),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = navBottom + 32.dp),
         ) {
@@ -331,7 +323,7 @@ fun DetailsScreen(
                     PrimaryWatchButton(
                         primaryText = ctaPrimary,
                         secondaryText = ctaSecondary,
-                        onClick = { content?.let { onPlay(it, playbackTitle) } },
+                        onClick = { onPlay(playbackTitle) },
                     )
                     if (hasEpisodes) {
                         SeasonEpisodesButton(
@@ -377,7 +369,7 @@ fun DetailsScreen(
             if (director != null) {
                 item(key = "director") {
                     InfoSection(
-                        title = if (isSeries) "Создатель" else "Режиссёр",
+                        title = "Режиссёр",
                         modifier = Modifier.padding(horizontal = 16.dp),
                     ) {
                         Text(
@@ -489,7 +481,7 @@ fun DetailsScreen(
             onQualitySelected = { selectedQuality = it },
             selectedAudio = selectedAudio,
             onAudioSelected = { selectedAudio = it },
-            onPlay = { content?.let { onPlay(it, playbackTitle) } },
+            onPlay = { onPlay(playbackTitle) },
             onDismiss = { streamOptionsOpen = false },
         )
     }
@@ -1242,10 +1234,9 @@ private fun ActorCard(person: Person) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth(),
         )
-        val displayRole = castRoleForDisplay(person.role)
-        if (!displayRole.isNullOrBlank()) {
+        if (!person.role.isNullOrBlank()) {
             Text(
-                text = displayRole,
+                text = person.role,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 11.sp,
                 lineHeight = 13.sp,
@@ -1256,16 +1247,6 @@ private fun ActorCard(person: Person) {
             )
         }
     }
-}
-
-private fun castRoleForDisplay(role: String?): String? {
-    val raw = role?.trim().orEmpty()
-    if (raw.isBlank()) return null
-    val hasCyrillic = Regex("[А-Яа-яЁё]").containsMatchIn(raw)
-    if (hasCyrillic) {
-        return raw.replace("(voice)", "(озвучка)", ignoreCase = true)
-    }
-    return if (raw.contains("(voice)", ignoreCase = true)) "Озвучка" else null
 }
 
 private suspend fun loadActorBitmap(url: String?): Bitmap? = withContext(Dispatchers.IO) {
@@ -1294,7 +1275,7 @@ private fun MediaContentRowSection(
     title: String,
     items: List<MediaContent>,
     activeId: String? = null,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionTitle(title, Modifier.padding(horizontal = 16.dp))
@@ -1307,7 +1288,7 @@ private fun MediaContentRowSection(
                     item = item,
                     modifier = Modifier.width(136.dp),
                     posterBorder = if (item.id == activeId) MoviaBrandAmber else MoviaBorderSubtle,
-                    onClick = { onOpenDetails(item.title, item.id) },
+                    onClick = { onOpenDetails(item.title) },
                 )
             }
         }

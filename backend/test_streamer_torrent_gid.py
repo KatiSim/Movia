@@ -21,7 +21,7 @@ INFO_HASH = "94f7" * 10
 
 
 class FakeAria2:
-    def __init__(self, active=None, waiting=None, status_by_gid=None):
+    def __init__(self, active=None, waiting=None, status_by_gid=None, files_by_gid=None):
         self.active = list(active or [])
         self.waiting = list(waiting or [])
         self.status_by_gid = {
@@ -30,6 +30,10 @@ class FakeAria2:
         }
         for task in self.active + self.waiting:
             self.status_by_gid.setdefault(str(task["gid"]), dict(task))
+        self.files_by_gid = {
+            str(gid): [dict(item) for item in items]
+            for gid, items in dict(files_by_gid or {}).items()
+        }
         self.calls = []
         self.added = []
         self.removed = []
@@ -45,6 +49,11 @@ class FakeAria2:
             if gid not in self.status_by_gid:
                 raise RuntimeError("unknown gid")
             return dict(self.status_by_gid[gid])
+        if method == "aria2.getFiles":
+            gid = str(params[0])
+            if gid not in self.files_by_gid:
+                raise RuntimeError("files unavailable")
+            return [dict(item) for item in self.files_by_gid[gid]]
         if method == "aria2.forceRemove":
             self.removed.append(str(params[0]))
             return "OK"
@@ -337,35 +346,149 @@ class MediaTaskProfileTests(unittest.TestCase):
         self.assertNotIn("metadata-task", removed)
         self.assertIn("aria2.getFiles", calls)
 
-    def test_metadata_only_task_is_not_returned_as_playable_candidate(self):
+    def test_metadata_only_task_is_reused_while_follow_torrent_materializes(self):
         info_hash = "cd34" * 10
-        added = []
+        fake = FakeAria2(
+            active=[{
+                "gid": "metadata-task",
+                "status": "active",
+                "completedLength": "1",
+                "infoHash": info_hash,
+                "followedBy": [],
+            }],
+            files_by_gid={
+                "metadata-task": [
+                    {"index": "1", "path": "[METADATA] release info", "length": "41998"},
+                ],
+            },
+        )
 
-        def rpc(method, params, timeout):
-            if method in {"aria2.tellActive", "aria2.tellWaiting"}:
-                return [{
-                    "gid": "metadata-task",
-                    "status": "active",
-                    "completedLength": "1",
-                    "infoHash": info_hash,
-                }] if method == "aria2.tellActive" else []
-            if method == "aria2.getFiles":
-                return [{"index": "1", "path": "[METADATA] release info", "length": "41998"}]
-            if method == "aria2.addUri":
-                added.append(params)
-                return "fresh-task"
-            raise AssertionError(method)
-
-        with patch.object(STREAMER, "aria2_rpc", side_effect=rpc):
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
             gid = STREAMER.get_or_create_torrent_gid(
                 info_hash,
                 f"magnet:?xt=urn:btih:{info_hash}",
                 self.task_dir,
             )
 
-        self.assertEqual(gid, "fresh-task")
-        self.assertEqual(len(added), 1)
+        self.assertEqual(gid, "metadata-task")
+        self.assertEqual(fake.added, [])
+        self.assertEqual(STREAMER._TORRENT_GIDS[info_hash], "metadata-task")
+
+    def test_followed_by_media_child_is_adopted_atomically(self):
+        info_hash = "ef56" * 10
+        parent_gid = "metadata-parent"
+        child_gid = "media-child"
+        fake = FakeAria2(
+            status_by_gid=[
+                {
+                    "gid": parent_gid,
+                    "status": "complete",
+                    "completedLength": "41998",
+                    "infoHash": info_hash,
+                    "followedBy": [child_gid],
+                },
+                {
+                    "gid": child_gid,
+                    "status": "active",
+                    "completedLength": "1024",
+                    "infoHash": info_hash,
+                    "following": parent_gid,
+                },
+            ],
+            files_by_gid={
+                child_gid: [
+                    {
+                        "index": "1",
+                        "path": "/cache/show.s01e01.mkv",
+                        "length": "1000000",
+                    },
+                ],
+            },
+        )
+        STREAMER._TORRENT_GIDS[info_hash] = parent_gid
+        STREAMER._TORRENT_OWNED_GIDS.add(parent_gid)
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            resolved = STREAMER._followed_torrent_media_gid(info_hash, parent_gid)
+
+        self.assertEqual(resolved, child_gid)
+        self.assertEqual(STREAMER._TORRENT_GIDS[info_hash], child_gid)
+        self.assertIn(child_gid, STREAMER._TORRENT_OWNED_GIDS)
+
+    def test_followed_by_child_with_wrong_hash_is_rejected(self):
+        info_hash = "ab78" * 10
+        parent_gid = "metadata-parent"
+        child_gid = "wrong-child"
+        fake = FakeAria2(
+            status_by_gid=[
+                {
+                    "gid": parent_gid,
+                    "status": "complete",
+                    "infoHash": info_hash,
+                    "followedBy": [child_gid],
+                },
+                {
+                    "gid": child_gid,
+                    "status": "active",
+                    "infoHash": "dead" * 10,
+                },
+            ],
+            files_by_gid={
+                child_gid: [
+                    {"index": "1", "path": "/cache/wrong.mkv", "length": "1000000"},
+                ],
+            },
+        )
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            resolved = STREAMER._followed_torrent_media_gid(info_hash, parent_gid)
+
+        self.assertIsNone(resolved)
 
 
 if __name__ == "__main__":
     unittest.main()
+
+class TorrentTrackerRefreshTests(unittest.TestCase):
+    def test_magnet_tracker_option_deduplicates_and_preserves_order(self):
+        magnet = (
+            "magnet:?xt=urn:btih:" + INFO_HASH
+            + "&tr=https%3A%2F%2Fa.example%2Fannounce"
+            + "&tr=https%3A%2F%2Fa.example%2Fannounce"
+            + "&tr=udp%3A%2F%2Fb.example%3A1337%2Fannounce"
+        )
+        self.assertEqual(
+            STREAMER._magnet_tracker_option(magnet),
+            "https://a.example/announce,udp://b.example:1337/announce",
+        )
+
+    def test_reused_metadata_task_receives_refreshed_tracker_pool(self):
+        STREAMER._TORRENT_GIDS.clear()
+        STREAMER._TORRENT_OWNED_GIDS.clear()
+        fake = FakeAria2(
+            active=[{
+                "gid": "metadata-task",
+                "status": "active",
+                "completedLength": "0",
+                "infoHash": INFO_HASH,
+            }],
+            files_by_gid={
+                "metadata-task": [{"index": "1", "path": "[METADATA] x", "length": "123"}],
+            },
+        )
+        original_rpc = fake.rpc
+        changes = []
+        def rpc(method, params, timeout):
+            if method == "aria2.changeOption":
+                changes.append(params)
+                return "OK"
+            return original_rpc(method, params, timeout)
+        with tempfile.TemporaryDirectory() as tmp, patch.object(STREAMER, "aria2_rpc", side_effect=rpc):
+            gid = STREAMER.get_or_create_torrent_gid(
+                INFO_HASH,
+                "magnet:?xt=urn:btih:" + INFO_HASH + "&tr=https%3A%2F%2Ffallback.example%2Fannounce",
+                Path(tmp),
+            )
+        self.assertEqual(gid, "metadata-task")
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(changes[0][1]["bt-tracker"], "https://fallback.example/announce")

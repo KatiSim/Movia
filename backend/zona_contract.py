@@ -51,12 +51,13 @@ DEFAULT_TIME_MIRRORS = (
     "https://apir0.mzona.net",
     "http://apir0.mzona.net",
 )
-# The legacy Zona client sends this complete provider registry with every
-# GetVideoSources request. It is a catalog-wide source capability list, not a
-# title alias or a title-specific exception.
+# Exact GetVideoSources capability list wired by App/C18982b0 -> C0166P.
+# This is intentionally separate from the local extractor registry: the API
+# request list includes type 18 and excludes type 11, while the verified
+# C3906T extractor registry does the opposite. Do not conflate the two planes.
 DEFAULT_MOVIE_SOURCE_TYPES = (
-    "1", "2", "3", "5", "6", "7", "8", "9", "10", "12", "13", "14",
-    "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25",
+    "1", "2", "3", "5", "6", "7", "8", "9", "10", "12", "13", "14", "15",
+    "16", "17", "18", "19", "20", "21", "22", "23", "24", "25",
     "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36",
     "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47",
     "48", "49", "50", "51", "52", "53",
@@ -277,24 +278,19 @@ def _zona_cookie(client_time_ms: int) -> str:
     checksum = (sum_a << 16) + sum_b
     seconds = int(client_time_ms) // 1000
     random_value = secrets.randbits(64)
-    # JADX's output reflects the old Kotlin Int shift semantics here: the
-    # shift count is reduced modulo 32 even though the result is OR'ed into a
-    # Long. Keeping this detail is required for protocol compatibility.
+    # Raw DEX/smali is authoritative here: the client loads a long literal
+    # ``1L`` and executes ``shl-long`` for positions (bitIndex * 2) + 1.
+    # Therefore the 32 time bits occupy odd positions 1..63 of the random
+    # 64-bit value. An earlier clean-room pass incorrectly modeled this as an
+    # Int shift modulo 32; that produces an invalid protected-request cookie.
+    mask64 = (1 << 64) - 1
     for bit_index in range(32):
-        # The decompiled Kotlin expression uses an Int shift, then promotes
-        # that signed Int to Long for the bit operation. In particular,
-        # Int.MIN_VALUE at shift 31 sign-extends into the Long. Reproduce
-        # those JVM semantics instead of treating every mask as unsigned.
-        shift = ((bit_index * 2) + 1) & 31
-        int_mask = (1 << shift) & 0xFFFFFFFF
-        if int_mask & 0x80000000:
-            mask = (int_mask | ~0xFFFFFFFF) & ((1 << 64) - 1)
-        else:
-            mask = int_mask
+        shift = (bit_index * 2) + 1
+        mask = (1 << shift) & mask64
         if (seconds >> bit_index) & 1:
-            random_value = (random_value | mask) & ((1 << 64) - 1)
+            random_value = (random_value | mask) & mask64
         else:
-            random_value = random_value & (~mask & ((1 << 64) - 1))
+            random_value = random_value & (~mask & mask64)
     random_value &= (1 << 64) - 1
     first = random_value & ~0xFF
     second = (checksum ^ random_value) & ((1 << 64) - 1)
@@ -875,6 +871,8 @@ def _fetch_video_sources(
         raw, _, error = _request(base, "getVideoSources", query)
         if error:
             errors.append(f"{base}:{error}")
+            if any(marker in str(error) for marker in ("HTTP_500", "HTTP_403", "HTTP_401")):
+                break
             continue
         items = _json_items(raw)
         if items is None:
@@ -1180,10 +1178,12 @@ def _fetch_streams_for_source(
 
 
 def _client_time() -> str:
-    # Callers synchronize the cached offset at the protected-operation
-    # boundary. Keep this helper pure so it can be reused by request builders
-    # and deterministic tests without hidden network I/O.
-    return f"{_effective_time_ms()}.083"
+    # The Android client normally transforms the server-corrected timestamp
+    # through CppUtil.checkTimeNative/checkTimeNative2. That JNI compatibility
+    # boundary is intentionally not copied into Movia. C12400e.mo2468c() has a
+    # verified exception fallback to the plain decimal millisecond timestamp;
+    # use that exact non-native fallback instead of inventing a token suffix.
+    return str(_effective_time_ms())
 
 def _server_time_offset_ms() -> int:
     global _TIME_OFFSET_MS, _TIME_EXPIRES_AT
@@ -1414,5 +1414,5 @@ def contract_probe() -> Dict[str, Any]:
         "api_mirrors": _mirrors("api_mirrors"),
         "stream_mirrors": _mirrors("stream_mirrors"),
         "time_offset_ms": offset,
-        "client_time_format_valid": value.rsplit(".", 1)[-1] == "083" and value.split(".", 1)[0].isdigit(),
+        "client_time_format_valid": value.isdigit() and len(value) >= 13,
     }

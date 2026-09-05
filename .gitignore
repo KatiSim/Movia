@@ -1,27 +1,54 @@
 # Movia canonical repository: source and reproducible metadata only
 
+# Android / Gradle
 android/.gradle/
 android/**/build/
 android/**/.cxx/
 android/**/.externalNativeBuild/
 android/local.properties
+android/diagnostics/
+android/catalog.db
+android/catalog.db-*
+android/*.apk
+android/.diag-*
+android/.live-streams.json
+android/.series-events.json
+android/.agent-*
+android/**/.trashed-*
+android/**/*.bak*
+android/**/*.before-*
 *.iml
 .idea/
 .kotlin/
 
+# Python / backend runtime state
 __pycache__/
 *.py[cod]
 .pytest_cache/
 *.log
 *.pid
 *.run
+backend/*.run.*
 backend/stream_cache/
 backend/torrent_cache/
 backend/logs/
 backend/backups/
 backend/snapshots/
+backend/reports/
 backend/catalog.db
 backend/catalog.db-*
+backend/media_catalog.db
+backend/media_catalog.db-*
+backend/.tmp_*
+backend/.diag_*
+backend/*.orig
+backend/*.bak-*
+backend/state.json
+backend/harvester_state.json
+backend/harvester_status.json
+backend/metadata_repair_state.json
+backend/zona_cache_migrator.state.json
+backend/acceptance_search_architecture.latest.json
 backend/.env
 backend/.env.*
 backend/*token*
@@ -29,15 +56,21 @@ backend/*secret*
 backend/*credential*
 backend/*cookie*
 
+# Agent/MCP runtime and local recovery material
 agent/mcp/node_modules/
 agent/mcp/dist/
+agent/mcp/projects/
 agent/mcp/.browser-test/
 agent/mcp/.movia-*-backup*/
+agent/mcp/**/.trashed-*
+agent/mcp/**/*.bak-*
+agent/mcp/**/*.before-*
 agent/mcp/*token*
 agent/mcp/*secret*
 agent/mcp/*credential*
 agent/mcp/*cookie*
 
+# Secrets / credentials
 .env
 .env.*
 !.env.example
@@ -54,6 +87,12 @@ agent/mcp/*cookie*
 id_rsa*
 authorization*
 
+# Local build/recovery snapshots — never versioned
+builds/
+checkpoints/
+source-apks/
+
+# Release binaries / databases
 release/*.apk
 release/catalog*.db
 release/catalog*.db-*
@@ -64,9 +103,15 @@ release/*.tar.gz
 release/*.zip
 release/.staging/
 
+# Reference captures
 reference/raw/
 reference/cache/
 reference/*.pcap
 reference/*.csv
+
+# Deliberate documentation / provisioning exceptions
 !SECRETS_SETUP.md
 !agent/tools/provision-agent-token.sh
+
+# Generated acceptance outputs
+android/acceptance/*.latest.*

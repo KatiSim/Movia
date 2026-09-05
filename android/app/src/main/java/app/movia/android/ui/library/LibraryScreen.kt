@@ -93,7 +93,7 @@ fun LibraryScreen(
     history: List<String> = emptyList(),
     downloads: Set<String> = emptySet(),
     catalog: List<MediaContent> = emptyList(),
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
     onOpenCatalog: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -187,7 +187,7 @@ fun LibraryScreen(
                             MediaContentCard(
                                 item = item,
                                 modifier = Modifier.width(136.dp),
-                                onClick = { onOpenDetails(item.title, item.id) },
+                                onClick = { onOpenDetails(item.title) },
                             )
                         }
                     }
@@ -374,7 +374,7 @@ private fun LibraryCollectionScreen(
     contentPadding: PaddingValues,
     modifier: Modifier,
     onBack: () -> Unit,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
     onOpenCatalog: () -> Unit,
     onClearHistory: (() -> Unit)?,
 ) {
@@ -436,7 +436,7 @@ private fun LibraryCollectionScreen(
                 MediaContentCard(
                     item = item,
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { onOpenDetails(item.title, item.id) },
+                    onClick = { onOpenDetails(item.title) },
                 )
             }
             items(unresolved, key = { "legacy-$it" }) { storedTitle ->
@@ -445,7 +445,7 @@ private fun LibraryCollectionScreen(
                     item = item,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        onOpenDetails(storedTitle.substringBefore(" · S").substringBefore(" · E"), null)
+                        onOpenDetails(storedTitle.substringBefore(" · S").substringBefore(" · E"))
                     },
                 )
             }

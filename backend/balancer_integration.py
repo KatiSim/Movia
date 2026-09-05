@@ -258,7 +258,23 @@ def query_open_balancer_stream(
     allow_zona_content_lookup: bool = False,
     force_refresh: bool = False,
 ) -> List[Dict[str, Any]]:
-    """Return direct Zona variants, optionally followed by torrent fallback."""
+    """Return direct clean-room balancer streams, falling back to Zona/torrents if needed."""
+    try:
+        from collaps_provider import resolve_collaps
+        collaps_streams = resolve_collaps(
+            title=title,
+            year=year,
+            tmdb_id=tmdb_id,
+            season=season,
+            episode=episode,
+            media_type=media_type,
+        )
+        if collaps_streams:
+            logger.info("Collaps resolved %d direct streams for '%s'", len(collaps_streams), title)
+            return collaps_streams
+    except Exception as exc:
+        logger.debug("Collaps balancer error: %s", exc)
+
     return query_zona_api(
         title=title,
         year=year,

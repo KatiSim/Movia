@@ -13,8 +13,8 @@ android {
         applicationId = "app.movia.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 296
-        versionName = "0.9.26"
+        versionCode = 302
+        versionName = "0.9.32"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
@@ -84,6 +84,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.media3:media3-exoplayer:1.9.3")
+    implementation("androidx.media3:media3-exoplayer-hls:1.9.3")
+    implementation("androidx.media3:media3-exoplayer-dash:1.9.3")
     implementation("androidx.media3:media3-ui:1.9.3")
     implementation("androidx.media3:media3-session:1.9.3")
     implementation("androidx.datastore:datastore-preferences:1.2.1")

@@ -12,6 +12,9 @@ class StreamIdentityTest {
         voice: String = "Кубик в Кубе",
         infoHash: String = "AABBCCDDEEFF00112233445566778899AABBCCDD",
         fileIndex: Int = 1,
+        sourceTypeId: Int? = null,
+        videoTrackIndex: Int? = null,
+        audioTrackIndex: Int? = null,
     ) = StreamOption(
         voice = voice,
         quality = quality,
@@ -19,6 +22,9 @@ class StreamIdentityTest {
         source = "rutor",
         infoHash = infoHash,
         fileIndex = fileIndex,
+        sourceTypeId = sourceTypeId,
+        videoTrackIndex = videoTrackIndex,
+        audioTrackIndex = audioTrackIndex,
     )
 
     @Test
@@ -58,10 +64,79 @@ class StreamIdentityTest {
     }
 
     @Test
+    fun hdrezkaAndVoidboostUseVerifiedNumericPathDedupeIdentity() {
+        for (sourceType in listOf(2, 28)) {
+            val first = option(
+                "https://mirror-a.example/signed/100/200/video.mp4?token=one",
+                sourceTypeId = sourceType,
+            )
+            val second = option(
+                "https://mirror-b.example/other/100/200/video.mp4?token=two",
+                sourceTypeId = sourceType,
+            )
+            assertEquals(first.canonicalLocator(), second.canonicalLocator())
+            assertEquals(first.variantIdentity(), second.variantIdentity())
+        }
+    }
+
+    @Test
+    fun filmixUsesVerifiedFinalTwoPathSegmentsForDedupe() {
+        val first = option(
+            "https://cdn-a.example/s/opaque-a/folder/video.mp4?expires=1",
+            sourceTypeId = 3,
+        )
+        val second = option(
+            "https://cdn-b.example/s/opaque-b/folder/video.mp4?expires=2",
+            sourceTypeId = 3,
+        )
+        assertEquals("folder/video.mp4", first.canonicalLocator())
+        assertEquals(first.variantIdentity(), second.variantIdentity())
+    }
+
+    @Test
+    fun unrelatedHttpSourceTypesKeepExactLocator() {
+        val first = option("https://cdn.example/video.mp4?token=one", sourceTypeId = 49)
+        val second = option("https://cdn.example/video.mp4?token=two", sourceTypeId = 49)
+        assertNotEquals(first.canonicalLocator(), second.canonicalLocator())
+        assertNotEquals(first.variantIdentity(), second.variantIdentity())
+    }
+
+    @Test
     fun canonicalIdIsStableForSameIdentity() {
         val original = option("http://release/stream")
         val reconstructed = option("http://release/stream")
         assertEquals(original.canonicalStreamId(1, 1), reconstructed.canonicalStreamId(1, 1))
         assertEquals("stream:", original.withCanonicalStreamId(1, 1).streamId.take(7))
     }
+    @Test
+    fun mediaProbeTrackIndexesArePartOfVariantIdentity() {
+        val first = option(
+            "https://media.example/master.mpd",
+            sourceTypeId = 32,
+            videoTrackIndex = 0,
+            audioTrackIndex = 0,
+        )
+        val second = option(
+            "https://media.example/master.mpd",
+            sourceTypeId = 32,
+            videoTrackIndex = 0,
+            audioTrackIndex = 1,
+        )
+        assertNotEquals(first.variantIdentity(), second.variantIdentity())
+        assertNotEquals(first.canonicalStreamId(), second.canonicalStreamId())
+        assertTrue(!first.sameRequestedVariant(second))
+    }
+
+    @Test
+    fun unspecifiedTrackIndexRemainsCompatibilityWildcard() {
+        val probed = option(
+            "https://media.example/master.mpd",
+            sourceTypeId = 32,
+            videoTrackIndex = 1,
+            audioTrackIndex = 2,
+        )
+        val unprobed = option("https://media.example/master.mpd", sourceTypeId = 32)
+        assertTrue(probed.sameRequestedVariant(unprobed))
+    }
+
 }

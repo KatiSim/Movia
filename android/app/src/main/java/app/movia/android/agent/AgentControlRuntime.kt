@@ -39,6 +39,35 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 
+internal data class MediaPlayVariantIntent(
+    val preferredQuality: String?,
+    val preferredVoice: String?,
+    val requiredQuality: String?,
+    val requiredVoice: String?,
+)
+
+/**
+ * Ranking preferences are aspirational: recovery may legitimately fall back to
+ * another healthy variant. Only values explicitly supplied by the current
+ * command are strict operation requirements. An explicit streamId is validated
+ * separately by awaitPlaybackOperation.
+ */
+internal fun resolveMediaPlayVariantIntent(
+    explicitQuality: String?,
+    explicitVoice: String?,
+    exactStreamQuality: String?,
+    exactStreamVoice: String?,
+    titleQuality: String?,
+    titleVoice: String?,
+    globalQuality: String?,
+    globalVoice: String?,
+): MediaPlayVariantIntent = MediaPlayVariantIntent(
+    preferredQuality = explicitQuality ?: exactStreamQuality ?: titleQuality ?: globalQuality,
+    preferredVoice = explicitVoice ?: exactStreamVoice ?: titleVoice ?: globalVoice,
+    requiredQuality = explicitQuality,
+    requiredVoice = explicitVoice,
+)
+
 object AgentControlRuntime {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val lock = Any()
@@ -837,8 +866,18 @@ object AgentControlRuntime {
                 val streamId = requested["streamId"] as String?
                 val knownStreams = content.streams.filter { it.url.isNotBlank() }
                 val exactKnown = streamId?.let { id -> knownStreams.firstOrNull { it.streamId == id } }
-                val quality = (requested["quality"] as String?) ?: exactKnown?.quality ?: titlePrefs.quality ?: playbackPrefs.quality
-                val voice = (requested["voice"] as String?) ?: exactKnown?.voice ?: titlePrefs.audio ?: playbackPrefs.audio
+                val variantIntent = resolveMediaPlayVariantIntent(
+                    explicitQuality = requested["quality"] as String?,
+                    explicitVoice = requested["voice"] as String?,
+                    exactStreamQuality = exactKnown?.quality,
+                    exactStreamVoice = exactKnown?.voice,
+                    titleQuality = titlePrefs.quality,
+                    titleVoice = titlePrefs.audio,
+                    globalQuality = playbackPrefs.quality,
+                    globalVoice = playbackPrefs.audio,
+                )
+                val quality = variantIntent.preferredQuality
+                val voice = variantIntent.preferredVoice
                 val localFile = DownloadScheduler.localFile(context, displayTitle)
                     ?: DownloadScheduler.localFile(context, content.title)
                 var session: PlaybackSession? = null
@@ -900,8 +939,8 @@ object AgentControlRuntime {
                     playbackSession,
                     content.id,
                     streamId,
-                    quality,
-                    voice,
+                    variantIntent.requiredQuality,
+                    variantIntent.requiredVoice,
                     started.token,
                     persistTitle = content.title.takeIf { requested["persist"] == true },
                 )
@@ -1082,6 +1121,10 @@ object AgentControlRuntime {
         requestId: String,
         persist: Boolean,
     ): JSONObject {
+        // A paused player must be allowed to switch an already-prepared track
+        // without fabricating playback progress. When playback is intended,
+        // keep the stricter READY + isPlaying + position-moved evidence gate.
+        val requireMovingPlaybackEvidence = session.state.value.playWhenReady || session.state.value.isPlaying
         val requested = mapOf(
             "mediaId" to expectedMediaId,
             "requestedStreamId" to candidate.streamId,
@@ -1167,15 +1210,17 @@ object AgentControlRuntime {
                             }
                             return@launch
                         }
-                        val evidence = runOnMainResult { session.realPlaybackEvidence() }
-                        if (evidence.first) {
-                            val previous = previousPositionMs
-                            if (previous != null && evidence.second > previous) positionMoved = true
-                        }
-                        previousPositionMs = evidence.second
-                        if (!evidence.first || !positionMoved) {
-                            delay(150L)
-                            continue
+                        if (requireMovingPlaybackEvidence) {
+                            val evidence = runOnMainResult { session.realPlaybackEvidence() }
+                            if (evidence.first) {
+                                val previous = previousPositionMs
+                                if (previous != null && evidence.second > previous) positionMoved = true
+                            }
+                            previousPositionMs = evidence.second
+                            if (!evidence.first || !positionMoved) {
+                                delay(150L)
+                                continue
+                            }
                         }
                         val baseTitle = state.displayTitle.substringBefore(" · S").substringBefore(" · E")
                         val completed = completeSelectionIfCurrent(

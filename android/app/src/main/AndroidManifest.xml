@@ -27,6 +27,14 @@
         </activity>
 
         <receiver
+            android:name=".agent.AgentBootstrapReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="app.movia.android.agent.BOOTSTRAP" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
             android:name=".ui.player.MoviaPiPActionReceiver"
             android:exported="false" />
 

@@ -95,6 +95,7 @@ import app.movia.android.ui.details.DetailsScreen
 import app.movia.android.ui.home.HomeScreen
 import app.movia.android.ui.library.LibraryScreen
 import app.movia.android.ui.player.MiniPlayerBar
+import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlaybackSession
 import app.movia.android.ui.player.PlayerScreen
 import app.movia.android.ui.profile.ProfileScreen
@@ -145,27 +146,12 @@ private val topLevelDestinations = listOf(
 internal fun playbackBaseTitle(current: String): String =
     current.substringBefore(" · S").substringBefore(" · E")
 
-private const val DETAILS_ROUTE_SEPARATOR = "\u001F"
-
-private data class DetailsRoute(val title: String, val mediaId: String?)
-
-private fun encodeDetailsRoute(title: String, mediaId: String?): String =
-    "${mediaId.orEmpty()}$DETAILS_ROUTE_SEPARATOR$title"
-
-private fun decodeDetailsRoute(value: String): DetailsRoute {
-    val separatorIndex = value.indexOf(DETAILS_ROUTE_SEPARATOR)
-    if (separatorIndex < 0) return DetailsRoute(title = value, mediaId = null)
-    val id = value.substring(0, separatorIndex).takeIf { it.isNotBlank() }
-    return DetailsRoute(title = value.substring(separatorIndex + DETAILS_ROUTE_SEPARATOR.length), mediaId = id)
-}
-
-internal fun nextEpisodeTitle(current: String): String? {
+internal fun nextEpisodeTitleForCounts(current: String, seasonEpisodeCounts: List<Int>): String? {
     val seasonMatch = Regex("^(.*) · S(\\d{2})E(\\d{2})(?: · Эпизод (\\d+))?$").matchEntire(current)
     if (seasonMatch != null) {
         val base = seasonMatch.groupValues[1]
         val season = seasonMatch.groupValues[2].toIntOrNull() ?: return null
         val episode = seasonMatch.groupValues[3].toIntOrNull() ?: return null
-        val seasonEpisodeCounts = DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty()
         val episodeCount = seasonEpisodeCounts.getOrNull(season - 1) ?: 10
         return when {
             episode < episodeCount -> {
@@ -180,18 +166,18 @@ internal fun nextEpisodeTitle(current: String): String? {
         }
     }
 
-    val content = DemoCatalogRepository.findByTitle(current)
-    if (content != null && (content.type == ContentType.SERIES || content.seasonEpisodeCounts.isNotEmpty() || content.category == CatalogCategory.TV_SERIES)) {
-        return "$current · S01E02 · Эпизод 2"
-    }
-
-    // Legacy titles can still exist in persisted playback history from pre-season builds.
     val legacyMatch = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
     val base = legacyMatch.groupValues[1]
     val episode = legacyMatch.groupValues[2].toIntOrNull() ?: return null
     val next = episode + 1
     if (next > 8) return null
     return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
+}
+
+internal fun nextEpisodeTitle(current: String): String? {
+    val base = playbackBaseTitle(current)
+    val counts = runCatching { DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty() }.getOrDefault(emptyList())
+    return nextEpisodeTitleForCounts(current, counts)
 }
 
 internal fun previousEpisodeTitle(current: String): String? {
@@ -255,10 +241,7 @@ private fun MoviaContent(
     appPreferences: AppPreferences,
 ) {
     val scope = rememberCoroutineScope()
-    val playbackSession = remember(context) { PlaybackSession(context.applicationContext) }
-    DisposableEffect(playbackSession) {
-        onDispose { playbackSession.release() }
-    }
+    val playbackSession = remember(context) { MoviaPlaybackRegistry.obtain(context.applicationContext) }
 
     LaunchedEffect(preferencesRepository, libraryRepository) {
         if (preferencesRepository.needsRoomLibraryMigration()) {
@@ -307,7 +290,7 @@ private fun MoviaContent(
     // Survives the details route so CatalogScreen can restore its pages and grid offset.
     val catalogRetention = remember { CatalogRetentionState() }
     var detailsStack by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
-    val activeDetailsRoute = detailsStack.lastOrNull()?.let(::decodeDetailsRoute)
+    val activeDetailsTitle = detailsStack.lastOrNull()
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
     var profileOpen by rememberSaveable { mutableStateOf(false) }
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
@@ -332,8 +315,22 @@ private fun MoviaContent(
         fullPlayerOpen = false
     }
 
-    val launchPlaybackForContent: (app.movia.android.domain.model.MediaContent, String) -> Unit = { content, title ->
+    val startPlayback: (String) -> Unit = { title ->
         val baseTitle = playbackBaseTitle(title)
+        val content = DemoCatalogRepository.findByTitle(baseTitle) ?: app.movia.android.domain.model.MediaContent(
+            id = baseTitle,
+            title = baseTitle,
+            type = app.movia.android.domain.model.ContentType.MOVIE,
+            year = 0,
+            rating = 0.0,
+            genres = emptySet(),
+            country = "",
+            quality = "1080p",
+            durationMinutes = 0,
+            synopsis = "",
+            posterUrl = "",
+            backdropUrl = "",
+        )
         val episodeMatch = Regex(""".* · S(\d{2})E(\d{2})(?: · Эпизод \d+)?$""").matchEntire(title)
         val seasonNumber = episodeMatch?.groupValues?.getOrNull(1)?.toIntOrNull()
         val episodeNumber = episodeMatch?.groupValues?.getOrNull(2)?.toIntOrNull()
@@ -345,25 +342,8 @@ private fun MoviaContent(
             )?.toURI()?.toString()
         } else null
         val saved = progressByTitle[title] ?: lastProgress.takeIf { it.title == title }
-        val sortedStreams = content?.streams.orEmpty().sortedWith(
-            compareBy<app.movia.android.domain.model.StreamOption> { option ->
-                val v = option.voice.lowercase()
-                when {
-                    v.contains("дубляж") || v.contains("дублированный") -> 0
-                    v.contains("lostfilm") -> 1
-                    v.contains("red head sound") || v.contains("rhs") -> 2
-                    v.contains("hdrezka") || v.contains("rezka") -> 3
-                    v.contains("кубик") -> 4
-                    v.contains("кураж") -> 5
-                    v.contains("newstudio") -> 6
-                    v.contains("профессиональн") -> 7
-                    v.contains("русск") -> 8
-                    v.contains("original") || v.contains("english") -> 20
-                    else -> 10
-                }
-            }.thenByDescending { it.seeders }
-        )
-        val streamCandidates = sortedStreams.mapNotNull { it.url.takeIf { u -> u.isNotBlank() } }
+        val knownStreams = content.streams.filter { it.url.isNotBlank() }
+        val streamCandidates = knownStreams.map { it.url }
         val preferredSource = streamCandidates.firstOrNull() ?: content?.playbackUrl
         playbackSession.start(
             mediaId = content?.id ?: baseTitle,
@@ -375,23 +355,13 @@ private fun MoviaContent(
             audioTrackId = playbackPreferences.audio,
             subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
             candidateStreams = streamCandidates,
+            contentYear = content?.year,
+            mediaType = content?.type,
+            preferredQuality = playbackPreferences.quality.takeUnless { it.equals("Auto", ignoreCase = true) },
+            preferredVoice = playbackPreferences.audio.takeUnless { it.equals("Auto", ignoreCase = true) },
+            candidateStreamOptions = knownStreams,
         )
         fullPlayerOpen = true
-    }
-
-    // Episode navigation may only reuse the canonical media already bound to the player.
-    // Initial playback from DetailsScreen always supplies the exact MediaContent object.
-    val startPlayback: (String) -> Unit = { title ->
-        val currentId = playbackSession.state.value.mediaId
-        val currentContent = currentId.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findById)
-        if (currentContent != null && playbackBaseTitle(title) == playbackBaseTitle(currentContent.title)) {
-            launchPlaybackForContent(currentContent, title)
-        } else {
-            android.util.Log.e(
-                "MoviaStreamDebug",
-                "Playback rejected without canonical media identity: title='$title' currentMediaId='$currentId'",
-            )
-        }
     }
 
     LaunchedEffect(playbackSession, libraryRepository) {
@@ -479,9 +449,8 @@ private fun MoviaContent(
     val miniVisible = playbackState.hasMedia
     val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
 
-    if (activeDetailsRoute != null) {
-        val title = activeDetailsRoute.title
-        val detailsMediaId = activeDetailsRoute.mediaId
+    if (activeDetailsTitle != null) {
+        val title = activeDetailsTitle
         val titlePreferencesFlow = remember(title, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(title)
         }
@@ -507,13 +476,12 @@ private fun MoviaContent(
         Box(modifier = Modifier.fillMaxSize()) {
             DetailsScreen(
                 title = title,
-                mediaId = detailsMediaId,
                 onBack = {
                     detailsStack = if (detailsStack.isNotEmpty()) detailsStack.dropLast(1) else emptyList()
                 },
-                onPlay = launchPlaybackForContent,
-                onOpenDetails = { relatedTitle, relatedMediaId ->
-                    detailsStack = detailsStack + encodeDetailsRoute(relatedTitle, relatedMediaId)
+                onPlay = startPlayback,
+                onOpenDetails = { relatedTitle ->
+                    detailsStack = detailsStack + relatedTitle
                     scope.launch { libraryRepository.addHistory(relatedTitle) }
                 },
                 inMyList = inMyList,
@@ -627,8 +595,8 @@ private fun MoviaContent(
         return
     }
 
-    val openDetails: (String, String?) -> Unit = { title, mediaId ->
-        detailsStack = detailsStack + encodeDetailsRoute(title, mediaId)
+    val openDetails: (String) -> Unit = { title ->
+        detailsStack = detailsStack + title
         scope.launch { libraryRepository.addHistory(title) }
     }
 

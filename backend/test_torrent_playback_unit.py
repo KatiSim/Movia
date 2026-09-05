@@ -97,6 +97,58 @@ class EpisodePatternMatchingTests(unittest.TestCase):
         self.assertTrue(episode_path_matches("Series.S03.E07.HD.mkv", 3, 7))
         self.assertFalse(episode_path_matches("Series.S03.E08.HD.mkv", 3, 7))
 
+    def test_lampa_file_index_selects_exact_video_file(self):
+        files = [
+            {"index": "1", "path": "/tmp/sample.srt", "length": "1"},
+            {"index": "2", "path": "/tmp/Show.S01E01.mkv", "length": "100"},
+        ]
+        selected = streamer._torrent_file_by_index(files, 2)
+        self.assertIsNotNone(selected)
+        self.assertEqual(selected["path"], "/tmp/Show.S01E01.mkv")
+        self.assertIsNone(streamer._torrent_file_by_index(files, 1))
+
+
+class EpisodeStreamScopingTests(unittest.TestCase):
+    def test_torrent_pack_that_explicitly_excludes_requested_season_is_dropped(self):
+        stale = {
+            "stream_id": "old-pack",
+            "source": "Rutor",
+            "url": "magnet:?xt=urn:btih:" + "a" * 40 + "&dn=Stranger+Things+[S01-04]+1080p",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }
+        current = {
+            "stream_id": "current-pack",
+            "source": "Rutor",
+            "url": "magnet:?xt=urn:btih:" + "b" * 40 + "&dn=Stranger+Things+[S01-05]+1080p",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }
+        result = streamer.filter_streams_for_episode([stale, current], season=5, episode=6)
+        self.assertEqual(["current-pack"], [item["stream_id"] for item in result])
+
+    def test_unknown_torrent_season_coverage_remains_generic_fallback(self):
+        unknown = {
+            "stream_id": "unknown-pack",
+            "source": "Rutor",
+            "url": "magnet:?xt=urn:btih:" + "c" * 40 + "&dn=Stranger+Things+Complete+1080p",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }
+        result = streamer.filter_streams_for_episode([unknown], season=5, episode=6)
+        self.assertEqual(["unknown-pack"], [item["stream_id"] for item in result])
+
+    def test_direct_generic_stream_is_not_rejected_by_torrent_name_rule(self):
+        direct = {
+            "stream_id": "direct",
+            "source": "Collaps",
+            "url": "https://cdn.example.test/master.m3u8",
+            "voice": "LostFilm",
+            "quality": "1080p",
+        }
+        result = streamer.filter_streams_for_episode([direct], season=5, episode=6)
+        self.assertEqual(["direct"], [item["stream_id"] for item in result])
+
 
 class ContainerAndMimeTypeTests(unittest.TestCase):
     """Tests for raw container MIME type inference and container head detection."""
@@ -226,10 +278,60 @@ class TorrentGidDeduplicationTests(unittest.TestCase):
             self.assertEqual(streamer._TORRENT_GIDS[info_hash], "task-gid-1")
 
 
-class PlaybackRankingAndFallbackTests(unittest.TestCase):
-    """Tests for primary torrent path ranking with direct HTTP fallback."""
+class LocalReadyRankingTests(unittest.TestCase):
+    def test_local_ready_annotation_is_emitted_without_mutating_input(self):
+        import streamer
+        from unittest.mock import patch
+        original = {
+            "stream_id": "ready", "url": "magnet:?xt=urn:btih:" + "a" * 40,
+            "source": "r", "voice": "ru", "quality": "720p", "seeders": 1,
+        }
+        with patch.object(streamer, "_stream_local_ready_video", return_value=True):
+            ranked = streamer.rank_playback_streams([original])
+        self.assertNotIn("local_ready", original)
+        self.assertEqual(ranked[0]["local_ready"], True)
+        self.assertEqual(ranked[0]["health_score"], 1.0)
+        self.assertEqual(ranked[0]["startup_latency_ms"], 0)
 
-    def test_torrent_is_primary_playback_path_when_seeded(self):
+    def test_unknown_startup_latency_does_not_beat_measured_fast_candidate(self):
+        import streamer
+        measured = {
+            "stream_id": "measured", "url": "https://a.example/video.m3u8",
+            "source": "a", "voice": "ru", "quality": "1080p",
+            "health": 0.9, "startup_latency_ms": 500,
+        }
+        unknown = dict(measured, stream_id="unknown", url="https://b.example/video.m3u8", source="b")
+        unknown.pop("startup_latency_ms", None)
+        ranked = streamer.rank_playback_streams([unknown, measured])
+        self.assertEqual(ranked[0]["stream_id"], "measured")
+
+    def test_complete_local_exact_episode_beats_cold_higher_seeder_torrent(self):
+        import tempfile
+        import streamer
+        from unittest.mock import patch
+
+        ready = {
+            "stream_id": "ready",
+            "url": "magnet:?xt=urn:btih:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "info_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "season": 1,
+            "episode": 1,
+            "seeders": 2,
+            "health": 0.5,
+            "quality": "720p",
+            "voice": "ru",
+            "source": "ready",
+        }
+        cold = dict(ready, stream_id="cold", url="magnet:?xt=urn:btih:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", info_hash="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", seeders=200, source="cold")
+        with patch.object(streamer, "_stream_local_ready_video", side_effect=lambda stream: stream.get("stream_id") == "ready"):
+            ranked = streamer.rank_playback_streams([cold, ready])
+        self.assertEqual(ranked[0]["stream_id"], "ready")
+
+
+class PlaybackRankingAndFallbackTests(unittest.TestCase):
+    """Transport is secondary to requested variant and measured health."""
+
+    def test_health_beats_transport_when_both_are_viable(self):
         streams = [
             {
                 "stream_id": "direct:1",
@@ -238,6 +340,8 @@ class PlaybackRankingAndFallbackTests(unittest.TestCase):
                 "voice": "Дубляж",
                 "quality": "1080p",
                 "seeders": 0,
+                "health_score": 0.95,
+                "startup_latency_ms": 800,
             },
             {
                 "stream_id": "torrent:1",
@@ -246,11 +350,13 @@ class PlaybackRankingAndFallbackTests(unittest.TestCase):
                 "voice": "Дубляж",
                 "quality": "1080p",
                 "seeders": 50,
+                "health_score": 0.55,
+                "startup_latency_ms": 2500,
             },
         ]
         ranked = streamer.rank_playback_streams(streams)
-        self.assertEqual(ranked[0]["stream_id"], "torrent:1")
-        self.assertEqual(ranked[1]["stream_id"], "direct:1")
+        self.assertEqual(ranked[0]["stream_id"], "direct:1")
+        self.assertEqual(ranked[1]["stream_id"], "torrent:1")
 
     def test_fallback_to_direct_when_torrent_unseeded(self):
         streams = [
@@ -306,6 +412,60 @@ class CacheQuotaAndLRUPrunerTests(unittest.TestCase):
                     patch.object(cache_pruner, "_aria2_protected_entries", return_value=set()), \
                     patch.object(cache_pruner, "_open_file_protected_entries", return_value=set()):
                 cache_pruner.main()
+
+    def test_recent_playback_lease_protects_complete_entry_from_quota(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "torrent_cache"
+            cache_dir.mkdir(parents=True)
+            leased = cache_dir / "leasedhash"
+            victim = cache_dir / "victimhash"
+            leased.mkdir(); victim.mkdir()
+            (leased / "episode.mp4").write_bytes(b"x" * (1024 * 1024))
+            (leased / cache_pruner.PLAYBACK_LEASE_FILENAME).touch()
+            (victim / "video.mkv").write_bytes(b"x" * (1024 * 1024))
+            now = time.time()
+            os.utime(str(victim), (now - 2000, now - 2000))
+            os.utime(str(leased), (now - 3000, now - 3000))
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "BASE_DIR", Path(tmpdir)), \
+                    patch.object(cache_pruner, "MAX_CACHE_BYTES", 1500 * 1024), \
+                    patch.object(cache_pruner, "MAX_ENTRY_AGE_SECONDS", 86400), \
+                    patch.object(cache_pruner, "_aria2_protected_entries", return_value=set()), \
+                    patch.object(cache_pruner, "_open_file_protected_entries", return_value=set()):
+                cache_pruner.main()
+
+            self.assertTrue(leased.exists())
+            self.assertFalse(victim.exists())
+
+    def test_expired_playback_lease_returns_to_normal_lru(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "torrent_cache"
+            cache_dir.mkdir(parents=True)
+            expired = cache_dir / "expiredhash"
+            keeper = cache_dir / "keeperhash"
+            expired.mkdir(); keeper.mkdir()
+            (expired / "episode.mp4").write_bytes(b"x" * (1024 * 1024))
+            lease = expired / cache_pruner.PLAYBACK_LEASE_FILENAME
+            lease.touch()
+            (keeper / "video.mkv").write_bytes(b"x" * (1024 * 1024))
+            now = time.time()
+            old = now - cache_pruner.PLAYBACK_LEASE_SECONDS - 60
+            os.utime(str(lease), (old, old))
+            os.utime(str(expired), (now - 3000, now - 3000))
+            os.utime(str(keeper), (now - 1000, now - 1000))
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "BASE_DIR", Path(tmpdir)), \
+                    patch.object(cache_pruner, "MAX_CACHE_BYTES", 1500 * 1024), \
+                    patch.object(cache_pruner, "MAX_ENTRY_AGE_SECONDS", 86400), \
+                    patch.object(cache_pruner, "_aria2_protected_entries", return_value=set()), \
+                    patch.object(cache_pruner, "_open_file_protected_entries", return_value=set()):
+                cache_pruner.main()
+
+            self.assertFalse(expired.exists())
+            self.assertTrue(keeper.exists())
+
 
 class DiagnosticsAndErrorTaxonomyTests(unittest.TestCase):
     """Tests for /diagnostics endpoint payload and error responses."""

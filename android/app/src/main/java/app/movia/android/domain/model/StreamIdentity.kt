@@ -19,13 +19,40 @@ private fun canonicalMagnetLocator(url: String): String {
     return "magnet:btih:$hash" + selectors.joinToString("&", prefix = "|")
 }
 
-/** Stable locator for dedupe. Magnet trackers and display names are not identity. */
+private val zonaNumericPathChainRegex = Regex("(/\\d+)+/")
+
+private fun providerAwareHttpLocator(url: String, sourceTypeId: Int?): String {
+    val exact = url.trim()
+    val path = runCatching { URI(exact).rawPath.orEmpty() }.getOrDefault("")
+    if (path.isBlank()) return exact
+    return when (sourceTypeId) {
+        // Zona V4 UniqueStreamFilter: HDRezka and Voidboost ignore host/query
+        // churn and key the stream by its numeric path chain plus basename.
+        2, 28 -> {
+            val numericChain = zonaNumericPathChainRegex.find(path)?.value
+            val basename = path.substringAfterLast('/').takeIf { it.isNotBlank() }
+            if (numericChain != null && basename != null) "$numericChain$basename" else exact
+        }
+        // Filmix dedupe uses the final two URL path segments.
+        3 -> {
+            val segments = path.split('/').filter { it.isNotBlank() }
+            if (segments.size >= 2) segments.takeLast(2).joinToString("/") else exact
+        }
+        else -> exact
+    }
+}
+
+/**
+ * Stable locator for dedupe. Magnet trackers/display names are not identity.
+ * HTTP normalization is deliberately provider-aware and is applied only to
+ * source types whose Zona V4 UniqueStreamFilter semantics are proven.
+ */
 fun StreamOption.canonicalLocator(): String {
     val clean = url.trim()
     return if (clean.startsWith("magnet:?", ignoreCase = true)) {
         canonicalMagnetLocator(clean)
     } else {
-        clean
+        providerAwareHttpLocator(clean, sourceTypeId)
     }
 }
 
@@ -43,6 +70,8 @@ fun StreamOption.variantIdentity(
     (episodeOverride ?: episodeNumber)?.toString().orEmpty(),
     fileIndex?.toString().orEmpty(),
     normalizedPart(filePath),
+    videoTrackIndex?.toString().orEmpty(),
+    audioTrackIndex?.toString().orEmpty(),
 ).joinToString("|")
 
 /** Identity used only for same-logical-stream reload, excluding a rotated URL. */
@@ -50,7 +79,7 @@ fun StreamOption.logicalSourceIdentity(
     seasonOverride: Int? = null,
     episodeOverride: Int? = null,
 ): String? {
-    val source = listOf(sourceId, providerId, providerContentId, providerItemId, infoHash)
+    val source = listOf(logicalSourceId, sourceId, providerId, providerContentId, providerItemId, infoHash)
         .firstOrNull { !it.isNullOrBlank() }
         ?.trim()
         ?: return null
@@ -62,6 +91,8 @@ fun StreamOption.logicalSourceIdentity(
         (episodeOverride ?: episodeNumber)?.toString().orEmpty(),
         fileIndex?.toString().orEmpty(),
         normalizedPart(filePath),
+        videoTrackIndex?.toString().orEmpty(),
+        audioTrackIndex?.toString().orEmpty(),
     ).joinToString("|")
 }
 
@@ -85,6 +116,8 @@ fun StreamOption.canonicalStreamId(
         episode?.toString().orEmpty(),
         quality.trim().lowercase(),
         voice.trim().lowercase(),
+        videoTrackIndex?.toString().orEmpty(),
+        audioTrackIndex?.toString().orEmpty(),
     ).joinToString("|")
 
     val digest = MessageDigest.getInstance("SHA-256")
@@ -115,8 +148,14 @@ fun StreamOption.sameRequestedVariant(
     val rightSeason = seasonOverride ?: other.seasonNumber
     val leftEpisode = episodeOverride ?: episodeNumber
     val rightEpisode = episodeOverride ?: other.episodeNumber
+    val videoTrackMatches = videoTrackIndex == null || other.videoTrackIndex == null ||
+        videoTrackIndex == other.videoTrackIndex
+    val audioTrackMatches = audioTrackIndex == null || other.audioTrackIndex == null ||
+        audioTrackIndex == other.audioTrackIndex
     return leftQuality == rightQuality &&
         leftVoice == rightVoice &&
         leftSeason == rightSeason &&
-        leftEpisode == rightEpisode
+        leftEpisode == rightEpisode &&
+        videoTrackMatches &&
+        audioTrackMatches
 }

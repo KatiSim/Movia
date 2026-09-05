@@ -92,7 +92,7 @@ fun SearchScreen(
     recentQueries: List<String> = emptyList(),
     onSearchCommitted: (String) -> Unit,
     onClearRecent: () -> Unit,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
@@ -259,7 +259,7 @@ fun SearchScreen(
                             item = item,
                             onClick = {
                                 onSearchCommitted(query.trim())
-                                onOpenDetails(item.title, item.id)
+                                onOpenDetails(item.title)
                             },
                         )
                     }
@@ -306,7 +306,7 @@ fun SearchScreen(
                             supporting = "${contentTypeLabel(item.type)} • ${item.year}",
                             onClick = {
                                 onSearchCommitted(query.trim())
-                                onOpenDetails(item.title, item.id)
+                                onOpenDetails(item.title)
                             },
                         )
                     }
@@ -372,7 +372,7 @@ fun SearchScreen(
                                 MediaContentCard(
                                     item = item,
                                     modifier = Modifier.width(134.dp),
-                                    onClick = { onOpenDetails(item.title, item.id) },
+                                    onClick = { onOpenDetails(item.title) },
                                 )
                             }
                         }

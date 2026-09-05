@@ -24,6 +24,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -90,7 +91,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -108,6 +108,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -220,6 +221,7 @@ fun PlayerScreen(
     val rootView = LocalView.current
     val gestureScope = rememberCoroutineScope()
     val playback by session.state.collectAsState()
+    val sessionStreams by session.streamOptions.collectAsState()
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val baseTitle = remember(title) { title.substringBefore(" · S").substringBefore(" · E") }
     val mediaContent = remember(baseTitle) { DemoCatalogRepository.findByTitle(baseTitle) }
@@ -253,7 +255,6 @@ fun PlayerScreen(
     var episodesScreenOpen by remember { mutableStateOf(false) }
     var episodesScreenSeason by remember(title) { mutableIntStateOf(currentSeason) }
     var audioTracks by remember { mutableStateOf(buildAudioTrackOptions(player.currentTracks)) }
-    var videoQualityTracks by remember { mutableStateOf(buildVideoQualityTrackOptions(player.currentTracks)) }
     var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
     var controlsVisible by remember { mutableStateOf(true) }
     var interactionTick by remember { mutableIntStateOf(0) }
@@ -278,16 +279,12 @@ fun PlayerScreen(
     var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
     var sleepTimerMinutes by remember { mutableIntStateOf(0) }
     var sleepTimerStopsAtEnd by remember { mutableStateOf(false) }
-    val effectiveAudioPreference = preferredAudio.takeIf { value ->
-        value == "Auto" || audioTracks.any { it.label == value }
-    } ?: "Auto"
-    val effectiveQualityPreference = preferredQuality.takeIf { value ->
-        value == "Auto" || videoQualityTracks.any { it.label == value }
-    } ?: "Auto"
-    val selectedAudioLabel = audioTracks.firstOrNull { it.selected }?.label
-    val selectedQualityLabel = videoQualityTracks.firstOrNull { it.selected }?.label
-    val audioAutoLabel = selectedAudioLabel?.let { "Авто · $it" } ?: "Авто"
-    val qualityAutoLabel = selectedQualityLabel?.let { "Авто · $it" } ?: "Авто"
+    val activeVoice = playback.activeStreamSelection?.activeVoice
+        ?: playback.activeStreamSelection?.requestedVoice
+        ?: preferredAudio.takeUnless { it.equals("Auto", ignoreCase = true) }
+    val activeQuality = playback.activeStreamSelection?.activeQuality
+        ?: playback.activeStreamSelection?.requestedQuality
+        ?: preferredQuality.takeUnless { it.equals("Auto", ignoreCase = true) }
     val resizeModeSummary = when (resizeMode) {
         AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> "Заполнение"
         AspectRatioFrameLayout.RESIZE_MODE_FILL -> "Растянуть"
@@ -327,30 +324,6 @@ fun PlayerScreen(
         seekFeedbackSeconds = stackedSeconds
         seekFeedbackTick++
         rootView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-        showControls()
-    }
-
-    fun selectAudio(value: String) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-        if (value != "Auto") {
-            audioTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
-        }
-        player.trackSelectionParameters = builder.build()
-        onAudioSelected(value)
-        showControls()
-    }
-
-    fun selectQuality(value: String) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-        if (value != "Auto") {
-            videoQualityTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
-        }
-        player.trackSelectionParameters = builder.build()
-        onQualitySelected(value)
         showControls()
     }
 
@@ -413,26 +386,6 @@ fun PlayerScreen(
             .buildUpon()
             .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, !subtitlesEnabled)
             .build()
-    }
-
-    LaunchedEffect(preferredAudio, audioTracks) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-        audioTracks.firstOrNull { preferredAudio != "Auto" && it.label == preferredAudio }?.let {
-            builder.setOverrideForType(it.override)
-        }
-        player.trackSelectionParameters = builder.build()
-    }
-
-    LaunchedEffect(preferredQuality, videoQualityTracks) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-        videoQualityTracks.firstOrNull { preferredQuality != "Auto" && it.label == preferredQuality }?.let {
-            builder.setOverrideForType(it.override)
-        }
-        player.trackSelectionParameters = builder.build()
     }
 
     LaunchedEffect(scrubbing, scrubPositionMs / 5_000L, session.activeSourceUri) {
@@ -533,7 +486,6 @@ fun PlayerScreen(
 
             override fun onTracksChanged(tracks: Tracks) {
                 audioTracks = buildAudioTrackOptions(tracks)
-                videoQualityTracks = buildVideoQualityTrackOptions(tracks)
                 subtitleTracks = buildSubtitleTrackOptions(tracks)
                 showControls()
             }
@@ -561,8 +513,6 @@ fun PlayerScreen(
     }
 
     val selectedSubtitleLabel = subtitleTracks.firstOrNull { it.selected }?.label
-    val audioSummary = if (effectiveAudioPreference == "Auto") audioAutoLabel else effectiveAudioPreference
-    val qualitySummary = if (effectiveQualityPreference == "Auto") qualityAutoLabel else effectiveQualityPreference
     val speedSummary = "${formatSpeed(speed)}×"
     val subtitleSummary = when {
         subtitleTracks.isEmpty() -> "Нет"
@@ -608,6 +558,17 @@ fun PlayerScreen(
         onSubtitlesChanged(true)
         onSubtitleTrackIdChanged("Auto")
         settingsPicker = null
+    }
+
+    fun selectEmbeddedAudioTrack(option: SelectableTrackOption) {
+        player.trackSelectionParameters = player.trackSelectionParameters
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
+            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+            .setOverrideForType(option.override)
+            .build()
+        audioTracks = buildAudioTrackOptions(player.currentTracks)
+        showControls()
     }
 
     val leavePlayer: () -> Unit = {
@@ -1044,9 +1005,8 @@ fun PlayerScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             if (playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING) {
-                                CircularProgressIndicator(
+                                MoviaLoadingSpinner(
                                     color = Color(0xFFE5A93C),
-                                    trackColor = Color(0xFFE5A93C).copy(alpha = 0.20f),
                                     strokeWidth = 3.dp,
                                     modifier = Modifier.size(36.dp),
                                 )
@@ -1246,55 +1206,42 @@ fun PlayerScreen(
         }
 
         if (!inPictureInPicture && settingsOpen) {
-            val contentStreams = mediaContent?.streams.orEmpty()
-            val streamVoices: List<String> = if (contentStreams.isNotEmpty()) {
-                contentStreams.map { it.voice.ifBlank { "Дубляж" } }.distinct().sortedWith(
-                    compareBy { v ->
-                        val low = v.lowercase()
-                        when {
-                            low.contains("дубляж") || low.contains("дублированный") -> 0
-                            low.contains("lostfilm") -> 1
-                            low.contains("red head sound") || low.contains("rhs") -> 2
-                            low.contains("hdrezka") || low.contains("rezka") -> 3
-                            low.contains("кубик") -> 4
-                            low.contains("кураж") -> 5
-                            low.contains("newstudio") -> 6
-                            low.contains("профессиональн") -> 7
-                            low.contains("русск") -> 8
-                            low.contains("original") || low.contains("english") -> 20
-                            else -> 10
-                        }
-                    }
-                )
-            } else {
-                listOf(mediaContent?.audioLanguages?.firstOrNull()?.takeIf { it.isNotBlank() } ?: "Дубляж")
+            val contentStreams = sessionStreams.filter { it.url.isNotBlank() }
+            val embeddedAudioOptions = audioTracks.map { it.label }
+            val selectedEmbeddedAudio = audioTracks.firstOrNull { it.selected }?.label
+            val streamQualities = StreamSettingsSelection.qualityOptions(contentStreams).ifEmpty {
+                listOfNotNull(
+                    activeQuality?.takeIf { it.isNotBlank() },
+                    preferredQuality.takeUnless { it.equals("Auto", ignoreCase = true) },
+                ).distinct().ifEmpty { listOf("Авто") }
             }
 
-            val currentVoice: String = if (audioSummary in streamVoices) {
-                audioSummary
-            } else {
-                streamVoices.firstOrNull { !it.contains("Original", ignoreCase = true) && !it.contains("English", ignoreCase = true) }
-                    ?: streamVoices.firstOrNull() ?: "Дубляж"
+            val currentQuality = activeQuality
+                ?.takeIf { active -> streamQualities.any { it.equals(active, ignoreCase = true) } }
+                ?: preferredQuality.takeUnless { it.equals("Auto", ignoreCase = true) }
+                    ?.takeIf { preferred -> streamQualities.any { it.equals(preferred, ignoreCase = true) } }
+                ?: streamQualities.first()
+
+            val streamVoices = StreamSettingsSelection.voiceOptions(contentStreams, currentQuality).ifEmpty {
+                listOfNotNull(
+                    activeVoice?.takeIf { it.isNotBlank() },
+                    preferredAudio.takeUnless { it.equals("Auto", ignoreCase = true) },
+                ).distinct().ifEmpty { listOf("Авто") }
             }
 
-            val streamQualitiesForVoice: List<String> = if (contentStreams.isNotEmpty()) {
-                val matching = contentStreams.filter { it.voice.equals(currentVoice, ignoreCase = true) }.map { it.quality.ifBlank { "1080p" } }.distinct()
-                if (matching.isNotEmpty()) matching else contentStreams.map { it.quality.ifBlank { "1080p" } }.distinct()
-            } else {
-                listOf(mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p")
-            }
-
-            val currentQuality: String = if (qualitySummary in streamQualitiesForVoice) {
-                qualitySummary
-            } else {
-                streamQualitiesForVoice.firstOrNull { it.equals(qualitySummary, ignoreCase = true) } ?: streamQualitiesForVoice.firstOrNull() ?: "1080p"
-            }
+            val currentVoice = activeVoice
+                ?.takeIf { active -> streamVoices.any { it.equals(active, ignoreCase = true) } }
+                ?: preferredAudio.takeUnless { it.equals("Auto", ignoreCase = true) }
+                    ?.takeIf { preferred -> streamVoices.any { it.equals(preferred, ignoreCase = true) } }
+                ?: streamVoices.first()
 
             StreamSettingsScreen(
                 audioOptions = streamVoices,
-                qualityOptions = streamQualitiesForVoice,
+                qualityOptions = streamQualities,
                 selectedAudio = currentVoice,
                 selectedQuality = currentQuality,
+                embeddedAudioOptions = embeddedAudioOptions,
+                selectedEmbeddedAudio = selectedEmbeddedAudio,
                 autoNextEnabled = autoNextEnabled,
                 persistentSeekButtons = persistentSeekButtons,
                 onBack = {
@@ -1302,22 +1249,26 @@ fun PlayerScreen(
                     showControls()
                 },
                 onAudioSelected = { newVoice ->
-                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) && it.quality.equals(currentQuality, ignoreCase = true) }
-                        ?: contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) }
-                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
-                        val currentPosition = session.state.value.currentPositionMs
-                        session.switchToStream(matchedStream.url, currentPosition)
+                    StreamSettingsSelection.select(contentStreams, newVoice, currentQuality)?.let { matchedStream ->
+                        session.switchToStream(matchedStream, session.state.value.currentPositionMs)
                     }
-                    selectAudio(newVoice)
+                    onAudioSelected(newVoice)
+                    showControls()
+                },
+                onEmbeddedAudioSelected = { label ->
+                    audioTracks.firstOrNull { it.label == label }?.let(::selectEmbeddedAudioTrack)
                 },
                 onQualitySelected = { newQuality ->
-                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(currentVoice, ignoreCase = true) && it.quality.equals(newQuality, ignoreCase = true) }
-                        ?: contentStreams.firstOrNull { it.quality.equals(newQuality, ignoreCase = true) }
-                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
-                        val currentPosition = session.state.value.currentPositionMs
-                        session.switchToStream(matchedStream.url, currentPosition)
+                    val voicesForQuality = StreamSettingsSelection.voiceOptions(contentStreams, newQuality)
+                    val voiceForQuality = currentVoice.takeIf { current ->
+                        voicesForQuality.any { it.equals(current, ignoreCase = true) }
+                    } ?: voicesForQuality.firstOrNull()
+                    StreamSettingsSelection.select(contentStreams, voiceForQuality, newQuality)?.let { matchedStream ->
+                        session.switchToStream(matchedStream, session.state.value.currentPositionMs)
                     }
-                    selectQuality(newQuality)
+                    onQualitySelected(newQuality)
+                    voiceForQuality?.let(onAudioSelected)
+                    showControls()
                 },
                 onAutoNextChanged = onAutoNextChanged,
                 onPersistentSeekButtonsChanged = onPersistentSeekButtonsChanged,
@@ -1383,9 +1334,8 @@ fun PlayerScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    CircularProgressIndicator(
+                    MoviaLoadingSpinner(
                         color = Color(0xFFE5A93C),
-                        trackColor = Color(0xFFE5A93C).copy(alpha = 0.20f),
                         strokeWidth = 2.5.dp,
                         modifier = Modifier.size(18.dp),
                     )
@@ -1479,16 +1429,57 @@ private fun Modifier.playerSeasonHorizontalSwipe(
 }
 
 @Composable
+private fun MoviaLoadingSpinner(
+    modifier: Modifier = Modifier,
+    color: Color = MoviaBrandAmber,
+    strokeWidth: androidx.compose.ui.unit.Dp = 3.dp,
+) {
+    var rotation by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        var previousFrame = 0L
+        while (true) {
+            withFrameNanos { frameNanos ->
+                if (previousFrame != 0L) {
+                    val deltaSeconds = (frameNanos - previousFrame).coerceAtMost(100_000_000L) / 1_000_000_000f
+                    rotation = (rotation + 300f * deltaSeconds) % 360f
+                }
+                previousFrame = frameNanos
+            }
+        }
+    }
+    Canvas(modifier = modifier) {
+        val stroke = strokeWidth.toPx()
+        drawArc(
+            color = color.copy(alpha = 0.20f),
+            startAngle = 0f,
+            sweepAngle = 360f,
+            useCenter = false,
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+        )
+        drawArc(
+            color = color,
+            startAngle = rotation,
+            sweepAngle = 245f,
+            useCenter = false,
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+        )
+    }
+}
+
+@Composable
 private fun StreamSettingsScreen(
     audioOptions: List<String>,
     qualityOptions: List<String>,
     selectedAudio: String,
     selectedQuality: String,
+    embeddedAudioOptions: List<String> = emptyList(),
+    selectedEmbeddedAudio: String? = null,
     autoNextEnabled: Boolean,
     persistentSeekButtons: Boolean,
     onBack: () -> Unit,
     onAudioSelected: (String) -> Unit,
     onQualitySelected: (String) -> Unit,
+    onEmbeddedAudioSelected: (String) -> Unit = {},
     onAutoNextChanged: (Boolean) -> Unit,
     onPersistentSeekButtonsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -1535,11 +1526,20 @@ private fun StreamSettingsScreen(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
 
-        PlayerSettingsSectionLabel("ОЗВУЧКА")
-        PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected)
-
         PlayerSettingsSectionLabel("КАЧЕСТВО ВИДЕО")
         PlayerSettingsChipsRow(qualityOptions, selectedQuality, onQualitySelected)
+
+        PlayerSettingsSectionLabel("ОЗВУЧКА РЕЛИЗА")
+        PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected)
+
+        if (embeddedAudioOptions.isNotEmpty()) {
+            PlayerSettingsSectionLabel("ВСТРОЕННЫЕ АУДИОДОРОЖКИ")
+            PlayerSettingsChipsRow(
+                options = embeddedAudioOptions,
+                selected = selectedEmbeddedAudio ?: embeddedAudioOptions.first(),
+                onSelected = onEmbeddedAudioSelected,
+            )
+        }
 
         PlayerSettingsSectionLabel("УПРАВЛЕНИЕ И ПЕРЕХОДЫ")
         PlayerSettingsToggleRow(

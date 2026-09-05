@@ -5,11 +5,13 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SeriesPlaybackTest {
+    private val counts = listOf(8, 8, 6)
+
     @Test
     fun nextEpisodeIncrementsWithinSeason() {
         assertEquals(
             "Нулевая орбита · S01E05 · Эпизод 5",
-            nextEpisodeTitle("Нулевая орбита · S01E04 · Эпизод 4"),
+            nextEpisodeTitleForCounts("Нулевая орбита · S01E04 · Эпизод 4", counts),
         )
     }
 
@@ -17,20 +19,20 @@ class SeriesPlaybackTest {
     fun nextEpisodeAdvancesToNextSeason() {
         assertEquals(
             "Нулевая орбита · S02E01 · Эпизод 1",
-            nextEpisodeTitle("Нулевая орбита · S01E08 · Эпизод 8"),
+            nextEpisodeTitleForCounts("Нулевая орбита · S01E08 · Эпизод 8", counts),
         )
     }
 
     @Test
     fun finalEpisodeOfFinalSeasonHasNoNextEpisode() {
-        assertNull(nextEpisodeTitle("Нулевая орбита · S03E06 · Эпизод 6"))
+        assertNull(nextEpisodeTitleForCounts("Нулевая орбита · S03E06 · Эпизод 6", counts))
     }
 
     @Test
     fun legacyEpisodeTitlesRemainCompatible() {
         assertEquals(
             "Нулевая орбита · E05 · Эпизод 5",
-            nextEpisodeTitle("Нулевая орбита · E04 · Эпизод 4"),
+            nextEpisodeTitleForCounts("Нулевая орбита · E04 · Эпизод 4", counts),
         )
     }
 

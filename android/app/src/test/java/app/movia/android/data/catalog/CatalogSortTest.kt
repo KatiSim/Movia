@@ -5,7 +5,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CatalogSortTest {
-    private val items = DemoCatalogRepository.all()
+    private val items = catalogTestItems
 
     @Test
     fun ratingSortIsDescending() {

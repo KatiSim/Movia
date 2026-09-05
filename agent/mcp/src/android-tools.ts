@@ -24,12 +24,6 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 const PNG_IEND = Buffer.from([
   0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
 ]);
-const PORTRAIT_LOCK_COMMAND = [
-  "settings put system accelerometer_rotation 0",
-  "settings put system user_rotation 0",
-  "cmd window fixed-to-user-rotation enabled",
-  "cmd window user-rotation lock 0"
-].join("\n");
 
 function textResult(data: unknown) {
   return {
@@ -135,10 +129,6 @@ async function runRishText(
   } catch (error: any) {
     throw new Error(rishFailureMessage(error));
   }
-}
-
-async function enforcePortraitMode(): Promise<void> {
-  await runRishText(PORTRAIT_LOCK_COMMAND, 10_000, 256 * 1024);
 }
 
 async function runRishBinary(
@@ -531,7 +521,6 @@ export function registerAndroidTools(server: McpServer): void {
     async ({ packageName, serial }) => {
       try {
         assertLocalSerial(serial);
-        await enforcePortraitMode();
         const { stdout, stderr } = await runRishText(
           `component="$(cmd package resolve-activity --brief -c android.intent.category.LAUNCHER ${packageName} | tail -n 1)"
 case "$component" in
@@ -541,7 +530,6 @@ esac`,
           20_000,
           512 * 1024
         );
-        await enforcePortraitMode();
         const output = `${stdout}${stderr ? `\n${stderr}` : ""}`.trim();
         return textResult({
           transport: TRANSPORT,

@@ -199,7 +199,7 @@ fun CatalogScreen(
     onClearRecent: () -> Unit = {},
     resetTrigger: Int = 0,
     modifier: Modifier = Modifier,
-    onOpenDetails: (String, String?) -> Unit,
+    onOpenDetails: (String) -> Unit,
 ) {
     var selectedTypeName by rememberSaveable { mutableStateOf("ALL") }
     var selectedCategoryName by rememberSaveable { mutableStateOf("ALL") }
@@ -581,7 +581,7 @@ fun CatalogScreen(
             start = 16.dp,
             top = contentPadding.calculateTopPadding() + 16.dp,
             end = 16.dp,
-            bottom = contentPadding.calculateBottomPadding() + 104.dp,
+            bottom = contentPadding.calculateBottomPadding(),
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -794,7 +794,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title, item.id) },
+                        onClick = { onOpenDetails(item.title) },
                     )
                 }
             }
@@ -824,7 +824,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title, item.id) },
+                        onClick = { onOpenDetails(item.title) },
                     )
                 }
             }
@@ -832,14 +832,14 @@ fun CatalogScreen(
     }
 
         AnimatedVisibility(
-            visible = showScrollToTop && !gridState.isScrollInProgress,
+            visible = showScrollToTop,
             enter = EnterTransition.None,
             exit = ExitTransition.None,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(
                     end = 20.dp,
-                    bottom = contentPadding.calculateBottomPadding() + 24.dp,
+                    bottom = contentPadding.calculateBottomPadding() + 16.dp,
                 ),
         ) {
             FloatingActionButton(

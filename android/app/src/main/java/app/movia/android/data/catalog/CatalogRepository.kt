@@ -7,10 +7,13 @@ import app.movia.android.domain.model.CatalogCategory
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
+import app.movia.android.domain.model.StreamAdvertisement
 import app.movia.android.domain.model.StreamOption
+import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -19,6 +22,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.util.concurrent.atomic.AtomicBoolean
 
 interface CatalogRepository {
     fun getPopular(limit: Int = 40): List<MediaContent>
@@ -94,6 +98,11 @@ object DemoCatalogRepository : CatalogRepository {
     @Volatile
     private var lastHomeFetchMs: Long = 0L
 
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val initialized = AtomicBoolean(false)
+    private val homeRefreshInFlight = AtomicBoolean(false)
+    private val genresRefreshInFlight = AtomicBoolean(false)
+
     private val movieCache = LruCache<String, MediaContent>(500)
     private val titleCache = LruCache<String, MediaContent>(500)
 
@@ -123,21 +132,45 @@ object DemoCatalogRepository : CatalogRepository {
 
     fun init(context: Context) {
         appContext = context.applicationContext
-        prewarm()
+        if (initialized.compareAndSet(false, true)) {
+            prewarm()
+        }
     }
 
     fun prewarm() {
-        CoroutineScope(Dispatchers.IO).launch {
+        refreshHomeAsync()
+        refreshGenresAsync()
+    }
+
+    private fun refreshHomeAsync(force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        val hasHomeData = cachedPopular.isNotEmpty() || cachedNew.isNotEmpty() || cachedSeries.isNotEmpty()
+        if (!force && hasHomeData && now - lastHomeFetchMs < HOME_REFRESH_MS) return
+        if (!homeRefreshInFlight.compareAndSet(false, true)) return
+        repositoryScope.launch {
             try {
-                fetchHome()
-                fetchAllGenres()
+                fetchHome(force)
             } catch (e: Exception) {
-                Log.w(TAG, "Prewarm failed: ${e.message}")
+                Log.w(TAG, "Home refresh failed: ${e.message}")
+            } finally {
+                homeRefreshInFlight.set(false)
             }
         }
     }
 
-    @Synchronized
+    private fun refreshGenresAsync() {
+        if (cachedGenres.isNotEmpty() || !genresRefreshInFlight.compareAndSet(false, true)) return
+        repositoryScope.launch {
+            try {
+                fetchAllGenres()
+            } catch (e: Exception) {
+                Log.w(TAG, "Genres refresh failed: ${e.message}")
+            } finally {
+                genresRefreshInFlight.set(false)
+            }
+        }
+    }
+
     private fun fetchHome(force: Boolean = false) {
         val now = System.currentTimeMillis()
         val hasHomeData = cachedPopular.isNotEmpty() || cachedNew.isNotEmpty() || cachedSeries.isNotEmpty()
@@ -205,8 +238,8 @@ object DemoCatalogRepository : CatalogRepository {
         return try {
             val url = URL(if (path.startsWith("http")) path else "$BASE_URL$path")
             conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 4000
-            conn.readTimeout = 6000
+            conn.connectTimeout = 10_000
+            conn.readTimeout = 12_000
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", "application/json")
             
@@ -294,27 +327,27 @@ object DemoCatalogRepository : CatalogRepository {
     }
 
     override fun getPopular(limit: Int): List<MediaContent> = runSafe {
-        fetchHome()
+        refreshHomeAsync()
         cachedPopular.take(limit)
     }
 
     override fun getNew(limit: Int): List<MediaContent> = runSafe {
-        fetchHome()
+        refreshHomeAsync()
         cachedNew.take(limit)
     }
 
     fun getSeries(limit: Int = 12): List<MediaContent> = runSafe {
-        fetchHome()
+        refreshHomeAsync()
         cachedSeries.take(limit)
     }
 
     fun getForYou(limit: Int = 12): List<MediaContent> = runSafe {
-        fetchHome()
+        refreshHomeAsync()
         cachedForYou.take(limit)
     }
 
     fun getHero(limit: Int = 3): List<MediaContent> = runSafe {
-        fetchHome()
+        refreshHomeAsync()
         cachedHero.take(limit)
     }
 
@@ -368,20 +401,8 @@ object DemoCatalogRepository : CatalogRepository {
 
     override fun getAllGenres(): List<String> {
         if (cachedGenres.isNotEmpty()) return cachedGenres
-        return runSafe {
-            val resp = httpGet("/api/genres")
-            if (resp != null) {
-                val arr = JSONArray(resp)
-                val list = mutableListOf<String>()
-                for (i in 0 until arr.length()) {
-                    list.add(arr.getString(i))
-                }
-                cachedGenres = list
-                list
-            } else {
-                listOf("аниме", "боевик", "детектив", "драма", "комедия", "мультфильм", "триллер", "ужасы", "фантастика")
-            }
-        }
+        refreshGenresAsync()
+        return listOf("аниме", "боевик", "детектив", "драма", "комедия", "мультфильм", "триллер", "ужасы", "фантастика")
     }
 
     private fun httpGetDetailed(path: String): CatalogHttpResponse {
@@ -389,8 +410,8 @@ object DemoCatalogRepository : CatalogRepository {
         return try {
             val url = URL(if (path.startsWith("http")) path else "$BASE_URL$path")
             conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 4000
-            conn.readTimeout = 6000
+            conn.connectTimeout = 10_000
+            conn.readTimeout = 12_000
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", "application/json")
             val code = conn.responseCode
@@ -492,22 +513,16 @@ object DemoCatalogRepository : CatalogRepository {
     override fun searchPeople(query: String, limit: Int): List<Person> =
         searchDetailed(query, limit, discover = true).people
 
-    override fun findByTitle(title: String): MediaContent? {
-        val key = CanonicalTextNormalizer.normalize(title)
-        val cached = titleCache.get(key)
-        if (cached != null && !cached.synopsis.isNullOrBlank() && cached.cast.isNotEmpty()) {
-            return cached
-        }
-        return findFullByTitle(title) ?: cached
-    }
+    /**
+     * Fast cache-only lookup. UI composition and player surface attachment must
+     * never perform implicit network I/O. Call findFullBy* explicitly from an
+     * IO dispatcher when complete metadata is required.
+     */
+    override fun findByTitle(title: String): MediaContent? =
+        titleCache.get(CanonicalTextNormalizer.normalize(title))
 
-    override fun findById(id: String): MediaContent? {
-        val cached = movieCache.get(id)
-        if (cached != null && !cached.synopsis.isNullOrBlank() && cached.cast.isNotEmpty()) {
-            return cached
-        }
-        return findFullById(id) ?: cached
-    }
+    /** See findByTitle: this is deliberately cache-only. */
+    override fun findById(id: String): MediaContent? = movieCache.get(id)
 
     override fun findFullById(id: String): MediaContent? = runSafe {
         val resp = httpGet("/api/movie/$id") ?: return@runSafe null
@@ -643,6 +658,91 @@ object DemoCatalogRepository : CatalogRepository {
         return result
     }
 
+    private fun parseStreamMap(value: JSONObject?): Map<String, String> {
+        if (value == null) return emptyMap()
+        val result = linkedMapOf<String, String>()
+        val keys = value.keys()
+        while (keys.hasNext()) {
+            val key = keys.next().trim()
+            val item = value.optString(key).trim()
+            if (key.isBlank() || item.isBlank() || key.length > 128 || item.length > 2048) continue
+            if (key.any { it == '\r' || it == '\n' } || item.any { it == '\r' || it == '\n' }) continue
+            if (Regex("(?i)(token|authorization|cookie|password|secret|signature|private[_-]?key)")
+                    .containsMatchIn(key)
+            ) continue
+            result[key] = item
+        }
+        return result
+    }
+
+    private fun parseStreamSkipIntervals(value: JSONArray?): List<StreamSkipInterval> {
+        if (value == null) return emptyList()
+        val result = mutableListOf<StreamSkipInterval>()
+        for (i in 0 until minOf(value.length(), 32)) {
+            val item = value.optJSONObject(i) ?: continue
+            val start = item.optLong("startMs", item.optLong("start_ms", item.optLong("start", -1L)))
+            val end = item.optLong("endMs", item.optLong("end_ms", item.optLong("end", -1L)))
+            if (start >= 0L && end >= start && end <= 86_400_000L) {
+                result += StreamSkipInterval(start, end)
+            }
+        }
+        return result
+    }
+
+    private fun parseStreamAdvertisement(value: Any?): StreamAdvertisement? {
+        if (value == null || value == JSONObject.NULL) return null
+        val raw = value.toString().trim()
+        if (raw.isBlank() || raw.length > 4096) return null
+        return if (value is JSONObject) {
+            StreamAdvertisement(raw = raw, metadata = parseStreamMap(value))
+        } else {
+            StreamAdvertisement(raw = raw)
+        }
+    }
+
+    private fun parseStreamReloadData(value: Any?): String? {
+        if (value == null || value == JSONObject.NULL) return null
+        val raw = value.toString().trim()
+        if (raw.isBlank() || raw.length > 4096) return null
+        if (Regex("(?i)(token|authorization|cookie|password|secret|signature|private[_-]?key)")
+                .containsMatchIn(raw)
+        ) return null
+        return raw
+    }
+
+    private fun firstStreamString(obj: JSONObject, vararg keys: String): String? =
+        keys.asSequence().map { obj.optString(it).trim() }.firstOrNull { it.isNotBlank() }
+
+    private fun parseMediaStringList(obj: JSONObject?, vararg keys: String): List<String> {
+        if (obj == null) return emptyList()
+        val values = mutableListOf<String>()
+        keys.forEach { key ->
+            obj.optJSONArray(key)?.let { array ->
+                for (index in 0 until array.length()) {
+                    val nested = array.optJSONObject(index)
+                    val raw = when {
+                        nested != null -> firstStreamString(nested, "name", "title", "full_name", "fullName")
+                        else -> array.optString(index).trim().takeIf { it.isNotBlank() }
+                    }
+                    raw?.let(values::add)
+                }
+            }
+            obj.optString(key).trim().takeIf { it.isNotBlank() }?.let { raw ->
+                raw.split(';', '|')
+                    .map(String::trim)
+                    .filter(String::isNotBlank)
+                    .forEach(values::add)
+            }
+        }
+        return values.distinct()
+    }
+
+    private fun streamResolutionDimension(value: String?, width: Boolean): Int? {
+        val raw = value?.trim().orEmpty()
+        val match = Regex("(\\d{2,5})\\s*[xх×]\\s*(\\d{2,5})").find(raw) ?: return null
+        return match.groupValues[if (width) 1 else 2].toIntOrNull()
+    }
+
     private fun parseMediaObject(obj: JSONObject): MediaContent {
         val id = obj.optString("id", "")
         val title = obj.optString("title", "Без названия")
@@ -664,7 +764,35 @@ object DemoCatalogRepository : CatalogRepository {
         val originalTitle = (obj.optString("original_title").takeIf { it.isNotBlank() }
             ?: obj.optString("originalTitle")).takeIf { it.isNotBlank() }
             
+        val crewObj = obj.optJSONObject("crew")
         val director = obj.optString("director").takeIf { it.isNotBlank() }
+            ?: parseMediaStringList(crewObj, "director", "directors").firstOrNull()
+        val writers = (
+            parseMediaStringList(obj, "writers", "writer", "screenwriters", "screenwriter", "screenplay") +
+                parseMediaStringList(crewObj, "writers", "writer", "screenwriters", "screenwriter", "screenplay")
+            ).distinct()
+        val producers = (
+            parseMediaStringList(obj, "producers", "producer") +
+                parseMediaStringList(crewObj, "producers", "producer")
+            ).distinct()
+        val cinematographers = (
+            parseMediaStringList(obj, "cinematographers", "cinematographer", "cinematography", "operator", "operators") +
+                parseMediaStringList(crewObj, "cinematographers", "cinematographer", "cinematography", "operator", "operators")
+            ).distinct()
+        val composers = (
+            parseMediaStringList(obj, "composers", "composer", "music_by", "musicBy") +
+                parseMediaStringList(crewObj, "composers", "composer", "music_by", "musicBy")
+            ).distinct()
+        val premiereDate = firstStreamString(
+            obj,
+            "premiere_date",
+            "premiereDate",
+            "release_date",
+            "releaseDate",
+            "premiere",
+        )
+        val budget = firstStreamString(obj, "budget", "production_budget", "productionBudget")
+        val boxOffice = firstStreamString(obj, "box_office", "boxOffice", "gross", "revenue")
         
         val posterUrl = (obj.optString("poster_url").takeIf { it.isNotBlank() }
             ?: obj.optString("posterUrl")).takeIf { it.isNotBlank() }
@@ -737,19 +865,27 @@ object DemoCatalogRepository : CatalogRepository {
                     ?: sObj.optLong("duration", 0L).takeIf { it > 0L }
                 val sizeBytes = sObj.optLong("size_bytes", 0L).takeIf { it > 0L }
                     ?: sObj.optLong("size", 0L).takeIf { it > 0L }
+                val resolution = firstStreamString(sObj, "resolution", "video_resolution", "videoResolution")
                 streamsList.add(
                     StreamOption(
-                        voice = sObj.optString("voice", "Не указано"),
-                        quality = sObj.optString("quality", "Не указано"),
-                        seeders = sObj.optInt("seeders", 0),
+                        voice = firstStreamString(sObj, "voice", "translation") ?: "Не указано",
+                        quality = firstStreamString(sObj, "quality") ?: "Не указано",
+                        seeders = sObj.optInt("seeders", sObj.optInt("seeds", 0)),
                         url = streamUrl,
                         source = source,
                         streamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
                             ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty(),
+                        logicalSourceId = firstStreamString(sObj, "logical_source_id", "logicalSourceId"),
                         providerItemId = sObj.optString("provider_item_id").takeIf { it.isNotBlank() }
                             ?: sObj.optString("providerItemId").takeIf { it.isNotBlank() },
                         infoHash = sObj.optString("info_hash").takeIf { it.isNotBlank() }
                             ?: sObj.optString("infoHash").takeIf { it.isNotBlank() },
+                        sourceTypeId = sObj.optInt("source_type_id", -1).takeIf { it >= 0 }
+                            ?: sObj.optInt("video_source_type_id", -1).takeIf { it >= 0 }
+                            ?: sObj.optInt("videoSourceTypeId", -1).takeIf { it >= 0 },
+                        contentTypeId = sObj.optInt("content_type_id", -1).takeIf { it >= 0 }
+                            ?: sObj.optInt("video_content_type_id", -1).takeIf { it >= 0 }
+                            ?: sObj.optInt("videoContentTypeId", -1).takeIf { it >= 0 },
                         fileIndex = sObj.optInt("file_index", -1).takeIf { it >= 0 }
                             ?: sObj.optInt("fileIndex", -1).takeIf { it >= 0 },
                         filePath = sObj.optString("file_path").takeIf { it.isNotBlank() }
@@ -775,7 +911,84 @@ object DemoCatalogRepository : CatalogRepository {
                         durationMs = durationMs,
                         sizeBytes = sizeBytes,
                         reloadSupported = sObj.optBoolean("reload_supported", false) ||
-                            sObj.optBoolean("reloadSupported", false),
+                            sObj.optBoolean("reloadSupported", false) ||
+                            sObj.has("reload_data") || sObj.has("reloadData"),
+                        reloadData = parseStreamReloadData(
+                            sObj.opt("reload_data") ?: sObj.opt("reloadData"),
+                        ),
+                        sourceId = firstStreamString(sObj, "source_id", "sourceId"),
+                        providerId = firstStreamString(sObj, "provider_id", "providerId"),
+                        providerContentId = firstStreamString(sObj, "provider_content_id", "providerContentId"),
+                        transport = firstStreamString(sObj, "transport") ?: when {
+                            streamUrl.startsWith("magnet:", ignoreCase = true) -> "torrent_p2p"
+                            streamUrl.contains("/stream?", ignoreCase = true) -> "local_gateway"
+                            streamUrl.contains(".m3u8", ignoreCase = true) -> "hls"
+                            streamUrl.contains(".mpd", ignoreCase = true) -> "dash"
+                            else -> "direct"
+                        },
+                        transportMetadata = parseStreamMap(
+                            sObj.optJSONObject("transport_metadata")
+                                ?: sObj.optJSONObject("transportMetadata"),
+                        ),
+                        resolution = resolution,
+                        resolutionWidth = sObj.optInt("resolution_width", -1).takeIf { it > 0 }
+                            ?: sObj.optInt("resolutionWidth", -1).takeIf { it > 0 }
+                            ?: streamResolutionDimension(resolution, width = true),
+                        resolutionHeight = sObj.optInt("resolution_height", -1).takeIf { it > 0 }
+                            ?: sObj.optInt("resolutionHeight", -1).takeIf { it > 0 }
+                            ?: streamResolutionDimension(resolution, width = false),
+                        unavailableQuality = sObj.optBoolean("unavailable_quality", false) ||
+                            sObj.optBoolean("unavailableQuality", false),
+                        isTrailer = sObj.optBoolean("is_trailer", false) ||
+                            sObj.optBoolean("isTrailer", false),
+                        downloadUrl = firstStreamString(sObj, "download_url", "downloadUrl")
+                            ?.takeIf { isStructurallyPlayableUrl(it) },
+                        downloadHeaders = parseStreamHeaders(
+                            sObj.optJSONObject("download_headers")
+                                ?: sObj.optJSONObject("downloadHeaders"),
+                        ),
+                        skipIntervals = parseStreamSkipIntervals(
+                            sObj.optJSONArray("skip_intervals")
+                                ?: sObj.optJSONArray("skipIntervals"),
+                        ),
+                        advertisement = parseStreamAdvertisement(
+                            sObj.opt("advertisement") ?: sObj.opt("ad"),
+                        ),
+                        catalogMediaId = firstStreamString(sObj, "catalog_media_id", "catalogMediaId"),
+                        canonicalTitle = firstStreamString(sObj, "canonical_title", "canonicalTitle"),
+                        canonicalOriginalTitle = firstStreamString(
+                            sObj,
+                            "canonical_original_title",
+                            "canonicalOriginalTitle",
+                        ),
+                        canonicalYear = sObj.optInt("canonical_year", -1).takeIf { it > 0 }
+                            ?: sObj.optInt("canonicalYear", -1).takeIf { it > 0 },
+                        canonicalMediaType = firstStreamString(
+                            sObj,
+                            "canonical_media_type",
+                            "canonicalMediaType",
+                        )?.trim()?.lowercase()?.let { raw ->
+                            when (raw) {
+                                "tv", "series", "serial", "tv_series", "limited_series" -> ContentType.SERIES
+                                "tv_channel", "channel" -> ContentType.TV
+                                else -> ContentType.MOVIE
+                            }
+                        },
+                        healthScore = sObj.optDouble("health_score", sObj.optDouble("healthScore", 0.5))
+                            .coerceIn(0.0, 1.0),
+                        startupLatencyMs = when {
+                            sObj.has("startup_latency_ms") && !sObj.isNull("startup_latency_ms") ->
+                                sObj.optLong("startup_latency_ms", 0L).coerceAtLeast(0L)
+                            sObj.has("startupLatencyMs") && !sObj.isNull("startupLatencyMs") ->
+                                sObj.optLong("startupLatencyMs", 0L).coerceAtLeast(0L)
+                            else -> null
+                        },
+                        recentFailureCount = sObj.optInt(
+                            "recent_failure_count",
+                            sObj.optInt("recentFailureCount", 0),
+                        ).coerceAtLeast(0),
+                        providerReliability = sObj.optDouble("provider_reliability", Double.NaN)
+                            .takeUnless { it.isNaN() }?.coerceIn(0.0, 1.0),
                     )
                 )
             }
@@ -828,6 +1041,13 @@ object DemoCatalogRepository : CatalogRepository {
             seasonsCount = seasonsCount,
             episodesCount = episodesCount,
             seasonEpisodeCounts = seasonEpisodeCounts,
+            writers = writers,
+            producers = producers,
+            cinematographers = cinematographers,
+            composers = composers,
+            premiereDate = premiereDate,
+            budget = budget,
+            boxOffice = boxOffice,
         )
     }
 }

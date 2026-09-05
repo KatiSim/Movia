@@ -8,8 +8,6 @@ import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
 import app.movia.android.domain.model.sameRequestedVariant
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
@@ -24,14 +22,57 @@ sealed class PlaybackResolverResult {
     data class Error(val message: String, val cause: Throwable? = null) : PlaybackResolverResult()
 }
 
-object DomainPlaybackResolver {
-    private data class BackendStreamsResponse(
-        val streams: List<StreamCandidate> = emptyList(),
-        val errorCode: String? = null,
-    )
+/** Response returned by one bounded backend discovery route. */
+data class PlaybackResolverBackendResponse(
+    val candidates: List<StreamCandidate> = emptyList(),
+    val errorCode: String? = null,
+)
 
+/**
+ * Backend seam for resolver tests and for keeping transport concerns out of
+ * candidate selection. The production implementation is the loopback HTTP
+ * client below; tests can provide deterministic responses without a network.
+ */
+interface PlaybackResolverBackend {
+    suspend fun resolveByIdentity(
+        request: PlaybackRequest,
+        forceRefresh: Boolean,
+    ): PlaybackResolverBackendResponse
+
+    suspend fun resolveByTitle(
+        request: PlaybackRequest,
+        forceRefresh: Boolean,
+    ): PlaybackResolverBackendResponse
+}
+
+object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
     private const val BASE_BACKEND_URL = "http://127.0.0.1:8888"
+    private const val DISCOVERY_TIMEOUT_MS = 15_000L
+
+    private val httpBackend = object : PlaybackResolverBackend {
+        override suspend fun resolveByIdentity(
+            request: PlaybackRequest,
+            forceRefresh: Boolean,
+        ): PlaybackResolverBackendResponse = queryBackendStreamEndpoint(
+            request.mediaId,
+            request.seasonNumber,
+            request.episodeNumber,
+            forceRefresh,
+        )
+
+        override suspend fun resolveByTitle(
+            request: PlaybackRequest,
+            forceRefresh: Boolean,
+        ): PlaybackResolverBackendResponse = queryBackendResolveEndpoint(
+            request.title,
+            request.year,
+            request.mediaType,
+            request.seasonNumber,
+            request.episodeNumber,
+            forceRefresh,
+        )
+    }
 
     private fun normalizedTitle(value: String): String = value.trim().lowercase()
         .replace('ё', 'е')
@@ -48,9 +89,15 @@ object DomainPlaybackResolver {
             return Regex("^[0-9A-Fa-f]{40}$").matches(hash) ||
                 Regex("^[A-Z2-7]{32}$", RegexOption.IGNORE_CASE).matches(hash)
         }
-        return value.startsWith("http://", ignoreCase = true) ||
-            value.startsWith("https://", ignoreCase = true) ||
-            value.startsWith("file://", ignoreCase = true)
+        val lower = value.lowercase()
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            return value.substringAfter("://", "")
+                .substringBefore('/')
+                .substringBefore('?')
+                .substringBefore('#')
+                .isNotBlank()
+        }
+        return lower.startsWith("file://") && value.substringAfter("://", "").isNotBlank()
     }
 
     private fun parseHeaders(value: JSONObject?): Map<String, String> {
@@ -182,6 +229,12 @@ object DomainPlaybackResolver {
         }
     }
 
+    private fun resolutionDimension(value: String?, width: Boolean): Int? {
+        val raw = value?.trim().orEmpty()
+        val match = Regex("(\\d{2,5})\\s*[xх×]\\s*(\\d{2,5})").find(raw) ?: return null
+        return match.groupValues[if (width) 1 else 2].toIntOrNull()
+    }
+
     private fun parseCandidateArray(
         arr: JSONArray?,
         season: Int?,
@@ -191,8 +244,7 @@ object DomainPlaybackResolver {
         val result = mutableListOf<StreamCandidate>()
         for (i in 0 until arr.length()) {
             val sObj = arr.optJSONObject(i) ?: continue
-            val url = sObj.optString("url").takeIf { it.isNotBlank() }
-                ?: sObj.optString("playback_url", "")
+            val url = firstString(sObj, "url", "playback_url", "stream_url").orEmpty()
             val source = sObj.optString("source").takeIf { it.isNotBlank() } ?: "resolver"
             if (!isStructurallyPlayableUrl(url)) continue
             if (url.contains("archive.org") || url.contains("themoviedb.org")) continue
@@ -212,19 +264,29 @@ object DomainPlaybackResolver {
                 ?: sObj.optInt("videoTrackIndex", -1).takeIf { it >= 0 }
             val audioTrackIndex = sObj.optInt("audio_track_index", -1).takeIf { it >= 0 }
                 ?: sObj.optInt("audioTrackIndex", -1).takeIf { it >= 0 }
-            val durationMs = sObj.optLong("duration", 0L).takeIf { it > 0L }
-            val sizeBytes = sObj.optLong("size", 0L).takeIf { it > 0L }
+            val durationMs = sObj.optLong("duration_ms", 0L).takeIf { it > 0L }
+                ?: sObj.optLong("duration", 0L).takeIf { it > 0L }
+            val sizeBytes = sObj.optLong("size_bytes", 0L).takeIf { it > 0L }
+                ?: sObj.optLong("size", 0L).takeIf { it > 0L }
+            val resolution = firstString(sObj, "resolution", "video_resolution", "videoResolution")
             val transport = transportFor(url, firstString(sObj, "transport"))
             val option = StreamOption(
-                voice = sObj.optString("voice", "Не указано"),
-                quality = sObj.optString("quality", "Не указано"),
-                seeders = sObj.optInt("seeders", 0),
+                voice = firstString(sObj, "voice", "translation") ?: "Не указано",
+                quality = firstString(sObj, "quality") ?: "Не указано",
+                seeders = sObj.optInt("seeders", sObj.optInt("seeds", 0)),
                 url = url,
                 source = source,
                 streamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
                     ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty(),
+                logicalSourceId = firstString(sObj, "logical_source_id", "logicalSourceId"),
                 providerItemId = sObj.optString("provider_item_id").takeIf { it.isNotBlank() }
                     ?: sObj.optString("providerItemId").takeIf { it.isNotBlank() },
+                sourceTypeId = sObj.optInt("source_type_id", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("video_source_type_id", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("videoSourceTypeId", -1).takeIf { it >= 0 },
+                contentTypeId = sObj.optInt("content_type_id", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("video_content_type_id", -1).takeIf { it >= 0 }
+                    ?: sObj.optInt("videoContentTypeId", -1).takeIf { it >= 0 },
                 sourceId = firstString(sObj, "source_id", "sourceId"),
                 providerId = firstString(sObj, "provider_id", "providerId"),
                 providerContentId = firstString(sObj, "provider_content_id", "providerContentId"),
@@ -255,13 +317,20 @@ object DomainPlaybackResolver {
                 durationMs = durationMs,
                 sizeBytes = sizeBytes,
                 reloadSupported = sObj.optBoolean("reloadSupported", false) ||
-                    sObj.optBoolean("reload_supported", false),
+                    sObj.optBoolean("reload_supported", false) ||
+                    sObj.has("reload_data") || sObj.has("reloadData"),
                 transport = transport,
                 transportMetadata = parseStringMap(
                     sObj.optJSONObject("transport_metadata")
                         ?: sObj.optJSONObject("transportMetadata")
                 ),
-                resolution = firstString(sObj, "resolution", "video_resolution", "videoResolution"),
+                resolution = resolution,
+                resolutionWidth = sObj.optInt("resolution_width", -1).takeIf { it > 0 }
+                    ?: sObj.optInt("resolutionWidth", -1).takeIf { it > 0 }
+                    ?: resolutionDimension(resolution, width = true),
+                resolutionHeight = sObj.optInt("resolution_height", -1).takeIf { it > 0 }
+                    ?: sObj.optInt("resolutionHeight", -1).takeIf { it > 0 }
+                    ?: resolutionDimension(resolution, width = false),
                 unavailableQuality = sObj.optBoolean("unavailable_quality", false) ||
                     sObj.optBoolean("unavailableQuality", false),
                 isTrailer = sObj.optBoolean("is_trailer", false) ||
@@ -280,6 +349,11 @@ object DomainPlaybackResolver {
                 reloadData = parseSafeReloadData(sObj.opt("reload_data") ?: sObj.opt("reloadData")),
                 catalogMediaId = firstString(sObj, "catalog_media_id", "catalogMediaId"),
                 canonicalTitle = firstString(sObj, "canonical_title", "canonicalTitle"),
+                canonicalOriginalTitle = firstString(
+                    sObj,
+                    "canonical_original_title",
+                    "canonicalOriginalTitle",
+                ),
                 canonicalYear = sObj.optInt("canonical_year", -1).takeIf { it > 0 }
                     ?: sObj.optInt("canonicalYear", -1).takeIf { it > 0 },
                 canonicalMediaType = firstString(sObj, "canonical_media_type", "canonicalMediaType")
@@ -294,8 +368,13 @@ object DomainPlaybackResolver {
                     },
                 healthScore = sObj.optDouble("health_score", sObj.optDouble("healthScore", 0.5))
                     .coerceIn(0.0, 1.0),
-                startupLatencyMs = sObj.optLong("startup_latency_ms", 0L).takeIf { it > 0L }
-                    ?: sObj.optLong("startupLatencyMs", 0L).takeIf { it > 0L },
+                startupLatencyMs = when {
+                    sObj.has("startup_latency_ms") && !sObj.isNull("startup_latency_ms") ->
+                        sObj.optLong("startup_latency_ms", 0L).coerceAtLeast(0L)
+                    sObj.has("startupLatencyMs") && !sObj.isNull("startupLatencyMs") ->
+                        sObj.optLong("startupLatencyMs", 0L).coerceAtLeast(0L)
+                    else -> null
+                },
                 recentFailureCount = sObj.optInt("recent_failure_count", sObj.optInt("recentFailureCount", 0))
                     .coerceAtLeast(0),
                 providerReliability = sObj.optDouble("provider_reliability", Double.NaN)
@@ -311,7 +390,7 @@ object DomainPlaybackResolver {
         season: Int?,
         episode: Int?,
         forceRefresh: Boolean,
-    ): BackendStreamsResponse = withContext(Dispatchers.IO) {
+    ): PlaybackResolverBackendResponse = withContext(Dispatchers.IO) {
         try {
             val encodedId = URLEncoder.encode(mediaId, "UTF-8")
             val sParam = if (season != null) "?season=$season" else ""
@@ -320,8 +399,8 @@ object DomainPlaybackResolver {
             val endpointUrl = "$BASE_BACKEND_URL/api/movie/$encodedId/stream$sParam$eParam$rParam"
 
             val conn = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 5_000
-                readTimeout = 30_000
+                connectTimeout = 12_000
+                readTimeout = 15_000
                 setRequestProperty("Accept", "application/json")
             }
             try {
@@ -329,49 +408,64 @@ object DomainPlaybackResolver {
                 val bodyStream = if (code in 200..299) conn.inputStream else conn.errorStream
                 val body = bodyStream?.bufferedReader()?.use { it.readText() }.orEmpty()
                 if (code !in 200..299) {
-                    return@withContext BackendStreamsResponse(errorCode = "BACKEND_HTTP_$code")
+                    return@withContext PlaybackResolverBackendResponse(errorCode = "BACKEND_HTTP_$code")
                 }
                 if (body.isBlank()) {
-                    return@withContext BackendStreamsResponse(errorCode = "INVALID_RESPONSE")
+                    return@withContext PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
                 }
                 val obj = JSONObject(body)
                 val status = obj.optString("status").trim().uppercase()
-                val streams = parseCandidateArray(obj.optJSONArray("streams"), season, episode)
+                val streams = parseCandidateArray(
+                    obj.optJSONArray("streams")
+                        ?: obj.optJSONObject("data")?.optJSONArray("streams")
+                        ?: obj.optJSONArray("data"),
+                    season,
+                    episode,
+                )
                 if (status == "ERROR") {
-                    BackendStreamsResponse(errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" })
+                    PlaybackResolverBackendResponse(
+                        errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" },
+                    )
                 } else {
-                    BackendStreamsResponse(streams = streams)
+                    PlaybackResolverBackendResponse(candidates = streams)
                 }
             } finally {
                 conn.disconnect()
             }
         } catch (_: java.net.SocketTimeoutException) {
-            BackendStreamsResponse(errorCode = "PROVIDER_TIMEOUT")
+            PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
         } catch (_: java.io.IOException) {
-            BackendStreamsResponse(errorCode = "BACKEND_UNREACHABLE")
+            PlaybackResolverBackendResponse(errorCode = "BACKEND_UNREACHABLE")
         } catch (_: Exception) {
-            BackendStreamsResponse(errorCode = "INVALID_RESPONSE")
+            PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
         }
     }
 
     private suspend fun queryBackendResolveEndpoint(
         title: String,
         year: Int?,
+        mediaType: ContentType,
         season: Int?,
         episode: Int?,
         forceRefresh: Boolean,
-    ): BackendStreamsResponse = withContext(Dispatchers.IO) {
+    ): PlaybackResolverBackendResponse = withContext(Dispatchers.IO) {
         try {
             val yParam = if (year != null && year > 0) "&year=$year" else ""
             val sParam = if (season != null) "&season=$season" else ""
             val eParam = if (episode != null) "&episode=$episode" else ""
             val cleanTitle = title.substringBefore(" · S").substringBefore(" (").trim()
+            val category = when (mediaType) {
+                ContentType.SERIES -> "series"
+                ContentType.TV -> "tv"
+                ContentType.MOVIE -> "movies"
+            }
             val rParam = "&refresh=${if (forceRefresh) 1 else 0}"
-            val endpointUrl = "$BASE_BACKEND_URL/resolve?title=${URLEncoder.encode(cleanTitle, "UTF-8")}$yParam$sParam$eParam$rParam"
+            val endpointUrl = "$BASE_BACKEND_URL/resolve?title=${URLEncoder.encode(cleanTitle, "UTF-8")}" +
+                "&category=${URLEncoder.encode(category, "UTF-8")}$yParam$sParam$eParam$rParam"
 
             val conn = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 5_000
-                readTimeout = 30_000
+                connectTimeout = 12_000
+                readTimeout = 15_000
                 setRequestProperty("Accept", "application/json")
             }
             try {
@@ -379,68 +473,131 @@ object DomainPlaybackResolver {
                 val bodyStream = if (code in 200..299) conn.inputStream else conn.errorStream
                 val body = bodyStream?.bufferedReader()?.use { it.readText() }.orEmpty()
                 if (code !in 200..299) {
-                    return@withContext BackendStreamsResponse(errorCode = "BACKEND_HTTP_$code")
+                    return@withContext PlaybackResolverBackendResponse(errorCode = "BACKEND_HTTP_$code")
                 }
                 if (body.isBlank()) {
-                    return@withContext BackendStreamsResponse(errorCode = "INVALID_RESPONSE")
+                    return@withContext PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
                 }
                 val obj = JSONObject(body)
                 val status = obj.optString("status").trim().uppercase()
-                val streams = parseCandidateArray(obj.optJSONArray("streams"), season, episode)
+                val streams = parseCandidateArray(
+                    obj.optJSONArray("streams")
+                        ?: obj.optJSONObject("data")?.optJSONArray("streams")
+                        ?: obj.optJSONArray("data"),
+                    season,
+                    episode,
+                )
                 if (status == "ERROR") {
-                    BackendStreamsResponse(errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" })
+                    PlaybackResolverBackendResponse(
+                        errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" },
+                    )
                 } else {
-                    BackendStreamsResponse(streams = streams)
+                    PlaybackResolverBackendResponse(candidates = streams)
                 }
             } finally {
                 conn.disconnect()
             }
         } catch (_: java.net.SocketTimeoutException) {
-            BackendStreamsResponse(errorCode = "PROVIDER_TIMEOUT")
+            PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
         } catch (_: java.io.IOException) {
-            BackendStreamsResponse(errorCode = "BACKEND_UNREACHABLE")
+            PlaybackResolverBackendResponse(errorCode = "BACKEND_UNREACHABLE")
         } catch (_: Exception) {
-            BackendStreamsResponse(errorCode = "INVALID_RESPONSE")
+            PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
         }
+    }
+
+    private fun canonicalTitle(value: String): String {
+        val withoutEpisodeSuffix = value.trim()
+            .replace(
+                Regex("\\s*[·•]\\s*S\\d{1,3}E\\d{1,3}(?:\\s*[·•]\\s*Эпизод\\s+\\d+)?$", RegexOption.IGNORE_CASE),
+                "",
+            )
+            .replace(Regex("\\s+S\\d{1,3}E\\d{1,3}$", RegexOption.IGNORE_CASE), "")
+        return normalizedTitle(withoutEpisodeSuffix)
     }
 
     private fun identityMatches(request: PlaybackRequest, candidate: StreamCandidate): Boolean {
         candidate.catalogMediaId?.trim()?.takeIf { it.isNotBlank() }?.let {
             if (it != request.mediaId.trim()) return false
         }
-        candidate.canonicalTitle?.trim()?.takeIf { it.isNotBlank() }?.let {
-            if (normalizedTitle(it) != normalizedTitle(request.title)) return false
+        val candidateTitles = listOfNotNull(
+            candidate.canonicalTitle?.trim()?.takeIf { it.isNotBlank() },
+            candidate.canonicalOriginalTitle?.trim()?.takeIf { it.isNotBlank() },
+        )
+        if (candidateTitles.isNotEmpty() && candidateTitles.none { canonicalTitle(it) == canonicalTitle(request.title) }) {
+            return false
         }
         request.year?.takeIf { it > 0 }?.let { expectedYear ->
             candidate.canonicalYear?.let { if (it != expectedYear) return false }
         }
         candidate.canonicalMediaType?.trim()?.lowercase()?.let { kind ->
             val expected = when (request.mediaType) {
-                ContentType.SERIES -> setOf("tv", "series", "serial")
+                ContentType.SERIES -> setOf("tv", "series", "serial", "tv_series", "limited_series")
                 ContentType.TV -> setOf("tv", "tv_channel", "channel")
-                ContentType.MOVIE -> setOf("movie", "movies", "film")
+                ContentType.MOVIE -> setOf("movie", "movies", "film", "films")
             }
-            if (kind !in expected) return false
+            if (kind.replace('-', '_') !in expected) return false
         }
         if (request.isSeries) {
             if (candidate.seasonNumber != request.seasonNumber || candidate.episodeNumber != request.episodeNumber) return false
         } else if (candidate.seasonNumber != null || candidate.episodeNumber != null) {
             return false
         }
+        if (request.isTrailer != candidate.isTrailer) return false
         return true
     }
 
-    suspend fun resolveStreams(
+    private fun usableCandidates(
+        request: PlaybackRequest,
+        candidates: List<StreamCandidate>,
+    ): List<StreamCandidate> = candidates
+        .filter(::isStructurallyValidCandidate)
+        .filter { identityMatches(request, it) }
+
+    /**
+     * Backend discovery is authoritative for a stable logical stream ID. Catalog
+     * candidates may contain an older signed locator for the same variant; do not
+     * let that stale URL remain ahead of the freshly discovered locator.
+     */
+    internal fun preferDiscoveredCandidates(
+        initial: List<StreamCandidate>,
+        discovered: List<StreamCandidate>,
+        request: PlaybackRequest,
+    ): List<StreamCandidate> {
+        if (initial.isEmpty()) return discovered
+        if (discovered.isEmpty()) return initial
+        val discoveredById = discovered
+            .filter { it.stableStreamId.isNotBlank() }
+            .groupBy { it.stableStreamId }
+        val retainedInitial = initial.filter { old ->
+            val sameIdFresh = discoveredById[old.stableStreamId].orEmpty()
+            sameIdFresh.none { fresh ->
+                fresh.toStreamOption().sameRequestedVariant(
+                    old.toStreamOption(),
+                    request.seasonNumber,
+                    request.episodeNumber,
+                )
+            }
+        }
+        return retainedInitial + discovered
+    }
+
+    /**
+     * Resolve identity first, and only ask the title route when that identity
+     * route yielded no usable candidates. This ordering is intentional: the
+     * title route is a bounded recovery path, not a second source of identity.
+     */
+    internal suspend fun resolveStreamsWithBackend(
         request: PlaybackRequest,
         initialCandidates: List<StreamCandidate> = emptyList(),
         forceRefresh: Boolean = false,
+        backend: PlaybackResolverBackend,
     ): PlaybackResolverResult = withContext(Dispatchers.IO) {
         try {
-            val localOnly = initialCandidates.firstOrNull()?.url?.startsWith("file://", ignoreCase = true) == true
+            val localOnly = initialCandidates.any { it.url.startsWith("file://", ignoreCase = true) }
             if (localOnly) {
-                val safeLocal = initialCandidates
-                    .filter(::isStructurallyValidCandidate)
-                    .filter { identityMatches(request, it) }
+                val safeLocal = usableCandidates(request, initialCandidates)
+                    .filter { it.url.startsWith("file://", ignoreCase = true) }
                 return@withContext if (safeLocal.isEmpty()) {
                     PlaybackResolverResult.NoSource("Локальный файл не соответствует запрошенной карточке")
                 } else {
@@ -448,37 +605,27 @@ object DomainPlaybackResolver {
                 }
             }
 
-            val fetched = coroutineScope {
-                val directJob = async {
-                    withTimeoutOrNull(25_000L) {
-                        queryBackendStreamEndpoint(
-                            request.mediaId,
-                            request.seasonNumber,
-                            request.episodeNumber,
-                            forceRefresh,
-                        )
-                    } ?: BackendStreamsResponse(errorCode = "PROVIDER_TIMEOUT")
-                }
-                val resolveJob = async {
-                    withTimeoutOrNull(25_000L) {
-                        queryBackendResolveEndpoint(
-                            request.title,
-                            request.year,
-                            request.seasonNumber,
-                            request.episodeNumber,
-                            forceRefresh,
-                        )
-                    } ?: BackendStreamsResponse(errorCode = "PROVIDER_TIMEOUT")
-                }
-                directJob.await() to resolveJob.await()
+            val initial = usableCandidates(request, initialCandidates)
+            val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
+                backend.resolveByIdentity(request, forceRefresh)
+            } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
+            val identityCandidates = usableCandidates(request, identityResponse.candidates)
+
+            val discoveredCandidates: List<StreamCandidate>
+            val errors = mutableListOf<String>()
+            identityResponse.errorCode?.let(errors::add)
+            if (identityCandidates.isNotEmpty()) {
+                // Do not query /resolve when the identity endpoint succeeded.
+                discoveredCandidates = identityCandidates
+            } else {
+                val titleResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
+                    backend.resolveByTitle(request, forceRefresh)
+                } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
+                discoveredCandidates = usableCandidates(request, titleResponse.candidates)
+                titleResponse.errorCode?.let(errors::add)
             }
 
-            val fetchedStreams = fetched.first.streams + fetched.second.streams
-            val errors = listOfNotNull(fetched.first.errorCode, fetched.second.errorCode)
-                .distinct()
-            val all = (initialCandidates + fetchedStreams)
-                .filter(::isStructurallyValidCandidate)
-                .filter { identityMatches(request, it) }
+            val all = preferDiscoveredCandidates(initial, discoveredCandidates, request)
             val deduplicated = StreamDeduplicator.deduplicate(all)
             val ranked = StreamRanker.rankCandidates(
                 deduplicated,
@@ -491,7 +638,7 @@ object DomainPlaybackResolver {
 
             if (ranked.isEmpty() && errors.isNotEmpty()) {
                 PlaybackResolverResult.Error(
-                    "Сервис источников временно недоступен (${errors.first()})"
+                    "Сервис источников временно недоступен (${errors.distinct().first()})"
                 )
             } else if (ranked.isEmpty()) {
                 PlaybackResolverResult.NoSource("Не найдено доступных потоков для воспроизведения")
@@ -499,41 +646,109 @@ object DomainPlaybackResolver {
                 PlaybackResolverResult.Success(ranked)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "resolveStreams failure: ${e.message}", e)
-            PlaybackResolverResult.Error(e.message ?: "Ошибка резолвера", e)
+            Log.e(TAG, "resolveStreams failure: ${e::class.java.simpleName}")
+            PlaybackResolverResult.Error("Ошибка резолвера", e)
         }
     }
 
+    suspend fun resolveStreams(
+        request: PlaybackRequest,
+        initialCandidates: List<StreamCandidate> = emptyList(),
+        forceRefresh: Boolean = false,
+    ): PlaybackResolverResult = resolveStreamsWithBackend(
+        request = request,
+        initialCandidates = initialCandidates,
+        forceRefresh = forceRefresh,
+        backend = httpBackend,
+    )
+
     private fun isStructurallyValidCandidate(candidate: StreamCandidate): Boolean =
         candidate.url.isNotBlank() && isStructurallyPlayableUrl(candidate.url)
+
+    internal fun matchesReloadIdentity(
+        previous: StreamCandidate,
+        refreshed: StreamCandidate,
+        request: PlaybackRequest,
+    ): Boolean {
+        if (!identityMatches(request, refreshed)) return false
+        val previousOption = previous.toStreamOption()
+        val refreshedOption = refreshed.toStreamOption()
+        if (!refreshedOption.sameRequestedVariant(
+                previousOption,
+                request.seasonNumber,
+                request.episodeNumber,
+            )
+        ) return false
+        if (refreshed.stableStreamId == previous.stableStreamId) return true
+        val previousLogical = previous.logicalSourceIdentity(
+            request.seasonNumber,
+            request.episodeNumber,
+        )
+        val refreshedLogical = refreshed.logicalSourceIdentity(
+            request.seasonNumber,
+            request.episodeNumber,
+        )
+        return previousLogical != null && previousLogical == refreshedLogical &&
+            identityMatches(request, refreshed)
+    }
 
     suspend fun reloadStreamCandidate(
         candidate: StreamCandidate,
         request: PlaybackRequest,
     ): StreamCandidate? = withContext(Dispatchers.IO) {
         try {
+            if (!candidate.reloadSupported && candidate.reloadData.isNullOrBlank()) return@withContext null
             val fresh = resolveStreams(request, forceRefresh = true)
             if (fresh is PlaybackResolverResult.Success) {
-                fresh.candidates.firstOrNull { freshCandidate ->
-                    freshCandidate.stableStreamId == candidate.stableStreamId &&
-                        freshCandidate.variantIdentity() == candidate.variantIdentity()
-                } ?: fresh.candidates.firstOrNull { freshCandidate ->
-                    val oldLogical = candidate.logicalSourceIdentity()
-                    val freshLogical = freshCandidate.logicalSourceIdentity()
-                    oldLogical != null && oldLogical == freshLogical &&
-                        freshCandidate.toStreamOption().sameRequestedVariant(
-                            candidate.toStreamOption(),
-                            request.seasonNumber,
-                            request.episodeNumber,
-                        ) &&
-                        identityMatches(request, freshCandidate)
+                val matching = fresh.candidates.firstOrNull {
+                    matchesReloadIdentity(candidate, it, request)
                 }
+                matching?.let { mergeReloadedCandidate(candidate, it) }
             } else {
                 null
             }
         } catch (e: Exception) {
-            Log.d(TAG, "reloadStreamCandidate failed: ${e.message}")
+            Log.d(TAG, "reloadStreamCandidate failed: ${e::class.java.simpleName}")
             null
         }
     }
+
+    private fun mergeReloadedCandidate(
+        previous: StreamCandidate,
+        refreshed: StreamCandidate,
+    ): StreamCandidate = refreshed.copy(
+        // The concrete URL may rotate, but the selected logical stream ID does
+        // not. This keeps UI selection and the problem memory coherent.
+        stableStreamId = previous.stableStreamId,
+        logicalSourceId = refreshed.logicalSourceId ?: previous.logicalSourceId,
+        providerItemId = refreshed.providerItemId ?: previous.providerItemId,
+        infoHash = refreshed.infoHash ?: previous.infoHash,
+        sourceTypeId = refreshed.sourceTypeId ?: previous.sourceTypeId,
+        contentTypeId = refreshed.contentTypeId ?: previous.contentTypeId,
+        userAgent = refreshed.userAgent ?: previous.userAgent,
+        headers = previous.headers + refreshed.headers,
+        subtitles = if (refreshed.subtitles.isNotEmpty()) refreshed.subtitles else previous.subtitles,
+        hasInternalSubtitles = refreshed.hasInternalSubtitles || previous.hasInternalSubtitles,
+        videoTrackIndex = refreshed.videoTrackIndex ?: previous.videoTrackIndex,
+        audioTrackIndex = refreshed.audioTrackIndex ?: previous.audioTrackIndex,
+        mimeType = refreshed.mimeType ?: previous.mimeType,
+        drmScheme = refreshed.drmScheme ?: previous.drmScheme,
+        drmLicenseUrl = refreshed.drmLicenseUrl ?: previous.drmLicenseUrl,
+        reloadSupported = refreshed.reloadSupported || previous.reloadSupported,
+        reloadData = refreshed.reloadData ?: previous.reloadData,
+        sourceId = refreshed.sourceId ?: previous.sourceId,
+        providerId = refreshed.providerId ?: previous.providerId,
+        providerContentId = refreshed.providerContentId ?: previous.providerContentId,
+        transportMetadata = previous.transportMetadata + refreshed.transportMetadata,
+        downloadUrl = refreshed.downloadUrl ?: previous.downloadUrl,
+        downloadHeaders = previous.downloadHeaders + refreshed.downloadHeaders,
+        skipIntervals = if (refreshed.skipIntervals.isNotEmpty()) refreshed.skipIntervals else previous.skipIntervals,
+        advertisement = refreshed.advertisement ?: previous.advertisement,
+        catalogMediaId = refreshed.catalogMediaId ?: previous.catalogMediaId,
+        canonicalTitle = refreshed.canonicalTitle ?: previous.canonicalTitle,
+        canonicalOriginalTitle = refreshed.canonicalOriginalTitle ?: previous.canonicalOriginalTitle,
+        canonicalYear = refreshed.canonicalYear ?: previous.canonicalYear,
+        canonicalMediaType = refreshed.canonicalMediaType ?: previous.canonicalMediaType,
+        isProblematic = false,
+    )
 }

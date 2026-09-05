@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import urllib.parse
+
 import json
 import unittest
 
@@ -31,6 +33,35 @@ class BackendStreamPipelineTests(unittest.TestCase):
         b = base + "&so=2"
         self.assertNotEqual(canonical_stream_locator(a), canonical_stream_locator(b))
 
+    def test_zona_v4_provider_aware_http_dedupe(self):
+        for source_type in (2, 28):
+            a = {
+                "source": "Zona",
+                "source_type_id": source_type,
+                "url": "https://a.example/signed/100/200/video.mp4?token=one",
+                "voice": "ru",
+                "quality": "1080p",
+            }
+            b = dict(a, url="https://b.example/other/100/200/video.mp4?token=two")
+            self.assertEqual(stream_variant_key(a), stream_variant_key(b))
+
+        filmix_a = {
+            "source": "Zona", "source_type_id": 3,
+            "url": "https://a.example/s/opaque-a/folder/video.mp4?x=1",
+            "voice": "ru", "quality": "1080p",
+        }
+        filmix_b = dict(filmix_a, url="https://b.example/s/opaque-b/folder/video.mp4?x=2")
+        self.assertEqual(stream_variant_key(filmix_a), stream_variant_key(filmix_b))
+
+    def test_unverified_http_source_type_keeps_exact_locator(self):
+        a = {
+            "source": "Zona", "source_type_id": 49,
+            "url": "https://cdn.example/video.mp4?token=one",
+            "voice": "ru", "quality": "1080p",
+        }
+        b = dict(a, url="https://cdn.example/video.mp4?token=two")
+        self.assertNotEqual(stream_variant_key(a), stream_variant_key(b))
+
     def test_voice_quality_are_variant_dimensions(self):
         url = "https://example.org/video.m3u8"
         a = {"source": "Zona API", "url": url, "voice": "A", "quality": "1080p"}
@@ -53,3 +84,36 @@ class BackendStreamPipelineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TrackerEnrichmentTests(unittest.TestCase):
+    def test_existing_provider_trackers_do_not_block_fallback_tracker_merge(self):
+        from torrent_resolver import enrich_magnet_with_trackers
+        base = (
+            "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+            "&dn=release&tr=udp%3A%2F%2Fprovider.example%3A80%2Fannounce"
+        )
+        enriched = enrich_magnet_with_trackers(
+            base,
+            [
+                "udp://provider.example:80/announce",
+                "https://fallback.example/announce",
+                "udp://second.example:1337/announce",
+            ],
+        )
+        pairs = urllib.parse.parse_qsl(urllib.parse.urlsplit(enriched).query, keep_blank_values=True)
+        trackers = [value for key, value in pairs if key == "tr"]
+        self.assertEqual(trackers.count("udp://provider.example:80/announce"), 1)
+        self.assertIn("https://fallback.example/announce", trackers)
+        self.assertIn("udp://second.example:1337/announce", trackers)
+        self.assertEqual(
+            next(value for key, value in pairs if key == "xt"),
+            "urn:btih:0123456789abcdef0123456789abcdef01234567",
+        )
+
+    def test_tracker_enrichment_is_idempotent(self):
+        from torrent_resolver import enrich_magnet_with_trackers
+        base = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+        trackers = ["https://fallback.example/announce", "udp://second.example:1337/announce"]
+        once = enrich_magnet_with_trackers(base, trackers)
+        twice = enrich_magnet_with_trackers(once, trackers)
+        self.assertEqual(once, twice)

@@ -166,9 +166,14 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     poster = d.get("poster_url") or ""
     if poster and poster.startswith("/") and not poster.startswith("http"):
         poster = f"https://image.tmdb.org/t/p/w500{poster}"
+    elif poster and "/t/p/original/" in poster:
+        poster = poster.replace("/t/p/original/", "/t/p/w500/")
+
     backdrop = d.get("backdrop_url") or poster
     if backdrop and backdrop.startswith("/") and not backdrop.startswith("http"):
         backdrop = f"https://image.tmdb.org/t/p/w780{backdrop}"
+    elif backdrop and "/t/p/original/" in backdrop:
+        backdrop = backdrop.replace("/t/p/original/", "/t/p/w780/")
     # Never expose the legacy playback_url directly. The historical catalog
     # contains synthetic magnets; a playable URL must survive stream validation.
     playback_url = ""
@@ -200,16 +205,18 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     else:
         duration_str = f"{duration} мин"
 
-    streams_list = _validated_row_streams(
-        d,
-        catalog_media_id=d.get("id"),
-        title=title,
-        original_title=original_title,
-        year=year,
-        media_type=media_type or ("tv" if ctype == "series" else "movie"),
-    )
-    if streams_list:
-        playback_url = streams_list[0]["url"]
+    streams_list = []
+    if not compact:
+        streams_list = _validated_row_streams(
+            d,
+            catalog_media_id=d.get("id"),
+            title=title,
+            original_title=original_title,
+            year=year,
+            media_type=media_type or ("tv" if ctype == "series" else "movie"),
+        )
+        if streams_list:
+            playback_url = streams_list[0]["url"]
 
     if compact:
         return {
@@ -280,6 +287,11 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
                 })
             elif isinstance(c, dict) and c.get("name"):
                 photo = c.get("photo_url") or c.get("photoUrl") or c.get("profile_path")
+                if photo and isinstance(photo, str):
+                    if photo.startswith("/") and not photo.startswith("http"):
+                        photo = f"https://image.tmdb.org/t/p/w185{photo}"
+                    elif "/t/p/original/" in photo or "/t/p/w342/" in photo or "/t/p/w500/" in photo:
+                        photo = photo.replace("/t/p/original/", "/t/p/w185/").replace("/t/p/w342/", "/t/p/w185/").replace("/t/p/w500/", "/t/p/w185/")
                 role = c.get("role") or c.get("character") or "Актёр"
                 cast_list.append({
                     "name": str(c.get("name", "")).strip(),
@@ -826,7 +838,7 @@ def _similar_items(
     if not target_genres:
         return []
     cur.execute(
-        f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND media_type=? ORDER BY {SCORE_SQL} DESC LIMIT 1200",
+        f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND media_type=? ORDER BY {SCORE_SQL} DESC LIMIT 150",
         (media_type,),
     )
     target_country = str(current.get("country") or "")

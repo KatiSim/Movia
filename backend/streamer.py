@@ -245,8 +245,21 @@ _TORRENT_STATUS_PRIORITY = {
     "waiting": 1,
     "paused": 1,
 }
-_TORRENT_STATUS_KEYS = ["gid", "status", "completedLength", "infoHash"]
+_TORRENT_STATUS_KEYS = ["gid", "status", "completedLength", "infoHash", "followedBy", "following"]
 _TORRENT_MEDIA_SUFFIXES = {".mp4", ".mkv", ".avi", ".ts", ".m4v", ".webm"}
+_TORRENT_PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
+
+def _touch_torrent_playback_lease(task_dir: Path) -> None:
+    """Mark an exact torrent cache entry as recently used by playback."""
+    try:
+        task_dir.mkdir(parents=True, exist_ok=True)
+        lease = task_dir / _TORRENT_PLAYBACK_LEASE_FILENAME
+        lease.touch(exist_ok=True)
+    except OSError:
+        # Lease failure must not turn an otherwise playable stream into a hard
+        # error; the pruner remains fail-closed on its own safety probes.
+        pass
+
 
 def _torrent_path_is_media(raw_path: Any) -> bool:
     try:
@@ -268,6 +281,25 @@ def _torrent_files_have_media(files: Any) -> Optional[bool]:
         except (TypeError, ValueError):
             continue
     return False
+
+
+def _torrent_file_by_index(
+    files: Any,
+    file_index: Optional[int],
+) -> Optional[Dict[str, Any]]:
+    """Return the exact playable torrent file addressed by a Lampa/TorrServer index."""
+    if file_index is None or not isinstance(files, list):
+        return None
+    wanted = str(file_index)
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("index")) != wanted:
+            continue
+        if _torrent_path_is_media(item.get("path")):
+            return item
+        return None
+    return None
 
 
 def _torrent_media_profile(gid: str, timeout: float = 3.0) -> Optional[bool]:
@@ -329,11 +361,20 @@ def _torrent_task_from_status(
     except (TypeError, ValueError):
         completed_length = 0
 
+    followed_by = [
+        str(value).strip()
+        for value in (raw_task.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    following = str(raw_task.get("following") or "").strip()
+
     return {
         "gid": gid,
         "status": status,
         "completedLength": completed_length,
         "infoHash": expected_info_hash,
+        "followedBy": followed_by,
+        "following": following,
     }
 
 
@@ -403,6 +444,81 @@ def _mapped_torrent_task(
     return task
 
 
+def _adopt_materialized_torrent_gid(
+    info_hash: str,
+    parent_gid: str,
+    child_gid: str,
+) -> str:
+    """Atomically move a logical torrent session from metadata parent to media child."""
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    child_gid = str(child_gid or "").strip()
+    parent_gid = str(parent_gid or "").strip()
+    if not child_gid:
+        return parent_gid
+    with _TORRENT_GIDS_LOCK:
+        _TORRENT_GIDS[normalized_info_hash] = child_gid
+        if info_hash != normalized_info_hash:
+            _TORRENT_GIDS.pop(info_hash, None)
+        if parent_gid in _TORRENT_OWNED_GIDS:
+            _TORRENT_OWNED_GIDS.add(child_gid)
+    return child_gid
+
+
+def _followed_torrent_media_gid(
+    info_hash: str,
+    parent_gid: str,
+) -> Optional[str]:
+    """Return aria2's materialized media child for a magnet metadata task.
+
+    ``aria2.addUri(magnet)`` with ``follow-torrent=mem`` first creates a
+    metadata task.  When metadata is ready aria2 exposes the real BitTorrent
+    download through ``followedBy``.  Removing/re-adding the parent before that
+    transition prevents materialization and leaves Media3 buffering forever.
+    """
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    parent_gid = str(parent_gid or "").strip()
+    if not parent_gid:
+        return None
+    try:
+        parent = aria2_rpc(
+            "aria2.tellStatus",
+            [parent_gid, _TORRENT_STATUS_KEYS],
+            timeout=1.5,
+        ) or {}
+    except Exception:
+        return None
+    if not isinstance(parent, dict):
+        return None
+
+    child_gids = [
+        str(value).strip()
+        for value in (parent.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    for child_gid in child_gids:
+        try:
+            child_status = aria2_rpc(
+                "aria2.tellStatus",
+                [child_gid, _TORRENT_STATUS_KEYS],
+                timeout=1.5,
+            ) or {}
+        except Exception:
+            continue
+        if not isinstance(child_status, dict):
+            continue
+        child_hash = _normalize_torrent_info_hash(child_status.get("infoHash"))
+        if child_hash and child_hash != normalized_info_hash:
+            continue
+        if _torrent_media_profile(child_gid, timeout=1.5) is not True:
+            continue
+        return _adopt_materialized_torrent_gid(
+            normalized_info_hash,
+            parent_gid,
+            child_gid,
+        )
+    return None
+
+
 def _force_remove_duplicate_torrent_tasks(
     candidates: List[Dict[str, Any]],
     canonical_gid: str,
@@ -417,6 +533,43 @@ def _force_remove_duplicate_torrent_tasks(
             _TORRENT_OWNED_GIDS.discard(gid)
         except Exception:
             pass
+
+
+def _magnet_tracker_option(magnet: str) -> str:
+    """Return a comma-separated aria2 bt-tracker option from magnet tr params."""
+    try:
+        query = urllib.parse.urlsplit(str(magnet or "")).query
+        trackers = []
+        seen = set()
+        for key, value in urllib.parse.parse_qsl(query, keep_blank_values=True):
+            if str(key or "").casefold() != "tr":
+                continue
+            tracker = str(value or "").strip()
+            if not tracker or tracker in seen:
+                continue
+            seen.add(tracker)
+            trackers.append(tracker)
+            if len(trackers) >= 32:
+                break
+        return ",".join(trackers)
+    except Exception:
+        return ""
+
+
+def _refresh_torrent_trackers(gid: str, magnet: str) -> None:
+    tracker_option = _magnet_tracker_option(magnet)
+    if not gid or not tracker_option:
+        return
+    try:
+        aria2_rpc(
+            "aria2.changeOption",
+            [str(gid), {"bt-tracker": tracker_option}],
+            timeout=1.5,
+        )
+    except Exception:
+        # Tracker refresh is additive resilience; failure must not invalidate
+        # an otherwise reusable task.
+        pass
 
 
 def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> str:
@@ -457,18 +610,37 @@ def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> st
             _TORRENT_GIDS[normalized_info_hash] = canonical_gid
             if info_hash != normalized_info_hash:
                 _TORRENT_GIDS.pop(info_hash, None)
+            _refresh_torrent_trackers(canonical_gid, magnet)
             return canonical_gid
 
-        # Do not bind playback to a metadata-only GID. Start a bounded fresh
-        # materialization attempt; the request loop can rediscover a media task
-        # that appeared concurrently without creating an unbounded queue.
-        gid = aria2_rpc("aria2.addUri", [[magnet], {
+        metadata_candidates = [
+            task for task in candidates.values()
+            if task.get("has_media_files") is False
+        ]
+        if metadata_candidates:
+            # A magnet metadata task is a valid *pending* logical session.
+            # Reuse it and let /stream adopt aria2's followedBy media child.
+            pending = min(metadata_candidates, key=_torrent_task_sort_key)
+            pending_gid = str(pending["gid"])
+            _TORRENT_GIDS[normalized_info_hash] = pending_gid
+            if info_hash != normalized_info_hash:
+                _TORRENT_GIDS.pop(info_hash, None)
+            _refresh_torrent_trackers(pending_gid, magnet)
+            return pending_gid
+
+        # No reusable or pending task exists. Start one bounded magnet metadata
+        # download; /stream will adopt its followedBy media child when ready.
+        add_options = {
             "dir": str(task_dir),
             "follow-torrent": "mem",
             "bt-prioritize-piece": "head=20M,tail=10M",
             "file-allocation": "none",
             "seed-time": "0",
-        }], timeout=4.0)
+        }
+        tracker_option = _magnet_tracker_option(magnet)
+        if tracker_option:
+            add_options["bt-tracker"] = tracker_option
+        gid = aria2_rpc("aria2.addUri", [[magnet], add_options], timeout=4.0)
         if not gid:
             raise RuntimeError("aria2.addUri returned no gid")
         gid = str(gid)
@@ -800,7 +972,13 @@ def find_completed_cached_video(
     task_dir: Path,
     season: Optional[int] = None,
     episode: Optional[int] = None,
+    file_index: Optional[int] = None,
 ) -> Optional[Path]:
+    # The cache path does not retain aria2/TorrServer file indexes. When the
+    # caller supplies one, re-read torrent metadata instead of guessing from
+    # the largest cached video.
+    if file_index is not None:
+        return None
     candidates: List[Path] = []
     try:
         for path in task_dir.rglob("*"):
@@ -889,6 +1067,39 @@ def _voice_rank(value: Any) -> int:
     return 1
 
 
+def _stream_local_ready_video(stream: Dict[str, Any]) -> bool:
+    """Return true only when this exact P2P variant already has a complete local video.
+
+    Local readiness is runtime health/startup evidence, not a transport preference.
+    Direct streams are unaffected; a cold torrent still competes on the ordinary
+    health/latency/peer criteria.
+    """
+    url = str(stream.get("url") or "").strip()
+    transport = str(stream.get("transport") or "").strip().casefold()
+    if not (url.casefold().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
+        return False
+    info_hash = str(stream.get("info_hash") or stream.get("infoHash") or "").strip().lower()
+    if not info_hash:
+        match = re.search(r"(?:^|[?&])xt=urn:btih:([^&\s]+)", url, re.IGNORECASE)
+        info_hash = match.group(1).lower() if match else ""
+    if not info_hash:
+        return False
+    season = _stream_part_number(stream, "season")
+    episode = _stream_part_number(stream, "episode")
+    task_dir = DIR / "torrent_cache" / info_hash
+    if not task_dir.exists():
+        return False
+    try:
+        return find_completed_cached_video(
+            task_dir,
+            season=season,
+            episode=episode,
+            file_index=_stream_part_number(stream, "file_index"),
+        ) is not None
+    except Exception:
+        return False
+
+
 def _playback_stream_sort_key(
     stream: Dict[str, Any],
     *,
@@ -906,10 +1117,16 @@ def _playback_stream_sort_key(
         seeders = max(0, int(stream.get("seeders") or 0))
     except (TypeError, ValueError):
         seeders = 0
+    raw_startup_latency = stream.get("startup_latency_ms")
     try:
-        startup_latency = max(0.0, float(stream.get("startup_latency_ms") or 0.0))
+        startup_latency = (
+            max(0.0, float(raw_startup_latency))
+            if raw_startup_latency is not None and str(raw_startup_latency).strip() != ""
+            else float("inf")
+        )
     except (TypeError, ValueError):
-        startup_latency = 0.0
+        startup_latency = float("inf")
+    local_ready = _stream_local_ready_video(stream)
     try:
         health = float(stream.get("health_score"))
     except (TypeError, ValueError):
@@ -919,8 +1136,10 @@ def _playback_stream_sort_key(
     url = str(stream.get("url") or "").strip().casefold()
     is_p2p = transport in {"torrent", "p2p", "torrent_p2p", "magnet"} or url.startswith("magnet:")
 
-    # Torrent playback is the primary path when seeded; direct HTTP is preserved as compatible fallback.
-    transport_rank = 0 if (is_p2p and seeders > 0) else (1 if not is_p2p else 2)
+    # Transport type is not a provider preference. A healthy seeded swarm and a
+    # healthy direct/CDN stream compete on requested variant + measured health.
+    # Only an unseeded P2P candidate receives a transport-specific penalty.
+    p2p_no_peers_penalty = 1 if (is_p2p and seeders <= 0) else 0
 
     requested_voice_penalty = 0 if (
         normalized_requested_voice
@@ -935,22 +1154,38 @@ def _playback_stream_sort_key(
             or _quality_rank(quality) == _quality_rank(requested_quality)
         )
     ) else (1 if normalized_requested_quality not in {"", "auto", "any"} else 0)
+    if local_ready:
+        # Complete local bytes are direct evidence of both health and zero
+        # network startup for this exact logical episode/variant.
+        health = 1.0
+        startup_latency = 0.0
+
     return (
         1 if stream_id in failed_stream_ids or stream.get("problematic") else 0,
         1 if stream.get("unavailable_quality") else 0,
         requested_voice_penalty,
         requested_quality_penalty,
         _voice_rank(voice),
-        _quality_rank(quality),
-        transport_rank,
         round((1.0 - health) * 10.0, 3),
-        round(startup_latency / 1000.0, 3),
+        (1_000_000_000.0 if startup_latency == float("inf") else round(startup_latency / 1000.0, 3)),
+        p2p_no_peers_penalty,
         -seeders,
+        _quality_rank(quality),
         str(stream.get("source") or "").strip().casefold(),
         voice.casefold(),
         quality.casefold(),
         repr(stream_variant_key(stream)),
     )
+
+
+def _annotate_runtime_stream_health(stream: Dict[str, Any]) -> Dict[str, Any]:
+    """Attach ephemeral playback evidence without mutating catalog storage."""
+    candidate = dict(stream)
+    if _stream_local_ready_video(candidate):
+        candidate["local_ready"] = True
+        candidate["health_score"] = 1.0
+        candidate["startup_latency_ms"] = 0
+    return candidate
 
 
 def rank_playback_streams(
@@ -963,10 +1198,13 @@ def rank_playback_streams(
     """Rank strict matches, health and startup evidence while retaining variants.
 
     ``source`` is a stable tie-break only. Provider names and URL schemes never
-    decide the winner on their own.
+    decide the winner on their own. Runtime-local readiness is emitted as
+    ephemeral health/startup evidence so Android sees the same fact as the
+    backend sorter; catalog rows are not rewritten by this annotation.
     """
+    annotated = [_annotate_runtime_stream_health(stream) for stream in streams]
     return sorted(
-        streams,
+        annotated,
         key=lambda stream: _playback_stream_sort_key(
             stream,
             requested_voice=requested_voice,
@@ -984,6 +1222,65 @@ def _stream_part_number(stream: Dict[str, Any], key: str) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _torrent_declared_seasons(stream: Dict[str, Any]) -> Optional[set[int]]:
+    """Return explicitly advertised seasons from torrent metadata/name.
+
+    ``None`` means the torrent name does not make a reliable season claim, so it
+    remains eligible as a generic fallback. A non-empty set is authoritative
+    enough to reject a request outside that advertised coverage before aria2 is
+    started.
+    """
+    url = str(stream.get("url") or "").strip()
+    transport = str(stream.get("transport") or "").strip().casefold()
+    if not (url.lower().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
+        return None
+
+    texts = [
+        str(stream.get("name") or ""),
+        str(stream.get("title") or ""),
+        str(stream.get("release_name") or stream.get("releaseName") or ""),
+    ]
+    if url.lower().startswith("magnet:"):
+        try:
+            parsed = urllib.parse.urlsplit(url)
+            dn = urllib.parse.parse_qs(parsed.query).get("dn", [])
+            texts.extend(str(value) for value in dn)
+        except Exception:
+            pass
+    text = " ".join(value for value in texts if value).strip()
+    if not text:
+        return None
+
+    seasons: set[int] = set()
+    declared = False
+
+    # Common release forms: [S01-04], S01-S04, S05, S05E06.
+    for match in re.finditer(r"(?i)\bS0*(\d{1,2})\s*[-–—]\s*S?0*(\d{1,2})(?!\d)", text):
+        declared = True
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= end <= 99:
+            seasons.update(range(start, end + 1))
+    for match in re.finditer(r"(?i)\bS0*(\d{1,2})(?!\d)", text):
+        declared = True
+        value = int(match.group(1))
+        if 0 < value <= 99:
+            seasons.add(value)
+
+    # Russian release labels occasionally use "Сезоны 1-4" / "Сезон 5".
+    for match in re.finditer(r"(?i)\bсезон(?:ы|а|ов)?\s*0*(\d{1,2})\s*[-–—]\s*0*(\d{1,2})(?!\d)", text):
+        declared = True
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= end <= 99:
+            seasons.update(range(start, end + 1))
+    for match in re.finditer(r"(?i)\bсезон\s*0*(\d{1,2})(?!\d)", text):
+        declared = True
+        value = int(match.group(1))
+        if 0 < value <= 99:
+            seasons.add(value)
+
+    return seasons if declared and seasons else None
 
 
 def filter_streams_for_episode(
@@ -1010,6 +1307,10 @@ def filter_streams_for_episode(
             continue
         if episode is not None and stream_episode is not None and stream_episode != int(episode):
             continue
+        if season is not None and stream_season is None and stream_episode is None:
+            declared_seasons = _torrent_declared_seasons(stream)
+            if declared_seasons is not None and int(season) not in declared_seasons:
+                continue
         compatible.append(stream)
         if stream_season is None and stream_episode is None:
             generic.append(stream)
@@ -1321,7 +1622,8 @@ def resolve_on_demand_streams(
 
         # Independent provider branches run together; the union is required to
         # expose all real voice/quality variants.
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="movia-resolve") as pool:
+        pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="movia-resolve")
+        try:
             torrent_future = pool.submit(
                 _resolve_torrent_provider,
                 clean_title, year, clean_category, season, episode,
@@ -1344,15 +1646,18 @@ def resolve_on_demand_streams(
                 force_refresh,
             )
             try:
-                torrent_streams = torrent_future.result()
+                direct_streams = balancer_future.result(timeout=4.0)
             except Exception as exc:
-                print(f"Torrent resolve error: {exc}")
-                torrent_streams = []
-            try:
-                direct_streams = balancer_future.result()
-            except Exception as exc:
-                print(f"[DEBUG] Balancer query error: {exc}")
+                print(f"[DEBUG] Balancer query error or timeout: {exc}")
                 direct_streams = []
+            try:
+                torrent_timeout = 0.5 if direct_streams else 3.5
+                torrent_streams = torrent_future.result(timeout=torrent_timeout)
+            except Exception as exc:
+                print(f"Torrent resolve error or timeout: {exc}")
+                torrent_streams = []
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
 
         candidates = []
         for candidate in list(direct_streams or []) + list(torrent_streams or []):
@@ -1739,8 +2044,8 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             season,
                             episode,
                         )
-                        streams_list = filter_streams_for_episode(
-                            stored_streams, season, episode
+                        streams_list = rank_playback_streams(
+                            filter_streams_for_episode(stored_streams, season, episode)
                         )
                         refresh_requested = params.get("refresh", ["0"])[0].lower() in {"1", "true", "yes"}
                         persisted_needs_refresh = catalog_streams_need_refresh(
@@ -1752,9 +2057,14 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             for s in streams_list
                         )
                         persisted_out_of_scope = bool(stored_streams) and not streams_list
+                        has_direct_playable = any(
+                            str(s.get("url") or "").strip().lower().startswith(("http://", "https://"))
+                            for s in streams_list
+                        )
                         should_resolve = bool(
                             refresh_requested
                             or not streams_list
+                            or not has_direct_playable
                             or persisted_needs_refresh
                             or persisted_needs_variant_resolve
                             or persisted_out_of_scope
@@ -1794,6 +2104,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                                     resolution_status = "RESULTS"
 
                         if streams_list:
+                            streams_list = rank_playback_streams(streams_list)
                             resolution_status = "RESULTS"
                         elif resolution_status != "ERROR":
                             resolution_status = "NO_RESULTS"
@@ -1826,7 +2137,8 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
 
         if parsed.path == "/resolve":
             title = params.get("title", [""])[0]
-            year = int(params.get("year", ["2024"])[0] or 2024)
+            year_param = params.get("year", ["0"])[0]
+            year = int(year_param) if year_param and year_param.isdigit() else 0
             category = params.get("category", ["movies"])[0]
             tmdb_id = int(params.get("tmdb_id", ["0"])[0] or 0)
             season_raw = params.get("season", [None])[0]
@@ -1923,6 +2235,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 task_dir = torrent_cache_dir / info_hash
                 try:
                     task_dir.mkdir(parents=True, exist_ok=True)
+                    _touch_torrent_playback_lease(task_dir)
                 except OSError as exc:
                     print(f"[DEBUG] Torrent cache storage error: {exc}")
                     status_code = 507 if getattr(exc, "errno", None) == 28 else 503
@@ -1939,8 +2252,17 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 gid = None
                 requested_season_raw = params.get("season", [None])[0]
                 requested_episode_raw = params.get("episode", [None])[0]
+                requested_file_index_raw = params.get(
+                    "file_index",
+                    params.get("fileIndex", [None]),
+                )[0]
                 requested_season = int(requested_season_raw) if str(requested_season_raw or "").isdigit() else None
                 requested_episode = int(requested_episode_raw) if str(requested_episode_raw or "").isdigit() else None
+                requested_file_index = (
+                    int(requested_file_index_raw)
+                    if str(requested_file_index_raw or "").isdigit()
+                    else None
+                )
                 # A fully allocated requested episode is authoritative even when a stale
                 # .aria2 control file remains in this task directory. Sparse placeholders
                 # are deliberately rejected by find_completed_cached_video().
@@ -1948,6 +2270,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     task_dir,
                     season=requested_season,
                     episode=requested_episode,
+                    file_index=requested_file_index,
                 )
 
                 if completed_cached_video is not None:
@@ -1964,40 +2287,57 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 target_file_path = completed_cached_video
                 file_total_length = 0
                 file_selected = completed_cached_video is not None
-                metadata_refreshes = 0
                 episode_selection_failed = False
+                file_index_selection_failed = False
 
                 for loop_i in range(60):
-                    # Check aria2 getFiles to auto-select target episode if multi-file
+                    # Check aria2 getFiles to auto-select target episode if multi-file.
+                    # A magnet initially exposes only a metadata task. Do not remove
+                    # it: aria2 later links the materialized torrent through followedBy.
                     if gid and not file_selected:
                         try:
                             torrent_files = aria2_rpc("aria2.getFiles", [gid], timeout=5.0) or []
                             if _torrent_files_have_media(torrent_files) is False:
-                                if metadata_refreshes < 2:
-                                    metadata_refreshes += 1
-                                    stale_gid = gid
-                                    # Remove only a metadata task owned by this process. Shared
-                                    # tasks rediscovered after restart remain protected by
-                                    # release_torrent_gid's ownership check.
-                                    release_torrent_gid(info_hash, stale_gid, remove_task=True)
-                                    try:
-                                        gid = get_or_create_torrent_gid(
-                                            info_hash,
-                                            sanitized_magnet,
-                                            task_dir,
-                                        )
+                                materialized_gid = _followed_torrent_media_gid(info_hash, gid)
+                                if materialized_gid:
+                                    if materialized_gid != gid:
                                         print(
-                                            f"[DEBUG] Metadata-only GID {stale_gid}; "
-                                            f"rediscovered GID {gid} (attempt {metadata_refreshes}/2)"
+                                            f"[DEBUG] Torrent metadata GID {gid} -> "
+                                            f"media GID {materialized_gid}"
                                         )
-                                    except Exception as refresh_error:
-                                        gid = None
-                                        print(f"[DEBUG] Media task rediscovery error: {refresh_error}")
+                                    gid = materialized_gid
                                     target_file_path = None
                                     file_selected = False
-                                    time.sleep(0.2)
                                     continue
-                            if len(torrent_files) > 1:
+                                # Metadata is still in flight. Reuse this task instead
+                                # of spawning another magnet and give aria2 time to emit
+                                # followedBy before the next bounded poll.
+                                time.sleep(0.25)
+                                continue
+                            if requested_file_index is not None:
+                                selected_file = _torrent_file_by_index(
+                                    torrent_files,
+                                    requested_file_index,
+                                )
+                                if selected_file is None:
+                                    file_index_selection_failed = True
+                                    print(
+                                        f"[DEBUG] Requested torrent file index "
+                                        f"{requested_file_index} is absent or not a video"
+                                    )
+                                else:
+                                    best_idx = str(selected_file.get("index"))
+                                    target_file_path = Path(
+                                        str(selected_file.get("path") or "")
+                                    )
+                                    if len(torrent_files) > 1:
+                                        aria2_rpc(
+                                            "aria2.changeOption",
+                                            [gid, {"select-file": best_idx}],
+                                            timeout=2.0,
+                                        )
+                                    file_selected = True
+                            elif len(torrent_files) > 1:
                                 # Target the exact requested episode. A season pack
                                 # without an SxxEyy match is not a playable answer:
                                 # selecting its largest file would play the wrong
@@ -2045,13 +2385,17 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     # Only expose a file after actual bytes exist. For season packs,
                     # wait specifically for the requested episode rather than the
                     # first zero-length placeholder created by aria2.
-                    if episode_selection_failed:
+                    if file_index_selection_failed or episode_selection_failed:
                         break
 
                     if target_file_path is not None:
                         if (
-                            (requested_season is None or requested_episode is None or
-                             episode_path_matches(target_file_path, requested_season, requested_episode))
+                            (
+                                requested_file_index is not None
+                                or requested_season is None
+                                or requested_episode is None
+                                or episode_path_matches(target_file_path, requested_season, requested_episode)
+                            )
                             and has_playable_container_head(target_file_path)
                         ):
                             file_path = target_file_path
@@ -2077,6 +2421,19 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     # Do not silently switch to a different torrent here. The Android
                     # client already owns ordered mirror failover and preserves voice/quality intent.
                     time.sleep(0.5)
+
+                if file_index_selection_failed:
+                    release_torrent_gid(info_hash, gid, remove_task=True)
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps({
+                            "error": "requested_file_index_not_found",
+                            "file_index": requested_file_index,
+                        }, ensure_ascii=False).encode("utf-8"))
+                    return
 
                 if episode_selection_failed:
                     release_torrent_gid(info_hash, gid, remove_task=True)
@@ -2145,6 +2502,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                         print(f"[DEBUG] ffmpeg remux error: {e}")
 
                 try:
+                    _touch_torrent_playback_lease(task_dir)
                     # Determine true total length of video file from aria2 metadata
                     total_file_len = file_path.stat().st_size
                     try:

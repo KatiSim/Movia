@@ -801,12 +801,16 @@ def sync_once(pages: int = DEFAULT_SYNC_PAGES) -> Dict[str, Any]:
 
         try:
             import catalog_api
-            invalidate_home_cache = getattr(catalog_api, "invalidate_home_cache", None)
-            if callable(invalidate_home_cache):
-                invalidate_home_cache()
+            # Keep /api/home off the user-facing cold path. The sync worker
+            # already runs in the background, so rebuild the 15-minute home
+            # snapshot here after catalog changes instead of invalidating it
+            # and making the next Android request pay the rebuild cost.
+            warm_home_cache = getattr(catalog_api, "get_home_payload", None)
+            if callable(warm_home_cache):
+                warm_home_cache(force_refresh=True)
         except Exception as exc:
             feed_errors.append(
-                f"cache invalidation: {type(exc).__name__}: {exc}"
+                f"cache refresh: {type(exc).__name__}: {exc}"
             )
 
         finished_at = _now()
