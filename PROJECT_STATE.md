@@ -1,95 +1,115 @@
 # Movia project state
 
-This file is an evidence summary for the current phone baseline. It deliberately
-does not turn unavailable checks into PASS.
+This file records the verified phone/project baseline. Claims marked PASS are based on checks executed on the current device/source state; unresolved UI scope is kept separate from playback/runtime verification.
 
 ## Current version
 
-- versionName: 0.9.23
-- versionCode: 293
-- package: app.movia.android
-- device: 24069PC21G
-- installed package: verified by Jarvis 2.0; APK path is present in release/
+- package: `app.movia.android`
+- versionName: `0.9.32`
+- versionCode: `302`
+- canonical source root: `/storage/emulated/0/Movia`
+- Android working source: `/data/data/com.termux/files/home/projects/movia`
+- backend working source: `/data/data/com.termux/files/home/projects/media-parser`
+- MCP working source: `/data/data/com.termux/files/home/termux-mcp`
+- code baseline commit: `37b7f0524f0dc7990d21e4262302e186ed942ce4`
 
 ## Android
 
-Status: source synchronized from
-/data/data/com.termux/files/home/projects/movia into android/. The source
-contains the current Compose UI, catalog/search, Media3 playback, tests, Room
-schema and native agent runtime. The current APK is
-release/Movia-0.9.23-code293.apk. A fresh Gradle build was not claimed during
-this synchronization.
+Status: PASS for the audited build gate.
+
+The current source contains the Compose UI, catalog/search stack, Room state, native agent runtime, and AndroidX Media3/ExoPlayer playback. HLS and DASH are explicit Media3 dependencies. The verified command set completed successfully:
+
+- `testDebugUnitTest`
+- `compileDebugKotlin`
+- `assembleDebug`
+
+The resulting debug APK was installed in-place and the installed package remained `0.9.32` / code `302`.
+
+Generated APK/build outputs are verification artifacts only and are excluded from Git.
 
 ## Backend
 
-Status: source synchronized from
-/data/data/com.termux/files/home/projects/media-parser into backend/. DB files,
-runtime caches, logs and .env were excluded. The observed runit service
-movia-media-parser is running streamer.py. The parser HTTP endpoint on
-127.0.0.1:5001 was not reachable during verification.
+Status: PASS for the audited runtime and selected test suite.
+
+- service: `movia-media-parser`
+- active health endpoint: `http://127.0.0.1:8888/health`
+- observed health result: HTTP 200
+- legacy endpoint `127.0.0.1:5001`: retired/unreachable
+- selected playback/catalog/backend suite: 71/71 PASS after contract-alignment fixes
+- `movia-cache-pruner`: running during audit
+- `movia-stream-enricher`: down during audit; not required for the verified direct-HLS path
+
+Runtime databases, caches, logs, backups and `.env` are excluded from Git.
 
 ## Catalog
 
-- row count: 50491 rows in movies
-- schema version: 2, from catalog_meta.schema_version
-- current SSOT: /data/data/com.termux/files/home/projects/media-parser/catalog.db
-- current SSOT sidecars: catalog.db-wal and catalog.db-shm in the same directory
-- canonical repository copy: schema, migration notes, recovery scripts and
-  checksums/manifest only; the live DB is not duplicated here
+- runtime SSOT: `/data/data/com.termux/files/home/projects/media-parser/catalog.db`
+- rows in `movies`: 65,337 at audit time
+- schema version: 4
+- catalog revision: 6578
+- normalization version: 1
+- policy: runtime SSOT remains outside Git; source/schema/migration logic is versioned
 
 ## Playback
 
-Media3 player source, stream resolution and P2P helpers are present. Playback
-was not declared fully verified in this baseline. Known evidence remains a risk
-of media-identity mismatch after episode selection and stream timeouts even
-when stream candidates exist. See docs/FINAL_RELEASE_0_9_23_OR_NEXT.md and the
-playback decision records.
+Status: PASS for the explicitly tested movie/HLS path; this is not a universal provider/title claim.
 
-## Search
+Verified on the installed application:
 
-Android and backend search/discovery source is present, including Russian
-normalization/search code and backend search service. End-to-end live search
-was not claimed because the parser endpoint was unavailable during this check.
+1. A real catalog title (`Сплит`) resolved to a concrete Collaps HLS candidate.
+2. Media3 reached `READY`.
+3. `isPlaying=true` was observed.
+4. Playback position advanced across observations.
+5. The player was paused.
+6. Voice selection was changed to another concrete candidate/track.
+7. The requested voice became the active voice and the native agent operation completed while the player remained paused.
 
-## Agent
+The paused-selection completion policy was fixed during the audit: paused track/stream changes no longer require fabricated timeline movement, while actively playing changes retain the stricter READY + playing + position-movement evidence gate.
 
-- native Android agent source: present
-- native agent schema version: 2
-- Termux MCP source: present under agent/mcp/
-- native Movia MCP tools registered by current source: 29
-- MCP process: observed running on local port 8940
-- MCP HTTP GET /health: returned 404; this is not the MCP POST protocol check
-- full MCP handshake/tool inventory: not claimed as PASS in this baseline
+## MCP / agent
 
-## Services
+- native Android agent schema version: 2
+- Termux MCP source: synchronized into `agent/mcp/`
+- TypeScript package: 5.9.3
+- direct TypeScript typecheck: PASS (`node node_modules/typescript/bin/tsc -p tsconfig.json`)
+- direct TypeScript build: PASS (`node node_modules/typescript/bin/tsc -p tsconfig.build.json`)
+- note: the `npm run` wrapper did not resolve `tsc` in its PATH on this Termux environment, but the installed compiler itself executed both configurations successfully
 
-Definitions are stored under agent/services/:
+## Repository policy
 
-- movia-media-parser
-- movia-stream-enricher
-- movia-stream-enricher-log
-- movia-cache-pruner
+Git contains reproducible source, tests, ADRs, scripts and baseline metadata. It excludes:
 
-The first service was observed running. The other service definitions are
-captured for restore; their current health was not converted to PASS. The MCP
-process is managed separately by agent/mcp/start.sh.
+- Android/Gradle build products and APKs
+- live catalog databases and sidecars
+- stream/torrent caches
+- backend backups and runtime state
+- logs and diagnostics
+- `.bak-*`, `.trashed-*`, `.orig` and scratch projects
+- MCP `node_modules`/`dist`
+- secrets, tokens, keys and `.env`
 
-## Known issues
+## Remaining active UI specification
 
-- Parser health endpoint 127.0.0.1:5001 was unavailable at verification time.
-- Playback media identity mismatch remains an open risk.
-- Playback can time out even when stream candidates exist.
-- Full end-to-end playback and MCP protocol acceptance are not complete.
-- Live catalog DB is large and WAL-backed; it is external to Git history.
-- Existing runtime state and secrets require private Termux configuration.
+The separate UI specification is stored at `docs/TZ_UI_PLAYBACK_LAYOUT_2026-09-03.md`.
+
+Source inspection shows partial implementation already exists:
+
+- the home hero card body opens Details and its central Play surface invokes playback;
+- Details already contains conditional Cast and Director sections;
+- the Details top app bar uses `WindowInsets.statusBars`.
+
+However the full specification is **not marked PASS** because the current source inspection does not establish all requirements, notably the explicit extra 12.dp top clearance and the complete Crew/technical-details block, and the full UI acceptance matrix has not been re-run on-device in this audit.
 
 ## Last verified baseline
 
-- source: /data/data/com.termux/files/home/projects/movia
-- backend: /data/data/com.termux/files/home/projects/media-parser
-- agent/MCP: /data/data/com.termux/files/home/termux-mcp
-- reference: /data/data/com.termux/files/home/projects/zona-reference-20260829-223618
-- canonical root: /storage/emulated/0/Movia
-- date: 2026-08-30
-- Git branch at synchronization: main
-- status: current checkpoint; not stable/final/production-ready
+- date: 2026-09-05
+- branch: `main`
+- code baseline commit: `37b7f0524f0dc7990d21e4262302e186ed942ce4`
+- Android build: PASS
+- selected backend suite: PASS (71/71)
+- backend runtime health: PASS on port 8888
+- basic real HLS playback: PASS
+- paused voice switch: PASS after fix
+- MCP direct TypeScript typecheck/build: PASS
+- full provider/title/series coverage: not claimed
+- separate UI specification: partially implemented, acceptance pending
