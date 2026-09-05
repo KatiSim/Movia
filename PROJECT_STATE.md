@@ -113,3 +113,9 @@ However the full specification is **not marked PASS** because the current source
 - MCP direct TypeScript typecheck/build: PASS
 - full provider/title/series coverage: not claimed
 - separate UI specification: partially implemented, acceptance pending
+
+## Post-push local cleanup
+
+After `main` was confirmed on GitHub at `e183f264ceea7047218b15ef0ad600e772ebd82c`, regenerable local artifacts were cleaned. Android `app/build`, backend `.tmp_native_probe`, and backend `stream_cache` contents were removed. The backend torrent-cache was pruned through its own policy-aware pruner rather than force-deleted. Four legacy schema-2 catalog backups were reduced to one newest verified compressed recovery point (~151 MiB); the live schema-4 `catalog.db` was left intact.
+
+Post-cleanup verification: `movia-media-parser` remained healthy on port 8888 and a fresh real HLS playback request again reached Media3 `READY`, played with advancing position, and paused normally.
