@@ -404,6 +404,94 @@ class PlaybackRankingAndFallbackTests(unittest.TestCase):
 class CacheQuotaAndLRUPrunerTests(unittest.TestCase):
     """Tests for cache pruner LRU eviction and quota budgeting."""
 
+    def test_transient_cache_defaults_are_online_only_bounded(self):
+        self.assertEqual(cache_pruner.MAX_CACHE_BYTES, 512 * 1024 * 1024)
+        self.assertEqual(cache_pruner.MAX_ENTRY_AGE_SECONDS, 10 * 60)
+        self.assertEqual(cache_pruner.PLAYBACK_LEASE_SECONDS, 2 * 60)
+
+    def test_paused_aria2_task_does_not_protect_cache_entry(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "torrent_cache"
+            entry = cache_dir / "pausedhash"
+            entry.mkdir(parents=True)
+            video = entry / "video.mkv"
+            video.write_bytes(b"x")
+
+            def fake_rpc(method, params):
+                if method == "aria2.tellActive":
+                    return []
+                if method == "aria2.tellWaiting":
+                    return [{
+                        "gid": "paused-gid",
+                        "status": "paused",
+                        "dir": str(entry),
+                        "files": [{"path": str(video)}],
+                    }]
+                raise AssertionError(method)
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "_rpc", side_effect=fake_rpc):
+                self.assertEqual(cache_pruner._aria2_protected_entries(), set())
+
+    def test_expired_unleased_active_aria2_task_is_removed_as_orphan(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "torrent_cache"
+            entry = cache_dir / "orphanhash"
+            entry.mkdir(parents=True)
+            video = entry / "video.mkv"
+            video.write_bytes(b"x")
+            calls = []
+
+            def fake_rpc(method, params):
+                calls.append(method)
+                if method == "aria2.tellActive":
+                    return [{
+                        "gid": "orphan-gid",
+                        "status": "active",
+                        "dir": str(entry),
+                        "files": [{"path": str(video)}],
+                    }]
+                if method == "aria2.tellWaiting":
+                    return []
+                if method == "aria2.forceRemove":
+                    return "OK"
+                raise AssertionError(method)
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "_rpc", side_effect=fake_rpc):
+                protected = cache_pruner._cleanup_orphaned_aria2_tasks(set())
+            self.assertEqual(protected, set())
+            self.assertIn("aria2.forceRemove", calls)
+
+    def test_recent_playback_lease_keeps_active_aria2_task_protected(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "torrent_cache"
+            entry = cache_dir / "leased-active"
+            entry.mkdir(parents=True)
+            video = entry / "video.mkv"
+            video.write_bytes(b"x")
+            removed = []
+
+            def fake_rpc(method, params):
+                if method == "aria2.tellActive":
+                    return [{
+                        "gid": "active-gid",
+                        "status": "active",
+                        "dir": str(entry),
+                        "files": [{"path": str(video)}],
+                    }]
+                if method == "aria2.tellWaiting":
+                    return []
+                if method in {"aria2.forceRemove", "aria2.remove"}:
+                    removed.append(method); return "OK"
+                raise AssertionError(method)
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "_rpc", side_effect=fake_rpc):
+                protected = cache_pruner._cleanup_orphaned_aria2_tasks({entry})
+            self.assertEqual(protected, {entry})
+            self.assertEqual(removed, [])
+
     def test_lru_prunes_oldest_when_quota_exceeded(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             cache_dir = Path(tmpdir) / "torrent_cache"

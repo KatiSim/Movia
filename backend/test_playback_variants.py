@@ -1,6 +1,9 @@
 import json
 import threading
+import tempfile
+import sqlite3
 import time
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
@@ -149,6 +152,111 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         # Provider fanout concurrency is the invariant under test. Ordering is
         # delegated to health/reliability ranking; transport is not privileged.
         self.assertEqual(len(result), 2)
+
+    def test_stream_cache_key_is_stable_across_global_catalog_revision(self):
+        key = self.streamer._stream_cache_key(
+            "375", "леон", 1994, "movies", None, None
+        )
+        self.assertEqual(key, "v6_375_леон_1994_movies_sNone_eNone")
+        self.assertNotIn("_r", key)
+
+    def test_recent_stale_direct_survives_old_revision_and_rejects_expired_signed_url(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            db = Path(tmpdir) / "streams_cache.db"
+            suffix = self.streamer._stream_cache_suffix(
+                "375", "леон", 1994, "movies", None, None
+            )
+            now = int(time.time())
+            with patch.object(self.streamer, "CACHE_DB_PATH", db):
+                self.streamer.init_cache_db()
+                con = sqlite3.connect(str(db))
+                con.execute(
+                    "INSERT INTO streams_cache(cache_key,streams_json,expires_at,updated_at) VALUES(?,?,?,?)",
+                    (
+                        "v5_r8234" + suffix,
+                        json.dumps([{
+                            "source": "Collaps",
+                            "url": "https://cdn.example.test/master.m3u8",
+                            "voice": "Дубляж",
+                            "quality": "1080p",
+                        }]),
+                        now - 100,
+                        now - 1200,
+                    ),
+                )
+                con.execute(
+                    "INSERT INTO streams_cache(cache_key,streams_json,expires_at,updated_at) VALUES(?,?,?,?)",
+                    (
+                        "v5_r8235" + suffix,
+                        json.dumps([{
+                            "source": "Collaps",
+                            "url": f"https://cdn.example.test/master.m3u8?t={now - 1}",
+                            "voice": "Original",
+                            "quality": "1080p",
+                        }]),
+                        now - 1,
+                        now - 60,
+                    ),
+                )
+                con.commit(); con.close()
+                stale = self.streamer.get_recent_stale_direct_streams(suffix)
+            self.assertEqual(len(stale), 1)
+            self.assertEqual(stale[0]["voice"], "Дубляж")
+
+    def test_stale_direct_fast_path_does_not_wait_for_providers(self):
+        stale_direct = [{
+            "source": "Collaps",
+            "url": "https://media.example.test/last-good.m3u8",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }]
+        fake_thread = unittest.mock.MagicMock()
+        with patch.object(self.streamer, "get_cached_streams", return_value=None), \
+                patch.object(self.streamer, "get_recent_stale_direct_streams", return_value=stale_direct), \
+                patch.object(self.streamer, "_resolve_balancer_provider") as balancer, \
+                patch.object(self.streamer, "_resolve_torrent_provider") as torrent, \
+                patch.object(self.streamer.threading, "Thread", return_value=fake_thread) as thread_ctor:
+            with self.streamer._STREAM_REVALIDATION_LOCK:
+                self.streamer._STREAM_REVALIDATION_INFLIGHT.clear()
+            result = self.streamer.resolve_on_demand_streams(
+                "Example", year=2024, category="movies", force_refresh=True
+            )
+        self.assertEqual(result[0]["url"], "https://media.example.test/last-good.m3u8")
+        balancer.assert_not_called()
+        torrent.assert_not_called()
+        self.assertTrue(any(
+            call.kwargs.get("name", "").startswith("movia-stream-revalidate-")
+            for call in thread_ctor.call_args_list
+        ))
+        with self.streamer._STREAM_REVALIDATION_LOCK:
+            self.streamer._STREAM_REVALIDATION_INFLIGHT.clear()
+
+    def test_provider_outage_uses_recent_direct_metadata_as_fallback(self):
+        stale_direct = [{
+            "source": "Collaps",
+            "url": "https://media.example.test/stale-but-recent.m3u8",
+            "voice": "Дубляж",
+            "quality": "1080p",
+        }]
+        torrent = [{
+            "source": "Rutor",
+            "url": "magnet:?xt=urn:btih:" + "b" * 40,
+            "voice": "Не указано",
+            "quality": "1080p",
+            "seeders": 100,
+        }]
+        with patch.object(self.streamer, "get_cached_streams", return_value=None), \
+                patch.object(self.streamer, "get_recent_stale_direct_streams", return_value=stale_direct), \
+                patch.object(self.streamer, "set_cached_streams"), \
+                patch.object(self.streamer, "_resolve_balancer_provider", return_value=[]), \
+                patch.object(self.streamer, "_resolve_torrent_provider", return_value=torrent):
+            result = self.streamer.resolve_on_demand_streams(
+                "Example", year=2024, category="movies", force_refresh=True,
+                _allow_stale_fast_path=False,
+            )
+        urls = {item["url"] for item in result}
+        self.assertIn("https://media.example.test/stale-but-recent.m3u8", urls)
+        self.assertIn("magnet:?xt=urn:btih:" + "b" * 40, urls)
 
     def test_zona_contract_merges_same_locator_variants(self):
         import balancer_integration
@@ -377,19 +485,37 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         self.assertTrue(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, expired_direct, now=2_000_000_000))
         self.assertFalse(streamer.catalog_streams_need_refresh({}, [{"source": "Rutor", "url": "magnet:?xt=urn:btih:" + "a" * 40}], now=10_000_000))
 
-    def test_persisted_torrent_candidate_does_not_force_provider_resolve(self):
+    def test_persisted_torrent_candidate_forces_bounded_online_refresh(self):
         import streamer
         magnet = [{
             "stream_id": "torrent-ready",
             "transport": "torrent",
             "url": "magnet:?xt=urn:btih:" + "a" * 40,
         }]
-        self.assertFalse(streamer.catalog_streams_need_provider_resolve(
+        self.assertTrue(streamer.catalog_streams_need_provider_resolve(
             magnet,
             refresh_requested=False,
             persisted_needs_refresh=False,
             persisted_needs_variant_resolve=False,
             persisted_out_of_scope=False,
+        ))
+        self.assertTrue(streamer.catalog_streams_force_live_refresh(
+            magnet, refresh_requested=False
+        ))
+        direct = [{
+            "stream_id": "direct-ready",
+            "transport": "hls",
+            "url": "https://cdn.example.test/master.m3u8",
+        }]
+        self.assertFalse(streamer.catalog_streams_need_provider_resolve(
+            direct,
+            refresh_requested=False,
+            persisted_needs_refresh=False,
+            persisted_needs_variant_resolve=False,
+            persisted_out_of_scope=False,
+        ))
+        self.assertFalse(streamer.catalog_streams_force_live_refresh(
+            direct, refresh_requested=False
         ))
         self.assertTrue(streamer.catalog_streams_need_provider_resolve(
             [],

@@ -645,7 +645,11 @@ object DomainPlaybackResolver {
             }
 
             val initial = usableCandidates(request, initialCandidates)
-            if (initial.isNotEmpty() && !forceRefresh) {
+            val initialHasDirectNetwork = initial.any { candidate ->
+                val url = candidate.url.trim().lowercase()
+                url.startsWith("http://") || url.startsWith("https://")
+            }
+            if (initial.isNotEmpty() && initialHasDirectNetwork && !forceRefresh) {
                 val rankedInitial = StreamRanker.rankCandidates(
                     StreamDeduplicator.deduplicate(initial),
                     context = StreamRankingContext(

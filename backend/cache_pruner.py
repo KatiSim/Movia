@@ -17,21 +17,21 @@ ARIA2_RPC_TOKEN = "token:movia_secret"
 def _configured_cache_limit_bytes() -> int:
     """Return the disposable playback-cache quota in bytes.
 
-    The default is intentionally bounded to 8 GiB and can be adjusted for a
-    device with MOVIA_TORRENT_CACHE_MAX_GB without changing the code.
+    The default is a transient 512 MiB playback budget and can be adjusted for
+    a development device with MOVIA_TORRENT_CACHE_MAX_GB without changing code.
     """
     try:
-        quota_gb = float(os.environ.get("MOVIA_TORRENT_CACHE_MAX_GB", "8"))
+        quota_gb = float(os.environ.get("MOVIA_TORRENT_CACHE_MAX_GB", "0.5"))
     except (TypeError, ValueError):
-        quota_gb = 8.0
+        quota_gb = 0.5
     if quota_gb <= 0:
-        quota_gb = 8.0
+        quota_gb = 0.5
     return int(quota_gb * 1024 * 1024 * 1024)
 
 
 MAX_CACHE_BYTES = _configured_cache_limit_bytes()
-MAX_ENTRY_AGE_SECONDS = 48 * 60 * 60
-PLAYBACK_LEASE_SECONDS = 2 * 60 * 60
+MAX_ENTRY_AGE_SECONDS = 10 * 60
+PLAYBACK_LEASE_SECONDS = 2 * 60
 PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
 RPC_TIMEOUT_SECONDS = 2.5
 
@@ -86,6 +86,10 @@ def _aria2_protected_entries() -> set[Path]:
         for task in tasks:
             if not isinstance(task, dict):
                 continue
+            # A paused task is idle. Keep it only while a short playback lease
+            # or an actually open file descriptor proves active streaming.
+            if str(task.get("status") or "").strip().lower() == "paused":
+                continue
             candidates = [task.get("dir")]
             candidates.extend(
                 item.get("path")
@@ -101,6 +105,65 @@ def _aria2_protected_entries() -> set[Path]:
                     if top is not None:
                         protected.add(top)
     return protected
+
+
+def _cleanup_orphaned_aria2_tasks(playback_protected: set[Path]) -> set[Path]:
+    """Remove Movia aria2 tasks that no longer belong to active playback.
+
+    A recent playback lease protects cold startup before Media3 opens the file;
+    an open fd protects long-running playback after the lease expires. Anything
+    else inside torrent_cache is background/orphan work and must not continue.
+    Tasks that cannot be removed remain protected so their directories are not
+    deleted underneath aria2.
+    """
+    keys = ["gid", "status", "dir", "files"]
+    still_protected: set[Path] = set()
+    for method, params in (
+        ("aria2.tellActive", [keys]),
+        ("aria2.tellWaiting", [0, 1000, keys]),
+    ):
+        tasks = _rpc(method, params)
+        if not isinstance(tasks, list):
+            raise RuntimeError(f"{method} returned non-list")
+        for task in tasks:
+            if not isinstance(task, dict):
+                continue
+            candidates = [task.get("dir")]
+            candidates.extend(
+                item.get("path")
+                for item in (task.get("files") or [])
+                if isinstance(item, dict)
+            )
+            top = None
+            for raw_path in candidates:
+                if not raw_path:
+                    continue
+                candidate = Path(os.path.realpath(str(raw_path)))
+                if not _within(candidate, CACHE_DIR):
+                    continue
+                top = _top_level(candidate)
+                if top is not None:
+                    break
+            if top is None:
+                continue
+            if top in playback_protected:
+                still_protected.add(top)
+                continue
+            gid = str(task.get("gid") or "").strip()
+            if not gid:
+                still_protected.add(top)
+                continue
+            removed = False
+            for rpc_method in ("aria2.forceRemove", "aria2.remove"):
+                try:
+                    _rpc(rpc_method, [gid])
+                    removed = True
+                    break
+                except Exception:
+                    continue
+            if not removed:
+                still_protected.add(top)
+    return still_protected
 
 
 def _open_file_protected_entries() -> set[Path]:
@@ -205,6 +268,48 @@ def _scan_entries() -> list[tuple[Path, int, float]]:
     return result
 
 
+def _remove_aria2_tasks_for_entry(entry: Path) -> None:
+    keys = ["gid", "status", "dir", "files"]
+    gids: set[str] = set()
+    for method, params in (
+        ("aria2.tellActive", [keys]),
+        ("aria2.tellWaiting", [0, 1000, keys]),
+    ):
+        try:
+            tasks = _rpc(method, params) or []
+        except Exception:
+            continue
+        for task in tasks if isinstance(tasks, list) else []:
+            if not isinstance(task, dict):
+                continue
+            candidates = [task.get("dir")]
+            candidates.extend(
+                item.get("path")
+                for item in (task.get("files") or [])
+                if isinstance(item, dict)
+            )
+            for raw_path in candidates:
+                if not raw_path:
+                    continue
+                candidate = Path(os.path.realpath(str(raw_path)))
+                if not _within(candidate, CACHE_DIR):
+                    continue
+                if _top_level(candidate) != entry:
+                    continue
+                gid = str(task.get("gid") or "").strip()
+                if gid:
+                    gids.add(gid)
+                break
+    for gid in gids:
+        try:
+            _rpc("aria2.forceRemove", [gid])
+        except Exception:
+            try:
+                _rpc("aria2.remove", [gid])
+            except Exception:
+                pass
+
+
 def _remove_entry(entry: Path) -> None:
     if entry.parent != CACHE_DIR:
         raise RuntimeError(f"refusing non-cache entry: {entry}")
@@ -223,9 +328,10 @@ def main() -> int:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     try:
-        aria2_protected = _aria2_protected_entries()
         open_protected = _open_file_protected_entries()
         lease_protected = _lease_protected_entries()
+        playback_protected = open_protected | lease_protected
+        aria2_protected = _cleanup_orphaned_aria2_tasks(playback_protected)
     except Exception as exc:
         print(json.dumps({
             "cache": str(CACHE_DIR),
@@ -235,7 +341,7 @@ def main() -> int:
         }, ensure_ascii=False), flush=True)
         return 0
 
-    protected = aria2_protected | open_protected | lease_protected
+    protected = aria2_protected | playback_protected
     entries = _scan_entries()
     before_bytes = sum(size for _, size, _ in entries)
     now = time.time()
@@ -261,6 +367,7 @@ def main() -> int:
         if entry in protected or not entry.exists():
             continue
         try:
+            _remove_aria2_tasks_for_entry(entry)
             _remove_entry(entry)
             removed.append({
                 "path": entry.name,

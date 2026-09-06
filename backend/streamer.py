@@ -170,8 +170,14 @@ _STREAM_MEMORY_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
 _STREAM_MEMORY_CACHE_LOCK = threading.Lock()
 _RESOLVE_LOCKS: Dict[str, threading.Lock] = {}
 _RESOLVE_LOCKS_LOCK = threading.Lock()
-STREAM_CACHE_VERSION = "v5"
+_STREAM_REVALIDATION_INFLIGHT: set[str] = set()
+_STREAM_REVALIDATION_LOCK = threading.Lock()
+STREAM_CACHE_VERSION = "v6"
 STREAM_MEMORY_CACHE_MAX_SECONDS = 30.0
+# Playback metadata may survive a transient provider outage. This is URL/track
+# metadata only; Movia never stores the full media as an offline library.
+STREAM_STALE_DIRECT_MAX_SECONDS = 6 * 60 * 60
+STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS = 30
 
 DIRECT_STREAM_REFRESH_SECONDS = 5 * 60
 
@@ -225,6 +231,34 @@ def _direct_stream_expiry_seconds(stream: Dict[str, Any]) -> Optional[float]:
     return None
 
 
+def catalog_streams_have_direct_http(streams: List[Dict[str, Any]]) -> bool:
+    return any(
+        isinstance(stream, dict)
+        and str(stream.get("url") or stream.get("playback_url") or "")
+        .strip()
+        .lower()
+        .startswith(("http://", "https://"))
+        for stream in streams
+    )
+
+
+def catalog_streams_force_live_refresh(
+    streams: List[Dict[str, Any]],
+    *,
+    refresh_requested: bool,
+) -> bool:
+    """Bypass the resolver cache when a card only has persisted P2P.
+
+    Persisted magnets are a valid fallback, but they must not hide a direct
+    provider that became available later. A direct candidate can keep the fast
+    path; a torrent-only snapshot gets one bounded live provider refresh.
+    """
+    return bool(
+        refresh_requested
+        or (bool(streams) and not catalog_streams_have_direct_http(streams))
+    )
+
+
 def catalog_streams_need_provider_resolve(
     streams: List[Dict[str, Any]],
     *,
@@ -233,16 +267,16 @@ def catalog_streams_need_provider_resolve(
     persisted_needs_variant_resolve: bool,
     persisted_out_of_scope: bool,
 ) -> bool:
-    """Return True only when catalog candidates genuinely need rediscovery.
+    """Return True when catalog candidates need bounded online rediscovery.
 
-    A valid persisted magnet is already a playback candidate: forcing provider
-    discovery merely because it is not HTTP burns the startup budget before
-    the bounded P2P gateway can run. Runtime candidate failure still triggers
-    the existing refresh/failover path.
+    A persisted magnet remains a fallback, not a freshness signal. Torrent-only
+    rows are refreshed so newly available direct HLS/HTTP can replace them and
+    start inside the READY budget.
     """
     return bool(
         refresh_requested
         or not streams
+        or not catalog_streams_have_direct_http(streams)
         or persisted_needs_refresh
         or persisted_needs_variant_resolve
         or persisted_out_of_scope
@@ -265,14 +299,7 @@ def catalog_streams_need_refresh(
     if not streams:
         return True
 
-    has_direct = any(
-        isinstance(stream, dict)
-        and str(stream.get("url") or stream.get("playback_url") or "")
-        .strip()
-        .lower()
-        .startswith(("http://", "https://"))
-        for stream in streams
-    )
+    has_direct = catalog_streams_have_direct_http(streams)
     if not has_direct:
         return False
 
@@ -882,6 +909,79 @@ def get_cached_streams(cache_key: str) -> Optional[List[Dict[str, Any]]]:
     except Exception:
         pass
     return None
+
+def _stream_cache_suffix(
+    identity_key: str,
+    normalized_title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> str:
+    return (
+        f"_{identity_key}_{normalized_title}_{int(year or 0)}_{category}_"
+        f"s{season}_e{episode}"
+    )
+
+
+def _stream_cache_key(
+    identity_key: str,
+    normalized_title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> str:
+    # Do not include the global catalog revision. A metadata update for an
+    # unrelated title must not invalidate playback metadata for this content.
+    return STREAM_CACHE_VERSION + _stream_cache_suffix(
+        identity_key, normalized_title, year, category, season, episode
+    )
+
+
+def get_recent_stale_direct_streams(
+    cache_suffix: str,
+    *,
+    max_age_seconds: int = STREAM_STALE_DIRECT_MAX_SECONDS,
+) -> List[Dict[str, Any]]:
+    """Return recent direct URL metadata across old catalog revisions.
+
+    Expired cache TTL means "revalidate", not "destroy last-known-good". During
+    a provider outage, the most recent structurally valid direct URL can still
+    be attempted. Explicitly expired signed URLs are never returned.
+    """
+    now = int(time.time())
+    try:
+        conn = sqlite3.connect(str(CACHE_DB_PATH))
+        rows = conn.execute(
+            "SELECT cache_key, streams_json, updated_at FROM streams_cache "
+            "WHERE updated_at >= ? ORDER BY updated_at DESC LIMIT 256",
+            (now - max(1, int(max_age_seconds)),),
+        ).fetchall()
+        conn.close()
+    except Exception:
+        return []
+
+    for cache_key, raw_json, _updated_at in rows:
+        if not str(cache_key or "").endswith(cache_suffix):
+            continue
+        try:
+            cached = sanitize_streams(json.loads(raw_json), require_source=True)
+        except Exception:
+            continue
+        direct: List[Dict[str, Any]] = []
+        for stream in cached:
+            raw_url = str(stream.get("url") or stream.get("playback_url") or "").strip()
+            if not raw_url.lower().startswith(("http://", "https://")):
+                continue
+            expiry = _direct_stream_expiry_seconds(stream)
+            if expiry is not None and expiry <= now + STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS:
+                continue
+            direct.append(dict(stream))
+        if direct:
+            return direct
+    return []
+
 
 def set_cached_streams(
     cache_key: str,
@@ -1751,6 +1851,7 @@ def resolve_on_demand_streams(
     catalog_media_id: Any = None,
     media_type: Optional[str] = None,
     require_catalog_identity: bool = False,
+    _allow_stale_fast_path: bool = True,
 ) -> List[Dict[str, Any]]:
     clean_title = str(title or "").strip()
     clean_category = str(category or "movies").strip().lower()
@@ -1785,10 +1886,11 @@ def resolve_on_demand_streams(
         if catalog_identity else _requested_catalog_media_type(clean_category, season, media_type)
     )
     identity_key = str(canonical_id or "unbound")
-    catalog_revision = _current_catalog_revision()
-    cache_key = (
-        f"{STREAM_CACHE_VERSION}_r{catalog_revision}_{identity_key}_{normalized_title}_{year}_"
-        f"{clean_category}_s{season}_e{episode}"
+    cache_suffix = _stream_cache_suffix(
+        identity_key, normalized_title, canonical_year, clean_category, season, episode
+    )
+    cache_key = _stream_cache_key(
+        identity_key, normalized_title, canonical_year, clean_category, season, episode
     )
     if not force_refresh:
         cached = get_cached_streams(cache_key)
@@ -1804,6 +1906,65 @@ def resolve_on_demand_streams(
             if cached:
                 scoped = _scope_streams_to_catalog_card(cached, catalog_identity, season, episode)
                 return rank_playback_streams(filter_streams_for_episode(scoped, season, episode))
+
+        stale_direct_streams = get_recent_stale_direct_streams(cache_suffix)
+        if force_refresh and stale_direct_streams and _allow_stale_fast_path:
+            # True stale-while-revalidate: do not spend the user's READY budget
+            # waiting for a provider that may be degraded. Return last-known-good
+            # direct metadata immediately and refresh this exact content in one
+            # deduplicated background worker. Full media bytes are never cached here.
+            should_start_revalidation = False
+            with _STREAM_REVALIDATION_LOCK:
+                if cache_key not in _STREAM_REVALIDATION_INFLIGHT:
+                    _STREAM_REVALIDATION_INFLIGHT.add(cache_key)
+                    should_start_revalidation = True
+
+            if should_start_revalidation:
+                def revalidate_worker() -> None:
+                    try:
+                        refreshed = resolve_on_demand_streams(
+                            title=clean_title,
+                            year=canonical_year,
+                            category=clean_category,
+                            season=season,
+                            episode=episode,
+                            tmdb_id=tmdb_id,
+                            force_refresh=True,
+                            original_title=canonical_original_title,
+                            catalog_media_id=canonical_id or catalog_media_id,
+                            media_type=canonical_media_type,
+                            require_catalog_identity=require_catalog_identity,
+                            _allow_stale_fast_path=False,
+                        )
+                        if refreshed and (canonical_id or catalog_media_id) is not None:
+                            persist_resolved_streams_to_catalog(
+                                canonical_id or catalog_media_id, refreshed
+                            )
+                    except Exception as exc:
+                        print(
+                            f"[DEBUG] Background stream revalidation error: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                    finally:
+                        with _STREAM_REVALIDATION_LOCK:
+                            _STREAM_REVALIDATION_INFLIGHT.discard(cache_key)
+
+                threading.Thread(
+                    target=revalidate_worker,
+                    name=f"movia-stream-revalidate-{identity_key}",
+                    daemon=True,
+                ).start()
+
+            scoped_stale = _scope_streams_to_catalog_card(
+                stale_direct_streams, catalog_identity, season, episode
+            )
+            scoped_stale = filter_streams_for_episode(scoped_stale, season, episode)
+            if scoped_stale:
+                print(
+                    f"[INFO] Serving {len(scoped_stale)} stale direct stream(s) "
+                    f"immediately while revalidating {clean_title!r}"
+                )
+                return rank_playback_streams(scoped_stale)
 
         effective_tmdb_id = tmdb_id
         if effective_tmdb_id == 0 and catalog_identity:
@@ -1855,6 +2016,12 @@ def resolve_on_demand_streams(
             except Exception as exc:
                 print(f"[DEBUG] Balancer query error or timeout: {exc}")
                 direct_streams = []
+            if not direct_streams and stale_direct_streams:
+                direct_streams = [dict(stream) for stream in stale_direct_streams]
+                print(
+                    f"[INFO] Using {len(direct_streams)} stale direct stream(s) "
+                    f"while provider revalidation is unavailable for {clean_title!r}"
+                )
             try:
                 torrent_timeout = 0.5 if direct_streams else 3.5
                 torrent_streams = torrent_future.result(timeout=torrent_timeout)
@@ -2269,6 +2436,10 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             persisted_needs_variant_resolve=persisted_needs_variant_resolve,
                             persisted_out_of_scope=persisted_out_of_scope,
                         )
+                        force_live_refresh = catalog_streams_force_live_refresh(
+                            streams_list,
+                            refresh_requested=refresh_requested,
+                        )
                         resolution_status = "RESULTS" if streams_list else "NO_RESULTS"
                         resolution_error = None
                         if should_resolve:
@@ -2280,7 +2451,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                                     category=category,
                                     season=season,
                                     episode=episode,
-                                    force_refresh=refresh_requested,
+                                    force_refresh=force_live_refresh,
                                     original_title=movie_obj.get("original_title"),
                                     catalog_media_id=movie_obj.get("id"),
                                     media_type=card_identity["media_type"],
@@ -2956,6 +3127,36 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
         if send_body:
             self.wfile.write(b'{"error":"not_found"}')
 
+_CACHE_PRUNER_START_LOCK = threading.Lock()
+_CACHE_PRUNER_STARTED = False
+
+
+def start_background_cache_pruner(interval_seconds: float = 60.0) -> None:
+    """Continuously enforce transient P2P cache bounds off the request path."""
+    global _CACHE_PRUNER_STARTED
+    with _CACHE_PRUNER_START_LOCK:
+        if _CACHE_PRUNER_STARTED:
+            return
+        _CACHE_PRUNER_STARTED = True
+
+    interval = max(30.0, float(interval_seconds))
+
+    def worker() -> None:
+        while True:
+            try:
+                import cache_pruner
+                cache_pruner.main()
+            except Exception as exc:
+                print(f"[DEBUG] Torrent cache prune error: {type(exc).__name__}: {exc}")
+            time.sleep(interval)
+
+    threading.Thread(
+        target=worker,
+        name="movia-cache-pruner",
+        daemon=True,
+    ).start()
+
+
 def is_streamer_running() -> bool:
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{PORT}/health")
@@ -2966,6 +3167,7 @@ def is_streamer_running() -> bool:
 
 def run_server():
     live_catalog_sync.start_background_sync(interval_seconds=300)
+    start_background_cache_pruner(interval_seconds=60)
     try:
         print("⚡ Pre-warming catalog home cache...")
         catalog_api.get_home_payload(force_refresh=True)

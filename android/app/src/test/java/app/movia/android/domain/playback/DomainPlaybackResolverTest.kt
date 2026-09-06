@@ -409,6 +409,50 @@ class DomainPlaybackResolverTest {
     }
 
     @Test
+    fun torrentOnlyInitialCandidateQueriesFreshIdentityAndKeepsTorrentAsFallback() = runBlocking {
+        val calls = mutableListOf<String>()
+        val cachedTorrent = resolvedCandidate(
+            id = "cached-torrent",
+            url = "magnet:?xt=urn:btih:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            voice = "Не указано",
+        ).copy(transport = "torrent_p2p", seeders = 500)
+        val freshDirect = resolvedCandidate(
+            id = "fresh-direct",
+            url = "https://cdn.example/master.m3u8",
+            voice = "Дубляж",
+        ).copy(transport = "hls")
+        val backend = object : PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse(candidates = listOf(freshDirect)).also {
+                calls += "identity"
+            }
+
+            override suspend fun resolveByTitle(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse().also { calls += "title" }
+        }
+
+        val result = DomainPlaybackResolver.resolveStreamsWithBackend(
+            request = PlaybackRequest(
+                mediaId = "42",
+                title = "The Film",
+                year = 2025,
+                mediaType = ContentType.MOVIE,
+            ),
+            initialCandidates = listOf(cachedTorrent),
+            backend = backend,
+        ) as PlaybackResolverResult.Success
+
+        assertEquals(listOf("identity"), calls)
+        assertEquals(2, result.candidates.size)
+        assertEquals("fresh-direct", result.candidates.first().stableStreamId)
+        assertTrue(result.candidates.any { it.stableStreamId == "cached-torrent" })
+    }
+
+    @Test
     fun freshDiscoveredCandidateReplacesStaleInitialLocatorForSameVariant() = runBlocking {
         val request = PlaybackRequest(
             mediaId = "42",
