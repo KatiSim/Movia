@@ -211,18 +211,36 @@ class PieceReprioritizationAndPrebufferTests(unittest.TestCase):
         self.assertTrue(streamer._aria2_piece_is_complete("c0", 1))
         self.assertFalse(streamer._aria2_piece_is_complete("c0", 2))
 
-    def test_prioritize_and_wait_torrent_range_calls_rpc(self):
+    def test_prioritize_torrent_head_unpauses_and_sets_head_priority(self):
         rpc_calls = []
         def fake_rpc(method, params, timeout=2.0):
+            rpc_calls.append((method, params))
+            return "OK"
+
+        with patch.object(streamer, "aria2_rpc", side_effect=fake_rpc):
+            streamer._prioritize_torrent_head("gid-head", head_bytes=4 * 1024 * 1024)
+
+        methods = [call[0] for call in rpc_calls]
+        self.assertIn("aria2.unpause", methods)
+        self.assertIn("aria2.changeOption", methods)
+        change = next(params for method, params in rpc_calls if method == "aria2.changeOption")
+        self.assertIn("head=4194304", change[1]["bt-prioritize-piece"])
+
+    def test_prioritize_and_wait_torrent_range_calls_rpc(self):
+        rpc_calls = []
+        tell_status_calls = 0
+        def fake_rpc(method, params, timeout=2.0):
+            nonlocal tell_status_calls
             rpc_calls.append((method, params))
             if method == "aria2.changeOption":
                 return "OK"
             if method == "aria2.tellStatus":
+                tell_status_calls += 1
                 return {
                     "status": "active",
                     "pieceLength": str(1024 * 1024),
                     "numPieces": "10",
-                    "bitfield": "ff00",
+                    "bitfield": "0000" if tell_status_calls == 1 else "ff00",
                     "files": [{"index": "1", "path": "/path/video.mkv", "length": str(10 * 1024 * 1024)}],
                 }
             return {}
@@ -234,6 +252,7 @@ class PieceReprioritizationAndPrebufferTests(unittest.TestCase):
             self.assertTrue(ready)
             methods = [c[0] for c in rpc_calls]
             self.assertIn("aria2.tellStatus", methods)
+            self.assertIn("aria2.forcePause", methods)
 
 
 class TorrentGidDeduplicationTests(unittest.TestCase):

@@ -304,6 +304,9 @@ _TORRENT_GIDS: Dict[str, str] = {}
 # Only GIDs created by this streamer process may be automatically removed on request timeout.
 # Rediscovered aria2 tasks can be shared with later requests and must survive a client failure.
 _TORRENT_OWNED_GIDS: set[str] = set()
+# Fresh magnet GIDs are metadata parents until aria2 exposes followedBy.
+# Tracking them avoids the expensive/incorrect getFiles(metadata-parent) probe.
+_TORRENT_METADATA_GIDS: set[str] = set()
 _TORRENT_GIDS_LOCK = threading.Lock()
 _TORRENT_REUSABLE_STATUSES = {"active", "waiting", "paused"}
 _TORRENT_STATUS_PRIORITY = {
@@ -314,6 +317,10 @@ _TORRENT_STATUS_PRIORITY = {
 _TORRENT_STATUS_KEYS = ["gid", "status", "completedLength", "infoHash", "followedBy", "following"]
 _TORRENT_MEDIA_SUFFIXES = {".mp4", ".mkv", ".avi", ".ts", ".m4v", ".webm"}
 _TORRENT_PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
+TORRENT_COLD_START_SECONDS = 4.0
+TORRENT_METADATA_RPC_TIMEOUT_SECONDS = 0.75
+TORRENT_DISCOVERY_SLEEP_SECONDS = 0.15
+TORRENT_RANGE_WAIT_SECONDS = 3.5
 
 def _touch_torrent_playback_lease(task_dir: Path) -> None:
     """Mark an exact torrent cache entry as recently used by playback."""
@@ -466,7 +473,20 @@ def _discover_torrent_tasks(info_hash: str) -> Dict[str, Dict[str, Any]]:
             if task:
                 candidates[task["gid"]] = task
     for task in candidates.values():
-        task["has_media_files"] = _torrent_media_profile(task["gid"])
+        gid = str(task.get("gid") or "")
+        if task.get("followedBy") or gid in _TORRENT_METADATA_GIDS:
+            task["has_media_files"] = False
+            if gid:
+                _TORRENT_METADATA_GIDS.add(gid)
+        elif task.get("following"):
+            # aria2's materialized magnet child points back to its metadata parent.
+            # Do not spend startup budget probing its file list during discovery;
+            # /stream will fetch getFiles only for the chosen child.
+            task["has_media_files"] = True
+        else:
+            task["has_media_files"] = _torrent_media_profile(
+                gid, timeout=TORRENT_METADATA_RPC_TIMEOUT_SECONDS
+            )
     return candidates
 
 
@@ -485,12 +505,13 @@ def _torrent_task_sort_key(task: Dict[str, Any]) -> tuple[int, int, int, str]:
 def _mapped_torrent_task(
     info_hash: str,
     gid: str,
+    rpc_timeout: float = 1.5,
 ) -> Optional[Dict[str, Any]]:
     try:
         status = aria2_rpc(
             "aria2.tellStatus",
             [gid, _TORRENT_STATUS_KEYS],
-            timeout=1.5,
+            timeout=max(0.1, float(rpc_timeout)),
         ) or {}
     except Exception:
         return None
@@ -506,8 +527,18 @@ def _mapped_torrent_task(
         assume_info_hash=True,
     )
     if task is not None:
-        task["has_media_files"] = _torrent_media_profile(gid)
+        if task.get("followedBy") or gid in _TORRENT_METADATA_GIDS:
+            task["has_media_files"] = False
+            _TORRENT_METADATA_GIDS.add(gid)
+        elif task.get("following"):
+            task["has_media_files"] = True
+        else:
+            task["has_media_files"] = _torrent_media_profile(
+                gid,
+                timeout=max(0.1, float(rpc_timeout)),
+            )
     return task
+
 
 
 def _adopt_materialized_torrent_gid(
@@ -526,13 +557,78 @@ def _adopt_materialized_torrent_gid(
         if info_hash != normalized_info_hash:
             _TORRENT_GIDS.pop(info_hash, None)
         if parent_gid in _TORRENT_OWNED_GIDS:
+            _TORRENT_OWNED_GIDS.discard(parent_gid)
             _TORRENT_OWNED_GIDS.add(child_gid)
+        _TORRENT_METADATA_GIDS.add(parent_gid)
+        _TORRENT_METADATA_GIDS.discard(child_gid)
     return child_gid
+
+
+def _torrent_playback_files(
+    info_hash: str,
+    gid: str,
+    rpc_timeout: float = TORRENT_METADATA_RPC_TIMEOUT_SECONDS,
+) -> tuple[str, List[Dict[str, Any]], bool]:
+    """Resolve a logical magnet GID to playable files without probing metadata parents.
+
+    Returns ``(resolved_gid, files, metadata_pending)``. Fresh magnet tasks are
+    metadata parents, so the only valid cold path is tellStatus(parent) ->
+    followedBy -> tellStatus(child) -> getFiles(child).
+    """
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    gid = str(gid or "").strip()
+    if not gid:
+        return gid, [], False
+    timeout = max(0.1, float(rpc_timeout))
+    status = aria2_rpc(
+        "aria2.tellStatus",
+        [gid, _TORRENT_STATUS_KEYS],
+        timeout=timeout,
+    ) or {}
+    if not isinstance(status, dict):
+        return gid, [], False
+
+    followed_by = [
+        str(value).strip()
+        for value in (status.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    is_metadata_parent = gid in _TORRENT_METADATA_GIDS or bool(followed_by)
+    if is_metadata_parent:
+        _TORRENT_METADATA_GIDS.add(gid)
+        if not followed_by:
+            return gid, [], True
+        for child_gid in followed_by:
+            child_status = aria2_rpc(
+                "aria2.tellStatus",
+                [child_gid, _TORRENT_STATUS_KEYS],
+                timeout=timeout,
+            ) or {}
+            if not isinstance(child_status, dict):
+                continue
+            child_hash = _normalize_torrent_info_hash(child_status.get("infoHash"))
+            if child_hash and child_hash != normalized_info_hash:
+                continue
+            files = aria2_rpc("aria2.getFiles", [child_gid], timeout=timeout) or []
+            if _torrent_files_have_media(files) is not True:
+                continue
+            adopted = _adopt_materialized_torrent_gid(
+                normalized_info_hash, gid, child_gid
+            )
+            return adopted, files, False
+        return gid, [], True
+
+    # A materialized child (``following`` set) or a reusable direct torrent GID
+    # can be inspected normally. Metadata parents never reach this branch while
+    # they are owned/mapped by the current process.
+    files = aria2_rpc("aria2.getFiles", [gid], timeout=timeout) or []
+    return gid, files, False
 
 
 def _followed_torrent_media_gid(
     info_hash: str,
     parent_gid: str,
+    rpc_timeout: float = 1.5,
 ) -> Optional[str]:
     """Return aria2's materialized media child for a magnet metadata task.
 
@@ -549,7 +645,7 @@ def _followed_torrent_media_gid(
         parent = aria2_rpc(
             "aria2.tellStatus",
             [parent_gid, _TORRENT_STATUS_KEYS],
-            timeout=1.5,
+            timeout=max(0.1, float(rpc_timeout)),
         ) or {}
     except Exception:
         return None
@@ -566,7 +662,7 @@ def _followed_torrent_media_gid(
             child_status = aria2_rpc(
                 "aria2.tellStatus",
                 [child_gid, _TORRENT_STATUS_KEYS],
-                timeout=1.5,
+                timeout=max(0.1, float(rpc_timeout)),
             ) or {}
         except Exception:
             continue
@@ -575,7 +671,7 @@ def _followed_torrent_media_gid(
         child_hash = _normalize_torrent_info_hash(child_status.get("infoHash"))
         if child_hash and child_hash != normalized_info_hash:
             continue
-        if _torrent_media_profile(child_gid, timeout=1.5) is not True:
+        if _torrent_media_profile(child_gid, timeout=max(0.1, float(rpc_timeout))) is not True:
             continue
         return _adopt_materialized_torrent_gid(
             normalized_info_hash,
@@ -689,6 +785,7 @@ def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> st
             pending = min(metadata_candidates, key=_torrent_task_sort_key)
             pending_gid = str(pending["gid"])
             _TORRENT_GIDS[normalized_info_hash] = pending_gid
+            _TORRENT_METADATA_GIDS.add(pending_gid)
             if info_hash != normalized_info_hash:
                 _TORRENT_GIDS.pop(info_hash, None)
             _refresh_torrent_trackers(pending_gid, magnet)
@@ -712,6 +809,7 @@ def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> st
         gid = str(gid)
         _TORRENT_GIDS[normalized_info_hash] = gid
         _TORRENT_OWNED_GIDS.add(gid)
+        _TORRENT_METADATA_GIDS.add(gid)
         return gid
 
 def release_torrent_gid(info_hash: str, gid: Optional[str], remove_task: bool = False) -> None:
@@ -728,6 +826,7 @@ def release_torrent_gid(info_hash: str, gid: Optional[str], remove_task: bool = 
             pass
         finally:
             _TORRENT_OWNED_GIDS.discard(gid)
+            _TORRENT_METADATA_GIDS.discard(gid)
 
 
 USER_AGENTS = [
@@ -963,35 +1062,75 @@ def _torrent_range_ready(gid: Optional[str], file_path: Path, start: int, length
         return False
 
 
+def _resume_torrent_for_range(gid: Optional[str]) -> None:
+    if not gid:
+        return
+    try:
+        aria2_rpc("aria2.unpause", [gid], timeout=0.75)
+    except Exception:
+        # Active tasks reject unpause; that is already the desired state.
+        pass
+
+
+def _pause_torrent_after_range(gid: Optional[str]) -> None:
+    if not gid:
+        return
+    try:
+        aria2_rpc("aria2.forcePause", [gid], timeout=0.75)
+    except Exception:
+        # Completed/removed tasks cannot be paused and require no background work.
+        pass
+
+
+def _prioritize_torrent_head(gid: Optional[str], head_bytes: int = 8 * 1024 * 1024) -> None:
+    """Actively fetch the selected media head during the bounded cold-start window."""
+    if not gid:
+        return
+    _resume_torrent_for_range(gid)
+    try:
+        aria2_rpc(
+            "aria2.changeOption",
+            [gid, {"bt-prioritize-piece": f"head={max(1, int(head_bytes))},tail=8M"}],
+            timeout=0.75,
+        )
+    except Exception:
+        # Reprioritization is an optimization; the bounded polling loop remains authoritative.
+        pass
+
+
 def _prioritize_and_wait_torrent_range(
     gid: Optional[str],
     file_path: Path,
     start: int,
     length: int,
-    timeout_sec: float = 12.0,
+    timeout_sec: float = TORRENT_RANGE_WAIT_SECONDS,
 ) -> bool:
     if not gid:
         return True
     if _torrent_range_ready(gid, file_path, start, length):
         return True
-    # aria2 cannot prioritize an arbitrary piece directly. Expanding the selected
-    # file's head priority up to the requested byte makes short forward seeks fetch
-    # the missing pieces first while retaining the tail priority needed by MKV cues.
+    _resume_torrent_for_range(gid)
     try:
-        priority_head = max(32 * 1024 * 1024, int(start) + int(length) + 32 * 1024 * 1024)
-        aria2_rpc(
-            "aria2.changeOption",
-            [gid, {"bt-prioritize-piece": f"head={priority_head},tail=16M"}],
-            timeout=2.0,
-        )
-    except Exception:
-        pass
-    deadline = time.monotonic() + max(0.5, timeout_sec)
-    while time.monotonic() < deadline:
-        if _torrent_range_ready(gid, file_path, start, length):
-            return True
-        time.sleep(0.20)
-    return False
+        # aria2 cannot prioritize an arbitrary piece directly. Expanding the selected
+        # file's head priority up to the requested byte fetches a bounded forward
+        # window; the task is paused again as soon as the requested pieces are ready.
+        try:
+            priority_head = max(8 * 1024 * 1024, int(start) + int(length) + 8 * 1024 * 1024)
+            aria2_rpc(
+                "aria2.changeOption",
+                [gid, {"bt-prioritize-piece": f"head={priority_head},tail=8M"}],
+                timeout=0.75,
+            )
+        except Exception:
+            pass
+        deadline = time.monotonic() + max(0.25, timeout_sec)
+        while time.monotonic() < deadline:
+            if _torrent_range_ready(gid, file_path, start, length):
+                return True
+            time.sleep(0.15)
+        return False
+    finally:
+        _pause_torrent_after_range(gid)
 
 
 VIDEO_SUFFIXES = {".mp4", ".mkv", ".avi", ".ts", ".m4v", ".webm"}
@@ -2350,31 +2489,51 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 file_selected = completed_cached_video is not None
                 episode_selection_failed = False
                 file_index_selection_failed = False
+                head_priority_started = completed_cached_video is not None
 
-                for loop_i in range(60):
+                cold_start_deadline = time.monotonic() + TORRENT_COLD_START_SECONDS
+                for loop_i in range(64):
+                    if time.monotonic() >= cold_start_deadline:
+                        break
                     # Check aria2 getFiles to auto-select target episode if multi-file.
                     # A magnet initially exposes only a metadata task. Do not remove
                     # it: aria2 later links the materialized torrent through followedBy.
                     if gid and not file_selected:
                         try:
-                            torrent_files = aria2_rpc("aria2.getFiles", [gid], timeout=5.0) or []
-                            if _torrent_files_have_media(torrent_files) is False:
-                                materialized_gid = _followed_torrent_media_gid(info_hash, gid)
-                                if materialized_gid:
-                                    if materialized_gid != gid:
-                                        print(
-                                            f"[DEBUG] Torrent metadata GID {gid} -> "
-                                            f"media GID {materialized_gid}"
-                                        )
-                                    gid = materialized_gid
-                                    target_file_path = None
-                                    file_selected = False
-                                    continue
+                            remaining_cold = max(0.1, cold_start_deadline - time.monotonic())
+                            previous_gid = gid
+                            gid, torrent_files, metadata_pending = _torrent_playback_files(
+                                info_hash,
+                                gid,
+                                rpc_timeout=min(
+                                    TORRENT_METADATA_RPC_TIMEOUT_SECONDS,
+                                    max(0.1, remaining_cold / 3.0),
+                                ),
+                            )
+                            if gid != previous_gid:
+                                print(
+                                    f"[DEBUG] Torrent metadata GID {previous_gid} -> "
+                                    f"media GID {gid}"
+                                )
+                                target_file_path = None
+                                file_selected = False
+                                head_priority_started = False
+                            if metadata_pending:
                                 # Metadata is still in flight. Reuse this task instead
                                 # of spawning another magnet and give aria2 time to emit
                                 # followedBy before the next bounded poll.
-                                time.sleep(0.25)
+                                time.sleep(min(
+                                    TORRENT_DISCOVERY_SLEEP_SECONDS,
+                                    max(0.0, cold_start_deadline - time.monotonic()),
+                                ))
                                 continue
+                            if requested_file_index is None and len(torrent_files) == 1:
+                                only_file = torrent_files[0]
+                                only_path = str(only_file.get("path") or "")
+                                if _torrent_path_is_media(only_path):
+                                    target_file_path = Path(only_path)
+                                    file_selected = True
+
                             if requested_file_index is not None:
                                 selected_file = _torrent_file_by_index(
                                     torrent_files,
@@ -2450,6 +2609,9 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                         break
 
                     if target_file_path is not None:
+                        if gid and not head_priority_started:
+                            _prioritize_torrent_head(gid)
+                            head_priority_started = True
                         if (
                             (
                                 requested_file_index is not None
@@ -2481,7 +2643,13 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
 
                     # Do not silently switch to a different torrent here. The Android
                     # client already owns ordered mirror failover and preserves voice/quality intent.
-                    time.sleep(0.5)
+                    time.sleep(min(
+                        TORRENT_DISCOVERY_SLEEP_SECONDS,
+                        max(0.0, cold_start_deadline - time.monotonic()),
+                    ))
+
+                if gid:
+                    _pause_torrent_after_range(gid)
 
                 if file_index_selection_failed:
                     release_torrent_gid(info_hash, gid, remove_task=True)
@@ -2610,7 +2778,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     # so stat() cannot tell whether the requested bytes are downloaded.
                     # Consult aria2's piece bitfield before exposing a Range response.
                     probe_len = min(2 * 1024 * 1024, max(1, end - start + 1))
-                    if gid and not _prioritize_and_wait_torrent_range(gid, file_path, start, probe_len, timeout_sec=12.0):
+                    if gid and not _prioritize_and_wait_torrent_range(gid, file_path, start, probe_len, timeout_sec=TORRENT_RANGE_WAIT_SECONDS):
                         print(f"[DEBUG] Range waiting timeout: start={start} len={probe_len} file={file_path.name}")
                         self.send_response(503)
                         self.send_header("Retry-After", "1")
@@ -2632,7 +2800,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     # probe is gated here; each subsequent chunk is gated below.
                     if gid and content_length <= 16 * 1024 * 1024:
                         if not _prioritize_and_wait_torrent_range(
-                            gid, file_path, start, content_length, timeout_sec=30.0
+                            gid, file_path, start, content_length, timeout_sec=TORRENT_RANGE_WAIT_SECONDS
                         ):
                             print(
                                 f"[DEBUG] Range not ready before headers: "
@@ -2668,7 +2836,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             while remaining > 0:
                                 wanted = min(chunk_size, remaining)
                                 if gid and not _prioritize_and_wait_torrent_range(
-                                    gid, file_path, current_offset, wanted, timeout_sec=15.0
+                                    gid, file_path, current_offset, wanted, timeout_sec=TORRENT_RANGE_WAIT_SECONDS
                                 ):
                                     raise TimeoutError(
                                         "torrent_range_not_ready at byte=" +

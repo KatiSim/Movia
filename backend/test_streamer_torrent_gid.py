@@ -67,12 +67,14 @@ class TorrentGidTests(unittest.TestCase):
     def setUp(self):
         STREAMER._TORRENT_GIDS.clear()
         STREAMER._TORRENT_OWNED_GIDS.clear()
+        STREAMER._TORRENT_METADATA_GIDS.clear()
         self.temp_dir = tempfile.TemporaryDirectory()
         self.task_dir = Path(self.temp_dir.name)
 
     def tearDown(self):
         STREAMER._TORRENT_GIDS.clear()
         STREAMER._TORRENT_OWNED_GIDS.clear()
+        STREAMER._TORRENT_METADATA_GIDS.clear()
         self.temp_dir.cleanup()
 
     def call_helper(self, fake):
@@ -82,6 +84,74 @@ class TorrentGidTests(unittest.TestCase):
                 f"magnet:?xt=urn:btih:{INFO_HASH}",
                 self.task_dir,
             )
+
+    def test_cold_metadata_parent_uses_followed_by_before_get_files(self):
+        parent = "metadata-parent"
+        child = "media-child"
+        STREAMER._TORRENT_GIDS[INFO_HASH] = parent
+        STREAMER._TORRENT_OWNED_GIDS.add(parent)
+        STREAMER._TORRENT_METADATA_GIDS.add(parent)
+        fake = FakeAria2(
+            status_by_gid=[
+                {
+                    "gid": parent, "status": "complete",
+                    "completedLength": "0", "followedBy": [child],
+                },
+                {
+                    "gid": child, "status": "active",
+                    "completedLength": "1024", "infoHash": INFO_HASH,
+                    "following": parent,
+                },
+            ],
+            files_by_gid={
+                child: [{
+                    "index": "1", "path": str(self.task_dir / "movie.mkv"),
+                    "length": "1048576",
+                }],
+            },
+        )
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            resolved_gid, files, pending = STREAMER._torrent_playback_files(
+                INFO_HASH, parent, rpc_timeout=0.2
+            )
+
+        self.assertEqual(resolved_gid, child)
+        self.assertFalse(pending)
+        self.assertEqual(files[0]["index"], "1")
+        self.assertEqual(STREAMER._TORRENT_GIDS[INFO_HASH], child)
+        self.assertNotIn(parent, STREAMER._TORRENT_OWNED_GIDS)
+        self.assertIn(child, STREAMER._TORRENT_OWNED_GIDS)
+        self.assertEqual(
+            [call[0:2] for call in fake.calls],
+            [
+                ("aria2.tellStatus", [parent, STREAMER._TORRENT_STATUS_KEYS]),
+                ("aria2.tellStatus", [child, STREAMER._TORRENT_STATUS_KEYS]),
+                ("aria2.getFiles", [child]),
+            ],
+        )
+        self.assertFalse(any(
+            method == "aria2.getFiles" and params == [parent]
+            for method, params, _ in fake.calls
+        ))
+
+    def test_pending_metadata_parent_never_calls_get_files(self):
+        parent = "metadata-pending"
+        STREAMER._TORRENT_METADATA_GIDS.add(parent)
+        fake = FakeAria2(status_by_gid=[{
+            "gid": parent, "status": "active", "completedLength": "0",
+            "followedBy": [],
+        }])
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            resolved_gid, files, pending = STREAMER._torrent_playback_files(
+                INFO_HASH, parent, rpc_timeout=0.2
+            )
+
+        self.assertEqual(resolved_gid, parent)
+        self.assertEqual(files, [])
+        self.assertTrue(pending)
+        self.assertEqual([call[0] for call in fake.calls], ["aria2.tellStatus"])
 
     def test_process_restart_reuses_active_task_without_add_uri(self):
         fake = FakeAria2(active=[{
