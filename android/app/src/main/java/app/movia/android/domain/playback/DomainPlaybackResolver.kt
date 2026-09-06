@@ -46,10 +46,24 @@ interface PlaybackResolverBackend {
     ): PlaybackResolverBackendResponse
 }
 
+internal const val PLAYBACK_READY_TARGET_MS = 10_000L
+internal const val PLAYBACK_DISCOVERY_ROUTE_MS = 3_000L
+internal const val PLAYBACK_RESOLVER_TOTAL_MS = 6_000L
+internal const val PLAYBACK_MEDIA_PROBE_MAX_MS = 1_000L
+internal const val PLAYBACK_MEDIA3_RESERVE_MS = 2_000L
+
+internal fun remainingPlaybackReadyBudgetMs(startedAtMs: Long, nowMs: Long): Long =
+    (PLAYBACK_READY_TARGET_MS - (nowMs - startedAtMs).coerceAtLeast(0L)).coerceAtLeast(0L)
+
+internal fun playbackMediaProbeBudgetMs(remainingReadyMs: Long): Long =
+    minOf(
+        PLAYBACK_MEDIA_PROBE_MAX_MS,
+        (remainingReadyMs - PLAYBACK_MEDIA3_RESERVE_MS).coerceAtLeast(0L),
+    )
+
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
     private const val BASE_BACKEND_URL = "http://127.0.0.1:8888"
-    private const val DISCOVERY_TIMEOUT_MS = 3_000L
 
     private val httpBackend = object : PlaybackResolverBackend {
         override suspend fun resolveByIdentity(
@@ -645,7 +659,7 @@ object DomainPlaybackResolver {
                 }
             }
 
-            val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
+            val identityResponse = withTimeoutOrNull(PLAYBACK_DISCOVERY_ROUTE_MS) {
                 backend.resolveByIdentity(request, forceRefresh)
             } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
             val identityCandidates = usableCandidates(request, identityResponse.candidates)
@@ -657,7 +671,7 @@ object DomainPlaybackResolver {
                 // Do not query /resolve when the identity endpoint succeeded.
                 discoveredCandidates = identityCandidates
             } else {
-                val titleResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
+                val titleResponse = withTimeoutOrNull(PLAYBACK_DISCOVERY_ROUTE_MS) {
                     backend.resolveByTitle(request, forceRefresh)
                 } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
                 discoveredCandidates = usableCandidates(request, titleResponse.candidates)

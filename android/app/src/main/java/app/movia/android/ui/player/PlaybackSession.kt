@@ -3,6 +3,7 @@ package app.movia.android.ui.player
 import android.content.Context
 import android.net.Uri
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -30,6 +31,10 @@ import app.movia.android.domain.model.PlaybackSwitchState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.sameRequestedVariant
 import app.movia.android.domain.playback.DomainPlaybackResolver
+import app.movia.android.domain.playback.PLAYBACK_READY_TARGET_MS
+import app.movia.android.domain.playback.PLAYBACK_RESOLVER_TOTAL_MS
+import app.movia.android.domain.playback.playbackMediaProbeBudgetMs
+import app.movia.android.domain.playback.remainingPlaybackReadyBudgetMs
 import app.movia.android.domain.playback.PlaybackRequest
 import app.movia.android.domain.playback.PlaybackResolverResult
 import app.movia.android.domain.playback.StreamCandidate
@@ -68,7 +73,6 @@ private const val TAG = "MoviaPlayer"
 private const val STARTUP_WATCHDOG_MS = 5_000L
 private const val RELOAD_TIMEOUT_MS = 3_000L
 private const val STALL_WATCHDOG_MS = 10_000L
-private const val RESOLVER_TIMEOUT_MS = 6_000L
 private const val MAX_PROBLEM_MEMORY = 64
 
 internal data class TrackOverrideLocation(val groupOrdinal: Int, val trackIndex: Int)
@@ -337,9 +341,11 @@ class PlaybackSession(context: Context) {
     private var recoveryAttemptCount = 0
     private var recoveryAttemptBudget = 1
     private var watchdogJob: Job? = null
+    private var readyDeadlineJob: Job? = null
     private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
     private var appliedTrackSelectionKey: String? = null
+    private var readyBudgetStartedAtMs: Long = 0L
 
     // Compatibility getters; state and candidate metadata remain authoritative.
     val activeTitle: String? get() = _state.value.displayTitle.takeIf { _state.value.hasMedia }
@@ -363,6 +369,7 @@ class PlaybackSession(context: Context) {
                 if (isPlaying) {
                     watchdogJob?.cancel()
                     stallWatchdogJob?.cancel()
+                    completeReadyBudget()
                 }
                 publishSnapshot()
             }
@@ -372,6 +379,7 @@ class PlaybackSession(context: Context) {
                     Player.STATE_READY -> {
                         watchdogJob?.cancel()
                         stallWatchdogJob?.cancel()
+                        completeReadyBudget()
                     }
                     Player.STATE_BUFFERING -> {
                         if (player.playWhenReady) {
@@ -434,6 +442,36 @@ class PlaybackSession(context: Context) {
 
     private fun isCurrentGeneration(generation: Long): Boolean =
         generation == playbackGeneration
+
+    private fun beginReadyBudget(generation: Long) {
+        readyBudgetStartedAtMs = SystemClock.elapsedRealtime()
+        readyDeadlineJob?.cancel()
+        readyDeadlineJob = scope.launch {
+            delay(PLAYBACK_READY_TARGET_MS)
+            if (!isActive || !isCurrentGeneration(generation) || readyBudgetStartedAtMs <= 0L) {
+                return@launch
+            }
+            if (player.playbackState != Player.STATE_READY && !player.isPlaying) {
+                Log.w(TAG, "Absolute READY deadline fired after ${PLAYBACK_READY_TARGET_MS}ms")
+                failPlayback("READY_DEADLINE")
+            }
+        }
+    }
+
+    private fun completeReadyBudget() {
+        readyBudgetStartedAtMs = 0L
+        readyDeadlineJob?.cancel()
+        readyDeadlineJob = null
+    }
+
+    private fun remainingReadyBudgetMs(): Long {
+        val startedAt = readyBudgetStartedAtMs
+        if (startedAt <= 0L) return Long.MAX_VALUE
+        return remainingPlaybackReadyBudgetMs(startedAt, SystemClock.elapsedRealtime())
+    }
+
+    private fun readyBudgetExpired(): Boolean =
+        readyBudgetStartedAtMs > 0L && remainingReadyBudgetMs() <= 0L
 
     private fun canonicalRequestTitle(value: String): String = value.trim()
         .replace(
@@ -771,7 +809,9 @@ class PlaybackSession(context: Context) {
         watchdogJob?.cancel()
         val candidateId = candidate.stableStreamId
         watchdogJob = scope.launch {
-            delay(STARTUP_WATCHDOG_MS)
+            val remainingMs = remainingReadyBudgetMs()
+            val candidateWaitMs = minOf(STARTUP_WATCHDOG_MS, remainingMs)
+            if (candidateWaitMs > 0L) delay(candidateWaitMs)
             if (!isActive || !isCurrentGeneration(generation)) return@launch
             if (activeCandidate?.stableStreamId != candidateId) return@launch
             if (player.playbackState != Player.STATE_READY && !player.isPlaying) {
@@ -808,7 +848,7 @@ class PlaybackSession(context: Context) {
         resumePositionMs: Long,
         generation: Long,
     ): Boolean {
-        if (!isCurrentGeneration(generation)) return false
+        if (!isCurrentGeneration(generation) || readyBudgetExpired()) return false
         val uri = consumedUri(candidate, request) ?: return false
         stallWatchdogJob?.cancel()
         activeCandidate = candidate
@@ -855,6 +895,9 @@ class PlaybackSession(context: Context) {
 
     private fun failPlayback(reason: String) {
         watchdogJob?.cancel()
+        readyDeadlineJob?.cancel()
+        readyDeadlineJob = null
+        readyBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
         player.stop()
         player.clearMediaItems()
@@ -883,6 +926,10 @@ class PlaybackSession(context: Context) {
         failureClass: StreamFailureClass,
     ) {
         if (!isCurrentGeneration(generation)) return
+        if (readyBudgetExpired()) {
+            failPlayback("READY_DEADLINE_$reason")
+            return
+        }
         val failed = activeCandidate
         recoveryAttemptCount += 1
         if (recoveryAttemptCount > recoveryAttemptBudget) {
@@ -905,7 +952,8 @@ class PlaybackSession(context: Context) {
         if (failed != null && request != null && rememberReloadAttempt(failed) &&
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
-            val refreshed = withTimeoutOrNull(RELOAD_TIMEOUT_MS) {
+            val reloadBudgetMs = minOf(RELOAD_TIMEOUT_MS, remainingReadyBudgetMs())
+            val refreshed = if (reloadBudgetMs > 0L) withTimeoutOrNull(reloadBudgetMs) {
                 DomainPlaybackResolver.reloadStreamCandidate(
                     failed,
                     request.copy(
@@ -913,6 +961,10 @@ class PlaybackSession(context: Context) {
                         attempt = request.attempt + 1,
                     ),
                 )
+            } else null
+            if (readyBudgetExpired()) {
+                failPlayback("READY_DEADLINE_$reason")
+                return
             }
             if (isCurrentGeneration(generation) && refreshed != null) {
                 replaceCandidate(failed, refreshed)
@@ -951,6 +1003,10 @@ class PlaybackSession(context: Context) {
         val next = nextHealthyCandidates(currentRequest)
         for (candidate in next) {
             if (!isCurrentGeneration(generation)) return
+            if (readyBudgetExpired()) {
+                failPlayback("READY_DEADLINE_$reason")
+                return
+            }
             if (prepareCandidate(candidate, currentRequest, resumePositionMs, generation)) return
             recordFailure(candidate, StreamFailureClass.NON_NETWORK)
         }
@@ -964,6 +1020,10 @@ class PlaybackSession(context: Context) {
         failureClass: StreamFailureClass = StreamFailureClassifier.fromReason(reason),
     ) {
         if (!isCurrentGeneration(generation) || recoveryJob?.isActive == true) return
+        if (readyBudgetExpired()) {
+            failPlayback("READY_DEADLINE_$reason")
+            return
+        }
         stallWatchdogJob?.cancel()
         recoveryJob = scope.launch {
             try {
@@ -992,6 +1052,7 @@ class PlaybackSession(context: Context) {
         candidateStreamOptions: List<StreamOption> = emptyList(),
     ) {
         val generation = nextPlaybackGeneration()
+        beginReadyBudget(generation)
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
@@ -1055,19 +1116,34 @@ class PlaybackSession(context: Context) {
         )
         scope.launch {
             val result = try {
-                withTimeoutOrNull(RESOLVER_TIMEOUT_MS) {
+                withTimeoutOrNull(PLAYBACK_RESOLVER_TOTAL_MS) {
                     DomainPlaybackResolver.resolveStreams(
                         request = request,
                         initialCandidates = seeds,
                     )
-                } ?: PlaybackResolverResult.Error("Таймаут резолвера потоков (${RESOLVER_TIMEOUT_MS / 1000}с)")
+                } ?: PlaybackResolverResult.Error("Таймаут резолвера потоков (${PLAYBACK_RESOLVER_TOTAL_MS / 1000}с)")
             } catch (throwable: Throwable) {
                 PlaybackResolverResult.Error("Резолвер потоков завершился с ошибкой", throwable)
             }
             if (!isCurrentGeneration(generation)) return@launch
             when (result) {
                 is PlaybackResolverResult.Success -> {
-                    val probed = ZonaMediaProbe.expand(appContext, result.candidates)
+                    if (readyBudgetExpired()) {
+                        failPlayback("READY_DEADLINE_RESOLVER")
+                        return@launch
+                    }
+                    val probeBudgetMs = playbackMediaProbeBudgetMs(remainingReadyBudgetMs())
+                    val probed = if (probeBudgetMs > 0L) {
+                        withTimeoutOrNull(probeBudgetMs) {
+                            ZonaMediaProbe.expand(appContext, result.candidates)
+                        } ?: result.candidates
+                    } else {
+                        result.candidates
+                    }
+                    if (readyBudgetExpired()) {
+                        failPlayback("READY_DEADLINE_PROBE")
+                        return@launch
+                    }
                     candidates = StreamRanker.rankCandidates(
                         StreamDeduplicator.deduplicate(probed),
                         context = requestContext(request),
@@ -1109,6 +1185,7 @@ class PlaybackSession(context: Context) {
     fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L) {
         if (stream.url.isBlank() || !_state.value.hasMedia) return
         val generation = nextPlaybackGeneration()
+        beginReadyBudget(generation)
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
@@ -1198,6 +1275,7 @@ class PlaybackSession(context: Context) {
                     ),
                 )
                 publishSnapshot()
+                completeReadyBudget()
                 return
             }
             activeCandidate = previousCandidate
@@ -1258,6 +1336,9 @@ class PlaybackSession(context: Context) {
     fun stopAndClear() {
         nextPlaybackGeneration()
         watchdogJob?.cancel()
+        readyDeadlineJob?.cancel()
+        readyDeadlineJob = null
+        readyBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         player.stop()
@@ -1356,6 +1437,9 @@ class PlaybackSession(context: Context) {
     fun release() {
         if (MoviaPlaybackRegistry.current === this) MoviaPlaybackRegistry.current = null
         watchdogJob?.cancel()
+        readyDeadlineJob?.cancel()
+        readyDeadlineJob = null
+        readyBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         scope.cancel()
