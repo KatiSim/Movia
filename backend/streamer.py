@@ -225,6 +225,30 @@ def _direct_stream_expiry_seconds(stream: Dict[str, Any]) -> Optional[float]:
     return None
 
 
+def catalog_streams_need_provider_resolve(
+    streams: List[Dict[str, Any]],
+    *,
+    refresh_requested: bool,
+    persisted_needs_refresh: bool,
+    persisted_needs_variant_resolve: bool,
+    persisted_out_of_scope: bool,
+) -> bool:
+    """Return True only when catalog candidates genuinely need rediscovery.
+
+    A valid persisted magnet is already a playback candidate: forcing provider
+    discovery merely because it is not HTTP burns the startup budget before
+    the bounded P2P gateway can run. Runtime candidate failure still triggers
+    the existing refresh/failover path.
+    """
+    return bool(
+        refresh_requested
+        or not streams
+        or persisted_needs_refresh
+        or persisted_needs_variant_resolve
+        or persisted_out_of_scope
+    )
+
+
 def catalog_streams_need_refresh(
     movie: Dict[str, Any],
     streams: List[Dict[str, Any]],
@@ -2099,17 +2123,12 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             for s in streams_list
                         )
                         persisted_out_of_scope = bool(stored_streams) and not streams_list
-                        has_direct_playable = any(
-                            str(s.get("url") or "").strip().lower().startswith(("http://", "https://"))
-                            for s in streams_list
-                        )
-                        should_resolve = bool(
-                            refresh_requested
-                            or not streams_list
-                            or not has_direct_playable
-                            or persisted_needs_refresh
-                            or persisted_needs_variant_resolve
-                            or persisted_out_of_scope
+                        should_resolve = catalog_streams_need_provider_resolve(
+                            streams_list,
+                            refresh_requested=refresh_requested,
+                            persisted_needs_refresh=persisted_needs_refresh,
+                            persisted_needs_variant_resolve=persisted_needs_variant_resolve,
+                            persisted_out_of_scope=persisted_out_of_scope,
                         )
                         resolution_status = "RESULTS" if streams_list else "NO_RESULTS"
                         resolution_error = None

@@ -377,5 +377,34 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         self.assertTrue(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, expired_direct, now=2_000_000_000))
         self.assertFalse(streamer.catalog_streams_need_refresh({}, [{"source": "Rutor", "url": "magnet:?xt=urn:btih:" + "a" * 40}], now=10_000_000))
 
+    def test_persisted_torrent_candidate_does_not_force_provider_resolve(self):
+        import streamer
+        magnet = [{
+            "stream_id": "torrent-ready",
+            "transport": "torrent",
+            "url": "magnet:?xt=urn:btih:" + "a" * 40,
+        }]
+        self.assertFalse(streamer.catalog_streams_need_provider_resolve(
+            magnet,
+            refresh_requested=False,
+            persisted_needs_refresh=False,
+            persisted_needs_variant_resolve=False,
+            persisted_out_of_scope=False,
+        ))
+        self.assertTrue(streamer.catalog_streams_need_provider_resolve(
+            [],
+            refresh_requested=False,
+            persisted_needs_refresh=False,
+            persisted_needs_variant_resolve=False,
+            persisted_out_of_scope=False,
+        ))
+        self.assertTrue(streamer.catalog_streams_need_provider_resolve(
+            magnet,
+            refresh_requested=True,
+            persisted_needs_refresh=False,
+            persisted_needs_variant_resolve=False,
+            persisted_out_of_scope=False,
+        ))
+
 if __name__ == "__main__":
     unittest.main()
