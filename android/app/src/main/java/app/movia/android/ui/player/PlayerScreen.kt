@@ -1207,8 +1207,6 @@ fun PlayerScreen(
 
         if (!inPictureInPicture && settingsOpen) {
             val contentStreams = sessionStreams.filter { it.url.isNotBlank() }
-            val embeddedAudioOptions = audioTracks.map { it.label }
-            val selectedEmbeddedAudio = audioTracks.firstOrNull { it.selected }?.label
             val streamQualities = StreamSettingsSelection.qualityOptions(contentStreams).ifEmpty {
                 listOfNotNull(
                     activeQuality?.takeIf { it.isNotBlank() },
@@ -1240,8 +1238,6 @@ fun PlayerScreen(
                 qualityOptions = streamQualities,
                 selectedAudio = currentVoice,
                 selectedQuality = currentQuality,
-                embeddedAudioOptions = embeddedAudioOptions,
-                selectedEmbeddedAudio = selectedEmbeddedAudio,
                 autoNextEnabled = autoNextEnabled,
                 persistentSeekButtons = persistentSeekButtons,
                 onBack = {
@@ -1254,9 +1250,6 @@ fun PlayerScreen(
                     }
                     onAudioSelected(newVoice)
                     showControls()
-                },
-                onEmbeddedAudioSelected = { label ->
-                    audioTracks.firstOrNull { it.label == label }?.let(::selectEmbeddedAudioTrack)
                 },
                 onQualitySelected = { newQuality ->
                     val voicesForQuality = StreamSettingsSelection.voiceOptions(contentStreams, newQuality)
@@ -1472,14 +1465,11 @@ private fun StreamSettingsScreen(
     qualityOptions: List<String>,
     selectedAudio: String,
     selectedQuality: String,
-    embeddedAudioOptions: List<String> = emptyList(),
-    selectedEmbeddedAudio: String? = null,
     autoNextEnabled: Boolean,
     persistentSeekButtons: Boolean,
     onBack: () -> Unit,
     onAudioSelected: (String) -> Unit,
     onQualitySelected: (String) -> Unit,
-    onEmbeddedAudioSelected: (String) -> Unit = {},
     onAutoNextChanged: (Boolean) -> Unit,
     onPersistentSeekButtonsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -1532,14 +1522,6 @@ private fun StreamSettingsScreen(
         PlayerSettingsSectionLabel("ОЗВУЧКА РЕЛИЗА")
         PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected)
 
-        if (embeddedAudioOptions.isNotEmpty()) {
-            PlayerSettingsSectionLabel("ВСТРОЕННЫЕ АУДИОДОРОЖКИ")
-            PlayerSettingsChipsRow(
-                options = embeddedAudioOptions,
-                selected = selectedEmbeddedAudio ?: embeddedAudioOptions.first(),
-                onSelected = onEmbeddedAudioSelected,
-            )
-        }
 
         PlayerSettingsSectionLabel("УПРАВЛЕНИЕ И ПЕРЕХОДЫ")
         PlayerSettingsToggleRow(

@@ -11,7 +11,7 @@ The release-readiness smoke gate is available directly as:
 python3 acceptance/movia_acceptance.py
 ```
 
-and through the Jarvis MCP tool `movia_acceptance`. The command runs live backend, Android/Media3, startup-budget, physical audio-language, quality-control, and series navigation/resume checks. It always emits structured JSON with `total`, `passed`, `failed`, `success_rate`, `stabilization_gate`, `release_gate`, `errors`, and per-check evidence. The startup budget is 10 seconds. `stabilization_gate` uses the interim 98% threshold; `release_gate` and the process exit code require 100% of smoke checks to pass.
+and through the Jarvis MCP tool `movia_acceptance`. The smoke run no longer uses fixed control titles: each run selects an unfiltered random movie plus capability-matched multilingual, multi-quality, and series samples from the current catalog and records the random seed for reproduction. It runs live backend, Android/Media3, 10-second startup-budget, physical audio-language, quality-control, and series navigation/resume checks. It always emits structured JSON with `total`, `passed`, `failed`, `success_rate`, `stabilization_gate`, `release_gate`, `sample_seed`, `samples`, `errors`, and per-check evidence. `stabilization_gate` uses the interim 98% threshold; `release_gate` and the process exit code require 100% of smoke checks to pass.
 
 This smoke suite is the control framework, not the final 1.0 catalog-coverage gate. Version 1.0.0 still requires the separate 100-random-movie plus series coverage run at 100% acceptance.
 After a **fresh install or app-data clear only**, provision the shared bearer token once:
@@ -58,3 +58,13 @@ timestamp no more than 900 seconds old (three intended 300-second cadences).
 It never calls a sync trigger. The final line is a compact JSON summary for
 orchestration. Use `python3 acceptance/07_final_acceptance.py --source-only`
 for build-host source checks without a running agent.
+
+### Random catalog coverage
+
+`08_playback_coverage_random.py` uses a fresh seed by default, enforces a per-item startup budget of at most 10 seconds, and treats every non-PLAYABLE catalog sample (including `NO_SOURCE`) as a failure. Reproduce a run with `--seed`. Example:
+
+```sh
+python3 acceptance/08_playback_coverage_random.py --movies 20 --series 20 --timeout 10
+```
+
+The final 1.0 acceptance will use the same strict rule with the required 100-random-movie sample plus a separate series sample.

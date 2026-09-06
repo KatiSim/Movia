@@ -4,6 +4,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
+import secrets
+import sqlite3
 import subprocess
 import sys
 import time
@@ -24,12 +27,138 @@ STARTUP_LIMIT_SECONDS = float(os.environ.get("MOVIA_STARTUP_LIMIT_SECONDS", "10.
 
 BOOTSTRAP_COMPONENT = "app.movia.android/.agent.AgentBootstrapReceiver"
 BOOTSTRAP_ACTION = "app.movia.android.agent.BOOTSTRAP"
-MOVIE_ID = "11100"
-MOVIE_TITLE = "Сплит"
-QUALITY_MEDIA_ID = "8"
-QUALITY_MEDIA_TITLE = "Обсессия"
-SERIES_ID = "159"
-SERIES_TITLE = "Во все тяжкие"
+CATALOG_DB = Path(os.environ.get(
+    "MOVIA_CATALOG_DB",
+    str(Path.home() / "projects/media-parser/catalog.db"),
+))
+RANDOM_PROBE_TIMEOUT_SECONDS = min(STARTUP_LIMIT_SECONDS, 10.0)
+
+
+def resolve_sample_seed() -> int:
+    raw = os.environ.get("MOVIA_ACCEPTANCE_SEED", "").strip()
+    if raw:
+        return int(raw, 0)
+    return secrets.randbits(32)
+
+
+def _target(row: sqlite3.Row) -> Dict[str, Any]:
+    return {"mediaId": str(row["id"]), "title": str(row["title"])}
+
+
+def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
+    """Choose fresh catalog samples by capability, never by hard-coded title/id."""
+    if not CATALOG_DB.is_file():
+        raise RuntimeError(f"catalog database not found: {CATALOG_DB}")
+    rng = random.Random(seed)
+    with sqlite3.connect(str(CATALOG_DB)) as conn:
+        conn.row_factory = sqlite3.Row
+        movies = conn.execute(
+            "SELECT id, title FROM movies WHERE media_type='movie' AND title != '' ORDER BY id"
+        ).fetchall()
+        audio_movies = conn.execute(
+            """
+            SELECT m.id, m.title
+            FROM movies m
+            WHERE m.media_type='movie' AND m.title != ''
+              AND json_valid(COALESCE(m.streams, '[]')) = 1
+              AND EXISTS (
+                SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
+                WHERE json_extract(j.value, '$.url') LIKE 'http%'
+                  AND (
+                    lower(COALESCE(json_extract(j.value, '$.voice'), '')) LIKE '%укр%'
+                    OR lower(COALESCE(json_extract(j.value, '$.language'), '')) = 'uk'
+                  )
+              )
+              AND EXISTS (
+                SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
+                WHERE json_extract(j.value, '$.url') LIKE 'http%'
+                  AND (
+                    lower(COALESCE(json_extract(j.value, '$.stream_id'), '')) LIKE '%english%'
+                    OR lower(COALESCE(json_extract(j.value, '$.voice'), '')) LIKE '%english%'
+                    OR lower(COALESCE(json_extract(j.value, '$.language'), '')) = 'en'
+                  )
+              )
+            ORDER BY m.id
+            """
+        ).fetchall()
+        quality_movies = conn.execute(
+            """
+            SELECT m.id, m.title
+            FROM movies m
+            WHERE m.media_type='movie' AND m.title != ''
+              AND json_valid(COALESCE(m.streams, '[]')) = 1
+              AND EXISTS (
+                SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
+                WHERE json_extract(j.value, '$.url') LIKE 'http%'
+              )
+              AND (
+                SELECT COUNT(DISTINCT lower(COALESCE(json_extract(j.value, '$.quality'), '')))
+                FROM json_each(COALESCE(m.streams, '[]')) j
+                WHERE trim(COALESCE(json_extract(j.value, '$.quality'), '')) NOT IN ('', 'Не указано')
+              ) >= 2
+            ORDER BY m.id
+            """
+        ).fetchall()
+        series_rows = conn.execute(
+            """
+            SELECT m.id, m.title, m.season_episode_counts, m.streams
+            FROM movies m
+            WHERE m.media_type='tv' AND m.title != '' AND m.seasons_count > 0
+              AND json_valid(COALESCE(m.streams, '[]')) = 1
+              AND EXISTS (
+                SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
+                WHERE json_extract(j.value, '$.url') LIKE 'http%'
+              )
+            ORDER BY m.id
+            """
+        ).fetchall()
+
+    if not movies:
+        raise RuntimeError("catalog contains no movies")
+
+    random_movie_row = rng.choice(movies)
+    audio_row = rng.choice(audio_movies) if audio_movies else None
+    quality_pool = [r for r in quality_movies if str(r["id"]) != str(audio_row["id"]) ] if audio_row else list(quality_movies)
+    quality_row = rng.choice(quality_pool or quality_movies) if quality_movies else None
+    series_row = rng.choice(series_rows) if series_rows else None
+
+    targets: Dict[str, Dict[str, Any]] = {
+        "randomMovie": _target(random_movie_row),
+    }
+    if audio_row is not None:
+        targets["audioMovie"] = _target(audio_row)
+    if quality_row is not None:
+        targets["qualityMovie"] = _target(quality_row)
+    if series_row is not None:
+        series_target = _target(series_row)
+        counts: List[int] = []
+        try:
+            parsed_counts = json.loads(series_row["season_episode_counts"] or "[]")
+            counts = [int(v) for v in parsed_counts if int(v) > 0]
+        except Exception:
+            counts = []
+        direct_episodes: List[Tuple[int, int]] = []
+        try:
+            parsed_streams = json.loads(series_row["streams"] or "[]")
+            for stream in parsed_streams if isinstance(parsed_streams, list) else []:
+                if not isinstance(stream, dict):
+                    continue
+                if not str(stream.get("url") or "").startswith(("http://", "https://")):
+                    continue
+                season = int(stream.get("season") or 0)
+                episode = int(stream.get("episode") or 0)
+                if season > 0 and episode > 0:
+                    direct_episodes.append((season, episode))
+        except Exception:
+            direct_episodes = []
+        viable = []
+        for season, episode in sorted(set(direct_episodes)):
+            if 1 <= season <= len(counts) and episode < counts[season - 1]:
+                viable.append((season, episode))
+        season, episode = rng.choice(viable or direct_episodes or [(1, 1)])
+        series_target.update({"season": season, "episode": episode})
+        targets["series"] = series_target
+    return targets
 
 
 def load_token() -> str:
@@ -141,6 +270,13 @@ def streams_payload() -> Optional[Dict[str, Any]]:
     return payload if status == 200 and isinstance(payload, dict) else None
 
 
+def reset_player() -> None:
+    # Isolate probes. A timed-out asynchronous media.play may keep resolving in
+    # the background; without an explicit stop it can poison every later check.
+    action("player.stop")
+    time.sleep(0.2)
+
+
 def wait_for_position_advance(seconds: float = 8.0) -> bool:
     deadline = time.monotonic() + seconds
     first: Optional[int] = None
@@ -161,6 +297,13 @@ class Runner:
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.checks: List[Dict[str, Any]] = []
+        self.sample_seed = resolve_sample_seed()
+        self.sample_error = ""
+        try:
+            self.samples = select_catalog_targets(self.sample_seed)
+        except Exception as exc:
+            self.samples: Dict[str, Dict[str, Any]] = {}
+            self.sample_error = str(exc)
 
     def record(self, category: str, name: str, passed: bool, detail: str = "") -> None:
         item = {"category": category, "name": name, "passed": bool(passed)}
@@ -171,10 +314,11 @@ class Runner:
             print(f"[{'PASS' if passed else 'FAIL'}] {category}: {name}" + (f" - {detail}" if detail else ""), file=sys.stderr)
 
     def run(self) -> Dict[str, Any]:
+        self.sample_selection()
         self.backend()
         self.android()
         self.series()
-        action("player.pause")
+        reset_player()
         total = len(self.checks)
         passed = sum(1 for c in self.checks if c["passed"])
         failed = total - passed
@@ -188,16 +332,45 @@ class Runner:
             "release_gate": "PASS" if failed == 0 else "FAIL",
             "release_required_rate": 100.0,
             "startup_limit_seconds": STARTUP_LIMIT_SECONDS,
+            "sample_seed": self.sample_seed,
+            "samples": self.samples,
             "errors": [f"{c['category']}: {c['name']}: {c.get('detail','failed')}" for c in self.checks if not c["passed"]],
             "checks": self.checks,
         }
+
+
+    def sample_selection(self) -> None:
+        for key, label in (
+            ("randomMovie", "random movie sample selected"),
+            ("audioMovie", "multilingual movie sample selected"),
+            ("qualityMovie", "multi-quality movie sample selected"),
+            ("series", "series sample selected"),
+        ):
+            self.record(
+                "SAMPLE",
+                label,
+                key in self.samples,
+                self.sample_error if key not in self.samples else f"mediaId={self.samples[key].get('mediaId')}",
+            )
 
     def backend(self) -> None:
         status, payload, err = backend_http("/health")
         self.record("BACKEND", "health", status == 200 and isinstance(payload, dict) and payload.get("status") == "ok", err if status != 200 else "")
 
-        status, payload, err = backend_http(f"/api/movie/{MOVIE_ID}/stream", timeout=5.0)
-        self.record("BACKEND", "resolver", status == 200 and isinstance(payload, dict) and bool(payload.get("streams")), err if status != 200 else ("no streams returned" if not (isinstance(payload, dict) and payload.get("streams")) else ""))
+        resolver_sample = self.samples.get("audioMovie")
+        if resolver_sample is None:
+            self.record("BACKEND", "sampled resolver", False, self.sample_error or "direct resolver sample unavailable")
+        else:
+            status, payload, err = backend_http(
+                f"/api/movie/{urllib.parse.quote(str(resolver_sample['mediaId']), safe='')}/stream",
+                timeout=5.0,
+            )
+            self.record(
+                "BACKEND",
+                "sampled resolver",
+                status == 200 and isinstance(payload, dict) and bool(payload.get("streams")),
+                err if status != 200 else ("no streams returned" if not (isinstance(payload, dict) and payload.get("streams")) else ""),
+            )
 
         status, payload, err = backend_http("/diagnostics")
         self.record("BACKEND", "provider availability", status == 200 and isinstance(payload, dict) and payload.get("status") == "ok", err if status != 200 else "")
@@ -214,34 +387,61 @@ class Runner:
         status, payload, err = action("catalog.query", {"limit": 1})
         self.record("ANDROID", "backend connection", status == 200 and isinstance(payload, dict) and payload.get("status") == "completed", err if status != 200 else "")
 
-        status, payload, err = action("media.details", {"mediaId": MOVIE_ID})
-        media = payload.get("media") if isinstance(payload, dict) else None
-        self.record("ANDROID", "open media", status == 200 and isinstance(media, dict) and str(media.get("mediaId")) == MOVIE_ID, err if status != 200 else ("mediaId mismatch" if not (isinstance(media, dict) and str(media.get("mediaId")) == MOVIE_ID) else ""))
+        # Unfiltered random catalog probe. This is intentionally not limited to
+        # known-good titles: a user can choose any card in the catalog.
+        reset_player()
+        random_movie = self.samples.get("randomMovie")
+        if random_movie is None:
+            self.record("ANDROID", "random movie playback", False, self.sample_error or "sample unavailable")
+        else:
+            status, payload, err = action("media.details", {"mediaId": random_movie["mediaId"]})
+            media = payload.get("media") if isinstance(payload, dict) else None
+            self.record(
+                "ANDROID",
+                "open random catalog movie",
+                status == 200 and isinstance(media, dict) and str(media.get("mediaId")) == str(random_movie["mediaId"]),
+                err if status != 200 else "",
+            )
+            started_at = time.monotonic()
+            ok, detail, _ = accepted_operation(
+                "media.play",
+                {"mediaId": random_movie["mediaId"], "title": random_movie["title"], "resume": False, "persist": False},
+                timeout=RANDOM_PROBE_TIMEOUT_SECONDS,
+            )
+            elapsed = time.monotonic() - started_at
+            self.record("ANDROID", "random movie playback", ok, detail or f"mediaId={random_movie['mediaId']}")
+            self.record(
+                "ANDROID",
+                "random movie startup <= 10s",
+                ok and elapsed <= STARTUP_LIMIT_SECONDS,
+                f"mediaId={random_movie['mediaId']}, elapsedSeconds={elapsed:.2f}, limit={STARTUP_LIMIT_SECONDS:.2f}",
+            )
+            d = diagnostics()
+            m3 = d.get("media3") if isinstance(d, dict) else None
+            ready = ok and isinstance(m3, dict) and (str(m3.get("playbackState") or "").upper() == "READY" or m3.get("playbackStateCode") == 3)
+            self.record("ANDROID", "random movie Media3 READY", ready, "" if ready else "Media3 did not report READY")
+            timeline_ok = wait_for_position_advance(seconds=3.0) if ready else False
+            self.record("ANDROID", "random movie advancing timeline", timeline_ok, "" if timeline_ok else "timeline did not advance")
+        reset_player()
 
-        started_at = time.monotonic()
-        ok, detail, _ = accepted_operation(
-            "media.play",
-            {"mediaId": MOVIE_ID, "title": MOVIE_TITLE, "resume": False, "persist": False},
-            timeout=STARTUP_LIMIT_SECONDS,
-        )
-        startup_elapsed = time.monotonic() - started_at
-        self.record("ANDROID", "start playback", ok, detail)
-        self.record(
-            "ANDROID",
-            "startup <= 10s",
-            ok and startup_elapsed <= STARTUP_LIMIT_SECONDS,
-            f"elapsedSeconds={startup_elapsed:.2f}, limit={STARTUP_LIMIT_SECONDS:.2f}",
-        )
+        # Capability-selected multilingual sample. The title changes with the seed.
+        reset_player()
+        audio_movie = self.samples.get("audioMovie")
+        audio_media: Optional[Dict[str, Any]] = None
+        audio_started = False
+        if audio_movie is None:
+            self.record("ANDROID", "multilingual probe playback", False, self.sample_error or "sample unavailable")
+        else:
+            status, payload, err = action("media.details", {"mediaId": audio_movie["mediaId"]})
+            audio_media = payload.get("media") if isinstance(payload, dict) else None
+            audio_started, audio_detail, _ = accepted_operation(
+                "media.play",
+                {"mediaId": audio_movie["mediaId"], "title": audio_movie["title"], "resume": False, "persist": False},
+                timeout=min(7.0, STARTUP_LIMIT_SECONDS),
+            )
+            self.record("ANDROID", "multilingual probe playback", audio_started, audio_detail or f"mediaId={audio_movie['mediaId']}")
 
-        d = diagnostics()
-        m3 = d.get("media3") if isinstance(d, dict) else None
-        ready = isinstance(m3, dict) and (str(m3.get("playbackState") or "").upper() == "READY" or m3.get("playbackStateCode") == 3)
-        self.record("ANDROID", "Media3 READY", ready, "" if ready else "Media3 did not report READY")
-        timeline_ok = wait_for_position_advance()
-        self.record("ANDROID", "first frame / advancing timeline", timeline_ok, "" if timeline_ok else "timeline did not advance while isPlaying")
-
-        # Verify the physical Media3 track, not only the logical voice label.
-        media_streams = media.get("streams") if isinstance(media, dict) else []
+        media_streams = audio_media.get("streams") if isinstance(audio_media, dict) else []
         language_targets: Dict[str, str] = {}
         if isinstance(media_streams, list):
             for item in media_streams:
@@ -254,30 +454,32 @@ class Runner:
 
         for lang, check_name in (("uk", "physical Ukrainian audio"), ("en", "physical Original/English audio")):
             target = language_targets.get(lang)
-            if not target:
-                self.record("ANDROID", check_name, False, f"no {lang} voice exposed by media details")
+            if not audio_started or not target:
+                self.record("ANDROID", check_name, False, f"no playable {lang} release voice exposed")
                 continue
             v_ok, v_detail, _ = accepted_operation(
                 "player.selectVoice",
                 {"voice": target, "persist": False},
-                timeout=8.0,
+                timeout=4.0,
             )
             vd = diagnostics()
             vm3 = vd.get("media3") if isinstance(vd, dict) else None
             actual_language = str(vm3.get("selectedAudioLanguage") or "").lower() if isinstance(vm3, dict) else ""
             actual_label = str(vm3.get("selectedAudioLabel") or "") if isinstance(vm3, dict) else ""
             self.record(
-                "ANDROID",
-                check_name,
-                v_ok and actual_language.startswith(lang),
+                "ANDROID", check_name, v_ok and actual_language.startswith(lang),
                 v_detail or f"requestedVoice={target}, selectedAudioLabel={actual_label}, selectedAudioLanguage={actual_language}",
             )
 
-
+        reset_player()
+        quality_movie = self.samples.get("qualityMovie")
+        if quality_movie is None:
+            self.record("ANDROID", "switch quality", False, self.sample_error or "multi-quality sample unavailable")
+            return
         q_start, q_start_detail, _ = accepted_operation(
             "media.play",
-            {"mediaId": QUALITY_MEDIA_ID, "title": QUALITY_MEDIA_TITLE, "resume": False, "persist": False},
-            timeout=STARTUP_LIMIT_SECONDS,
+            {"mediaId": quality_movie["mediaId"], "title": quality_movie["title"], "resume": False, "persist": False},
+            timeout=min(7.0, STARTUP_LIMIT_SECONDS),
         )
         sp = streams_payload() if q_start else None
         qualities: List[str] = []
@@ -293,38 +495,44 @@ class Runner:
             self.record("ANDROID", "switch quality", False, f"only one playable quality exposed: {active_quality or qualities}")
         else:
             target = alternatives[0]
-            q_ok, q_detail, _ = accepted_operation("player.selectQuality", {"quality": target, "persist": False}, timeout=5.0)
+            q_ok, q_detail, _ = accepted_operation("player.selectQuality", {"quality": target, "persist": False}, timeout=3.0)
             after = streams_payload()
             actual = str(after.get("activeQuality") or "") if isinstance(after, dict) else ""
             self.record("ANDROID", "switch quality", q_ok and actual.lower() == target.lower(), q_detail or f"requested={target}, active={actual}")
 
     def series(self) -> None:
-        status, payload, err = action("media.details", {"mediaId": SERIES_ID})
+        reset_player()
+        target = self.samples.get("series")
+        if target is None:
+            for name in ("season metadata", "start sampled episode", "startup <= 10s", "progress persistence / resume", "next episode"):
+                self.record("SERIES", name, False, self.sample_error or "series sample unavailable")
+            return
+        season = int(target.get("season") or 1)
+        episode = int(target.get("episode") or 1)
+        status, payload, err = action("media.details", {"mediaId": target["mediaId"]})
         media = payload.get("media") if isinstance(payload, dict) else None
         counts = media.get("seasonEpisodeCounts") if isinstance(media, dict) else None
-        season_ok = status == 200 and isinstance(counts, list) and len(counts) > 0
+        season_ok = status == 200 and isinstance(counts, list) and len(counts) >= season
         self.record("SERIES", "season metadata", season_ok, "" if season_ok else (err or "seasonEpisodeCounts missing"))
 
         started_at = time.monotonic()
         ok, detail, _ = accepted_operation(
             "media.play",
-            {"mediaId": SERIES_ID, "title": SERIES_TITLE, "season": 1, "episode": 1, "resume": False, "persist": True},
+            {"mediaId": target["mediaId"], "title": target["title"], "season": season, "episode": episode, "resume": False, "persist": True},
             timeout=STARTUP_LIMIT_SECONDS,
         )
         startup_elapsed = time.monotonic() - started_at
         d = diagnostics()
         snap = d.get("snapshot", {}).get("playback", {}) if isinstance(d, dict) else {}
-        ep_ready = ok and snap.get("season") == 1 and snap.get("episode") == 1 and snap.get("status") == "READY"
-        self.record("SERIES", "start S01E01", ep_ready, detail or f"state={snap.get('status')}, S={snap.get('season')}, E={snap.get('episode')}")
+        ep_ready = ok and snap.get("season") == season and snap.get("episode") == episode and snap.get("status") == "READY"
+        self.record("SERIES", "start sampled episode", ep_ready, detail or f"state={snap.get('status')}, S={snap.get('season')}, E={snap.get('episode')}")
         self.record(
-            "SERIES",
-            "startup <= 10s",
-            ep_ready and startup_elapsed <= STARTUP_LIMIT_SECONDS,
+            "SERIES", "startup <= 10s", ep_ready and startup_elapsed <= STARTUP_LIMIT_SECONDS,
             f"elapsedSeconds={startup_elapsed:.2f}, limit={STARTUP_LIMIT_SECONDS:.2f}",
         )
 
         if not ep_ready:
-            blocked = "blocked: S01E01 did not reach READY within startup budget"
+            blocked = "blocked: sampled episode did not reach READY within startup budget"
             self.record("SERIES", "progress persistence / resume", False, blocked)
             self.record("SERIES", "next episode", False, blocked)
             return
@@ -335,7 +543,7 @@ class Runner:
         time.sleep(0.3)
         r_ok, r_detail, _ = accepted_operation(
             "media.play",
-            {"mediaId": SERIES_ID, "title": SERIES_TITLE, "season": 1, "episode": 1, "resume": True, "persist": True},
+            {"mediaId": target["mediaId"], "title": target["title"], "season": season, "episode": episode, "resume": True, "persist": True},
             timeout=STARTUP_LIMIT_SECONDS,
         )
         rd = diagnostics()
@@ -344,10 +552,18 @@ class Runner:
         progress_ok = r_ok and 80_000 <= pos <= 120_000
         self.record("SERIES", "progress persistence / resume", progress_ok, r_detail or f"resumedPositionMs={pos}")
 
+        expected_season, expected_episode = season, episode + 1
+        if isinstance(counts, list) and 1 <= season <= len(counts):
+            try:
+                count = int(counts[season - 1])
+            except Exception:
+                count = 0
+            if count > 0 and episode >= count and season < len(counts):
+                expected_season, expected_episode = season + 1, 1
         n_ok, n_detail, _ = accepted_operation("player.nextEpisode", timeout=STARTUP_LIMIT_SECONDS)
         nd = diagnostics()
         ns = nd.get("snapshot", {}).get("playback", {}) if isinstance(nd, dict) else {}
-        next_ok = n_ok and ns.get("season") == 1 and ns.get("episode") == 2 and ns.get("status") == "READY"
+        next_ok = n_ok and ns.get("season") == expected_season and ns.get("episode") == expected_episode and ns.get("status") == "READY"
         self.record("SERIES", "next episode", next_ok, n_detail or f"state={ns.get('status')}, S={ns.get('season')}, E={ns.get('episode')}")
 
 
