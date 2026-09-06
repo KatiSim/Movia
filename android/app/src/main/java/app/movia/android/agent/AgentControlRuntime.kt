@@ -21,6 +21,7 @@ import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlaybackSession
+import androidx.media3.common.C
 import androidx.media3.common.Player
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
@@ -359,6 +360,8 @@ object AgentControlRuntime {
         var playbackSuppressionReason = 0
         var playerErrorCode: String? = null
         var playerErrorCause: String? = null
+        var selectedAudioLabel: String? = null
+        var selectedAudioLanguage: String? = null
 
         // Media3 enforces application-thread access for player getters. The
         // agent HTTP server runs on a pool thread, so snapshot only the
@@ -389,6 +392,17 @@ object AgentControlRuntime {
                 playbackSuppressionReason = player.playbackSuppressionReason
                 playerErrorCode = player.playerError?.errorCodeName
                 playerErrorCause = player.playerError?.cause?.javaClass?.simpleName
+                player.currentTracks.groups.forEach { group ->
+                    if (group.type == C.TRACK_TYPE_AUDIO) {
+                        for (index in 0 until group.length) {
+                            if (group.isTrackSelected(index)) {
+                                val format = group.getTrackFormat(index)
+                                selectedAudioLabel = format.label
+                                selectedAudioLanguage = format.language
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -413,6 +427,8 @@ object AgentControlRuntime {
                 put("videoHeight", videoHeight)
                 put("bufferedPositionMs", bufferedPositionMs)
                 put("currentPositionMs", currentPositionMs)
+                put("selectedAudioLabel", selectedAudioLabel)
+                put("selectedAudioLanguage", selectedAudioLanguage)
             })
             put("streamSelection", JSONObject().apply {
                 val selection = state?.activeStreamSelection
@@ -626,6 +642,7 @@ object AgentControlRuntime {
             "player.pause" -> {
                 requireSession(session)
                 runOnMain { session!!.player.pause() }
+                persistCurrentProgress(session!!)
                 completed(action, "playing" to false)
             }
             "player.toggle" -> {
@@ -636,6 +653,11 @@ object AgentControlRuntime {
             "player.stop" -> {
                 requireSession(session)
                 runOnMain { session!!.stopAndClear() }
+                completed(action)
+            }
+            "player.retry" -> {
+                requireSession(session)
+                runOnMain { session!!.retry() }
                 completed(action)
             }
             "player.seek" -> {
@@ -851,14 +873,40 @@ object AgentControlRuntime {
                 val library = libraryRepository ?: throw IllegalStateException("Library unavailable")
                 val mediaId = requested["mediaId"] as String?
                 val requestedTitle = requested["title"] as String?
-                val content = when {
-                    !mediaId.isNullOrBlank() -> DemoCatalogRepository.findFullById(mediaId) ?: DemoCatalogRepository.findById(mediaId)
-                    else -> DemoCatalogRepository.findFullByTitle(requestedTitle.orEmpty()) ?: DemoCatalogRepository.findByTitle(requestedTitle.orEmpty())
-                } ?: throw IllegalArgumentException("MEDIA_NOT_FOUND")
-
                 val season = requested["season"] as Int?
                 val episode = requested["episode"] as Int?
                 if ((season == null) != (episode == null)) throw IllegalArgumentException("season and episode must be supplied together")
+
+                val cachedContent = when {
+                    !mediaId.isNullOrBlank() -> DemoCatalogRepository.findById(mediaId)
+                    else -> DemoCatalogRepository.findByTitle(requestedTitle.orEmpty())
+                }
+                // Prefer one bounded full-card fetch: known catalog details already
+                // carry playable streams and avoid a second provider discovery call.
+                // If this fast fetch misses, PlaybackSession still owns bounded fallback.
+                val persistedContent = if (cachedContent?.streams?.any { it.url.isNotBlank() } == true) {
+                    null
+                } else {
+                    mediaId?.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findFullById)
+                }
+                val minimalPlaybackContent = requestedTitle?.takeIf { it.isNotBlank() }?.let { title ->
+                    MediaContent(
+                        id = mediaId?.takeIf { it.isNotBlank() } ?: title,
+                        title = title,
+                        type = if (season != null && episode != null) ContentType.SERIES else ContentType.MOVIE,
+                        year = 0,
+                        rating = 0.0,
+                        genres = emptySet(),
+                        country = "",
+                        quality = "Auto",
+                        durationMinutes = 0,
+                    )
+                }
+                val content = cachedContent?.takeIf { cached -> cached.streams.any { it.url.isNotBlank() } }
+                    ?: persistedContent
+                    ?: cachedContent
+                    ?: minimalPlaybackContent
+                    ?: throw IllegalArgumentException("MEDIA_NOT_FOUND")
                 val displayTitle = displayTitle(content, season, episode)
                 val playbackPrefs = prefs.playbackPreferences.first()
                 val titlePrefs = prefs.titlePlaybackPreferences(content.title).first()
@@ -1062,6 +1110,21 @@ object AgentControlRuntime {
             "Playback did not reach a stable ready selection in time",
         )?.let {
             publishOperation("OPERATION_FAILED", it)
+        }
+    }
+
+
+    private fun persistCurrentProgress(session: PlaybackSession) {
+        val library = libraryRepository ?: return
+        val state = session.state.value
+        if (!state.hasMedia || state.currentPositionMs < 0L || state.totalDurationMs <= 0L) return
+        runBlocking(Dispatchers.IO) {
+            library.saveProgress(
+                state.displayTitle,
+                state.currentPositionMs,
+                state.totalDurationMs,
+                System.currentTimeMillis(),
+            )
         }
     }
 

@@ -1,6 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import * as z from "zod/v4";
 
+import { runMoviaAcceptance } from "./movia-acceptance.js";
+
 import {
   MoviaBridgeError,
   MoviaHttpError,
@@ -249,6 +251,21 @@ export function registerMoviaTools(server: McpServer): void {
       annotations: readAnnotations
     },
     async () => runMovia(() => moviaRequest("/snapshot", { timeoutMs: 3_000 }))
+  );
+
+  server.registerTool(
+    "movia_acceptance",
+    {
+      title: "Movia acceptance",
+      description: "Run the one-command Movia release-readiness smoke acceptance over the live Android agent and development backend. Returns structured PASS/FAIL JSON. This is a QA action and may start/pause playback and add test entries to history.",
+      inputSchema: {
+        verbose: z.boolean().optional(),
+        timeoutSeconds: z.number().int().min(30).max(300).optional()
+      },
+      annotations: sideEffectAnnotations
+    },
+    async ({ verbose, timeoutSeconds }) =>
+      runMovia(() => runMoviaAcceptance({ verbose, timeoutSeconds }))
   );
 
   server.registerTool(

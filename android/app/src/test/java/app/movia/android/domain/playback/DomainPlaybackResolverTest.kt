@@ -375,6 +375,40 @@ class DomainPlaybackResolverTest {
     }
 
     @Test
+    fun usableInitialCandidateStartsWithoutBlockingOnBackendDiscovery() = runBlocking {
+        val calls = mutableListOf<String>()
+        val backend = object : PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse().also { calls += "identity" }
+
+            override suspend fun resolveByTitle(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse().also { calls += "title" }
+        }
+        val initial = resolvedCandidate(
+            id = "cached",
+            url = "https://cdn.example/master.m3u8",
+            voice = "Дубляж",
+        )
+        val result = DomainPlaybackResolver.resolveStreamsWithBackend(
+            request = PlaybackRequest(
+                mediaId = "42",
+                title = "The Film",
+                year = 2025,
+                mediaType = ContentType.MOVIE,
+            ),
+            initialCandidates = listOf(initial),
+            backend = backend,
+        ) as PlaybackResolverResult.Success
+
+        assertTrue(calls.isEmpty())
+        assertEquals("cached", result.candidates.single().stableStreamId)
+    }
+
+    @Test
     fun freshDiscoveredCandidateReplacesStaleInitialLocatorForSameVariant() = runBlocking {
         val request = PlaybackRequest(
             mediaId = "42",
@@ -407,6 +441,7 @@ class DomainPlaybackResolverTest {
         val result = DomainPlaybackResolver.resolveStreamsWithBackend(
             request = request,
             initialCandidates = listOf(stale),
+            forceRefresh = true,
             backend = backend,
         ) as PlaybackResolverResult.Success
 

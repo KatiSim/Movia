@@ -34,7 +34,7 @@ object StreamFailureClassifier {
     fun fromReason(reason: String): StreamFailureClass = when (reason.trim().uppercase()) {
         // A watchdog timeout has the same retry intent as a transient network
         // failure even when Media3 has not surfaced a concrete exception yet.
-        "STARTUP_TIMEOUT" -> StreamFailureClass.NETWORK
+        "STARTUP_TIMEOUT", "BUFFERING_TIMEOUT" -> StreamFailureClass.NETWORK
         else -> StreamFailureClass.NON_NETWORK
     }
 }

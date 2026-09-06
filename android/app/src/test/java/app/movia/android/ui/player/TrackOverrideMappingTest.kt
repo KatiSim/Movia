@@ -28,6 +28,21 @@ class TrackOverrideMappingTest {
         assertNull(locateProviderTrackIndex(listOf(2, 2), 4))
         assertNull(locateProviderTrackIndex(listOf(8), -1))
     }
+
+    @Test
+    fun metadataIndexWinsOverInterleavedMedia3GroupOrder() {
+        val groups = listOf(
+            TrackGroupDescriptor("0:audio:rus0", listOf(TrackFormatDescriptor("rus0", "ru"))),
+            TrackGroupDescriptor("1:audio:rus0", listOf(TrackFormatDescriptor("rus0", "ru"))),
+            TrackGroupDescriptor("0:audio:rus1", listOf(TrackFormatDescriptor("rus1", "ru"))),
+            TrackGroupDescriptor("1:audio:rus1", listOf(TrackFormatDescriptor("rus1", "ru"))),
+            TrackGroupDescriptor("0:audio:ukr5", listOf(TrackFormatDescriptor("ukr5", "uk"))),
+            TrackGroupDescriptor("0:audio:eng7", listOf(TrackFormatDescriptor("eng7", "en"))),
+        )
+        assertEquals(TrackOverrideLocation(4, 0), locateProviderTrackByMetadata(groups, 5, "uk"))
+        assertEquals(TrackOverrideLocation(5, 0), locateProviderTrackByMetadata(groups, 7, "en"))
+    }
+
     @Test
     fun sameMediaLocatorWithExplicitAudioIndexCanSwitchInPlace() {
         val current = StreamCandidate(
@@ -37,6 +52,20 @@ class TrackOverrideMappingTest {
         )
         val lostFilm = current.copy(stableStreamId = "lostfilm", voice = "LostFilm", audioTrackIndex = 2)
         assertTrue(canSwitchTracksInPlace(current, lostFilm))
+    }
+
+
+    @Test
+    fun samePhysicalLocatorIgnoresLogicalVoiceButRespectsRequestProfile() {
+        val base = StreamCandidate(
+            stableStreamId = "dub", provider = "Collaps",
+            url = "https://cdn.example/master.m3u8", voice = "Дубляж", quality = "1080p",
+            transport = "hls", audioTrackIndex = 0,
+            headers = mapOf("Referer" to "https://provider.example/"),
+        )
+        assertTrue(samePlaybackLocator(base, base.copy(stableStreamId = "eng", voice = "Original (English)", audioTrackIndex = 7)))
+        assertFalse(samePlaybackLocator(base, base.copy(url = "https://cdn.example/other.m3u8")))
+        assertFalse(samePlaybackLocator(base, base.copy(headers = mapOf("Referer" to "https://other.example/"))))
     }
 
     @Test

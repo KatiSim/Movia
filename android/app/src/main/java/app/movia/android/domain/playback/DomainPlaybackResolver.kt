@@ -2,6 +2,7 @@ package app.movia.android.domain.playback
 
 import android.util.Log
 import app.movia.android.domain.model.ContentType
+import app.movia.android.domain.model.inferStreamLanguage
 import app.movia.android.domain.model.StreamAdvertisement
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.StreamSkipInterval
@@ -48,7 +49,7 @@ interface PlaybackResolverBackend {
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
     private const val BASE_BACKEND_URL = "http://127.0.0.1:8888"
-    private const val DISCOVERY_TIMEOUT_MS = 15_000L
+    private const val DISCOVERY_TIMEOUT_MS = 3_000L
 
     private val httpBackend = object : PlaybackResolverBackend {
         override suspend fun resolveByIdentity(
@@ -270,14 +271,17 @@ object DomainPlaybackResolver {
                 ?: sObj.optLong("size", 0L).takeIf { it > 0L }
             val resolution = firstString(sObj, "resolution", "video_resolution", "videoResolution")
             val transport = transportFor(url, firstString(sObj, "transport"))
+            val streamVoice = firstString(sObj, "voice", "translation") ?: "Не указано"
+            val stableStreamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
+                ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty()
+            val streamLanguageEvidence = listOf(streamVoice, stableStreamId).joinToString(" ")
             val option = StreamOption(
-                voice = firstString(sObj, "voice", "translation") ?: "Не указано",
+                voice = streamVoice,
                 quality = firstString(sObj, "quality") ?: "Не указано",
                 seeders = sObj.optInt("seeders", sObj.optInt("seeds", 0)),
                 url = url,
                 source = source,
-                streamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
-                    ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty(),
+                streamId = stableStreamId,
                 logicalSourceId = firstString(sObj, "logical_source_id", "logicalSourceId"),
                 providerItemId = sObj.optString("provider_item_id").takeIf { it.isNotBlank() }
                     ?: sObj.optString("providerItemId").takeIf { it.isNotBlank() },
@@ -305,7 +309,7 @@ object DomainPlaybackResolver {
                 drmLicenseUrl = sObj.optString("license_url").takeIf { it.isNotBlank() }
                     ?: sObj.optString("drm_license_url").takeIf { it.isNotBlank() }
                     ?: sObj.optString("drmLicenseUrl").takeIf { it.isNotBlank() },
-                language = sObj.optString("language", "ru"),
+                language = inferStreamLanguage(sObj.optString("language").takeIf { it.isNotBlank() }, streamLanguageEvidence),
                 codec = sObj.optString("codec").takeIf { it.isNotBlank() },
                 userAgent = userAgent,
                 headers = headers,
@@ -391,51 +395,72 @@ object DomainPlaybackResolver {
         episode: Int?,
         forceRefresh: Boolean,
     ): PlaybackResolverBackendResponse = withContext(Dispatchers.IO) {
-        try {
-            val encodedId = URLEncoder.encode(mediaId, "UTF-8")
-            val sParam = if (season != null) "?season=$season" else ""
-            val eParam = if (episode != null) "${if (sParam.isEmpty()) "?" else "&"}episode=$episode" else ""
-            val rParam = "${if (sParam.isEmpty() && eParam.isEmpty()) "?" else "&"}refresh=${if (forceRefresh) 1 else 0}"
-            val endpointUrl = "$BASE_BACKEND_URL/api/movie/$encodedId/stream$sParam$eParam$rParam"
-
-            val conn = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 12_000
-                readTimeout = 15_000
+        suspend fun fetch(url: String, readTimeoutMs: Int): Pair<Int, String>? = try {
+            val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 1_000
+                readTimeout = readTimeoutMs
                 setRequestProperty("Accept", "application/json")
             }
             try {
                 val code = conn.responseCode
                 val bodyStream = if (code in 200..299) conn.inputStream else conn.errorStream
-                val body = bodyStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-                if (code !in 200..299) {
-                    return@withContext PlaybackResolverBackendResponse(errorCode = "BACKEND_HTTP_$code")
-                }
-                if (body.isBlank()) {
-                    return@withContext PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
-                }
-                val obj = JSONObject(body)
-                val status = obj.optString("status").trim().uppercase()
-                val streams = parseCandidateArray(
-                    obj.optJSONArray("streams")
-                        ?: obj.optJSONObject("data")?.optJSONArray("streams")
-                        ?: obj.optJSONArray("data"),
-                    season,
-                    episode,
-                )
-                if (status == "ERROR") {
-                    PlaybackResolverBackendResponse(
-                        errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" },
-                    )
-                } else {
-                    PlaybackResolverBackendResponse(candidates = streams)
-                }
+                code to bodyStream?.bufferedReader()?.use { it.readText() }.orEmpty()
             } finally {
                 conn.disconnect()
             }
         } catch (_: java.net.SocketTimeoutException) {
-            PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
+            null
         } catch (_: java.io.IOException) {
-            PlaybackResolverBackendResponse(errorCode = "BACKEND_UNREACHABLE")
+            null
+        }
+
+        try {
+            val encodedId = URLEncoder.encode(mediaId, "UTF-8")
+
+            // Fast path: catalog details already carry provider-resolved streams
+            // for most known media. Reusing them avoids a second, expensive
+            // provider discovery call during one-click playback.
+            if (!forceRefresh) {
+                val details = fetch("$BASE_BACKEND_URL/api/movie/$encodedId", 1_600)
+                if (details != null && details.first in 200..299 && details.second.isNotBlank()) {
+                    val root = JSONObject(details.second)
+                    val movie = root.optJSONObject("movie") ?: root
+                    val streams = parseCandidateArray(movie.optJSONArray("streams"), season, episode)
+                    if (streams.isNotEmpty()) {
+                        return@withContext PlaybackResolverBackendResponse(candidates = streams)
+                    }
+                }
+            }
+
+            val sParam = if (season != null) "?season=$season" else ""
+            val eParam = if (episode != null) "${if (sParam.isEmpty()) "?" else "&"}episode=$episode" else ""
+            val rParam = "${if (sParam.isEmpty() && eParam.isEmpty()) "?" else "&"}refresh=${if (forceRefresh) 1 else 0}"
+            val endpointUrl = "$BASE_BACKEND_URL/api/movie/$encodedId/stream$sParam$eParam$rParam"
+            val response = fetch(endpointUrl, 2_000)
+                ?: return@withContext PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
+            val (code, body) = response
+            if (code !in 200..299) {
+                return@withContext PlaybackResolverBackendResponse(errorCode = "BACKEND_HTTP_$code")
+            }
+            if (body.isBlank()) {
+                return@withContext PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
+            }
+            val obj = JSONObject(body)
+            val status = obj.optString("status").trim().uppercase()
+            val streams = parseCandidateArray(
+                obj.optJSONArray("streams")
+                    ?: obj.optJSONObject("data")?.optJSONArray("streams")
+                    ?: obj.optJSONArray("data"),
+                season,
+                episode,
+            )
+            if (status == "ERROR") {
+                PlaybackResolverBackendResponse(
+                    errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" },
+                )
+            } else {
+                PlaybackResolverBackendResponse(candidates = streams)
+            }
         } catch (_: Exception) {
             PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
         }
@@ -464,8 +489,8 @@ object DomainPlaybackResolver {
                 "&category=${URLEncoder.encode(category, "UTF-8")}$yParam$sParam$eParam$rParam"
 
             val conn = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 12_000
-                readTimeout = 15_000
+                connectTimeout = 1_500
+                readTimeout = 4_200
                 setRequestProperty("Accept", "application/json")
             }
             try {
@@ -606,6 +631,20 @@ object DomainPlaybackResolver {
             }
 
             val initial = usableCandidates(request, initialCandidates)
+            if (initial.isNotEmpty() && !forceRefresh) {
+                val rankedInitial = StreamRanker.rankCandidates(
+                    StreamDeduplicator.deduplicate(initial),
+                    context = StreamRankingContext(
+                        requestedVoice = request.requestedVoice,
+                        requestedQuality = request.requestedQuality,
+                        failedStreamIds = emptySet(),
+                    ),
+                )
+                if (rankedInitial.isNotEmpty()) {
+                    return@withContext PlaybackResolverResult.Success(rankedInitial)
+                }
+            }
+
             val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                 backend.resolveByIdentity(request, forceRefresh)
             } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")

@@ -58,6 +58,7 @@ class StreamFailurePolicyTest {
         val wrapped = IllegalStateException("outer", ConnectException("offline"))
         assertEquals(StreamFailureClass.NETWORK, StreamFailureClassifier.fromThrowable(wrapped))
         assertEquals(StreamFailureClass.NETWORK, StreamFailureClassifier.fromReason("STARTUP_TIMEOUT"))
+        assertEquals(StreamFailureClass.NETWORK, StreamFailureClassifier.fromReason("BUFFERING_TIMEOUT"))
         assertEquals(StreamFailureClass.NON_NETWORK, StreamFailureClassifier.fromReason("PREPARE_FAILED"))
     }
 }

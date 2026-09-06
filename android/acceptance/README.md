@@ -2,6 +2,18 @@
 
 These checks exercise the installed Movia loopback control plane and the native Jarvis MCP adapter. Normal agent operations use authenticated HTTP on `127.0.0.1:8899` and do not require a visible Activity or Shizuku.
 
+
+## One-command smoke acceptance
+
+The release-readiness smoke gate is available directly as:
+
+```sh
+python3 acceptance/movia_acceptance.py
+```
+
+and through the Jarvis MCP tool `movia_acceptance`. The command runs live backend, Android/Media3, startup-budget, physical audio-language, quality-control, and series navigation/resume checks. It always emits structured JSON with `total`, `passed`, `failed`, `success_rate`, `stabilization_gate`, `release_gate`, `errors`, and per-check evidence. The startup budget is 10 seconds. `stabilization_gate` uses the interim 98% threshold; `release_gate` and the process exit code require 100% of smoke checks to pass.
+
+This smoke suite is the control framework, not the final 1.0 catalog-coverage gate. Version 1.0.0 still requires the separate 100-random-movie plus series coverage run at 100% acceptance.
 After a **fresh install or app-data clear only**, provision the shared bearer token once:
 
 ```sh

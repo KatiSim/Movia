@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.util.LruCache
 import app.movia.android.domain.model.CatalogCategory
+import app.movia.android.domain.model.inferStreamLanguage
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
@@ -233,13 +234,17 @@ object DemoCatalogRepository : CatalogRepository {
         titleCache.put(CanonicalTextNormalizer.normalize(item.title), item)
     }
 
-    private fun httpGet(path: String): String? {
+    private fun httpGet(
+        path: String,
+        connectTimeoutMs: Int = 10_000,
+        readTimeoutMs: Int = 12_000,
+    ): String? {
         var conn: HttpURLConnection? = null
         return try {
             val url = URL(if (path.startsWith("http")) path else "$BASE_URL$path")
             conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 10_000
-            conn.readTimeout = 12_000
+            conn.connectTimeout = connectTimeoutMs
+            conn.readTimeout = readTimeoutMs
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", "application/json")
             
@@ -525,7 +530,11 @@ object DemoCatalogRepository : CatalogRepository {
     override fun findById(id: String): MediaContent? = movieCache.get(id)
 
     override fun findFullById(id: String): MediaContent? = runSafe {
-        val resp = httpGet("/api/movie/$id") ?: return@runSafe null
+        val resp = httpGet(
+            "/api/movie/$id",
+            connectTimeoutMs = 1_000,
+            readTimeoutMs = 1_800,
+        ) ?: return@runSafe null
         val json = JSONObject(resp)
         val mObj = json.optJSONObject("movie") ?: json
         val item = parseMediaObject(mObj)
@@ -866,15 +875,18 @@ object DemoCatalogRepository : CatalogRepository {
                 val sizeBytes = sObj.optLong("size_bytes", 0L).takeIf { it > 0L }
                     ?: sObj.optLong("size", 0L).takeIf { it > 0L }
                 val resolution = firstStreamString(sObj, "resolution", "video_resolution", "videoResolution")
+                val streamVoice = firstStreamString(sObj, "voice", "translation") ?: "Не указано"
+                val stableStreamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
+                    ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty()
+                val streamLanguageEvidence = listOf(streamVoice, stableStreamId).joinToString(" ")
                 streamsList.add(
                     StreamOption(
-                        voice = firstStreamString(sObj, "voice", "translation") ?: "Не указано",
+                        voice = streamVoice,
                         quality = firstStreamString(sObj, "quality") ?: "Не указано",
                         seeders = sObj.optInt("seeders", sObj.optInt("seeds", 0)),
                         url = streamUrl,
                         source = source,
-                        streamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
-                            ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty(),
+                        streamId = stableStreamId,
                         logicalSourceId = firstStreamString(sObj, "logical_source_id", "logicalSourceId"),
                         providerItemId = sObj.optString("provider_item_id").takeIf { it.isNotBlank() }
                             ?: sObj.optString("providerItemId").takeIf { it.isNotBlank() },
@@ -899,7 +911,7 @@ object DemoCatalogRepository : CatalogRepository {
                         drmLicenseUrl = sObj.optString("license_url").takeIf { it.isNotBlank() }
                             ?: sObj.optString("drm_license_url").takeIf { it.isNotBlank() }
                             ?: sObj.optString("drmLicenseUrl").takeIf { it.isNotBlank() },
-                        language = sObj.optString("language").ifBlank { "ru" },
+                        language = inferStreamLanguage(sObj.optString("language").takeIf { it.isNotBlank() }, streamLanguageEvidence),
                         codec = sObj.optString("codec").takeIf { it.isNotBlank() },
                         userAgent = userAgent,
                         headers = headers,

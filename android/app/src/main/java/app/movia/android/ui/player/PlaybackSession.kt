@@ -65,8 +65,10 @@ internal object MoviaPlaybackRegistry {
 }
 
 private const val TAG = "MoviaPlayer"
-private const val STARTUP_WATCHDOG_MS = 15_000L
-private const val RELOAD_TIMEOUT_MS = 20_000L
+private const val STARTUP_WATCHDOG_MS = 5_000L
+private const val RELOAD_TIMEOUT_MS = 3_000L
+private const val STALL_WATCHDOG_MS = 10_000L
+private const val RESOLVER_TIMEOUT_MS = 6_000L
 private const val MAX_PROBLEM_MEMORY = 64
 
 internal data class TrackOverrideLocation(val groupOrdinal: Int, val trackIndex: Int)
@@ -81,6 +83,43 @@ internal fun locateProviderTrackIndex(groupLengths: List<Int>, providerIndex: In
     }
     return null
 }
+
+
+internal data class TrackFormatDescriptor(val label: String = "", val language: String = "")
+internal data class TrackGroupDescriptor(val id: String = "", val formats: List<TrackFormatDescriptor>)
+
+internal fun locateProviderTrackByMetadata(
+    groups: List<TrackGroupDescriptor>,
+    providerIndex: Int,
+    expectedLanguage: String? = null,
+): TrackOverrideLocation? {
+    if (providerIndex < 0) return null
+    val expected = expectedLanguage?.trim()?.lowercase().orEmpty()
+    val suffix = Regex("(?:^|[^0-9])${providerIndex}$")
+    val exact = buildList {
+        groups.forEachIndexed { groupOrdinal, group ->
+            group.formats.forEachIndexed { trackIndex, format ->
+                val identity = listOf(group.id, format.label).joinToString(" ").lowercase()
+                if (suffix.containsMatchIn(identity)) {
+                    add(Triple(groupOrdinal, trackIndex, format.language.trim().lowercase()))
+                }
+            }
+        }
+    }
+    val preferred = exact.firstOrNull { expected.isNotBlank() && it.third.startsWith(expected) }
+        ?: exact.firstOrNull()
+    if (preferred != null) return TrackOverrideLocation(preferred.first, preferred.second)
+    return locateProviderTrackIndex(groups.map { it.formats.size }, providerIndex)
+}
+
+internal fun samePlaybackLocator(left: StreamCandidate, right: StreamCandidate): Boolean =
+    left.url.trim() == right.url.trim() &&
+        left.headers == right.headers &&
+        left.userAgent == right.userAgent &&
+        left.mimeType == right.mimeType &&
+        left.drmScheme == right.drmScheme &&
+        left.drmLicenseUrl == right.drmLicenseUrl &&
+        left.transport.equals(right.transport, ignoreCase = true)
 
 internal fun canSwitchTracksInPlace(current: StreamCandidate?, target: StreamCandidate): Boolean {
     current ?: return false
@@ -216,8 +255,8 @@ class DynamicHeaderDataSource(
             val httpFactory = DefaultHttpDataSource.Factory()
                 .setUserAgent(requestProfile.userAgent)
                 .setAllowCrossProtocolRedirects(true)
-                .setConnectTimeoutMs(8_000)
-                .setReadTimeoutMs(15_000)
+                .setConnectTimeoutMs(5_000)
+                .setReadTimeoutMs(8_000)
                 .setDefaultRequestProperties(headers)
             val dataSource = DefaultDataSource.Factory(context, httpFactory).createDataSource()
             listeners.forEach(dataSource::addTransferListener)
@@ -259,11 +298,13 @@ class PlaybackSession(context: Context) {
     private val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory, extractorsFactory)
     private val loadControl = DefaultLoadControl.Builder()
         .setBufferDurationsMs(
-            300_000,
-            360_000,
-            2_500,
-            5_000,
+            15_000,
+            45_000,
+            1_000,
+            2_000,
         )
+        .setPrioritizeTimeOverSizeThresholds(true)
+        .setBackBuffer(10_000, true)
         .build()
 
     /** One PlaybackSession owns exactly one player and one MediaSession. */
@@ -296,6 +337,7 @@ class PlaybackSession(context: Context) {
     private var recoveryAttemptCount = 0
     private var recoveryAttemptBudget = 1
     private var watchdogJob: Job? = null
+    private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
     private var appliedTrackSelectionKey: String? = null
 
@@ -318,12 +360,28 @@ class PlaybackSession(context: Context) {
         MoviaPlaybackRegistry.current = this
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying) watchdogJob?.cancel()
+                if (isPlaying) {
+                    watchdogJob?.cancel()
+                    stallWatchdogJob?.cancel()
+                }
                 publishSnapshot()
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
-                if (playbackState == Player.STATE_READY) watchdogJob?.cancel()
+                when (playbackState) {
+                    Player.STATE_READY -> {
+                        watchdogJob?.cancel()
+                        stallWatchdogJob?.cancel()
+                    }
+                    Player.STATE_BUFFERING -> {
+                        if (player.playWhenReady) {
+                            startStallWatchdog(playbackGeneration)
+                        }
+                    }
+                    Player.STATE_ENDED, Player.STATE_IDLE -> {
+                        stallWatchdogJob?.cancel()
+                    }
+                }
                 publishSnapshot()
             }
 
@@ -333,11 +391,17 @@ class PlaybackSession(context: Context) {
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                if (!playWhenReady) {
+                    stallWatchdogJob?.cancel()
+                } else if (player.playbackState == Player.STATE_BUFFERING) {
+                    startStallWatchdog(playbackGeneration)
+                }
                 publishSnapshot()
             }
 
             override fun onPlayerError(error: PlaybackException) {
                 watchdogJob?.cancel()
+                stallWatchdogJob?.cancel()
                 val candidateId = activeCandidate?.stableStreamId ?: "unknown"
                 // Error messages may contain URLs or provider material; only
                 // log the stable ID and Media3 error code.
@@ -478,9 +542,23 @@ class PlaybackSession(context: Context) {
 
     private fun recordFailure(candidate: StreamCandidate?, failureClass: StreamFailureClass) {
         candidate ?: return
+        if (failureClass == StreamFailureClass.NETWORK) {
+            // A provider may expose one physical HLS/DASH locator as many logical
+            // voice/quality variants. Once the locator itself fails on the
+            // network, retrying every sibling variant only burns startup time.
+            // Skip sibling variants for this playback generation, while keeping
+            // the longer-lived problem tracker threshold unchanged.
+            candidates.filter { samePlaybackLocator(it, candidate) }.forEach { sibling ->
+                failedStreamIds += sibling.stableStreamId
+            }
+            while (failedStreamIds.size > MAX_PROBLEM_MEMORY) {
+                failedStreamIds.remove(failedStreamIds.first())
+            }
+        }
         if (problemTracker.shouldMarkProblem(candidate, failureClass)) {
             markProblem(candidate)
         }
+        publishCandidateOptions()
     }
 
     private fun clearProblemMemory(candidate: StreamCandidate) {
@@ -568,7 +646,20 @@ class PlaybackSession(context: Context) {
             // the same provider index. If duplicate failover groups exist, the
             // primary group set is encountered first.
             val typedGroups = tracks.groups.filter { it.type == type }
-            val location = locateProviderTrackIndex(typedGroups.map { it.length }, providerTrackIndex)
+            val descriptors = typedGroups.map { group ->
+                TrackGroupDescriptor(
+                    id = group.mediaTrackGroup.id,
+                    formats = (0 until group.length).map { trackIndex ->
+                        val format = group.mediaTrackGroup.getFormat(trackIndex)
+                        TrackFormatDescriptor(
+                            label = format.label.orEmpty(),
+                            language = format.language.orEmpty(),
+                        )
+                    },
+                )
+            }
+            val expectedLanguage = if (type == C.TRACK_TYPE_AUDIO) candidate.language else null
+            val location = locateProviderTrackByMetadata(descriptors, providerTrackIndex, expectedLanguage)
                 ?: return null
             return typedGroups[location.groupOrdinal] to location.trackIndex
         }
@@ -690,6 +781,26 @@ class PlaybackSession(context: Context) {
         }
     }
 
+    private fun startStallWatchdog(generation: Long) {
+        if (stallWatchdogJob?.isActive == true) return
+        val candidate = activeCandidate ?: return
+        val candidateId = candidate.stableStreamId
+        stallWatchdogJob = scope.launch {
+            delay(STALL_WATCHDOG_MS)
+            if (!isActive || !isCurrentGeneration(generation)) return@launch
+            if (activeCandidate?.stableStreamId != candidateId) return@launch
+            if (player.playbackState == Player.STATE_BUFFERING && player.playWhenReady) {
+                Log.w(TAG, "Stall watchdog fired for candidate id=$candidateId after ${STALL_WATCHDOG_MS}ms")
+                val position = maxOf(
+                    0L,
+                    _state.value.currentPositionMs,
+                    player.currentPosition.coerceAtLeast(0L),
+                )
+                handleCandidateFailure("BUFFERING_TIMEOUT", position, generation)
+            }
+        }
+    }
+
     /** Prepare one candidate; no URL preflight is performed. */
     private fun prepareCandidate(
         candidate: StreamCandidate,
@@ -699,6 +810,7 @@ class PlaybackSession(context: Context) {
     ): Boolean {
         if (!isCurrentGeneration(generation)) return false
         val uri = consumedUri(candidate, request) ?: return false
+        stallWatchdogJob?.cancel()
         activeCandidate = candidate
         activeConsumedUri = uri
         dataSourceFactory.setRequestProfile(StreamRequestProfile.from(candidate, uri))
@@ -743,6 +855,7 @@ class PlaybackSession(context: Context) {
 
     private fun failPlayback(reason: String) {
         watchdogJob?.cancel()
+        stallWatchdogJob?.cancel()
         player.stop()
         player.clearMediaItems()
         activeCandidate = null
@@ -752,7 +865,7 @@ class PlaybackSession(context: Context) {
             switchState = PlaybackSwitchState.FAILED,
             isPlaying = false,
             playWhenReady = false,
-            statusMessage = "Источники для данного тайтла временно недоступны",
+            statusMessage = "Произошла ошибка: повторите",
             activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(
                 activeStreamId = null,
                 activeQuality = null,
@@ -851,6 +964,7 @@ class PlaybackSession(context: Context) {
         failureClass: StreamFailureClass = StreamFailureClassifier.fromReason(reason),
     ) {
         if (!isCurrentGeneration(generation) || recoveryJob?.isActive == true) return
+        stallWatchdogJob?.cancel()
         recoveryJob = scope.launch {
             try {
                 recoverFromFailure(reason, resumePositionMs, generation, failureClass)
@@ -879,6 +993,7 @@ class PlaybackSession(context: Context) {
     ) {
         val generation = nextPlaybackGeneration()
         watchdogJob?.cancel()
+        stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         failedStreamIds.clear()
         problemTracker.reset()
@@ -940,10 +1055,12 @@ class PlaybackSession(context: Context) {
         )
         scope.launch {
             val result = try {
-                DomainPlaybackResolver.resolveStreams(
-                    request = request,
-                    initialCandidates = seeds,
-                )
+                withTimeoutOrNull(RESOLVER_TIMEOUT_MS) {
+                    DomainPlaybackResolver.resolveStreams(
+                        request = request,
+                        initialCandidates = seeds,
+                    )
+                } ?: PlaybackResolverResult.Error("Таймаут резолвера потоков (${RESOLVER_TIMEOUT_MS / 1000}с)")
             } catch (throwable: Throwable) {
                 PlaybackResolverResult.Error("Резолвер потоков завершился с ошибкой", throwable)
             }
@@ -993,6 +1110,7 @@ class PlaybackSession(context: Context) {
         if (stream.url.isBlank() || !_state.value.hasMedia) return
         val generation = nextPlaybackGeneration()
         watchdogJob?.cancel()
+        stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         recoveryAttemptCount = 0
         val position = if (resumePositionMs >= 0L) resumePositionMs else {
@@ -1140,6 +1258,7 @@ class PlaybackSession(context: Context) {
     fun stopAndClear() {
         nextPlaybackGeneration()
         watchdogJob?.cancel()
+        stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         player.stop()
         player.clearMediaItems()
@@ -1153,6 +1272,26 @@ class PlaybackSession(context: Context) {
         reloadAttemptedStreamIds.clear()
         _streamOptions.value = emptyList()
         _state.value = PlaybackState()
+    }
+
+    fun retry() {
+        val request = playbackRequest ?: return
+        Log.i(TAG, "Retrying playback for mediaId=${request.mediaId}")
+        val current = _state.value
+        start(
+            mediaId = request.mediaId,
+            title = current.displayTitle.ifBlank { request.title },
+            seasonNumber = request.seasonNumber,
+            episodeNumber = request.episodeNumber,
+            startPositionMs = current.currentPositionMs,
+            audioTrackId = current.audioTrackId,
+            subtitleTrackId = current.subtitleTrackId,
+            contentYear = request.year,
+            mediaType = request.mediaType,
+            preferredQuality = request.requestedQuality,
+            preferredVoice = request.requestedVoice,
+            preferredStreamId = request.requestedStreamId,
+        )
     }
 
     internal fun realPlaybackEvidence(): Pair<Boolean, Long> =
@@ -1217,6 +1356,7 @@ class PlaybackSession(context: Context) {
     fun release() {
         if (MoviaPlaybackRegistry.current === this) MoviaPlaybackRegistry.current = null
         watchdogJob?.cancel()
+        stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         scope.cancel()
         mediaSession.release()

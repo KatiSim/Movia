@@ -197,6 +197,34 @@ def _timestamp_seconds(value: Any) -> Optional[float]:
     return parsed.timestamp()
 
 
+def _direct_stream_expiry_seconds(stream: Dict[str, Any]) -> Optional[float]:
+    """Return an explicit signed-URL expiry when the provider exposes one.
+
+    Some CDN manifests remain valid far longer than the catalog write time.
+    Re-resolving those URLs every five minutes adds provider latency without
+    improving playback. Unknown/unsigned URLs still use the catalog timestamp.
+    """
+    raw_url = str(stream.get("url") or stream.get("playback_url") or "").strip()
+    if not raw_url.lower().startswith(("http://", "https://")):
+        return None
+    try:
+        query = urllib.parse.parse_qs(urllib.parse.urlsplit(raw_url).query)
+    except Exception:
+        return None
+    for key in ("expires", "expire", "exp", "t"):
+        raw = (query.get(key) or [None])[0]
+        if raw is None:
+            continue
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            continue
+        # Accept only plausible Unix timestamps, never relative/opaque tokens.
+        if value >= 1_000_000_000:
+            return value
+    return None
+
+
 def catalog_streams_need_refresh(
     movie: Dict[str, Any],
     streams: List[Dict[str, Any]],
@@ -230,6 +258,20 @@ def catalog_streams_need_refresh(
         return True
 
     current_seconds = time.time() if now is None else float(now)
+
+    # Prefer an explicit signed-URL lifetime when available. One healthy direct
+    # candidate is enough to start playback immediately; a failed locator still
+    # falls through to the existing runtime refresh/failover path.
+    explicit_expiries = [
+        expiry
+        for stream in streams
+        if isinstance(stream, dict)
+        for expiry in [_direct_stream_expiry_seconds(stream)]
+        if expiry is not None
+    ]
+    if explicit_expiries and max(explicit_expiries) > current_seconds + 60.0:
+        return False
+
     return current_seconds - updated_seconds >= DIRECT_STREAM_REFRESH_SECONDS
 
 ARIA2_RPC_URL = "http://127.0.0.1:6800/jsonrpc"

@@ -371,6 +371,10 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         direct = [{"source": "Zona", "url": "https://media.example.test/title.m3u8"}]
         self.assertFalse(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, direct, now=1000 + streamer.DIRECT_STREAM_REFRESH_SECONDS - 1))
         self.assertTrue(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, direct, now=1000 + streamer.DIRECT_STREAM_REFRESH_SECONDS))
+        signed_direct = [{"source": "Collaps", "url": "https://cdn.example/master.m3u8?t=2000000500"}]
+        self.assertFalse(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, signed_direct, now=2_000_000_000))
+        expired_direct = [{"source": "Collaps", "url": "https://cdn.example/master.m3u8?t=1999999999"}]
+        self.assertTrue(streamer.catalog_streams_need_refresh({"link_updated_at": 1000}, expired_direct, now=2_000_000_000))
         self.assertFalse(streamer.catalog_streams_need_refresh({}, [{"source": "Rutor", "url": "magnet:?xt=urn:btih:" + "a" * 40}], now=10_000_000))
 
 if __name__ == "__main__":
