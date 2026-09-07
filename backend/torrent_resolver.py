@@ -37,6 +37,7 @@ import sqlite3
 import hashlib
 import asyncio
 import logging
+import time
 from logging.handlers import RotatingFileHandler
 import urllib.parse
 import urllib.request
@@ -49,6 +50,7 @@ from typing import List, Dict, Any, Optional
 from stream_validation import is_valid_btih, sanitize_streams, stream_variant_key
 from catalog_schema_v2 import normalize_ru_text
 from archive_source import fetch_archive_streams
+from provider_reliability import annotate_streams, observe, should_call
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
@@ -945,6 +947,23 @@ async def fetch_rutor_torrents(title: str, year: int = 2024, category: str = "mo
             streams.extend(result)
     return streams
 
+async def _guarded_provider_call(provider: str, factory) -> List[Dict[str, Any]]:
+    """Run one provider only when its bounded reliability circuit permits it."""
+    if not should_call(provider):
+        logger.info("Provider %s skipped during reliability cooldown", provider)
+        return []
+    started = time.monotonic()
+    try:
+        result = await factory()
+        status = "OK" if result else "NO_RESULTS"
+    except Exception as exc:
+        logger.debug("Provider %s error: %s", provider, exc)
+        result = []
+        status = "PROVIDER_ERROR"
+    observe(provider, status, latency_ms=(time.monotonic() - started) * 1000.0)
+    return annotate_streams(result, provider) if result else []
+
+
 async def async_resolve_torrents(
     title: str,
     year: int = 2024,
@@ -974,38 +993,56 @@ async def async_resolve_torrents(
     # 0. Rutor queries (Russian studios & dubs: RHS, LostFilm, HDRezka, Dub)
     for q in [ru_title, f"{ru_title} {eff_year}".strip()]:
         if q:
-            tasks.append(fetch_rutor_torrents(title=q, year=eff_year, category=eff_cat, season=season, episode=episode))
+            tasks.append(_guarded_provider_call(
+                "rutor",
+                lambda q=q: fetch_rutor_torrents(
+                    title=q, year=eff_year, category=eff_cat, season=season, episode=episode
+                ),
+            ))
 
     # 1. Apibay queries for all title variants
     for q in search_queries[:4]:
-        tasks.append(fetch_apibay_torrents(title=q, year=eff_year, category=eff_cat, season=season, episode=episode))
+        tasks.append(_guarded_provider_call(
+            "apibay",
+            lambda q=q: fetch_apibay_torrents(
+                title=q, year=eff_year, category=eff_cat, season=season, episode=episode
+            ),
+        ))
 
     # 2. YTS queries for movie English variants
     if not is_series:
         for q in [en_title, title] if en_title != title else [title]:
-            tasks.append(fetch_yts_torrents(title=q, year=eff_year))
+            tasks.append(_guarded_provider_call(
+                "yts", lambda q=q: fetch_yts_torrents(title=q, year=eff_year)
+            ))
 
     # 3. Dedicated TV and anime providers. They are queried only for the
     # categories they actually index, keeping provider load bounded.
     if is_series:
         for q in list(dict.fromkeys([ru_title, en_title, title]))[:2]:
             if q:
-                tasks.append(fetch_eztv_torrents(
-                    title=q,
-                    year=eff_year,
-                    category=eff_cat,
-                    season=season,
-                    episode=episode,
+                tasks.append(_guarded_provider_call(
+                    "eztv",
+                    lambda q=q: fetch_eztv_torrents(
+                        title=q,
+                        year=eff_year,
+                        category=eff_cat,
+                        season=season,
+                        episode=episode,
+                    ),
                 ))
     if eff_cat in {"anime", "animation"}:
         for q in list(dict.fromkeys([ru_title, en_title, title]))[:2]:
             if q:
-                tasks.append(fetch_nyaa_torrents(
-                    title=q,
-                    year=eff_year,
-                    category=eff_cat,
-                    season=season,
-                    episode=episode,
+                tasks.append(_guarded_provider_call(
+                    "nyaa",
+                    lambda q=q: fetch_nyaa_torrents(
+                        title=q,
+                        year=eff_year,
+                        category=eff_cat,
+                        season=season,
+                        episode=episode,
+                    ),
                 ))
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -1045,14 +1082,25 @@ async def async_resolve_torrents(
         # material. It is queried only after normal providers return no
         # identity-validated torrent, so broad catalog enrichment is not
         # slowed by an extra remote lookup.
-        try:
-            direct_streams = await fetch_archive_streams(
-                title=title,
-                year=eff_year,
-                expected_titles=expected_titles,
+        if should_call("archive"):
+            archive_started = time.monotonic()
+            try:
+                direct_streams = await fetch_archive_streams(
+                    title=title,
+                    year=eff_year,
+                    expected_titles=expected_titles,
+                )
+                archive_status = "OK" if direct_streams else "NO_RESULTS"
+            except Exception as exc:
+                direct_streams = []
+                archive_status = "PROVIDER_ERROR"
+                logger.debug("Archive source error for %s: %s", title, exc)
+            observe(
+                "archive", archive_status,
+                latency_ms=(time.monotonic() - archive_started) * 1000.0,
             )
-        except Exception as exc:
-            logger.debug("Archive source error for %s: %s", title, exc)
+            if direct_streams:
+                direct_streams = annotate_streams(direct_streams, "archive")
 
     # Keep all validated transports in one ranking pool. The shared playback
     # ranker may apply the caller's requested voice/quality and observed health.

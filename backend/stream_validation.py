@@ -493,6 +493,14 @@ def sanitize_streams(
             ("skip_intervals", ("skip_intervals", "skipIntervals")),
             ("reload_data", ("reload_data", "reloadData")),
             ("reload_supported", ("reload_supported", "reloadSupported")),
+            ("health_score", ("health_score", "healthScore")),
+            ("startup_latency_ms", ("startup_latency_ms", "startupLatencyMs")),
+            ("recent_failure_count", ("recent_failure_count", "recentFailureCount")),
+            # Legacy Block-4 marker: retained only so playback ranking can scrub
+            # discovery health accidentally persisted into concrete stream health.
+            ("provider_reliability", ("provider_reliability", "providerReliability")),
+            ("discovery_reliability", ("discovery_reliability", "discoveryReliability")),
+            ("discovery_failure_count", ("discovery_failure_count", "discoveryFailureCount")),
             ("transport_metadata", ("transport_metadata", "transportMetadata")),
         ):
             value = None
@@ -520,9 +528,15 @@ def sanitize_streams(
                 value = _safe_reload_data(value)
             elif canonical == "reload_supported":
                 value = _safe_bool(value)
+            elif canonical in {"health_score", "provider_reliability", "discovery_reliability"}:
+                try:
+                    value = min(max(float(value), 0.0), 1.0)
+                except (TypeError, ValueError, OverflowError):
+                    value = None
             elif canonical in {
                 "source_type_id", "content_type_id", "video_track_index",
-                "audio_track_index", "duration", "size",
+                "audio_track_index", "duration", "size", "startup_latency_ms",
+                "recent_failure_count", "discovery_failure_count",
             }:
                 value = _safe_int(value)
             elif canonical == "unavailable_quality":

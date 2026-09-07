@@ -1,6 +1,7 @@
 import unittest
+from unittest.mock import patch
 
-from collaps_provider import parse_collaps_page
+from collaps_provider import parse_collaps_page, resolve_collaps, get_last_collaps_diagnostics
 
 
 class CollapsProviderTrackIndexTest(unittest.TestCase):
@@ -32,6 +33,16 @@ class CollapsProviderTrackIndexTest(unittest.TestCase):
         self.assertEqual([0, 1], [s["audio_track_index"] for s in streams])
         self.assertEqual([9, 9], [s["source_type_id"] for s in streams])
 
+
+
+    def test_all_mirror_errors_are_reported_as_provider_error(self):
+        with patch("collaps_provider.get_imdb_id_from_db", return_value="tt123"), \
+                patch("collaps_provider.urllib.request.urlopen", side_effect=TimeoutError("timeout")):
+            streams = resolve_collaps("Example", year=2024)
+        self.assertEqual(streams, [])
+        diagnostics = get_last_collaps_diagnostics()
+        self.assertEqual(diagnostics["status"], "PROVIDER_ERROR")
+        self.assertGreaterEqual(diagnostics["error_count"], 1)
 
 if __name__ == "__main__":
     unittest.main()

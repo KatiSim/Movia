@@ -11,6 +11,7 @@ import logging
 import sqlite3
 import sys
 import threading
+import time
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -18,6 +19,7 @@ from typing import Any, Dict, List, Optional
 import requests
 
 from stream_validation import is_test_stream_url, sanitize_streams
+from provider_reliability import annotate_streams, observe, should_call
 from zona_contract import resolve_zona_for_title, resolve_zona_source_refs
 
 DIR = Path(__file__).resolve().parent
@@ -258,36 +260,71 @@ def query_open_balancer_stream(
     allow_zona_content_lookup: bool = False,
     force_refresh: bool = False,
 ) -> List[Dict[str, Any]]:
-    """Return direct clean-room balancer streams, falling back to Zona/torrents if needed."""
+    """Return direct streams while dynamically bypassing degraded providers.
+
+    Provider ordering is not hard-coded as a quality preference. Each branch is
+    attempted only while its bounded reliability circuit allows a call; outcome
+    metadata is attached to returned streams for the shared backend/Android ranker.
+    """
+    if should_call("collaps"):
+        started = time.monotonic()
+        collaps_streams: List[Dict[str, Any]] = []
+        collaps_status = "UNKNOWN"
+        try:
+            from collaps_provider import resolve_collaps, get_last_collaps_diagnostics
+            collaps_streams = resolve_collaps(
+                title=title,
+                year=year,
+                tmdb_id=tmdb_id,
+                season=season,
+                episode=episode,
+                media_type=media_type,
+            )
+            collaps_diag = get_last_collaps_diagnostics()
+            collaps_status = str(collaps_diag.get("status") or ("OK" if collaps_streams else "NO_RESULTS"))
+        except Exception as exc:
+            collaps_status = "PROVIDER_ERROR"
+            logger.debug("Collaps balancer error: %s", exc)
+        latency_ms = (time.monotonic() - started) * 1000.0
+        state = observe("collaps", collaps_status, latency_ms=latency_ms)
+        if collaps_streams:
+            annotated = annotate_streams(collaps_streams, "collaps")
+            logger.info(
+                "Collaps resolved %d direct streams for '%s' reliability=%.3f",
+                len(annotated), title, state.get("reliability", 0.0),
+            )
+            return annotated
+    else:
+        logger.info("Collaps provider is in bounded reliability cooldown; using fallback branch")
+
+    if not should_call("zona"):
+        logger.info("Zona provider is in bounded reliability cooldown")
+        return []
+
+    started = time.monotonic()
     try:
-        from collaps_provider import resolve_collaps
-        collaps_streams = resolve_collaps(
+        zona_streams = query_zona_api(
             title=title,
             year=year,
-            tmdb_id=tmdb_id,
             season=season,
             episode=episode,
+            allow_torrent_fallback=allow_torrent_fallback,
+            expected_titles=expected_titles,
             media_type=media_type,
+            kinopoisk_id=kinopoisk_id,
+            zona_sources=zona_sources,
+            allow_zona_content_lookup=allow_zona_content_lookup,
+            force_refresh=force_refresh,
         )
-        if collaps_streams:
-            logger.info("Collaps resolved %d direct streams for '%s'", len(collaps_streams), title)
-            return collaps_streams
+        zona_diag = get_last_resolution_diagnostics()
+        zona_status = str(zona_diag.get("status") or ("OK" if zona_streams else "NO_RESULTS"))
     except Exception as exc:
-        logger.debug("Collaps balancer error: %s", exc)
+        logger.debug("Zona balancer error: %s", exc)
+        zona_streams = []
+        zona_status = "PROVIDER_ERROR"
+    observe("zona", zona_status, latency_ms=(time.monotonic() - started) * 1000.0)
+    return annotate_streams(zona_streams, "zona") if zona_streams else []
 
-    return query_zona_api(
-        title=title,
-        year=year,
-        season=season,
-        episode=episode,
-        allow_torrent_fallback=allow_torrent_fallback,
-        expected_titles=expected_titles,
-        media_type=media_type,
-        kinopoisk_id=kinopoisk_id,
-        zona_sources=zona_sources,
-        allow_zona_content_lookup=allow_zona_content_lookup,
-        force_refresh=force_refresh,
-    )
 
 def resolve_balancer(
     title: str,

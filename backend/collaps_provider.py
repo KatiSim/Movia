@@ -12,6 +12,7 @@ import json
 import logging
 import re
 import sqlite3
+import threading
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -20,6 +21,22 @@ from typing import Any, Dict, List, Optional
 logger = logging.getLogger("collaps_provider")
 
 DIR = Path(__file__).resolve().parent
+_COLLAPS_DIAGNOSTICS = threading.local()
+
+
+def _set_collaps_diagnostics(status: str, error_count: int = 0) -> None:
+    _COLLAPS_DIAGNOSTICS.status = str(status or "NO_RESULTS")
+    try:
+        _COLLAPS_DIAGNOSTICS.error_count = max(0, int(error_count))
+    except (TypeError, ValueError):
+        _COLLAPS_DIAGNOSTICS.error_count = 0
+
+
+def get_last_collaps_diagnostics() -> Dict[str, Any]:
+    return {
+        "status": getattr(_COLLAPS_DIAGNOSTICS, "status", "UNKNOWN"),
+        "error_count": getattr(_COLLAPS_DIAGNOSTICS, "error_count", 0),
+    }
 
 MIRRORS = [
     "https://api.delivembd.ws",
@@ -261,8 +278,10 @@ def resolve_collaps(
         effective_imdb = fetch_imdb_id_from_tmdb(title=title, year=year, tmdb_id=tmdb_id, is_tv=is_tv) or ""
 
     if not effective_imdb:
+        _set_collaps_diagnostics("NO_RESULTS", 0)
         return []
 
+    error_count = 0
     for mirror in MIRRORS:
         url = f"{mirror}/embed/imdb/{effective_imdb}"
         try:
@@ -278,11 +297,17 @@ def resolve_collaps(
                         episode=episode,
                     )
                     if streams:
+                        _set_collaps_diagnostics("OK", error_count)
                         return streams
         except Exception as exc:
+            error_count += 1
             logger.debug("Collaps mirror %s error: %s", mirror, exc)
             continue
 
+    _set_collaps_diagnostics(
+        "PROVIDER_ERROR" if error_count >= len(MIRRORS) else "NO_RESULTS",
+        error_count,
+    )
     return []
 
 

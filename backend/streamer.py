@@ -1437,6 +1437,10 @@ def _playback_stream_sort_key(
     except (TypeError, ValueError):
         health = 0.5
     health = min(max(health, 0.0), 1.0)
+    try:
+        recent_failure_count = max(0, int(stream.get("recent_failure_count") or 0))
+    except (TypeError, ValueError):
+        recent_failure_count = 0
     transport = str(stream.get("transport") or "").strip().casefold()
     url = str(stream.get("url") or "").strip().casefold()
     is_p2p = transport in {"torrent", "p2p", "torrent_p2p", "magnet"} or url.startswith("magnet:")
@@ -1472,6 +1476,7 @@ def _playback_stream_sort_key(
         requested_quality_penalty,
         _voice_rank(voice),
         round((1.0 - health) * 10.0, 3),
+        recent_failure_count,
         (1_000_000_000.0 if startup_latency == float("inf") else round(startup_latency / 1000.0, 3)),
         p2p_no_peers_penalty,
         -seeders,
@@ -1484,8 +1489,32 @@ def _playback_stream_sort_key(
 
 
 def _annotate_runtime_stream_health(stream: Dict[str, Any]) -> Dict[str, Any]:
-    """Attach ephemeral playback evidence without mutating catalog storage."""
+    """Normalize stream-level playback evidence without importing discovery health.
+
+    Provider discovery reliability controls whether new network lookups are made.
+    It must never downgrade a previously confirmed HLS/CDN stream merely because
+    the provider search API is temporarily unavailable. Fresh provider responses
+    already carry their aggregate reliability at the resolver boundary.
+    """
     candidate = dict(stream)
+    # Temporary Block-4 builds wrote discovery health into playback fields.
+    # Scrub that coupling while preserving the resolved URL itself.
+    legacy_discovery = candidate.pop("provider_reliability", None)
+    if legacy_discovery is not None:
+        try:
+            legacy_value = float(legacy_discovery)
+            current_health = candidate.get("health_score")
+            if current_health is not None and abs(float(current_health) - legacy_value) < 1e-9:
+                candidate.pop("health_score", None)
+        except (TypeError, ValueError):
+            pass
+        candidate["recent_failure_count"] = 0
+    try:
+        candidate["recent_failure_count"] = max(
+            0, int(candidate.get("recent_failure_count") or 0)
+        )
+    except (TypeError, ValueError):
+        candidate["recent_failure_count"] = 0
     if _stream_local_ready_video(candidate):
         candidate["local_ready"] = True
         candidate["health_score"] = 1.0
@@ -1500,14 +1529,16 @@ def rank_playback_streams(
     requested_quality: Optional[str] = None,
     failed_stream_ids: Optional[set[str]] = None,
 ) -> List[Dict[str, Any]]:
-    """Rank strict matches, health and startup evidence while retaining variants.
+    """Rank stream-level playback evidence while retaining every real variant.
 
-    ``source`` is a stable tie-break only. Provider names and URL schemes never
-    decide the winner on their own. Runtime-local readiness is emitted as
-    ephemeral health/startup evidence so Android sees the same fact as the
-    backend sorter; catalog rows are not rewritten by this annotation.
+    Discovery circuits are intentionally excluded here: a provider API outage is
+    not evidence that an already-resolved CDN/HLS URL is unplayable.
     """
-    annotated = [_annotate_runtime_stream_health(stream) for stream in streams]
+    annotated = [
+        _annotate_runtime_stream_health(stream)
+        for stream in streams
+        if isinstance(stream, dict)
+    ]
     return sorted(
         annotated,
         key=lambda stream: _playback_stream_sort_key(
@@ -1517,7 +1548,6 @@ def rank_playback_streams(
             failed_stream_ids=failed_stream_ids,
         ),
     )
-
 
 def _stream_part_number(stream: Dict[str, Any], key: str) -> Optional[int]:
     value = stream.get(key)
