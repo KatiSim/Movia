@@ -61,6 +61,19 @@ All wifi interfaces:
         self.assertEqual(decision.reason, "unmetered")
         self.assertEqual(run.call_count, 2)
 
+
+    def test_unmetered_wifi_ignores_charging_requirement(self):
+        netstats = """
+Active UID interfaces:
+  iface=wlan0 ident=[{type=-1, metered=false, defaultNetwork=true, transports={1}}]
+All wifi interfaces:
+"""
+        battery = "AC powered: false\nUSB powered: false\nstatus: 3\n"
+        with patch.object(b, "_run_shell", side_effect=[netstats, battery]):
+            decision = b.evaluate_live(require_charging=True)
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.reason, "unmetered")
+
     def test_metered_override_obeys_monthly_cap(self):
         netstats = """
 Active UID interfaces:

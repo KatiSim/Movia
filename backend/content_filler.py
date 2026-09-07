@@ -39,6 +39,11 @@ LOG_FILE = LOG_DIR / "content_filler.log"
 STATE_FILE = DIR / "state.json"
 STATE_VERSION = 2
 STREAM_CLEANUP_VERSION = 3
+PROVIDER_ERROR_RETRY_BASE_SECONDS = 2 * 60 * 60
+PROVIDER_ERROR_RETRY_MAX_SECONDS = 24 * 60 * 60
+NO_SOURCE_RETRY_SECONDS = 7 * 24 * 60 * 60
+IDENTITY_RETRY_SECONDS = 30 * 24 * 60 * 60
+PERSISTENCE_RETRY_SECONDS = 60 * 60
 
 logger = logging.getLogger("content_filler")
 logger.setLevel(logging.INFO)
@@ -88,6 +93,8 @@ def _new_state() -> Dict[str, Any]:
         "invalid_result_total": 0,
         "persist_failure_total": 0,
         "provider_error_total": 0,
+        "retry_after": {},
+        "failure_streaks": {},
         "last_pass_completed_at": None,
         "updated_at": _now(),
     }
@@ -235,6 +242,11 @@ def load_state() -> Dict[str, Any]:
     ):
         state[key] = _as_int(state.get(key))
 
+    retry_after = state.get("retry_after")
+    state["retry_after"] = retry_after if isinstance(retry_after, dict) else {}
+    failure_streaks = state.get("failure_streaks")
+    state["failure_streaks"] = failure_streaks if isinstance(failure_streaks, dict) else {}
+
     # Run once for each cleanup contract revision. This removes legacy or
     # identity-mismatched payloads and re-queues their rows without rebuilding
     # the database.
@@ -247,7 +259,59 @@ def load_state() -> Dict[str, Any]:
         state["persisted_total"] = state["success_total"]
         save_state(state)
     return state
-def _fetch_rows(db: Any, last_id: int) -> List[Any]:
+def _retry_key(content_id: int) -> str:
+    return str(max(0, int(content_id)))
+
+
+def _retry_due(state: Dict[str, Any], content_id: int, now_epoch: Optional[float] = None) -> bool:
+    schedule = state.get("retry_after") if isinstance(state.get("retry_after"), dict) else {}
+    try:
+        retry_at = float(schedule.get(_retry_key(content_id)) or 0.0)
+    except (TypeError, ValueError):
+        retry_at = 0.0
+    return retry_at <= (time.time() if now_epoch is None else float(now_epoch))
+
+
+def _record_retry_outcome(
+    state: Dict[str, Any],
+    content_id: int,
+    status: str,
+    now_epoch: Optional[float] = None,
+) -> None:
+    key = _retry_key(content_id)
+    now = time.time() if now_epoch is None else float(now_epoch)
+    schedule = state.setdefault("retry_after", {})
+    streaks = state.setdefault("failure_streaks", {})
+    if not isinstance(schedule, dict):
+        schedule = state["retry_after"] = {}
+    if not isinstance(streaks, dict):
+        streaks = state["failure_streaks"] = {}
+
+    if status in {"persisted", "duplicate"}:
+        schedule.pop(key, None)
+        streaks.pop(key, None)
+        return
+    if status == "provider_error":
+        failures = max(1, _as_int(streaks.get(key), 0) + 1)
+        streaks[key] = failures
+        delay = min(
+            PROVIDER_ERROR_RETRY_MAX_SECONDS,
+            PROVIDER_ERROR_RETRY_BASE_SECONDS * (2 ** min(failures - 1, 8)),
+        )
+    elif status == "no_source":
+        streaks.pop(key, None)
+        delay = NO_SOURCE_RETRY_SECONDS
+    elif status == "rejected_by_identity":
+        streaks.pop(key, None)
+        delay = IDENTITY_RETRY_SECONDS
+    elif status == "persistence_error":
+        delay = PERSISTENCE_RETRY_SECONDS
+    else:
+        delay = PROVIDER_ERROR_RETRY_BASE_SECONDS
+    schedule[key] = int(now + delay)
+
+
+def _fetch_rows(db: Any, last_id: int, state: Optional[Dict[str, Any]] = None) -> List[Any]:
     query = f"""
         SELECT id, tmdb_id, media_type, title, original_title, year, category, rating, streams, link_verified
         FROM movies
@@ -258,7 +322,11 @@ def _fetch_rows(db: Any, last_id: int) -> List[Any]:
         query += " AND id > ?"
         params.append(last_id)
     query += " ORDER BY id ASC"
-    return db.execute(query, tuple(params)).fetchall()
+    rows = db.execute(query, tuple(params)).fetchall()
+    if not state:
+        return rows
+    now_epoch = time.time()
+    return [row for row in rows if _retry_due(state, _as_int(row["id"]), now_epoch)]
 
 
 def _valid_persisted_row(content_id: int) -> bool:
@@ -334,7 +402,9 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         row_provider_errors += 1
         logger.debug("Balancer error for %s: %s", title, exc)
 
-    if not found_stream:
+    background_bulk = os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+    allow_background_torrent = os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
+    if not found_stream and (not background_bulk or allow_background_torrent):
         try:
             torrent_result = resolve_torrent(
                 title=search_title,
@@ -440,7 +510,7 @@ def fill_content(
             return {"processed": 0, "blocked": True, "reason": decision.reason}
 
     with get_db() as db:
-        rows = _fetch_rows(db, last_id)
+        rows = _fetch_rows(db, last_id, state)
         if limit and not force_all:
             rows = rows[: int(limit)]
 
@@ -537,6 +607,7 @@ def fill_content(
                 provider_errors += _as_int(result.get("provider_errors"))
                 status = str(result.get("status") or "provider_error")
                 status_counts[status] += 1
+                _record_retry_outcome(state, content_id, status)
                 status_totals = state.setdefault("status_totals", {})
                 status_totals[status] = _as_int(status_totals.get(status)) + 1
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Fail-closed network/battery guard for Movia background enrichment.
 
-Bulk enrichment must never run on a metered default network.  The optional
-mobile quota is intentionally conservative and uses Android's UID-level
-physical cellular accounting for Termux.  On-demand playback is not governed
-by this module.
+Bulk enrichment runs without a byte quota on an unmetered default network.
+On a metered default network it is allowed only while a conservative monthly
+mobile quota remains.  The quota uses Android UID-level physical cellular
+accounting for Termux.  On-demand playback is not governed by this module.
 """
 from __future__ import annotations
 
@@ -19,8 +19,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 TERMUX_PACKAGE = "com.termux"
-DEFAULT_MONTHLY_GIB = 4.0
-DEFAULT_DAILY_MIB = 128.0
+DEFAULT_MONTHLY_GIB = 4.2
+DEFAULT_DAILY_MIB = 0.0
 TEMPORARY_BLOCK_EXIT = 75
 
 _UID_RE = re.compile(r"package:com\.termux\s+uid:(\d+)")
@@ -131,7 +131,7 @@ def evaluate_live(
     daily_mib: float = DEFAULT_DAILY_MIB,
 ) -> BudgetDecision:
     month_limit = max(1, int(float(monthly_gib) * 1024**3))
-    day_limit = max(1, int(float(daily_mib) * 1024**2))
+    day_limit = max(0, int(float(daily_mib) * 1024**2))
     try:
         netstats = _run_shell("dumpsys netstats")
         battery = _run_shell("dumpsys battery")
@@ -141,11 +141,12 @@ def evaluate_live(
 
     unmetered = parse_default_unmetered(netstats)
     charging = parse_charging(battery)
-    if require_charging and not charging:
-        return BudgetDecision(False, "not_charging", unmetered, charging,
-                              month_limit_bytes=month_limit, day_limit_bytes=day_limit)
+    # User policy: Wi-Fi/unmetered background work has no byte or charging cap.
     if unmetered:
         return BudgetDecision(True, "unmetered", True, charging,
+                              month_limit_bytes=month_limit, day_limit_bytes=day_limit)
+    if require_charging and not charging:
+        return BudgetDecision(False, "not_charging", False, charging,
                               month_limit_bytes=month_limit, day_limit_bytes=day_limit)
     if not allow_metered:
         return BudgetDecision(False, "metered_default", False, charging,
@@ -174,7 +175,7 @@ def evaluate_live(
     if month_bytes >= month_limit:
         reason = "monthly_mobile_budget_exhausted"
         allowed = False
-    elif day_bytes >= day_limit:
+    elif day_limit > 0 and day_bytes >= day_limit:
         reason = "daily_mobile_budget_exhausted"
         allowed = False
     else:
@@ -189,8 +190,8 @@ def evaluate_live(
 
 def background_bulk_allowed() -> BudgetDecision:
     return evaluate_live(
-        require_charging=os.environ.get("MOVIA_BACKGROUND_REQUIRE_CHARGING", "1") != "0",
-        allow_metered=os.environ.get("MOVIA_BACKGROUND_ALLOW_METERED", "0") == "1",
+        require_charging=os.environ.get("MOVIA_BACKGROUND_REQUIRE_CHARGING", "0") != "0",
+        allow_metered=os.environ.get("MOVIA_BACKGROUND_ALLOW_METERED", "1") == "1",
         monthly_gib=float(os.environ.get("MOVIA_BACKGROUND_MONTHLY_GIB", str(DEFAULT_MONTHLY_GIB))),
         daily_mib=float(os.environ.get("MOVIA_BACKGROUND_DAILY_MIB", str(DEFAULT_DAILY_MIB))),
     )
@@ -202,6 +203,7 @@ def main() -> int:
     ap.add_argument("--no-charging-required", action="store_true")
     ap.add_argument("--monthly-gib", type=float, default=DEFAULT_MONTHLY_GIB)
     ap.add_argument("--daily-mib", type=float, default=DEFAULT_DAILY_MIB)
+    ap.add_argument("--mode-only", action="store_true")
     args = ap.parse_args()
     decision = evaluate_live(
         require_charging=not args.no_charging_required,
@@ -209,7 +211,13 @@ def main() -> int:
         monthly_gib=args.monthly_gib,
         daily_mib=args.daily_mib,
     )
-    print(json.dumps(asdict(decision), ensure_ascii=False, separators=(",", ":")))
+    if args.mode_only:
+        mode = "wifi" if decision.allowed and decision.unmetered_default else (
+            "mobile" if decision.allowed else "blocked"
+        )
+        print(mode)
+    else:
+        print(json.dumps(asdict(decision), ensure_ascii=False, separators=(",", ":")))
     return 0 if decision.allowed else TEMPORARY_BLOCK_EXIT
 
 
