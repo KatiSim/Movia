@@ -463,6 +463,37 @@ class CacheQuotaAndLRUPrunerTests(unittest.TestCase):
             self.assertEqual(protected, set())
             self.assertIn("aria2.forceRemove", calls)
 
+    def test_aria2_output_fd_does_not_self_protect_orphan_cache_entry(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            cache_dir = root / "torrent_cache"
+            entry = cache_dir / "hash"
+            entry.mkdir(parents=True)
+            media = entry / "movie.mkv"
+            media.write_bytes(b"x")
+
+            proc_dir = root / "proc"
+            aria_proc = proc_dir / "101"
+            aria_fd = aria_proc / "fd"
+            aria_fd.mkdir(parents=True)
+            (aria_proc / "comm").write_text("aria2c\n")
+            (aria_proc / "cmdline").write_bytes(b"/usr/bin/aria2c\0--daemon=true\0")
+            (aria_fd / "7").symlink_to(media)
+
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "PROC_DIR", proc_dir):
+                self.assertEqual(cache_pruner._open_file_protected_entries(), set())
+
+            gateway_proc = proc_dir / "202"
+            gateway_fd = gateway_proc / "fd"
+            gateway_fd.mkdir(parents=True)
+            (gateway_proc / "comm").write_text("python3\n")
+            (gateway_proc / "cmdline").write_bytes(b"python3\0streamer.py\0")
+            (gateway_fd / "9").symlink_to(media)
+            with patch.object(cache_pruner, "CACHE_DIR", cache_dir), \
+                    patch.object(cache_pruner, "PROC_DIR", proc_dir):
+                self.assertEqual(cache_pruner._open_file_protected_entries(), {entry})
+
     def test_recent_playback_lease_keeps_active_aria2_task_protected(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             cache_dir = Path(tmpdir) / "torrent_cache"

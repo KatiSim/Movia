@@ -32,9 +32,12 @@ import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.sameRequestedVariant
 import app.movia.android.domain.playback.DomainPlaybackResolver
 import app.movia.android.domain.playback.PLAYBACK_READY_TARGET_MS
+import app.movia.android.domain.playback.PLAYBACK_RECOVERY_TARGET_MS
 import app.movia.android.domain.playback.PLAYBACK_RESOLVER_TOTAL_MS
+import app.movia.android.domain.playback.PLAYBACK_USER_ERROR_MESSAGE
 import app.movia.android.domain.playback.playbackMediaProbeBudgetMs
 import app.movia.android.domain.playback.remainingPlaybackReadyBudgetMs
+import app.movia.android.domain.playback.remainingPlaybackRecoveryBudgetMs
 import app.movia.android.domain.playback.PlaybackRequest
 import app.movia.android.domain.playback.PlaybackResolverResult
 import app.movia.android.domain.playback.StreamCandidate
@@ -413,10 +416,12 @@ class PlaybackSession(context: Context) {
     private var recoveryAttemptBudget = 1
     private var watchdogJob: Job? = null
     private var readyDeadlineJob: Job? = null
+    private var recoveryDeadlineJob: Job? = null
     private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
     private var appliedTrackSelectionKey: String? = null
     private var readyBudgetStartedAtMs: Long = 0L
+    private var recoveryBudgetStartedAtMs: Long = 0L
 
     // Compatibility getters; state and candidate metadata remain authoritative.
     val activeTitle: String? get() = _state.value.displayTitle.takeIf { _state.value.hasMedia }
@@ -441,6 +446,7 @@ class PlaybackSession(context: Context) {
                     watchdogJob?.cancel()
                     stallWatchdogJob?.cancel()
                     completeReadyBudget()
+                    completeRecoveryBudget()
                 }
                 publishSnapshot()
             }
@@ -453,6 +459,7 @@ class PlaybackSession(context: Context) {
                         // HLS/DASH rendition dimensions may only be populated once Media3 is READY.
                         materializeCurrentAdaptiveVideoVariants(player.currentTracks)
                         completeReadyBudget()
+                        completeRecoveryBudget()
                     }
                     Player.STATE_BUFFERING -> {
                         if (player.playWhenReady) {
@@ -538,14 +545,49 @@ class PlaybackSession(context: Context) {
         readyDeadlineJob = null
     }
 
+    private fun beginRecoveryBudget(generation: Long) {
+        if (!isCurrentGeneration(generation) || readyBudgetStartedAtMs > 0L || recoveryBudgetStartedAtMs > 0L) return
+        recoveryBudgetStartedAtMs = SystemClock.elapsedRealtime()
+        recoveryDeadlineJob?.cancel()
+        recoveryDeadlineJob = scope.launch {
+            delay(PLAYBACK_RECOVERY_TARGET_MS)
+            if (!isActive || !isCurrentGeneration(generation) || recoveryBudgetStartedAtMs <= 0L) {
+                return@launch
+            }
+            Log.w(TAG, "Absolute recovery deadline fired after ${PLAYBACK_RECOVERY_TARGET_MS}ms")
+            failPlayback("RECOVERY_DEADLINE")
+        }
+    }
+
+    private fun completeRecoveryBudget() {
+        recoveryBudgetStartedAtMs = 0L
+        recoveryDeadlineJob?.cancel()
+        recoveryDeadlineJob = null
+        recoveryAttemptCount = 0
+    }
+
     private fun remainingReadyBudgetMs(): Long {
         val startedAt = readyBudgetStartedAtMs
         if (startedAt <= 0L) return Long.MAX_VALUE
         return remainingPlaybackReadyBudgetMs(startedAt, SystemClock.elapsedRealtime())
     }
 
+    private fun remainingRecoveryBudgetMs(): Long {
+        val startedAt = recoveryBudgetStartedAtMs
+        if (startedAt <= 0L) return Long.MAX_VALUE
+        return remainingPlaybackRecoveryBudgetMs(startedAt, SystemClock.elapsedRealtime())
+    }
+
+    private fun remainingAttemptBudgetMs(): Long = minOf(
+        remainingReadyBudgetMs(),
+        remainingRecoveryBudgetMs(),
+    )
+
     private fun readyBudgetExpired(): Boolean =
         readyBudgetStartedAtMs > 0L && remainingReadyBudgetMs() <= 0L
+
+    private fun attemptBudgetExpired(): Boolean =
+        (readyBudgetStartedAtMs > 0L || recoveryBudgetStartedAtMs > 0L) && remainingAttemptBudgetMs() <= 0L
 
     private fun canonicalRequestTitle(value: String): String = value.trim()
         .replace(
@@ -958,7 +1000,7 @@ class PlaybackSession(context: Context) {
         watchdogJob?.cancel()
         val candidateId = candidate.stableStreamId
         watchdogJob = scope.launch {
-            val remainingMs = remainingReadyBudgetMs()
+            val remainingMs = remainingAttemptBudgetMs()
             val candidateWaitMs = minOf(STARTUP_WATCHDOG_MS, remainingMs)
             if (candidateWaitMs > 0L) delay(candidateWaitMs)
             if (!isActive || !isCurrentGeneration(generation)) return@launch
@@ -997,7 +1039,7 @@ class PlaybackSession(context: Context) {
         resumePositionMs: Long,
         generation: Long,
     ): Boolean {
-        if (!isCurrentGeneration(generation) || readyBudgetExpired()) return false
+        if (!isCurrentGeneration(generation) || attemptBudgetExpired()) return false
         val uri = consumedUri(candidate, request) ?: return false
         stallWatchdogJob?.cancel()
         activeCandidate = candidate
@@ -1047,7 +1089,12 @@ class PlaybackSession(context: Context) {
         readyDeadlineJob?.cancel()
         readyDeadlineJob = null
         readyBudgetStartedAtMs = 0L
+        recoveryDeadlineJob?.cancel()
+        recoveryDeadlineJob = null
+        recoveryBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
+        recoveryJob?.cancel()
+        recoveryJob = null
         player.stop()
         player.clearMediaItems()
         activeCandidate = null
@@ -1057,7 +1104,7 @@ class PlaybackSession(context: Context) {
             switchState = PlaybackSwitchState.FAILED,
             isPlaying = false,
             playWhenReady = false,
-            statusMessage = "Произошла ошибка: повторите",
+            statusMessage = PLAYBACK_USER_ERROR_MESSAGE,
             activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(
                 activeStreamId = null,
                 activeQuality = null,
@@ -1075,8 +1122,8 @@ class PlaybackSession(context: Context) {
         failureClass: StreamFailureClass,
     ) {
         if (!isCurrentGeneration(generation)) return
-        if (readyBudgetExpired()) {
-            failPlayback("READY_DEADLINE_$reason")
+        if (attemptBudgetExpired()) {
+            failPlayback(if (readyBudgetStartedAtMs > 0L) "READY_DEADLINE_$reason" else "RECOVERY_DEADLINE_$reason")
             return
         }
         val failed = activeCandidate
@@ -1101,7 +1148,7 @@ class PlaybackSession(context: Context) {
         if (failed != null && request != null && rememberReloadAttempt(failed) &&
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
-            val reloadBudgetMs = minOf(RELOAD_TIMEOUT_MS, remainingReadyBudgetMs())
+            val reloadBudgetMs = minOf(RELOAD_TIMEOUT_MS, remainingAttemptBudgetMs())
             val refreshed = if (reloadBudgetMs > 0L) withTimeoutOrNull(reloadBudgetMs) {
                 DomainPlaybackResolver.reloadStreamCandidate(
                     failed,
@@ -1111,8 +1158,8 @@ class PlaybackSession(context: Context) {
                     ),
                 )
             } else null
-            if (readyBudgetExpired()) {
-                failPlayback("READY_DEADLINE_$reason")
+            if (attemptBudgetExpired()) {
+                failPlayback(if (readyBudgetStartedAtMs > 0L) "READY_DEADLINE_$reason" else "RECOVERY_DEADLINE_$reason")
                 return
             }
             if (isCurrentGeneration(generation) && refreshed != null) {
@@ -1152,8 +1199,8 @@ class PlaybackSession(context: Context) {
         val next = nextHealthyCandidates(currentRequest)
         for (candidate in next) {
             if (!isCurrentGeneration(generation)) return
-            if (readyBudgetExpired()) {
-                failPlayback("READY_DEADLINE_$reason")
+            if (attemptBudgetExpired()) {
+                failPlayback(if (readyBudgetStartedAtMs > 0L) "READY_DEADLINE_$reason" else "RECOVERY_DEADLINE_$reason")
                 return
             }
             if (prepareCandidate(candidate, currentRequest, resumePositionMs, generation)) return
@@ -1169,8 +1216,9 @@ class PlaybackSession(context: Context) {
         failureClass: StreamFailureClass = StreamFailureClassifier.fromReason(reason),
     ) {
         if (!isCurrentGeneration(generation) || recoveryJob?.isActive == true) return
-        if (readyBudgetExpired()) {
-            failPlayback("READY_DEADLINE_$reason")
+        beginRecoveryBudget(generation)
+        if (attemptBudgetExpired()) {
+            failPlayback(if (readyBudgetStartedAtMs > 0L) "READY_DEADLINE_$reason" else "RECOVERY_DEADLINE_$reason")
             return
         }
         stallWatchdogJob?.cancel()
@@ -1201,6 +1249,7 @@ class PlaybackSession(context: Context) {
         candidateStreamOptions: List<StreamOption> = emptyList(),
     ) {
         val generation = nextPlaybackGeneration()
+        completeRecoveryBudget()
         beginReadyBudget(generation)
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
@@ -1336,6 +1385,7 @@ class PlaybackSession(context: Context) {
     fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L) {
         if (stream.url.isBlank() || !_state.value.hasMedia) return
         val generation = nextPlaybackGeneration()
+        completeRecoveryBudget()
         beginReadyBudget(generation)
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
@@ -1490,6 +1540,9 @@ class PlaybackSession(context: Context) {
         readyDeadlineJob?.cancel()
         readyDeadlineJob = null
         readyBudgetStartedAtMs = 0L
+        recoveryDeadlineJob?.cancel()
+        recoveryDeadlineJob = null
+        recoveryBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         player.stop()
@@ -1591,6 +1644,9 @@ class PlaybackSession(context: Context) {
         readyDeadlineJob?.cancel()
         readyDeadlineJob = null
         readyBudgetStartedAtMs = 0L
+        recoveryDeadlineJob?.cancel()
+        recoveryDeadlineJob = null
+        recoveryBudgetStartedAtMs = 0L
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
         scope.cancel()

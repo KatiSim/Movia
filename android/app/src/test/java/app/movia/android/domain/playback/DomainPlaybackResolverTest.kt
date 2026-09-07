@@ -367,6 +367,46 @@ class DomainPlaybackResolverTest {
     }
 
     @Test
+    fun coldPreferredVoiceP2pDoesNotConsumeStartupBudgetBeforeEquivalentDirect() {
+        val direct = StreamCandidate(
+            stableStreamId = "direct-professional",
+            provider = "Collaps",
+            url = "https://cdn.example.test/master.m3u8",
+            voice = "Профессиональный (МВО)",
+            quality = "1080p",
+            language = "ru",
+            transport = "hls",
+            healthScore = 0.5,
+            startupLatencyMs = null,
+        )
+        val p2p = StreamCandidate(
+            stableStreamId = "p2p-kubik",
+            provider = "Rutor",
+            url = "magnet:?xt=urn:btih:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            voice = "Кубик в Кубе",
+            quality = "1080p",
+            language = "ru",
+            transport = "torrent_p2p",
+            seeders = 50,
+            healthScore = 0.5,
+            startupLatencyMs = null,
+        )
+
+        assertEquals(
+            "direct-professional",
+            StreamRanker.rankCandidates(listOf(p2p, direct)).first().stableStreamId,
+        )
+        assertEquals(
+            "direct-professional",
+            StreamRanker.selectBest(
+                listOf(p2p, direct),
+                requestedVoice = null,
+                requestedQuality = null,
+            )?.stableStreamId,
+        )
+    }
+
+    @Test
     fun measuredFastP2pCanStillBeatUnknownDirectAtEqualHealth() {
         val direct = StreamCandidate(
             stableStreamId = "direct-unknown",

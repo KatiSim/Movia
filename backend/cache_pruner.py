@@ -34,6 +34,7 @@ MAX_ENTRY_AGE_SECONDS = 10 * 60
 PLAYBACK_LEASE_SECONDS = 2 * 60
 PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
 RPC_TIMEOUT_SECONDS = 2.5
+PROC_DIR = Path("/proc")
 
 
 def _within(path: Path, parent: Path) -> bool:
@@ -166,16 +167,39 @@ def _cleanup_orphaned_aria2_tasks(playback_protected: set[Path]) -> set[Path]:
     return still_protected
 
 
+def _is_aria2_process(proc_entry: Path) -> bool:
+    """Return True only for aria2c itself, never for the playback gateway.
+
+    aria2 necessarily keeps its output file open while downloading. Treating
+    that fd as playback activity makes an orphan download protect itself
+    forever. Playback protection must come from a recent lease or a different
+    process (the streamer/player gateway) actually consuming the file.
+    """
+    names: list[str] = []
+    try:
+        names.append((proc_entry / "comm").read_text(errors="ignore").strip())
+    except OSError:
+        pass
+    try:
+        cmdline = (proc_entry / "cmdline").read_bytes().split(b"\0", 1)[0]
+        if cmdline:
+            names.append(Path(cmdline.decode(errors="ignore")).name)
+    except OSError:
+        pass
+    return any(name.strip().casefold() == "aria2c" for name in names if name)
+
+
 def _open_file_protected_entries() -> set[Path]:
     protected: set[Path] = set()
-    proc_dir = Path("/proc")
     try:
-        proc_entries = list(proc_dir.iterdir())
+        proc_entries = list(PROC_DIR.iterdir())
     except OSError as exc:
         raise RuntimeError(f"cannot inspect /proc: {exc}") from exc
 
     for proc_entry in proc_entries:
         if not proc_entry.name.isdigit():
+            continue
+        if _is_aria2_process(proc_entry):
             continue
         fd_dir = proc_entry / "fd"
         try:

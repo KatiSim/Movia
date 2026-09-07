@@ -154,6 +154,8 @@ import androidx.media3.ui.PlayerView
 import app.movia.android.R
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.ContentType
+import app.movia.android.domain.model.PlaybackSwitchState
+import app.movia.android.domain.playback.PLAYBACK_USER_ERROR_MESSAGE
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -248,7 +250,6 @@ fun PlayerScreen(
     }
 
     var sourceRectHint by remember { mutableStateOf<Rect?>(null) }
-    var playbackError by remember { mutableStateOf<String?>(null) }
     var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var settingsOpen by remember { mutableStateOf(false) }
     var settingsPicker by remember { mutableStateOf<PlayerSettingsPicker?>(null) }
@@ -412,24 +413,24 @@ fun PlayerScreen(
         playback.isPlaying,
         playback.playWhenReady,
         playback.status,
-        playbackError,
+        playback.switchState,
     ) {
         val activePlayback = playback.isPlaying ||
             (playback.playWhenReady && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING)
-        if (controlsVisible && !controlsLocked && activePlayback && playbackError == null &&
+        if (controlsVisible && !controlsLocked && activePlayback && playback.switchState != PlaybackSwitchState.FAILED &&
             !settingsOpen && !episodesScreenOpen && !scrubbing
         ) {
             delay(3_500L)
             val stillPlaying = playback.isPlaying ||
                 (playback.playWhenReady && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING)
             if (controlsVisible && stillPlaying && !controlsLocked &&
-                playbackError == null && !settingsOpen && !episodesScreenOpen && !scrubbing
+                playback.switchState != PlaybackSwitchState.FAILED && !settingsOpen && !episodesScreenOpen && !scrubbing
             ) {
                 // One shared gate hides the top bar, center controls and timeline together.
                 controlsVisible = false
             }
         } else if (!controlsLocked && !suppressControlsUntilTap &&
-            (!activePlayback || playbackError != null)
+            (!activePlayback || playback.switchState == PlaybackSwitchState.FAILED)
         ) {
             controlsVisible = true
         }
@@ -466,21 +467,7 @@ fun PlayerScreen(
 
     DisposableEffect(player, title) {
         val listener = object : Player.Listener {
-            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                playbackError = error.errorCodeName
-                showControls()
-            }
-
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                if (playbackState == androidx.media3.common.Player.STATE_READY) {
-                    playbackError = null
-                }
-            }
-
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying) {
-                    playbackError = null
-                }
                 showControls()
             }
 
@@ -1261,7 +1248,7 @@ fun PlayerScreen(
             )
         }
 
-        if (!inPictureInPicture && playback.statusMessage == "Источники для данного тайтла временно недоступны") {
+        if (!inPictureInPicture && playback.switchState == PlaybackSwitchState.FAILED) {
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = scheme.surfaceContainerHigh.copy(alpha = 0.95f),
@@ -1277,28 +1264,40 @@ fun PlayerScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     Text(
-                        text = "Источники временно недоступны",
+                        text = PLAYBACK_USER_ERROR_MESSAGE,
                         color = scheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = "Не удалось найти рабочий поток для выбранного тайтла. Попробуйте выбрать другую озвучку или повторите попытку позже.",
-                        color = scheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
-                    Surface(
-                        onClick = handlePlayerBack,
-                        color = MoviaBrandAmber,
-                        shape = RoundedCornerShape(12.dp),
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "Вернуться назад",
-                            color = Color.Black,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-                        )
+                        Surface(
+                            onClick = { session.retry() },
+                            color = MoviaBrandAmber,
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(
+                                text = "Повторить",
+                                color = Color.Black,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                            )
+                        }
+                        Surface(
+                            onClick = handlePlayerBack,
+                            color = scheme.surfaceContainer,
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(
+                                text = "Назад",
+                                color = scheme.onSurface,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -1332,16 +1331,6 @@ fun PlayerScreen(
             }
         }
 
-        if (!inPictureInPicture && playback.status == app.movia.android.domain.model.PlaybackStatus.IDLE && !playback.isPlaying && !playback.hasMedia) playbackError?.let { error ->
-            Text(
-                text = "Ошибка воспроизведения: $error",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
-                    .padding(horizontal = 24.dp, vertical = 80.dp),
-            )
-        }
     }
 }
 

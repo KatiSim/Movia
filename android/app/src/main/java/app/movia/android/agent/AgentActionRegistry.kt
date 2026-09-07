@@ -131,6 +131,7 @@ object AgentActionRegistry {
             ),
         ),
         AgentActionDefinition("player.play", AgentSafety.SAFE_WRITE, "Start active playback"),
+        AgentActionDefinition("player.retry", AgentSafety.SAFE_WRITE, "Retry failed playback with a new bounded attempt"),
         AgentActionDefinition("player.pause", AgentSafety.SAFE_WRITE, "Pause active playback"),
         AgentActionDefinition("player.toggle", AgentSafety.SAFE_WRITE, "Toggle active playback"),
         AgentActionDefinition("player.stop", AgentSafety.SAFE_WRITE, "Stop and clear active playback"),

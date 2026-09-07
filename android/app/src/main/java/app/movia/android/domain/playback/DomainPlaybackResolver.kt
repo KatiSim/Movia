@@ -47,13 +47,20 @@ interface PlaybackResolverBackend {
 }
 
 internal const val PLAYBACK_READY_TARGET_MS = 10_000L
+internal const val PLAYBACK_RECOVERY_TARGET_MS = 10_000L
 internal const val PLAYBACK_DISCOVERY_ROUTE_MS = 3_000L
 internal const val PLAYBACK_RESOLVER_TOTAL_MS = 6_000L
 internal const val PLAYBACK_MEDIA_PROBE_MAX_MS = 1_000L
 internal const val PLAYBACK_MEDIA3_RESERVE_MS = 2_000L
 
 internal fun remainingPlaybackReadyBudgetMs(startedAtMs: Long, nowMs: Long): Long =
-    (PLAYBACK_READY_TARGET_MS - (nowMs - startedAtMs).coerceAtLeast(0L)).coerceAtLeast(0L)
+    remainingPlaybackBudgetMs(PLAYBACK_READY_TARGET_MS, startedAtMs, nowMs)
+
+internal fun remainingPlaybackRecoveryBudgetMs(startedAtMs: Long, nowMs: Long): Long =
+    remainingPlaybackBudgetMs(PLAYBACK_RECOVERY_TARGET_MS, startedAtMs, nowMs)
+
+private fun remainingPlaybackBudgetMs(targetMs: Long, startedAtMs: Long, nowMs: Long): Long =
+    (targetMs - (nowMs - startedAtMs).coerceAtLeast(0L)).coerceAtLeast(0L)
 
 internal fun playbackMediaProbeBudgetMs(remainingReadyMs: Long): Long =
     minOf(

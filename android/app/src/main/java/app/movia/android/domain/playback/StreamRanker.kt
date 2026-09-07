@@ -271,9 +271,15 @@ object StreamRanker {
                 .thenBy { voiceLanguageRank(it, effectiveContext.preferredLanguage) }
                 .thenBy { codecPenalty(it, effectiveContext) }
                 .thenBy { healthPenalty(it) }
+                // At comparable health, a direct stream is immediately consumable while
+                // cold P2P still needs metadata/file/piece startup. Apply this before
+                // Auto voice preference so a studio label cannot burn the READY budget
+                // on an unmeasured torrent. Measured P2P has no cold penalty and may
+                // still win on observed startup latency; unhealthy direct still loses
+                // earlier on health.
+                .thenBy { coldP2pPenalty(it) }
                 .thenBy { StreamVariantSelection.voicePreferenceRank(it.language, it.voice) }
                 .thenBy { it.startupLatencyMs?.coerceAtLeast(0L) ?: Long.MAX_VALUE }
-                .thenBy { coldP2pPenalty(it) }
                 .thenBy { if (hasPeers(it)) 0 else 1 }
                 .thenByDescending { it.seeders }
                 .thenBy { defaultQualityRank(it.quality) }

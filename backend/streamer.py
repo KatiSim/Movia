@@ -177,6 +177,10 @@ STREAM_MEMORY_CACHE_MAX_SECONDS = 30.0
 # Playback metadata may survive a transient provider outage. This is URL/track
 # metadata only; Movia never stores the full media as an offline library.
 STREAM_STALE_DIRECT_MAX_SECONDS = 6 * 60 * 60
+# Explicitly signed HLS URLs may remain valid much longer than their catalog
+# write time. Keep only bounded metadata history; the URL's own Unix expiry is
+# still authoritative and must remain beyond the safety grace.
+STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS = 30 * 24 * 60 * 60
 STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS = 30
 
 DIRECT_STREAM_REFRESH_SECONDS = 5 * 60
@@ -951,12 +955,14 @@ def get_recent_stale_direct_streams(
     be attempted. Explicitly expired signed URLs are never returned.
     """
     now = int(time.time())
+    unsigned_max_age = max(1, int(max_age_seconds))
+    scan_max_age = max(unsigned_max_age, STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS)
     try:
         conn = sqlite3.connect(str(CACHE_DB_PATH))
         rows = conn.execute(
             "SELECT cache_key, streams_json, updated_at FROM streams_cache "
             "WHERE updated_at >= ? ORDER BY updated_at DESC LIMIT 256",
-            (now - max(1, int(max_age_seconds)),),
+            (now - scan_max_age,),
         ).fetchall()
         conn.close()
     except Exception:
@@ -969,14 +975,21 @@ def get_recent_stale_direct_streams(
             cached = sanitize_streams(json.loads(raw_json), require_source=True)
         except Exception:
             continue
+        row_age = max(0, now - int(_updated_at or 0))
         direct: List[Dict[str, Any]] = []
         for stream in cached:
             raw_url = str(stream.get("url") or stream.get("playback_url") or "").strip()
             if not raw_url.lower().startswith(("http://", "https://")):
                 continue
             expiry = _direct_stream_expiry_seconds(stream)
-            if expiry is not None and expiry <= now + STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS:
-                continue
+            if expiry is None:
+                if row_age > unsigned_max_age:
+                    continue
+            else:
+                if row_age > STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS:
+                    continue
+                if expiry <= now + STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS:
+                    continue
             direct.append(dict(stream))
         if direct:
             return direct

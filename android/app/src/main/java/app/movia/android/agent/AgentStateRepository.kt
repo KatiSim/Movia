@@ -278,7 +278,7 @@ class AgentStateRepository(
             AgentActionRegistry.definitions.forEach { definition ->
                 val enabled = when {
                     definition.requiresUi && !uiAttached -> false
-                    definition.id in setOf("player.play", "player.pause", "player.toggle", "player.stop", "player.seek", "player.seekRelative", "player.nextEpisode", "player.previousEpisode") -> hasMedia
+                    definition.id in setOf("player.play", "player.retry", "player.pause", "player.toggle", "player.stop", "player.seek", "player.seekRelative", "player.nextEpisode", "player.previousEpisode") -> hasMedia
                     definition.id in setOf("player.getStreams", "player.selectStream", "player.selectQuality", "player.selectVoice") -> hasStreams
                     definition.id == "player.enterFullscreen" || definition.id == "player.exitFullscreen" -> hasMedia && uiAttached && fullscreenAvailable
                     definition.id == "player.enterPip" -> hasMedia && uiAttached && pipAvailable

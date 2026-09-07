@@ -1,6 +1,8 @@
 package app.movia.android.domain.playback
 
 /** Failure classes used by problem-stream memory. */
+internal const val PLAYBACK_USER_ERROR_MESSAGE = "Произошла ошибка: повторите"
+
 enum class StreamFailureClass {
     NETWORK,
     NON_NETWORK,

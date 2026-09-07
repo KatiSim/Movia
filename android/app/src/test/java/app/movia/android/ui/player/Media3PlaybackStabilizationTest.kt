@@ -1,5 +1,6 @@
 package app.movia.android.ui.player
 
+import app.movia.android.domain.playback.PLAYBACK_USER_ERROR_MESSAGE
 import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.PlaybackStatus
 import app.movia.android.domain.model.PlaybackSwitchState
@@ -44,13 +45,13 @@ class Media3PlaybackStabilizationTest {
             switchState = PlaybackSwitchState.FAILED,
             isPlaying = false,
             playWhenReady = false,
-            statusMessage = "Произошла ошибка: повторите",
+            statusMessage = PLAYBACK_USER_ERROR_MESSAGE,
         )
 
         assertNotEquals(PlaybackStatus.BUFFERING, failureState.status)
         assertEquals(PlaybackStatus.IDLE, failureState.status)
         assertEquals(PlaybackSwitchState.FAILED, failureState.switchState)
-        assertEquals("Произошла ошибка: повторите", failureState.statusMessage)
+        assertEquals(PLAYBACK_USER_ERROR_MESSAGE, failureState.statusMessage)
         assertFalse(failureState.isPlaying)
     }
 
@@ -161,6 +162,18 @@ class Media3PlaybackStabilizationTest {
         assertTrue(result.filter { it.videoTrackIndex == null }.all { it.unavailableQuality })
         assertTrue(visible.none { it.language == "en" || it.voice.contains("Original", true) })
         assertTrue(visible.filter { it.quality == "720p" }.all { it.videoTrackIndex == 2 })
+    }
+
+
+    @Test
+    fun playerScreenUsesOnlyUnifiedPlaybackFailureState() {
+        val source = java.io.File("src/main/java/app/movia/android/ui/player/PlayerScreen.kt").readText()
+        assertTrue(source.contains("playback.switchState == PlaybackSwitchState.FAILED"))
+        assertTrue(source.contains("text = PLAYBACK_USER_ERROR_MESSAGE"))
+        assertTrue(source.contains("onClick = { session.retry() }"))
+        assertFalse(source.contains("playbackError"))
+        assertFalse(source.contains("Ошибка воспроизведения:"))
+        assertFalse(source.contains("Источники для данного тайтла временно недоступны"))
     }
 
 }

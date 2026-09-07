@@ -203,6 +203,51 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
             self.assertEqual(len(stale), 1)
             self.assertEqual(stale[0]["voice"], "Дубляж")
 
+    def test_future_signed_direct_survives_six_hour_age_cap_but_unsigned_does_not(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            db = Path(tmpdir) / "streams_cache.db"
+            suffix = self.streamer._stream_cache_suffix(
+                "375", "леон", 1994, "movies", None, None
+            )
+            now = int(time.time())
+            old = now - (12 * 60 * 60)
+            with patch.object(self.streamer, "CACHE_DB_PATH", db):
+                self.streamer.init_cache_db()
+                con = sqlite3.connect(str(db))
+                con.execute(
+                    "INSERT INTO streams_cache(cache_key,streams_json,expires_at,updated_at) VALUES(?,?,?,?)",
+                    (
+                        "v5_unsigned" + suffix,
+                        json.dumps([{
+                            "source": "Collaps",
+                            "url": "https://cdn.example.test/unsigned.m3u8",
+                            "voice": "Дубляж",
+                            "quality": "1080p",
+                        }]),
+                        now - 1,
+                        old + 1,
+                    ),
+                )
+                con.execute(
+                    "INSERT INTO streams_cache(cache_key,streams_json,expires_at,updated_at) VALUES(?,?,?,?)",
+                    (
+                        "v5_signed" + suffix,
+                        json.dumps([{
+                            "source": "Collaps",
+                            "url": f"https://cdn.example.test/signed.m3u8?t={now + 2 * 24 * 60 * 60}",
+                            "voice": "LostFilm",
+                            "quality": "1080p",
+                        }]),
+                        now - 1,
+                        old,
+                    ),
+                )
+                con.commit(); con.close()
+                stale = self.streamer.get_recent_stale_direct_streams(suffix)
+            self.assertEqual(len(stale), 1)
+            self.assertEqual(stale[0]["voice"], "LostFilm")
+            self.assertIn("signed.m3u8", stale[0]["url"])
+
     def test_stale_direct_fast_path_does_not_wait_for_providers(self):
         stale_direct = [{
             "source": "Collaps",

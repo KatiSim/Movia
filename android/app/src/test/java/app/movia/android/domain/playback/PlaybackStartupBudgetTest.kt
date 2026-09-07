@@ -9,6 +9,7 @@ class PlaybackStartupBudgetTest {
     @Test
     fun resolverAndProbeLeaveMedia3TimeInsideTenSecondTarget() {
         assertEquals(10_000L, PLAYBACK_READY_TARGET_MS)
+        assertEquals(10_000L, PLAYBACK_RECOVERY_TARGET_MS)
         assertEquals(3_000L, PLAYBACK_DISCOVERY_ROUTE_MS)
         assertEquals(6_000L, PLAYBACK_RESOLVER_TOTAL_MS)
         assertTrue(PLAYBACK_DISCOVERY_ROUTE_MS * 2 <= PLAYBACK_RESOLVER_TOTAL_MS)
@@ -26,12 +27,25 @@ class PlaybackStartupBudgetTest {
     }
 
     @Test
+    fun postReadyRecoveryBudgetIsBoundedIndependently() {
+        assertEquals(10_000L, remainingPlaybackRecoveryBudgetMs(startedAtMs = 5_000L, nowMs = 5_000L))
+        assertEquals(4_000L, remainingPlaybackRecoveryBudgetMs(startedAtMs = 5_000L, nowMs = 11_000L))
+        assertEquals(0L, remainingPlaybackRecoveryBudgetMs(startedAtMs = 5_000L, nowMs = 15_500L))
+    }
+
+    @Test
     fun playbackSessionGuardsRecoveryAndFallbackWithAbsoluteDeadline() {
         val source = File("src/main/java/app/movia/android/ui/player/PlaybackSession.kt").readText()
         assertTrue(source.contains("beginReadyBudget(generation)"))
         assertTrue(source.contains("Absolute READY deadline fired"))
-        assertTrue(source.contains("minOf(RELOAD_TIMEOUT_MS, remainingReadyBudgetMs())"))
+        assertTrue(source.contains("minOf(RELOAD_TIMEOUT_MS, remainingAttemptBudgetMs())"))
+        assertTrue(source.contains("beginRecoveryBudget(generation)"))
+        assertTrue(source.contains("Absolute recovery deadline fired"))
+        assertTrue(source.contains("RECOVERY_DEADLINE_\$reason"))
         assertTrue(source.contains("READY_DEADLINE_\$reason"))
+        assertTrue(source.contains("val remainingMs = remainingAttemptBudgetMs()"))
+        assertTrue(source.contains("recoveryJob?.cancel()"))
+        assertTrue(source.contains("recoveryJob = null"))
         assertTrue(source.contains("playbackMediaProbeBudgetMs(remainingReadyBudgetMs())"))
     }
 }
