@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sqlite3
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -17,6 +18,7 @@ from typing import Any
 
 from catalog_schema_v2 import bump_revision, ensure_schema, normalize_ru_text
 from tmdb_client import TMDbClient
+from background_network_budget import background_bulk_allowed
 
 DIR = Path(__file__).resolve().parent
 DB_PATH = DIR / "catalog.db"
@@ -137,6 +139,12 @@ def main() -> int:
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--reset-state", action="store_true")
     args = ap.parse_args()
+
+    if os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1":
+        decision = background_bulk_allowed()
+        if not decision.allowed:
+            print(json.dumps({"blocked": True, "reason": decision.reason}, ensure_ascii=False))
+            return 0
 
     ensure_schema(DB_PATH)
     if args.reset_state and STATE_PATH.exists():

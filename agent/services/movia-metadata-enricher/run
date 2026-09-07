@@ -3,6 +3,15 @@ set -u
 exec 2>&1
 export PYTHONUNBUFFERED=1
 export SSL_CERT_FILE="$PREFIX/etc/tls/cert.pem"
+export MOVIA_BACKGROUND_BULK=1
+export MOVIA_BACKGROUND_ALLOW_METERED="${MOVIA_BACKGROUND_ALLOW_METERED:-0}"
+export MOVIA_BACKGROUND_REQUIRE_CHARGING="${MOVIA_BACKGROUND_REQUIRE_CHARGING:-1}"
+export MOVIA_BACKGROUND_MONTHLY_GIB="${MOVIA_BACKGROUND_MONTHLY_GIB:-4}"
+export MOVIA_BACKGROUND_DAILY_MIB="${MOVIA_BACKGROUND_DAILY_MIB:-128}"
+MOVIA_METADATA_BATCH_LIMIT="${MOVIA_METADATA_BATCH_LIMIT:-10}"
+MOVIA_METADATA_WORKERS="${MOVIA_METADATA_WORKERS:-1}"
+MOVIA_METADATA_INTERVAL_SECONDS="${MOVIA_METADATA_INTERVAL_SECONDS:-43200}"
+MOVIA_BLOCKED_RECHECK_SECONDS="${MOVIA_BLOCKED_RECHECK_SECONDS:-1800}"
 cd "$HOME/projects/media-parser"
 
 child_pid=""
@@ -17,12 +26,16 @@ stop_children() {
 trap stop_children TERM INT HUP
 
 while true; do
-  "$PREFIX/bin/python3" -u metadata_repair.py --resume --limit 200 --workers 4 &
-  child_pid=$!
-  wait "$child_pid" 2>/dev/null || true
-  child_pid=""
+  sleep_seconds="$MOVIA_BLOCKED_RECHECK_SECONDS"
+  if "$PREFIX/bin/python3" -u background_network_budget.py; then
+    "$PREFIX/bin/python3" -u metadata_repair.py --resume --limit "$MOVIA_METADATA_BATCH_LIMIT" --workers "$MOVIA_METADATA_WORKERS" &
+    child_pid=$!
+    wait "$child_pid" 2>/dev/null || true
+    child_pid=""
+    sleep_seconds="$MOVIA_METADATA_INTERVAL_SECONDS"
+  fi
 
-  sleep 300 &
+  sleep "$sleep_seconds" &
   child_pid=$!
   wait "$child_pid" 2>/dev/null || true
   child_pid=""

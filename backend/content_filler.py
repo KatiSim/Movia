@@ -31,6 +31,7 @@ from balancer_integration import (
     resolve_balancer,
 )
 from streamer import set_cached_streams
+from background_network_budget import background_bulk_allowed
 
 LOG_DIR = DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -431,6 +432,12 @@ def fill_content(
     )
     state = load_state()
     last_id = state["last_id"] if resume else 0
+    background_guard = os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+    if background_guard:
+        decision = background_bulk_allowed()
+        if not decision.allowed:
+            logger.info("⏸️ Background enrichment blocked: %s", decision.reason)
+            return {"processed": 0, "blocked": True, "reason": decision.reason}
 
     with get_db() as db:
         rows = _fetch_rows(db, last_id)
@@ -484,6 +491,15 @@ def fill_content(
         thread_name_prefix="movia-enrich",
     ) as executor:
         for batch_start in range(0, len(rows), batch_size):
+            if background_guard:
+                decision = background_bulk_allowed()
+                if not decision.allowed:
+                    logger.info(
+                        "⏸️ Background enrichment paused before batch %s: %s",
+                        batch_start // batch_size + 1,
+                        decision.reason,
+                    )
+                    break
             batch = rows[batch_start:batch_start + batch_size]
             futures = [
                 executor.submit(_process_row, row, batch_start + offset + 1, total)
