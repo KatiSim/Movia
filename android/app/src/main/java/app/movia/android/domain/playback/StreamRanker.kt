@@ -115,7 +115,8 @@ object StreamRanker {
         candidates: List<StreamCandidate>,
         failedStreamIds: Set<String>,
     ): List<StreamCandidate> = candidates.filter {
-        !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic
+        StreamVariantSelection.isAllowed(it) &&
+            !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic
     }
 
     private fun activeRequestedVoice(context: StreamRankingContext): String? =
@@ -260,7 +261,7 @@ object StreamRanker {
         context: StreamRankingContext = StreamRankingContext(failedStreamIds = failedStreamIds),
     ): List<StreamCandidate> {
         val effectiveContext = context.copy(failedStreamIds = context.failedStreamIds + failedStreamIds)
-        return candidates.sortedWith(
+        return candidates.filter(StreamVariantSelection::isAllowed).sortedWith(
             compareBy<StreamCandidate> {
                 if (effectiveContext.failedStreamIds.contains(it.stableStreamId) || it.isProblematic) 1 else 0
             }
@@ -270,6 +271,7 @@ object StreamRanker {
                 .thenBy { voiceLanguageRank(it, effectiveContext.preferredLanguage) }
                 .thenBy { codecPenalty(it, effectiveContext) }
                 .thenBy { healthPenalty(it) }
+                .thenBy { StreamVariantSelection.voicePreferenceRank(it.language, it.voice) }
                 .thenBy { it.startupLatencyMs?.coerceAtLeast(0L) ?: Long.MAX_VALUE }
                 .thenBy { coldP2pPenalty(it) }
                 .thenBy { if (hasPeers(it)) 0 else 1 }

@@ -43,6 +43,7 @@ import app.movia.android.domain.playback.StreamFailureClassifier
 import app.movia.android.domain.playback.StreamDeduplicator
 import app.movia.android.domain.playback.StreamProblemTracker
 import app.movia.android.domain.playback.StreamRanker
+import app.movia.android.domain.playback.StreamVariantSelection
 import app.movia.android.domain.playback.StreamRankingContext
 import app.movia.android.domain.playback.openWithSingleRetry
 import app.movia.android.domain.playback.StreamRequestProfile
@@ -91,6 +92,76 @@ internal fun locateProviderTrackIndex(groupLengths: List<Int>, providerIndex: In
 
 internal data class TrackFormatDescriptor(val label: String = "", val language: String = "")
 internal data class TrackGroupDescriptor(val id: String = "", val formats: List<TrackFormatDescriptor>)
+internal data class AdaptiveVideoTrackDescriptor(
+    val groupId: String,
+    val groupIndex: Int,
+    val trackIndex: Int,
+    val width: Int,
+    val height: Int,
+    val bitrate: Int = 0,
+)
+
+internal fun buildAdaptiveVideoVariants(
+    candidates: List<StreamCandidate>,
+    activeCandidate: StreamCandidate?,
+    videoTracks: List<AdaptiveVideoTrackDescriptor>,
+): List<StreamCandidate> {
+    val active = activeCandidate ?: return candidates
+    val normalizedTransport = active.transport.trim().lowercase()
+    val directAdaptive = normalizedTransport in setOf("hls", "dash", "direct") &&
+        (active.url.contains(".m3u8", true) || active.url.contains(".mpd", true) || normalizedTransport in setOf("hls", "dash"))
+    if (!directAdaptive) return candidates
+
+    val actualTracks = videoTracks
+        .filter { it.height >= 240 && it.width > 0 }
+        .groupBy { it.height }
+        .values
+        .mapNotNull { sameHeight -> sameHeight.maxByOrNull { it.bitrate } }
+        .sortedBy { it.height }
+    if (actualTracks.isEmpty()) return candidates
+
+    val baseCandidates = candidates.filter { candidate ->
+        samePlaybackLocator(candidate, active) &&
+            candidate.videoTrackIndex == null &&
+            StreamVariantSelection.isAllowed(candidate)
+    }
+    if (baseCandidates.isEmpty()) return candidates
+
+    val sameLocator: (StreamCandidate) -> Boolean = { samePlaybackLocator(it, active) }
+    val retained = candidates
+        .filterNot { sameLocator(it) && it.transportMetadata["movia_adaptive_variant"] == "1" }
+        .map { candidate ->
+            if (sameLocator(candidate) && candidate.videoTrackIndex == null) {
+                candidate.copy(unavailableQuality = true)
+            } else candidate
+        }
+
+    val variants = buildList {
+        for (base in baseCandidates) {
+            for (track in actualTracks) {
+                val metadata = base.transportMetadata.toMutableMap().apply {
+                    put("movia_adaptive_variant", "1")
+                    put("zona_video_group_index", track.groupIndex.toString())
+                    track.groupId.trim().takeIf { it.isNotBlank() }?.let { put("zona_video_group_id", it) }
+                }
+                add(
+                    base.copy(
+                        stableStreamId = "${base.stableStreamId}:v${track.groupIndex}t${track.trackIndex}h${track.height}",
+                        quality = StreamVariantSelection.canonicalQualityLabel("${track.height}p"),
+                        resolution = "${track.width}x${track.height}",
+                        resolutionWidth = track.width,
+                        resolutionHeight = track.height,
+                        videoTrackIndex = track.trackIndex,
+                        unavailableQuality = false,
+                        transportMetadata = metadata,
+                    ),
+                )
+            }
+        }
+    }
+    return retained + variants
+}
+
 
 internal fun locateProviderTrackByMetadata(
     groups: List<TrackGroupDescriptor>,
@@ -379,6 +450,8 @@ class PlaybackSession(context: Context) {
                     Player.STATE_READY -> {
                         watchdogJob?.cancel()
                         stallWatchdogJob?.cancel()
+                        // HLS/DASH rendition dimensions may only be populated once Media3 is READY.
+                        materializeCurrentAdaptiveVideoVariants(player.currentTracks)
                         completeReadyBudget()
                     }
                     Player.STATE_BUFFERING -> {
@@ -394,6 +467,7 @@ class PlaybackSession(context: Context) {
             }
 
             override fun onTracksChanged(tracks: Tracks) {
+                materializeCurrentAdaptiveVideoVariants(tracks)
                 applyCandidateTrackOverrides(tracks)
                 publishSnapshot()
             }
@@ -533,7 +607,9 @@ class PlaybackSession(context: Context) {
     }
 
     private fun publishCandidateOptions() {
-        _streamOptions.value = candidates.map(StreamCandidate::toStreamOption)
+        _streamOptions.value = candidates
+            .filter(StreamVariantSelection::isAllowed)
+            .map(StreamCandidate::toStreamOption)
     }
 
     private fun requestContext(request: PlaybackRequest): StreamRankingContext =
@@ -628,6 +704,79 @@ class PlaybackSession(context: Context) {
             candidates += refreshed
         }
         publishCandidateOptions()
+    }
+
+    private fun materializeCurrentAdaptiveVideoVariants(tracks: Tracks) {
+        val active = activeCandidate ?: return
+        val videoTracks = buildList {
+            tracks.groups.forEachIndexed { groupIndex, group ->
+                if (group.type != C.TRACK_TYPE_VIDEO) return@forEachIndexed
+                for (trackIndex in 0 until group.length) {
+                    if (!group.isTrackSupported(trackIndex)) continue
+                    val format = group.mediaTrackGroup.getFormat(trackIndex)
+                    val width = format.width.takeIf { it > 0 } ?: continue
+                    val height = format.height.takeIf { it > 0 } ?: continue
+                    add(
+                        AdaptiveVideoTrackDescriptor(
+                            groupId = group.mediaTrackGroup.id,
+                            groupIndex = groupIndex,
+                            trackIndex = trackIndex,
+                            width = width,
+                            height = height,
+                            bitrate = format.bitrate.takeIf { it > 0 } ?: 0,
+                        ),
+                    )
+                }
+            }
+        }
+        if (videoTracks.isNotEmpty()) {
+            Log.i(TAG, "Adaptive video tracks id=${active.stableStreamId} count=${videoTracks.size} heights=${videoTracks.map { it.height }.distinct().sorted()}")
+        }
+        val updated = buildAdaptiveVideoVariants(candidates, active, videoTracks)
+        if (updated != candidates) {
+            candidates = updated
+            publishCandidateOptions()
+        }
+
+        // Auto starts from provider metadata before Media3 knows the actual adaptive rendition.
+        // Once a real video track is selected, expose that factual quality instead of the stale provider label.
+        if (active.videoTrackIndex == null) {
+            val selectedVideo = buildList {
+                tracks.groups.forEachIndexed { groupIndex, group ->
+                    if (group.type != C.TRACK_TYPE_VIDEO) return@forEachIndexed
+                    for (trackIndex in 0 until group.length) {
+                        if (!group.isTrackSelected(trackIndex)) continue
+                        val format = group.mediaTrackGroup.getFormat(trackIndex)
+                        val height = format.height.takeIf { it > 0 } ?: continue
+                        add(Triple(groupIndex, trackIndex, height))
+                    }
+                }
+            }.firstOrNull()
+            if (selectedVideo != null) {
+                val (groupIndex, trackIndex, height) = selectedVideo
+                val actual = candidates.firstOrNull { candidate ->
+                    candidate.transportMetadata["movia_adaptive_variant"] == "1" &&
+                        samePlaybackLocator(candidate, active) &&
+                        candidate.videoTrackIndex == trackIndex &&
+                        candidate.transportMetadata["zona_video_group_index"]?.toIntOrNull() == groupIndex &&
+                        candidate.audioTrackIndex == active.audioTrackIndex &&
+                        candidate.voice.equals(active.voice, ignoreCase = true) &&
+                        StreamVariantSelection.qualityHeight(candidate.quality) == height &&
+                        StreamVariantSelection.isAllowed(candidate)
+                }
+                if (actual != null) {
+                    activeCandidate = actual
+                    _state.value = _state.value.copy(
+                        activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(
+                            activeStreamId = actual.stableStreamId,
+                            activeQuality = actual.quality,
+                            activeVoice = actual.voice,
+                            source = actual.provider,
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     private fun clearCandidateTrackOverrides() {
@@ -1093,7 +1242,9 @@ class PlaybackSession(context: Context) {
             season = seasonNumber,
             episode = episodeNumber,
         )
-        _streamOptions.value = seeds.map(StreamCandidate::toStreamOption)
+        _streamOptions.value = seeds
+            .filter(StreamVariantSelection::isAllowed)
+            .map(StreamCandidate::toStreamOption)
         _state.value = PlaybackState(
             mediaId = request.mediaId,
             displayTitle = title,

@@ -41,7 +41,7 @@ import app.movia.android.ui.settings.SettingsSwitch
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 
-private val profileAudioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
+private val profileAudioOptions = listOf("Auto", "LostFilm", "HDRezka")
 private val profileQualityOptions = listOf("Auto", "1080p", "720p", "480p")
 private val profileThemeOptions = listOf("DARK", "SYSTEM")
 

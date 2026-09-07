@@ -20,6 +20,11 @@ import kotlinx.coroutines.flow.map
 private val Context.moviaDataStore by preferencesDataStore(name = "movia_preferences")
 private const val ENTRY_SEPARATOR = "\u001F"
 private const val LIST_SEPARATOR = "\u001E"
+private fun sanitizeAudioPreference(value: String?): String? {
+    val raw = value?.trim()?.takeIf { it.isNotBlank() } ?: return null
+    val low = raw.lowercase()
+    return if (low.contains("original") || low.contains("english") || low.contains("оригинал") || low.contains("англ")) null else raw
+}
 
 data class AppPreferences(
     val themeMode: String = "DARK",
@@ -84,7 +89,7 @@ class MoviaPreferencesRepository(
 
     val playbackPreferences: Flow<PlaybackPreferences> = safeData.map { prefs ->
         PlaybackPreferences(
-            audio = prefs[Keys.audio] ?: "Auto",
+            audio = sanitizeAudioPreference(prefs[Keys.audio]) ?: "Auto",
             quality = prefs[Keys.quality] ?: "Auto",
             subtitlesEnabled = prefs[Keys.subtitles] ?: false,
             autoNextEnabled = prefs[Keys.autoNext] ?: true,
@@ -94,7 +99,7 @@ class MoviaPreferencesRepository(
 
     fun titlePlaybackPreferences(title: String): Flow<TitlePlaybackPreferences> = safeData.map { prefs ->
         TitlePlaybackPreferences(
-            audio = findOverride(prefs[Keys.titleAudioOverrides].orEmpty(), title),
+            audio = sanitizeAudioPreference(findOverride(prefs[Keys.titleAudioOverrides].orEmpty(), title)),
             quality = findOverride(prefs[Keys.titleQualityOverrides].orEmpty(), title),
         )
     }
@@ -116,7 +121,7 @@ class MoviaPreferencesRepository(
     }
 
     suspend fun setAudio(value: String) {
-        context.moviaDataStore.edit { it[Keys.audio] = value }
+        context.moviaDataStore.edit { it[Keys.audio] = sanitizeAudioPreference(value) ?: "Auto" }
     }
 
     suspend fun setQuality(value: String) {
@@ -136,7 +141,7 @@ class MoviaPreferencesRepository(
     }
 
     suspend fun setTitleAudio(title: String, value: String?) {
-        updateOverride(Keys.titleAudioOverrides, title, value)
+        updateOverride(Keys.titleAudioOverrides, title, sanitizeAudioPreference(value))
     }
 
     suspend fun setTitleQuality(title: String, value: String?) {

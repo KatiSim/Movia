@@ -152,7 +152,7 @@ class DomainPlaybackResolverTest {
     fun betterGroupPreservesEncounterOrderOnEqualCompatibilityScore() {
         val first = StreamCandidate(
             stableStreamId = "first", provider = "p", url = "http://first",
-            voice = "Original", quality = "1080p", language = "ru",
+            voice = "Профессиональный", quality = "1080p", language = "ru",
         )
         val second = first.copy(stableStreamId = "second", url = "http://second")
 
@@ -166,17 +166,96 @@ class DomainPlaybackResolverTest {
     fun fallbackOrderStartsWithRelaxedBetterGroup() {
         val weak = StreamCandidate(
             stableStreamId = "weak", provider = "p", url = "http://weak",
-            voice = "Original", quality = "480p", language = "en", isTrailer = true,
+            voice = "Дубляж", quality = "480p", language = "ru", isTrailer = true,
         )
         val compatible = StreamCandidate(
             stableStreamId = "compatible", provider = "p", url = "http://compatible",
-            voice = "Original", quality = "1080p", language = "ru",
+            voice = "Дубляж", quality = "1080p", language = "ru",
         )
 
         assertEquals(
             "compatible",
             StreamRanker.fallbackOrder(listOf(weak, compatible), StreamRankingContext()).first().stableStreamId,
         )
+    }
+
+    @Test
+    fun autoPrefersBestRussianTranslationAtSameHealthAndQuality() {
+        val lessPreferred = StreamCandidate(
+            stableStreamId = "a-lostfilm", provider = "p", url = "https://x/lost",
+            voice = "LostFilm", quality = "1080p", language = "ru", healthScore = 0.8,
+        )
+        val dubbing = StreamCandidate(
+            stableStreamId = "z-dub", provider = "p", url = "https://x/dub",
+            voice = "Дубляж", quality = "1080p", language = "ru", healthScore = 0.8,
+        )
+
+        assertEquals(
+            "z-dub",
+            StreamRanker.selectBest(
+                listOf(lessPreferred, dubbing),
+                requestedVoice = null,
+                requestedQuality = null,
+            )?.stableStreamId,
+        )
+    }
+
+    @Test
+    fun explicitUkrainianVoiceOverridesRussianAutoPreference() {
+        val russian = StreamCandidate(
+            stableStreamId = "ru", provider = "p", url = "https://x/ru",
+            voice = "Дубляж", quality = "1080p", language = "ru", healthScore = 0.8,
+        )
+        val ukrainian = StreamCandidate(
+            stableStreamId = "uk", provider = "p", url = "https://x/uk",
+            voice = "Укр. Дубльований", quality = "1080p", language = "uk", healthScore = 0.8,
+        )
+
+        assertEquals(
+            "uk",
+            StreamRanker.selectBest(
+                listOf(russian, ukrainian),
+                requestedVoice = "Укр. Дубльований",
+                requestedQuality = "1080p",
+            )?.stableStreamId,
+        )
+    }
+
+    @Test
+    fun englishOriginalIsNeverSelectedWhileRussianOrUkrainianAreAllowed() {
+        val english = StreamCandidate(
+            stableStreamId = "en", provider = "p", url = "https://x/en",
+            voice = "Original (English)", quality = "1080p", language = "en", healthScore = 1.0,
+        )
+        val ukrainian = StreamCandidate(
+            stableStreamId = "uk", provider = "p", url = "https://x/uk",
+            voice = "Укр. Дубльований", quality = "1080p", language = "uk", healthScore = 0.5,
+        )
+        assertEquals(listOf("uk"), StreamRanker.rankCandidates(listOf(english, ukrainian)).map { it.stableStreamId })
+        assertEquals(
+            "uk",
+            StreamRanker.selectBest(
+                listOf(english, ukrainian),
+                requestedVoice = null,
+                requestedQuality = "1080p",
+            )?.stableStreamId,
+        )
+        assertNull(
+            StreamRanker.selectBest(
+                listOf(english),
+                requestedVoice = "Original (English)",
+                requestedQuality = "1080p",
+            ),
+        )
+    }
+
+    @Test
+    fun mislabeledOriginalWithRawRussianLanguageIsStillRejected() {
+        val original = StreamCandidate(
+            stableStreamId = "bad-original", provider = "p", url = "https://x/en",
+            voice = "Original (с субтитрами)", quality = "1080p", language = "ru",
+        )
+        assertTrue(StreamRanker.rankCandidates(listOf(original)).isEmpty())
     }
 
     @Test
@@ -320,7 +399,7 @@ class DomainPlaybackResolverTest {
             stableStreamId = "direct",
             provider = "provider-a",
             url = "https://provider-a.example/video.m3u8",
-            voice = "Original",
+            voice = "Дубляж",
             quality = "1080p",
             transport = "hls",
             healthScore = 0.15,
@@ -330,7 +409,7 @@ class DomainPlaybackResolverTest {
             stableStreamId = "p2p",
             provider = "provider-b",
             url = "magnet:?xt=urn:btih:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-            voice = "Original",
+            voice = "Дубляж",
             quality = "1080p",
             transport = "torrent_p2p",
             seeders = 12,
@@ -463,7 +542,7 @@ class DomainPlaybackResolverTest {
         val stale = resolvedCandidate(
             id = "stable-collaps",
             url = "https://cdn.example/master.m3u8?t=old",
-            voice = "Original",
+            voice = "LostFilm",
         )
         val fresh = stale.copy(
             url = "https://cdn.example/master.m3u8?t=fresh",

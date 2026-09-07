@@ -200,9 +200,6 @@ fun DetailsScreen(
     var selectedSeason by remember(title, initialSeason) { mutableIntStateOf(initialSeason) }
     var synopsisExpanded by remember(title) { mutableStateOf(false) }
     var seasonScreenOpen by remember(title) { mutableStateOf(false) }
-    var streamOptionsOpen by remember(title) { mutableStateOf(false) }
-    var selectedQuality by remember(title) { mutableStateOf("1080p") }
-    var selectedAudio by remember(title) { mutableStateOf("Дубляж") }
     val listState = rememberLazyListState()
     LaunchedEffect(content?.id, title) {
         listState.scrollToItem(0)
@@ -475,16 +472,6 @@ fun DetailsScreen(
         }
     }
 
-    if (streamOptionsOpen) {
-        StreamQualityAudioSheet(
-            selectedQuality = selectedQuality,
-            onQualitySelected = { selectedQuality = it },
-            selectedAudio = selectedAudio,
-            onAudioSelected = { selectedAudio = it },
-            onPlay = { onPlay(playbackTitle) },
-            onDismiss = { streamOptionsOpen = false },
-        )
-    }
 }
 
 private fun Modifier.swipeDownToDismiss(
@@ -801,118 +788,6 @@ private fun QuickActionsRow(
             active = false,
             onClick = share,
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StreamQualityAudioSheet(
-    selectedQuality: String,
-    onQualitySelected: (String) -> Unit,
-    selectedAudio: String,
-    onAudioSelected: (String) -> Unit,
-    onPlay: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val qualities = listOf("1080p", "720p", "480p", "4K")
-    val audios = listOf("Дубляж", "LostFilm", "HDRezka", "TVShows", "Кураж-Бамбей", "Оригинал")
-    val scheme = MaterialTheme.colorScheme
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = scheme.surface,
-        dragHandle = null,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Качество и озвучка",
-                    color = scheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Filled.Close, contentDescription = "Закрыть", tint = scheme.onSurface)
-                }
-            }
-
-            Text(
-                text = "КАЧЕСТВО ПОТОКА",
-                color = scheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                items(qualities) { q ->
-                    val isSelected = selectedQuality == q
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onQualitySelected(q) },
-                        label = { Text(q, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MoviaBrandAmber,
-                            selectedLabelColor = MoviaOnBrandAmber,
-                            containerColor = scheme.surfaceContainer,
-                            labelColor = scheme.onSurface,
-                        ),
-                    )
-                }
-            }
-
-            Text(
-                text = "ВАРИАНТ ОЗВУЧКИ / ИСТОЧНИК",
-                color = scheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                items(audios) { a ->
-                    val isSelected = selectedAudio == a
-                    FilterChip(
-                        selected = isSelected,
-                        onClick = { onAudioSelected(a) },
-                        label = { Text(a, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MoviaBrandAmber,
-                            selectedLabelColor = MoviaOnBrandAmber,
-                            containerColor = scheme.surfaceContainer,
-                            labelColor = scheme.onSurface,
-                        ),
-                    )
-                }
-            }
-
-            Button(
-                onClick = {
-                    onDismiss()
-                    onPlay()
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MoviaBrandAmber, contentColor = MoviaOnBrandAmber),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-            ) {
-                Text("Смотреть в $selectedQuality ($selectedAudio)", fontWeight = FontWeight.Bold)
-            }
-        }
     }
 }
 

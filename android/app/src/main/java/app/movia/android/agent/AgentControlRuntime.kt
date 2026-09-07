@@ -19,6 +19,7 @@ import app.movia.android.domain.model.ActiveStreamSelection
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.StreamOption
+import app.movia.android.domain.playback.StreamVariantSelection
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlaybackSession
 import androidx.media3.common.C
@@ -314,7 +315,7 @@ object AgentControlRuntime {
 
     fun streamsJson(): JSONObject {
         val session = MoviaPlaybackRegistry.current
-        val streams = session?.streamOptions?.value.orEmpty()
+        val streams = session?.streamOptions?.value.orEmpty().filter(StreamVariantSelection::isAllowed)
         val current = session?.state?.value?.activeStreamSelection
         val qualities = JSONObject()
         streams.forEach { stream ->
@@ -1149,11 +1150,11 @@ object AgentControlRuntime {
         require(quality.isNotBlank()) { "quality is required" }
         val expectedMediaId = playbackSession.state.value.mediaId
         val current = playbackSession.state.value.activeStreamSelection
+        val streams = playbackSession.streamOptions.value
         val preferredVoice = preferredVoiceForQuality(current)
-        val candidate = playbackSession.streamOptions.value.firstOrNull {
-            it.quality.equals(quality, ignoreCase = true) &&
-                (preferredVoice == null || it.voice.equals(preferredVoice, ignoreCase = true))
-        } ?: playbackSession.streamOptions.value.firstOrNull { it.quality.equals(quality, ignoreCase = true) }
+        val voiceForQuality = StreamVariantSelection.bestVoiceForQuality(streams, quality, preferredVoice)
+            ?: return error("QUALITY_NOT_FOUND", "Quality is not available", true)
+        val candidate = StreamVariantSelection.select(streams, voiceForQuality, quality)
             ?: return error("QUALITY_NOT_FOUND", "Quality is not available", true)
         val persist = if (args.has("persist")) args.optBoolean("persist") else true
         return startStreamSwitchOperation("player.selectQuality", playbackSession, expectedMediaId, candidate, requestId, persist)
@@ -1167,11 +1168,11 @@ object AgentControlRuntime {
         require(voice.isNotBlank()) { "voice is required" }
         val expectedMediaId = playbackSession.state.value.mediaId
         val current = playbackSession.state.value.activeStreamSelection
+        val streams = playbackSession.streamOptions.value
         val preferredQuality = preferredQualityForVoice(current)
-        val candidate = playbackSession.streamOptions.value.firstOrNull {
-            it.voice.equals(voice, ignoreCase = true) &&
-                (preferredQuality == null || it.quality.equals(preferredQuality, ignoreCase = true))
-            } ?: return error("VOICE_NOT_FOUND", "Voice is not available for current quality", true)
+            ?: StreamVariantSelection.defaultQuality(streams)
+        val candidate = StreamVariantSelection.select(streams, voice, preferredQuality)
+            ?: return error("VOICE_NOT_FOUND", "Voice is not available for current quality", true)
         val persist = if (args.has("persist")) args.optBoolean("persist") else true
         return startStreamSwitchOperation("player.selectVoice", playbackSession, expectedMediaId, candidate, requestId, persist)
     }
@@ -1759,7 +1760,7 @@ internal fun activeSelectionMatches(
     if (streamId == null && quality == null && voice == null) return true
     val active = selection ?: return false
     return (streamId == null || active.activeStreamId == streamId) &&
-        (quality == null || active.activeQuality?.equals(quality, ignoreCase = true) == true) &&
+        (quality == null || StreamVariantSelection.sameQuality(active.activeQuality, quality)) &&
         (voice == null || active.activeVoice?.equals(voice, ignoreCase = true) == true)
 }
 

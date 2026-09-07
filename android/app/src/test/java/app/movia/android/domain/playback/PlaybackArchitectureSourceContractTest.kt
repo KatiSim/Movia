@@ -41,8 +41,10 @@ class PlaybackArchitectureSourceContractTest {
     fun streamSettingsUseSessionVariantsNotCatalogOrContainerTrackLabels() {
         val player = source("src/main/java/app/movia/android/ui/player/PlayerScreen.kt")
         assertContains(player, "val sessionStreams by session.streamOptions.collectAsState()")
-        assertContains(player, "val contentStreams = sessionStreams.filter { it.url.isNotBlank() }")
+        assertContains(player, "val contentStreams = sessionStreams.filter { it.url.isNotBlank() && !it.unavailableQuality }")
         assertContains(player, "session.switchToStream(matchedStream, session.state.value.currentPositionMs)")
+        assertContains(player, "StreamSettingsSelection.voiceOptions(contentStreams, currentQuality)")
+        assertContains(player, "StreamSettingsSelection.bestVoiceForQuality(")
         assertFalse(player.contains("val contentStreams = mediaContent?.streams.orEmpty()"))
         assertFalse(player.contains("selectAudio(newVoice)"))
         assertFalse(player.contains("selectQuality(newQuality)"))

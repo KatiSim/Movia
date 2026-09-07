@@ -96,7 +96,7 @@ data class MediaContent(
     val isNew: Boolean = false,
     val popularity: Int = 0,
     val ageRating: Int = 16,
-    val audioLanguages: Set<String> = setOf("Original"),
+    val audioLanguages: Set<String> = emptySet(),
     val subtitleLanguages: Set<String> = emptySet(),
     val originalTitle: String? = null,
     val director: String? = null,

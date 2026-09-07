@@ -48,7 +48,7 @@ import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 
-private val audioOptions = listOf("Auto", "LostFilm", "HDRezka", "Original")
+private val audioOptions = listOf("Auto", "LostFilm", "HDRezka")
 private val qualityOptions = listOf("Auto", "1080p", "720p", "480p")
 @Composable
 fun PlaybackSettingsScreen(

@@ -139,7 +139,7 @@ private val countries = listOf("США", "Великобритания", "Фра
 private val ratingOptions = listOf<Double?>(null, 7.0, 8.0, 8.5)
 private val resolutionOptions = listOf<String?>(null, "720p", "1080p", "4K")
 private val ageOptions = listOf<Int?>(null, 6, 12, 16, 18)
-private val audioOptions = listOf<String?>(null, "Русский", "Original")
+private val audioOptions = listOf<String?>(null, "Русский", "Украинский")
 private val subtitleOptions = listOf<String?>(null, "Русский", "English")
 
 private data class YearPreset(
@@ -1705,7 +1705,6 @@ private fun MoviaFilterChip(
 
 private fun catalogAudioLabel(value: String?): String = when (value) {
     null -> "Любое"
-    "Original" -> "Оригинал"
     else -> value
 }
 

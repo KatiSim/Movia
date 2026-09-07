@@ -1206,32 +1206,21 @@ fun PlayerScreen(
         }
 
         if (!inPictureInPicture && settingsOpen) {
-            val contentStreams = sessionStreams.filter { it.url.isNotBlank() }
-            val streamQualities = StreamSettingsSelection.qualityOptions(contentStreams).ifEmpty {
-                listOfNotNull(
-                    activeQuality?.takeIf { it.isNotBlank() },
-                    preferredQuality.takeUnless { it.equals("Auto", ignoreCase = true) },
-                ).distinct().ifEmpty { listOf("Авто") }
-            }
-
-            val currentQuality = activeQuality
-                ?.takeIf { active -> streamQualities.any { it.equals(active, ignoreCase = true) } }
-                ?: preferredQuality.takeUnless { it.equals("Auto", ignoreCase = true) }
-                    ?.takeIf { preferred -> streamQualities.any { it.equals(preferred, ignoreCase = true) } }
+            val contentStreams = sessionStreams.filter { it.url.isNotBlank() && !it.unavailableQuality }
+            val streamQualities = StreamSettingsSelection.qualityOptions(contentStreams).ifEmpty { listOf("Авто") }
+            val currentQuality = StreamSettingsSelection.matchingQualityOption(contentStreams, activeQuality)
+                ?: StreamSettingsSelection.matchingQualityOption(contentStreams, preferredQuality)
+                ?: StreamSettingsSelection.defaultQuality(contentStreams)
                 ?: streamQualities.first()
 
-            val streamVoices = StreamSettingsSelection.voiceOptions(contentStreams, currentQuality).ifEmpty {
-                listOfNotNull(
-                    activeVoice?.takeIf { it.isNotBlank() },
-                    preferredAudio.takeUnless { it.equals("Auto", ignoreCase = true) },
-                ).distinct().ifEmpty { listOf("Авто") }
-            }
-
+            // Strict cascade: audio options come only from the selected quality.
+            val streamVoices = StreamSettingsSelection.voiceOptions(contentStreams, currentQuality)
             val currentVoice = activeVoice
                 ?.takeIf { active -> streamVoices.any { it.equals(active, ignoreCase = true) } }
                 ?: preferredAudio.takeUnless { it.equals("Auto", ignoreCase = true) }
                     ?.takeIf { preferred -> streamVoices.any { it.equals(preferred, ignoreCase = true) } }
-                ?: streamVoices.first()
+                ?: StreamSettingsSelection.bestVoiceForQuality(contentStreams, currentQuality)
+                ?: "Авто"
 
             StreamSettingsScreen(
                 audioOptions = streamVoices,
@@ -1247,20 +1236,21 @@ fun PlayerScreen(
                 onAudioSelected = { newVoice ->
                     StreamSettingsSelection.select(contentStreams, newVoice, currentQuality)?.let { matchedStream ->
                         session.switchToStream(matchedStream, session.state.value.currentPositionMs)
+                        onAudioSelected(newVoice)
                     }
-                    onAudioSelected(newVoice)
                     showControls()
                 },
                 onQualitySelected = { newQuality ->
-                    val voicesForQuality = StreamSettingsSelection.voiceOptions(contentStreams, newQuality)
-                    val voiceForQuality = currentVoice.takeIf { current ->
-                        voicesForQuality.any { it.equals(current, ignoreCase = true) }
-                    } ?: voicesForQuality.firstOrNull()
+                    val voiceForQuality = StreamSettingsSelection.bestVoiceForQuality(
+                        streams = contentStreams,
+                        quality = newQuality,
+                        preferredVoice = currentVoice,
+                    )
                     StreamSettingsSelection.select(contentStreams, voiceForQuality, newQuality)?.let { matchedStream ->
                         session.switchToStream(matchedStream, session.state.value.currentPositionMs)
+                        onQualitySelected(newQuality)
+                        voiceForQuality?.let(onAudioSelected)
                     }
-                    onQualitySelected(newQuality)
-                    voiceForQuality?.let(onAudioSelected)
                     showControls()
                 },
                 onAutoNextChanged = onAutoNextChanged,

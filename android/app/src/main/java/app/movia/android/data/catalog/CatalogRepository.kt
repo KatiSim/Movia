@@ -1012,6 +1012,22 @@ object DemoCatalogRepository : CatalogRepository {
                 streamsList.any { it.url == raw }
         }
 
+        val audioLanguagesSet = linkedSetOf<String>()
+        fun addAudioLanguage(rawValue: String?) {
+            val raw = rawValue?.trim()?.lowercase().orEmpty()
+            when {
+                raw == "ru" || raw.startsWith("ru-") || raw.contains("рус") || raw.contains("russian") -> audioLanguagesSet += "Русский"
+                raw == "uk" || raw == "ua" || raw.startsWith("uk-") || raw.startsWith("ua-") || raw.contains("укр") || raw.contains("ukrain") -> audioLanguagesSet += "Украинский"
+            }
+        }
+        (obj.optJSONArray("audio_languages") ?: obj.optJSONArray("audioLanguages"))?.let { languages ->
+            for (i in 0 until languages.length()) addAudioLanguage(languages.optString(i))
+        }
+        streamsList.forEach { stream ->
+            addAudioLanguage(stream.language)
+            if (stream.voice.contains("укр", ignoreCase = true)) audioLanguagesSet += "Украинский"
+        }
+
         val voteCount = obj.optInt("vote_count", obj.optInt("voteCount", 0))
         val seasonsCount = obj.optInt("seasons_count", obj.optInt("seasonsCount", 0))
         val episodesCount = obj.optInt("episodes_count", obj.optInt("episodesCount", 0))
@@ -1039,6 +1055,7 @@ object DemoCatalogRepository : CatalogRepository {
             isNew = isNew,
             popularity = popularity,
             ageRating = ageRating,
+            audioLanguages = audioLanguagesSet,
             synopsis = synopsis,
             originalTitle = originalTitle,
             director = director,

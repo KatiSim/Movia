@@ -128,4 +128,39 @@ class Media3PlaybackStabilizationTest {
         assertEquals(1, resetAttempts)
         assertEquals(2, openAttempts)
     }
+    @Test
+    fun adaptiveDirectTracksReplaceProviderQualityAndExposeOnlyRuUkVoices() {
+        val url = "https://cdn.example/master.m3u8"
+        val russian = StreamCandidate(
+            stableStreamId = "ru-base", provider = "Collaps", url = url,
+            voice = "LostFilm", language = "ru", quality = "1080p", transport = "hls", audioTrackIndex = 3,
+        )
+        val ukrainian = russian.copy(
+            stableStreamId = "uk-base", voice = "Укр. Дубльований", language = "uk", audioTrackIndex = 0,
+        )
+        val english = russian.copy(
+            stableStreamId = "en-base", voice = "Original (English)", language = "en", audioTrackIndex = 1,
+        )
+        val tracks = listOf(
+            AdaptiveVideoTrackDescriptor("video", 0, 0, 640, 360, 800_000),
+            AdaptiveVideoTrackDescriptor("video", 0, 1, 1280, 720, 2_000_000),
+            AdaptiveVideoTrackDescriptor("video", 0, 2, 1280, 720, 3_000_000),
+        )
+
+        val result = buildAdaptiveVideoVariants(
+            candidates = listOf(russian, ukrainian, english),
+            activeCandidate = russian,
+            videoTracks = tracks,
+        )
+        val visible = result.filter { !it.unavailableQuality && app.movia.android.domain.playback.StreamVariantSelection.isAllowed(it) }
+
+        assertEquals(setOf("360p", "720p"), visible.map { it.quality }.toSet())
+        assertEquals(setOf("LostFilm", "Укр. Дубльований"), visible.map { it.voice }.toSet())
+        assertEquals(4, visible.size)
+        assertEquals(4, visible.map { it.stableStreamId }.distinct().size)
+        assertTrue(result.filter { it.videoTrackIndex == null }.all { it.unavailableQuality })
+        assertTrue(visible.none { it.language == "en" || it.voice.contains("Original", true) })
+        assertTrue(visible.filter { it.quality == "720p" }.all { it.videoTrackIndex == 2 })
+    }
+
 }
