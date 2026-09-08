@@ -194,7 +194,9 @@ fun DetailsScreen(
     val seasonEpisodeCounts = content?.seasonEpisodeCounts.orEmpty()
     val hasEpisodes = seasonEpisodeCounts.isNotEmpty()
     val isSeries = content?.type == ContentType.SERIES || content?.type == ContentType.TV || hasEpisodes
-    val resume = latestProgress.takeIf { it.title == title || it.title.startsWith("$title · S") }
+    val resume = latestProgress.takeIf {
+        it.isResumable && (it.title == title || it.title.startsWith("$title · S"))
+    }
     val initialSeason = seasonFromTitle(resume?.title.orEmpty())
         ?.coerceIn(1, seasonEpisodeCounts.size.coerceAtLeast(1)) ?: 1
     var selectedSeason by remember(title, initialSeason) { mutableIntStateOf(initialSeason) }

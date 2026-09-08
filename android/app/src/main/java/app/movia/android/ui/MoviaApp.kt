@@ -152,13 +152,14 @@ internal fun nextEpisodeTitleForCounts(current: String, seasonEpisodeCounts: Lis
         val base = seasonMatch.groupValues[1]
         val season = seasonMatch.groupValues[2].toIntOrNull() ?: return null
         val episode = seasonMatch.groupValues[3].toIntOrNull() ?: return null
-        val episodeCount = seasonEpisodeCounts.getOrNull(season - 1) ?: 10
+        val episodeCount = seasonEpisodeCounts.getOrNull(season - 1)?.takeIf { it > 0 } ?: return null
         return when {
             episode < episodeCount -> {
                 val next = episode + 1
                 "$base · S${season.toString().padStart(2, '0')}E${next.toString().padStart(2, '0')} · Эпизод $next"
             }
-            season < seasonEpisodeCounts.size -> {
+            episode == episodeCount && season < seasonEpisodeCounts.size &&
+                seasonEpisodeCounts.getOrNull(season)?.let { it > 0 } == true -> {
                 val nextSeason = season + 1
                 "$base · S${nextSeason.toString().padStart(2, '0')}E01 · Эпизод 1"
             }
@@ -169,8 +170,9 @@ internal fun nextEpisodeTitleForCounts(current: String, seasonEpisodeCounts: Lis
     val legacyMatch = Regex("^(.*) · E(\\d{2}) · Эпизод (\\d+)$").matchEntire(current) ?: return null
     val base = legacyMatch.groupValues[1]
     val episode = legacyMatch.groupValues[2].toIntOrNull() ?: return null
+    val episodeCount = seasonEpisodeCounts.firstOrNull()?.takeIf { it > 0 } ?: return null
     val next = episode + 1
-    if (next > 8) return null
+    if (next > episodeCount) return null
     return "$base · E${next.toString().padStart(2, '0')} · Эпизод $next"
 }
 
@@ -180,13 +182,12 @@ internal fun nextEpisodeTitle(current: String): String? {
     return nextEpisodeTitleForCounts(current, counts)
 }
 
-internal fun previousEpisodeTitle(current: String): String? {
+internal fun previousEpisodeTitleForCounts(current: String, seasonEpisodeCounts: List<Int>): String? {
     val seasonMatch = Regex("^(.*) · S(\\d{2})E(\\d{2})(?: · Эпизод (\\d+))?$").matchEntire(current)
     if (seasonMatch != null) {
         val base = seasonMatch.groupValues[1]
         val season = seasonMatch.groupValues[2].toIntOrNull() ?: return null
         val episode = seasonMatch.groupValues[3].toIntOrNull() ?: return null
-        val seasonEpisodeCounts = DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty()
         return when {
             episode > 1 -> {
                 val prev = episode - 1
@@ -194,7 +195,7 @@ internal fun previousEpisodeTitle(current: String): String? {
             }
             season > 1 -> {
                 val prevSeason = season - 1
-                val prevCount = seasonEpisodeCounts.getOrNull(prevSeason - 1) ?: 10
+                val prevCount = seasonEpisodeCounts.getOrNull(prevSeason - 1)?.takeIf { it > 0 } ?: return null
                 "$base · S${prevSeason.toString().padStart(2, '0')}E${prevCount.toString().padStart(2, '0')} · Эпизод $prevCount"
             }
             else -> null
@@ -207,6 +208,12 @@ internal fun previousEpisodeTitle(current: String): String? {
     val prev = episode - 1
     if (prev < 1) return null
     return "$base · E${prev.toString().padStart(2, '0')} · Эпизод $prev"
+}
+
+internal fun previousEpisodeTitle(current: String): String? {
+    val base = playbackBaseTitle(current)
+    val counts = runCatching { DemoCatalogRepository.findByTitle(base)?.seasonEpisodeCounts.orEmpty() }.getOrDefault(emptyList())
+    return previousEpisodeTitleForCounts(current, counts)
 }
 
 @Composable
@@ -261,7 +268,7 @@ private fun MoviaContent(
     val lastProgress by libraryRepository.lastProgress.collectAsState(initial = PlaybackProgress())
     val progressByTitle by libraryRepository.progressByTitle.collectAsState(initial = emptyMap())
     val playbackState by playbackSession.state.collectAsState()
-    val effectiveProgress = if (playbackState.hasMedia && playbackState.totalDurationMs > 0L) {
+    val activeProgress = if (playbackState.hasMedia && playbackState.totalDurationMs > 0L) {
         PlaybackProgress(
             title = playbackState.displayTitle,
             positionMs = playbackState.currentPositionMs,
@@ -270,10 +277,11 @@ private fun MoviaContent(
             updatedAt = playbackState.lastUpdatedTimestamp,
         )
     } else {
-        lastProgress
+        null
     }
-    val effectiveProgressByTitle = if (playbackState.hasMedia && playbackState.totalDurationMs > 0L) {
-        progressByTitle + (playbackState.displayTitle to effectiveProgress)
+    val effectiveProgress = activeProgress?.takeIf { it.isResumable } ?: lastProgress
+    val effectiveProgressByTitle = if (activeProgress != null) {
+        progressByTitle + (playbackState.displayTitle to activeProgress)
     } else {
         progressByTitle
     }
@@ -316,6 +324,10 @@ private fun MoviaContent(
     }
 
     val startPlayback: (String) -> Unit = { title ->
+        val current = playbackSession.state.value
+        if (current.hasMedia && current.displayTitle != title) {
+            persistActiveProgress()
+        }
         val baseTitle = playbackBaseTitle(title)
         val content = DemoCatalogRepository.findByTitle(baseTitle) ?: app.movia.android.domain.model.MediaContent(
             id = baseTitle,
@@ -351,7 +363,7 @@ private fun MoviaContent(
             seasonNumber = seasonNumber,
             episodeNumber = episodeNumber,
             sourceUri = localSource ?: preferredSource,
-            startPositionMs = saved?.positionMs ?: 0L,
+            startPositionMs = saved?.resumePositionMs ?: 0L,
             audioTrackId = playbackPreferences.audio,
             subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
             candidateStreams = streamCandidates,

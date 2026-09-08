@@ -21,13 +21,13 @@ class LibraryRepository(context: Context) {
     val history: Flow<List<String>> = dao.observeHistory()
     val recentSearches: Flow<List<String>> = dao.observeRecentSearches()
     val downloads: Flow<Set<String>> = dao.observeDownloads().map { it.toSet() }
-    val lastProgress: Flow<PlaybackProgress> = dao.observeLatestProgress().map { entity ->
+    val lastProgress: Flow<PlaybackProgress> = dao.observeLatestResumableProgress().map { entity ->
         entity?.let {
             PlaybackProgress(
                 title = it.title,
                 positionMs = it.positionMs,
                 durationMs = it.durationMs,
-                contentId = canonicalContentId(it.title),
+                contentId = it.contentId ?: canonicalContentId(it.title),
                 updatedAt = it.updatedAt,
             )
         } ?: PlaybackProgress()
@@ -39,7 +39,7 @@ class LibraryRepository(context: Context) {
                 title = entity.title,
                 positionMs = entity.positionMs,
                 durationMs = entity.durationMs,
-                contentId = canonicalContentId(entity.title),
+                contentId = entity.contentId ?: canonicalContentId(entity.title),
                 updatedAt = entity.updatedAt,
             )
         }

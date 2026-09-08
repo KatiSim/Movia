@@ -260,7 +260,7 @@ private fun ContinueWatchingCard(
     onContinue: (String) -> Unit,
     onOpenDetails: (String) -> Unit,
 ) {
-    val hasRealProgress = progress.title.isNotBlank() && progress.positionMs > 0L
+    val hasRealProgress = progress.isResumable
     val heroContent = if (hasRealProgress) {
         val display = progress.title.substringBefore(" · S").substringBefore(" · E")
         progress.contentId?.let(DemoCatalogRepository::findById) ?: DemoCatalogRepository.findByTitle(display)

@@ -47,8 +47,12 @@ interface MoviaDao {
     @Query("DELETE FROM recent_searches")
     suspend fun clearRecentSearches()
 
-    @Query("SELECT * FROM playback_progress ORDER BY updatedAt DESC LIMIT 1")
-    fun observeLatestProgress(): Flow<PlaybackProgressEntity?>
+    @Query(
+        "SELECT * FROM playback_progress " +
+            "WHERE positionMs > 0 AND durationMs > 0 AND positionMs * 100 < durationMs * 98 " +
+            "ORDER BY updatedAt DESC LIMIT 1",
+    )
+    fun observeLatestResumableProgress(): Flow<PlaybackProgressEntity?>
 
     @Query("SELECT * FROM playback_progress ORDER BY updatedAt DESC")
     fun observeAllProgress(): Flow<List<PlaybackProgressEntity>>

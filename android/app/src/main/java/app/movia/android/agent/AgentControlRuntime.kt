@@ -943,7 +943,7 @@ object AgentControlRuntime {
                         episodeNumber = episode,
                         mediaType = content.type,
                         sourceUri = localFile?.toURI()?.toString() ?: exactKnown?.url ?: knownStreams.firstOrNull()?.url,
-                        startPositionMs = progress?.positionMs ?: 0L,
+                        startPositionMs = progress?.resumePositionMs ?: 0L,
                         audioTrackId = playbackPrefs.audio,
                         subtitleTrackId = if (playbackPrefs.subtitlesEnabled) "Auto" else null,
                         preferredQuality = quality,
@@ -1337,17 +1337,31 @@ object AgentControlRuntime {
         if (!state.hasMedia) return error("NO_ACTIVE_MEDIA", "No active media", true)
         val content = DemoCatalogRepository.findById(state.mediaId)
             ?: return error("MEDIA_NOT_FOUND", "Current media metadata unavailable", true)
-        var season = state.seasonNumber ?: 1
-        var episode = state.episodeNumber ?: 1
+        var season = state.seasonNumber
+            ?: return error("NO_EPISODE_CONTEXT", "Current season unavailable", true)
+        var episode = state.episodeNumber
+            ?: return error("NO_EPISODE_CONTEXT", "Current episode unavailable", true)
         val counts = content.seasonEpisodeCounts
         if (delta > 0) {
-            val count = counts.getOrNull(season - 1) ?: return error("NO_EPISODE_METADATA", "Episode count unavailable", true)
-            if (episode < count) episode += 1
-            else if (season < counts.size) { season += 1; episode = 1 }
-            else return error("NO_NEXT_EPISODE", "No next episode", false)
+            val count = counts.getOrNull(season - 1)?.takeIf { it > 0 }
+                ?: return error("NO_EPISODE_METADATA", "Episode count unavailable", true)
+            if (episode < count) {
+                episode += 1
+            } else if (episode == count && season < counts.size &&
+                counts.getOrNull(season)?.let { it > 0 } == true
+            ) {
+                season += 1
+                episode = 1
+            } else {
+                return error("NO_NEXT_EPISODE", "No next episode", false)
+            }
         } else {
             if (episode > 1) episode -= 1
-            else if (season > 1) { season -= 1; episode = counts.getOrNull(season - 1) ?: 1 }
+            else if (season > 1) {
+                season -= 1
+                episode = counts.getOrNull(season - 1)?.takeIf { it > 0 }
+                    ?: return error("NO_EPISODE_METADATA", "Episode count unavailable", true)
+            }
             else return error("NO_PREVIOUS_EPISODE", "No previous episode", false)
         }
         return startMediaOperation(JSONObject()

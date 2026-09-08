@@ -41,4 +41,51 @@ class SeriesPlaybackTest {
         assertEquals("Нулевая орбита", playbackBaseTitle("Нулевая орбита · S02E03 · Эпизод 3"))
         assertEquals("Нулевая орбита", playbackBaseTitle("Нулевая орбита · E03 · Эпизод 3"))
     }
+    @Test
+    fun nextEpisodeDoesNotInventMissingMetadata() {
+        assertNull(
+            nextEpisodeTitleForCounts(
+                "Нулевая орбита · S01E04 · Эпизод 4",
+                emptyList(),
+            ),
+        )
+        assertNull(
+            nextEpisodeTitleForCounts(
+                "Нулевая орбита · E04 · Эпизод 4",
+                emptyList(),
+            ),
+        )
+    }
+
+    @Test
+    fun nextSeasonRequiresPositiveEpisodeMetadata() {
+        assertNull(
+            nextEpisodeTitleForCounts(
+                "Нулевая орбита · S01E08 · Эпизод 8",
+                listOf(8, 0),
+            ),
+        )
+    }
+
+    @Test
+    fun previousEpisodeCrossesSeasonUsingRealCount() {
+        assertEquals(
+            "Нулевая орбита · S01E08 · Эпизод 8",
+            previousEpisodeTitleForCounts(
+                "Нулевая орбита · S02E01 · Эпизод 1",
+                counts,
+            ),
+        )
+    }
+
+    @Test
+    fun previousSeasonDoesNotInventMissingEpisodeCount() {
+        assertNull(
+            previousEpisodeTitleForCounts(
+                "Нулевая орбита · S02E01 · Эпизод 1",
+                emptyList(),
+            ),
+        )
+    }
+
 }
