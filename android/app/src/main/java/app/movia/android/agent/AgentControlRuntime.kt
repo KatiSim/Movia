@@ -1332,8 +1332,9 @@ object AgentControlRuntime {
     }
 
     private fun startAdjacentEpisode(delta: Int, requestId: String): JSONObject {
-        val state = MoviaPlaybackRegistry.current?.state?.value
+        val session = MoviaPlaybackRegistry.current
             ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
+        val state = session.state.value
         if (!state.hasMedia) return error("NO_ACTIVE_MEDIA", "No active media", true)
         val content = DemoCatalogRepository.findById(state.mediaId)
             ?: return error("MEDIA_NOT_FOUND", "Current media metadata unavailable", true)
@@ -1364,6 +1365,7 @@ object AgentControlRuntime {
             }
             else return error("NO_PREVIOUS_EPISODE", "No previous episode", false)
         }
+        persistCurrentProgress(session)
         return startMediaOperation(JSONObject()
             .put("mediaId", content.id)
             .put("season", season)
