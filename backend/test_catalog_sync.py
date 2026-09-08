@@ -157,7 +157,8 @@ class CatalogSyncTests(unittest.TestCase):
                 return {"results": [tv] if media_type == "tv" else [movie]}
 
             with patch.object(sync, "DB_PATH", db_path), \
-                    patch.object(sync.tmdb, "_get", side_effect=fake_get):
+                    patch.object(sync.tmdb, "_get", side_effect=fake_get), \
+                    patch("catalog_api.get_home_payload", return_value={"sections": []}):
                 result = sync.sync_once(pages=1)
 
             self.assertTrue(result["last_run_ok"])
