@@ -157,7 +157,7 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     rating = float(d.get("rating") or 0.0)
     vote_count = int(d.get("vote_count") or 0)
     vote_average = float(d.get("vote_average") or rating)
-    duration = int(d.get("duration_minutes") or 90)
+    duration = int(d.get("duration_minutes") or 0)
     seasons_count = int(d.get("seasons_count") or 0)
     episodes_count = int(d.get("episodes_count") or 0)
     season_episode_counts_raw = parse_json_safely(d.get("season_episode_counts"), [])
@@ -177,7 +177,7 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
     # Never expose the legacy playback_url directly. The historical catalog
     # contains synthetic magnets; a playable URL must survive stream validation.
     playback_url = ""
-    country = str(d.get("country") or "Зарубежный")
+    country = str(d.get("country") or "")
     # The legacy title/original_title fields are metadata/search inputs only.
     # A card has no display title until the verified Russian field exists.
     title = row_display_title(d) or ""
@@ -196,14 +196,14 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
 
     if ctype == "series" and seasons_count > 0:
         s_word = "сезон" if (seasons_count % 10 == 1 and seasons_count % 100 != 11) else ("сезона" if (seasons_count % 10 in [2,3,4] and seasons_count % 100 not in [12,13,14]) else "сезонов")
+        structure = f"{seasons_count} {s_word}"
         if episodes_count > 0:
-            duration_str = f"{seasons_count} {s_word} ({episodes_count} сер.) • {duration} мин/серия"
-        else:
-            duration_str = f"{seasons_count} {s_word} • {duration} мин/серия"
+            structure += f" ({episodes_count} сер.)"
+        duration_str = structure + (f" • {duration} мин/серия" if duration > 0 else "")
     elif ctype == "series":
-        duration_str = f"{duration} мин/серия"
+        duration_str = f"{duration} мин/серия" if duration > 0 else ""
     else:
-        duration_str = f"{duration} мин"
+        duration_str = f"{duration} мин" if duration > 0 else ""
 
     streams_list = []
     if not compact:
@@ -246,12 +246,12 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
             "collectionId": collection_id,
             "genres": genres,
             "country": country,
-            "quality": str(d.get("quality") or "1080p"),
+            "quality": str(d.get("quality") or "Auto"),
             "duration": duration_str,
             "durationMinutes": duration,
             "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
             "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
-            "ageRating": 16,
+            "ageRating": 0,
             "category": category,
             "poster_url": poster,
             "posterUrl": poster,
@@ -338,12 +338,12 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         "collectionId": collection_id,
         "genres": genres,
         "country": country,
-        "quality": str(d.get("quality") or "1080p"),
+        "quality": str(d.get("quality") or "Auto"),
         "duration": duration_str,
         "durationMinutes": duration,
         "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
         "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
-        "ageRating": 16,
+        "ageRating": 0,
         "audioLanguages": ["Русский", "Оригинал"],
         "subtitleLanguages": ["Русские"],
         "director": director,
@@ -1164,6 +1164,84 @@ def search_catalog(query_text: str, limit: int = 20) -> Dict[str, Any]:
             "movies": movies,
             "people": people
         }
+
+def get_person_projects(name: str, limit: int = 200) -> Dict[str, Any]:
+    """Return one person's Movia-available filmography with a real profile image.
+
+    TMDB combined credits provide the complete identity/credit list; catalog.db
+    remains authoritative for which projects can be opened inside Movia.
+    """
+    clean_name = str(name or "").strip()
+    if not clean_name:
+        return {"person": None, "projects": []}
+    safe_limit = max(1, min(int(limit or 200), 300))
+    remote = tmdb.get_person_combined_credits(clean_name)
+    projects = []
+    profile_url = remote.get("profile_url") if isinstance(remote, dict) else None
+    known_for_department = remote.get("known_for_department") if isinstance(remote, dict) else ""
+    canonical_name = remote.get("name") if isinstance(remote, dict) else clean_name
+
+    with get_db() as conn:
+        seen = set()
+        if isinstance(remote, dict):
+            credits = remote.get("credits") or []
+            by_type = {"movie": [], "tv": []}
+            for credit in credits:
+                if not isinstance(credit, dict):
+                    continue
+                media_type = str(credit.get("media_type") or "").lower()
+                tmdb_id = int(credit.get("tmdb_id") or 0)
+                if media_type in by_type and tmdb_id > 0 and tmdb_id not in by_type[media_type]:
+                    by_type[media_type].append(tmdb_id)
+            for media_type, ids in by_type.items():
+                for start in range(0, len(ids), 400):
+                    chunk = ids[start:start + 400]
+                    if not chunk:
+                        continue
+                    placeholders = ",".join("?" for _ in chunk)
+                    rows = conn.execute(
+                        f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND media_type=? AND tmdb_id IN ({placeholders})",
+                        tuple([media_type] + chunk),
+                    ).fetchall()
+                    for row in rows:
+                        key = int(row["id"])
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        projects.append(map_row_to_media(row, compact=True))
+
+        # Offline/legacy fallback, and also fills local credits that TMDB search could
+        # not resolve because of transliteration/localized person names.
+        like = f"%{clean_name}%"
+        rows = conn.execute(
+            f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND (director LIKE ? OR [cast] LIKE ?) ORDER BY year DESC, rating DESC LIMIT ?",
+            (like, like, safe_limit),
+        ).fetchall()
+        for row in rows:
+            key = int(row["id"])
+            if key in seen:
+                continue
+            seen.add(key)
+            projects.append(map_row_to_media(row, compact=True))
+            if not profile_url:
+                cast = parse_json_safely(row["cast"], [])
+                for person in cast if isinstance(cast, list) else []:
+                    if isinstance(person, dict) and str(person.get("name") or "").strip().casefold() == clean_name.casefold():
+                        profile_url = person.get("photo_url") or person.get("photoUrl")
+                        break
+
+    projects.sort(key=lambda item: (int(item.get("year") or 0), float(item.get("rating") or 0.0)), reverse=True)
+    projects = projects[:safe_limit]
+    return {
+        "person": {
+            "name": canonical_name or clean_name,
+            "photo_url": profile_url,
+            "photoUrl": profile_url,
+            "known_for_department": known_for_department or "",
+        },
+        "projects": projects,
+    }
+
 
 def get_all_genres() -> List[str]:
     return [

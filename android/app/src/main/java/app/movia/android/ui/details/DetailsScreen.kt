@@ -41,6 +41,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -123,6 +127,7 @@ import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.moviaContentTypeLabel
 import app.movia.android.ui.components.moviaLocalizedGenreList
+import app.movia.android.ui.components.moviaLocalizedCountry
 import app.movia.android.ui.components.moviaPrimaryGenre
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
@@ -172,9 +177,10 @@ private fun episodeFromTitle(title: String): Int? =
 @Composable
 fun DetailsScreen(
     title: String,
+    mediaId: String? = null,
     onBack: () -> Unit,
     onPlay: (String) -> Unit,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (MediaContent) -> Unit,
     modifier: Modifier = Modifier,
     inMyList: Boolean = false,
     onMyListChange: (Boolean) -> Unit,
@@ -183,10 +189,16 @@ fun DetailsScreen(
     progressByTitle: Map<String, PlaybackProgress> = emptyMap(),
     latestProgress: PlaybackProgress = PlaybackProgress(),
 ) {
-    val initialContent = remember(title) { DemoCatalogRepository.findByTitle(title) }
-    val contentState by produceState<MediaContent?>(initialValue = initialContent, title) {
+    val initialContent = remember(mediaId, title) {
+        mediaId?.let(DemoCatalogRepository::findById) ?: DemoCatalogRepository.findByTitle(title)
+    }
+    val contentState by produceState<MediaContent?>(initialValue = initialContent, mediaId, title) {
         value = withContext(Dispatchers.IO) {
-            DemoCatalogRepository.findFullByTitle(title) ?: initialContent
+            if (!mediaId.isNullOrBlank()) {
+                DemoCatalogRepository.findFullById(mediaId) ?: initialContent
+            } else {
+                DemoCatalogRepository.findFullByTitle(title) ?: initialContent
+            }
         }
     }
     val content = contentState ?: initialContent
@@ -202,6 +214,7 @@ fun DetailsScreen(
     var selectedSeason by remember(title, initialSeason) { mutableIntStateOf(initialSeason) }
     var synopsisExpanded by remember(title) { mutableStateOf(false) }
     var seasonScreenOpen by remember(title) { mutableStateOf(false) }
+    var selectedPerson by remember(mediaId, title) { mutableStateOf<Person?>(null) }
     val listState = rememberLazyListState()
     LaunchedEffect(content?.id, title) {
         listState.scrollToItem(0)
@@ -250,6 +263,37 @@ fun DetailsScreen(
                     .filterNot { it.id in excludedIds }
             }.orEmpty()
         }
+    }
+
+    val creativeCreditTitle = if (isSeries) "Создатели" else "Режиссёр"
+    val creativeNames = content?.director
+        ?.split(',')
+        ?.map(String::trim)
+        ?.filter(String::isNotBlank)
+        ?.distinct()
+        ?.take(4)
+        .orEmpty()
+    val creativePeople by produceState(
+        initialValue = creativeNames.map { Person(name = it, role = creativeCreditTitle) },
+        content?.id,
+        creativeNames.joinToString("|"),
+    ) {
+        value = withContext(Dispatchers.IO) {
+            creativeNames.map { name ->
+                val resolved = DemoCatalogRepository.getPersonProjects(name, limit = 200).person
+                resolved.copy(name = resolved.name.ifBlank { name }, role = creativeCreditTitle)
+            }
+        }
+    }
+
+    selectedPerson?.let { person ->
+        PersonProjectsScreen(
+            seedPerson = person,
+            onBack = { selectedPerson = null },
+            onOpenDetails = onOpenDetails,
+            modifier = modifier,
+        )
+        return
     }
 
     if (hasEpisodes && seasonScreenOpen) {
@@ -359,26 +403,20 @@ fun DetailsScreen(
                 item(key = "cast") {
                     CastSection(
                         cast = cast,
+                        onPersonClick = { person -> selectedPerson = person.copy(role = "Актёр") },
                         modifier = Modifier.padding(horizontal = 16.dp),
                     )
                 }
             }
 
-            val director = content?.director?.takeIf { it.isNotBlank() }
-            if (director != null) {
-                item(key = "director") {
-                    InfoSection(
-                        title = "Режиссёр",
+            if (creativePeople.isNotEmpty()) {
+                item(key = "creative-credits") {
+                    PeopleSection(
+                        title = creativeCreditTitle,
+                        people = creativePeople,
+                        onPersonClick = { selectedPerson = it.copy(role = creativeCreditTitle) },
                         modifier = Modifier.padding(horizontal = 16.dp),
-                    ) {
-                        Text(
-                            text = director,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = DetailsInfoFontSize,
-                            lineHeight = DetailsInfoLineHeight,
-                            fontWeight = FontWeight.Normal,
-                        )
-                    }
+                    )
                 }
             }
 
@@ -612,87 +650,126 @@ private fun DetailsHero(
         )
     }
 }
+internal data class DetailsMetadataRows(
+    val ratingText: String?,
+    val primary: List<String>,
+    val secondary: List<String>,
+)
+
+internal fun detailsMetadataRows(
+    content: MediaContent,
+    isTv: Boolean,
+): DetailsMetadataRows {
+    val ratingText = content.rating
+        .takeIf { it > 0.0 }
+        ?.let { String.format(Locale.US, "%.1f", it) }
+    val typeLabel = moviaContentTypeLabel(content)
+    val isSeries = content.type == ContentType.SERIES ||
+        content.category == CatalogCategory.TV_SERIES ||
+        content.category == CatalogCategory.LIMITED_SERIES ||
+        content.seasonEpisodeCounts.isNotEmpty() ||
+        content.seasonsCount > 0
+
+    val primary = buildList {
+        if (content.year > 0) add(content.year.toString())
+        content.country
+            .takeIf { it.isNotBlank() }
+            ?.let(::moviaLocalizedCountry)
+            ?.takeIf { it.isNotBlank() }
+            ?.let(::add)
+        moviaPrimaryGenre(content)?.let(::add)
+    }
+
+    val secondary = buildList {
+        when {
+            isTv -> {
+                add(typeLabel)
+                add("Прямой эфир")
+            }
+            isSeries -> {
+                val seasonCount = content.seasonsCount.takeIf { it > 0 }
+                    ?: content.seasonEpisodeCounts.size.takeIf { it > 0 }
+                val episodesCount = content.episodesCount.takeIf { it > 0 }
+                    ?: content.seasonEpisodeCounts.sum().takeIf { it > 0 }
+
+                seasonCount?.let { count -> add("$count ${seasonWord(count)}") }
+                episodesCount?.let { count -> add("$count ${episodeWord(count)}") }
+                if (content.durationMinutes > 0) add("${content.durationMinutes} мин/серия")
+            }
+            else -> {
+                add(typeLabel)
+                if (content.durationMinutes > 0) add("${content.durationMinutes} мин")
+            }
+        }
+    }
+
+    return DetailsMetadataRows(
+        ratingText = ratingText,
+        primary = primary.distinct(),
+        secondary = secondary.distinct(),
+    )
+}
+
+private fun seasonWord(count: Int): String = when {
+    count % 10 == 1 && count % 100 != 11 -> "сезон"
+    count % 10 in 2..4 && count % 100 !in 12..14 -> "сезона"
+    else -> "сезонов"
+}
+
+private fun episodeWord(count: Int): String = when {
+    count % 10 == 1 && count % 100 != 11 -> "серия"
+    count % 10 in 2..4 && count % 100 !in 12..14 -> "серии"
+    else -> "серий"
+}
+
 @Composable
 private fun DetailsMetadataLine(
     content: MediaContent,
     isTv: Boolean,
 ) {
-    val showRating = content.rating > 0.0
-    val ratingText = if (showRating) String.format(Locale.US, "%.1f", content.rating) else null
-    val typeLabel = moviaContentTypeLabel(content)
-    val isSeries = content.type == ContentType.SERIES || content.category == CatalogCategory.TV_SERIES || content.category == CatalogCategory.LIMITED_SERIES || content.seasonEpisodeCounts.isNotEmpty() || content.seasonsCount > 0
+    val rows = detailsMetadataRows(content, isTv)
 
-    val metadata = buildList<String> {
-        if (content.year > 0) add(content.year.toString())
-        if (content.country.isNotBlank()) {
-            add(content.country)
-        } else {
-            add("Зарубежный")
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        if (rows.ratingText != null || rows.primary.isNotEmpty()) {
+            Text(
+                text = buildAnnotatedString {
+                    rows.ratingText?.let { rating ->
+                        withStyle(
+                            SpanStyle(
+                                color = MoviaBrandAmber,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                        ) {
+                            append("★ $rating")
+                        }
+                        if (rows.primary.isNotEmpty()) append(" • ")
+                    }
+                    append(rows.primary.joinToString(" • "))
+                },
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = DetailsInfoFontSize,
+                lineHeight = DetailsInfoLineHeight,
+                fontWeight = FontWeight.Normal,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
-        if (isTv) {
-            add("ТВ")
-            add("Прямой эфир")
-        } else if (isSeries) {
-            val seasonCount = content.seasonsCount.takeIf { it > 0 } ?: content.seasonEpisodeCounts.size.takeIf { it > 0 }
-            val episodesCount = content.episodesCount.takeIf { it > 0 }
-            if (seasonCount != null) {
-                val sSuffix = when {
-                    seasonCount % 10 == 1 && seasonCount % 100 != 11 -> "сезон"
-                    seasonCount % 10 in 2..4 && seasonCount % 100 !in 12..14 -> "сезона"
-                    else -> "сезонов"
-                }
-                if (episodesCount != null) {
-                    add("$seasonCount $sSuffix ($episodesCount серий)")
-                } else {
-                    add("$seasonCount $sSuffix")
-                }
-            } else {
-                add("Сериал")
-            }
-            if (content.durationMinutes > 0) {
-                add("${content.durationMinutes} мин/серия")
-            }
-        } else {
-            add(typeLabel)
-            if (content.durationMinutes > 0) {
-                add("${content.durationMinutes} мин")
-            }
+
+        if (rows.secondary.isNotEmpty()) {
+            Text(
+                text = rows.secondary.joinToString(" • "),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
-
-    Text(
-        text = buildAnnotatedString {
-            if (ratingText != null) {
-                withStyle(
-                    SpanStyle(
-                        color = MoviaBrandAmber,
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                ) {
-                    append("★ $ratingText")
-                }
-                if (metadata.isNotEmpty()) append(" • ")
-            } else {
-                withStyle(
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium,
-                    ),
-                ) {
-                    append("—")
-                }
-                if (metadata.isNotEmpty()) append(" • ")
-            }
-            append(metadata.joinToString(" • "))
-        },
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onSurface,
-        fontSize = DetailsInfoFontSize,
-        lineHeight = DetailsInfoLineHeight,
-        fontWeight = FontWeight.Normal,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
 }
 
 @Composable
@@ -852,66 +929,56 @@ private fun SeasonEpisodesScreen(
         initialPage = (initialSeason - 1).coerceIn(0, pageCount - 1),
         pageCount = { pageCount },
     )
+    val seasonListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val dismissThresholdPx = with(LocalDensity.current) { 96.dp.toPx() }
-    val swipeDownBack = remember(onBack, dismissThresholdPx) {
-        object : NestedScrollConnection {
-            var pullDistance = 0f
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource,
-            ): Offset {
-                if (source == NestedScrollSource.UserInput) {
-                    when {
-                        available.y > 0f -> pullDistance += available.y
-                        available.y < 0f -> pullDistance = 0f
-                    }
-                }
-                return Offset.Zero
-            }
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                val shouldGoBack = pullDistance >= dismissThresholdPx
-                pullDistance = 0f
-                if (shouldGoBack) onBack()
-                return Velocity.Zero
-            }
-        }
-    }
+    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val dismissThresholdPx = with(LocalDensity.current) { 72.dp.toPx() }
+    var headerDragDistance by remember { mutableStateOf(0f) }
 
     LaunchedEffect(pagerState.currentPage) {
-        onSeasonChange(pagerState.currentPage + 1)
+        val selectedIndex = pagerState.currentPage
+        onSeasonChange(selectedIndex + 1)
+        // Keep the selected season in the viewport with one neighbour as context.
+        seasonListState.animateScrollToItem((selectedIndex - 1).coerceAtLeast(0))
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .nestedScroll(swipeDownBack),
+            .background(MaterialTheme.colorScheme.background),
     ) {
-        TopAppBar(
-            title = {},
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Назад",
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            },
-            actions = {},
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            windowInsets = WindowInsets.statusBars,
-        )
+        // The header is the only dismiss gesture target. Horizontal season swipes can
+        // therefore never leak into a close action at the first/last page.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = statusTop)
+                .height(52.dp)
+                .pointerInput(onBack, dismissThresholdPx) {
+                    detectVerticalDragGestures(
+                        onDragStart = { headerDragDistance = 0f },
+                        onDragCancel = { headerDragDistance = 0f },
+                        onDragEnd = {
+                            if (headerDragDistance >= dismissThresholdPx) onBack()
+                            headerDragDistance = 0f
+                        },
+                    ) { _, dragAmount ->
+                        headerDragDistance = (headerDragDistance + dragAmount).coerceAtLeast(0f)
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(width = 36.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.40f)),
+            )
+        }
 
         LazyRow(
+            state = seasonListState,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         ) {
@@ -920,7 +987,7 @@ private fun SeasonEpisodesScreen(
                 FilterChip(
                     selected = selected,
                     onClick = {
-                        scope.launch { pagerState.scrollToPage(season - 1) }
+                        scope.launch { pagerState.animateScrollToPage(season - 1) }
                     },
                     modifier = Modifier.heightIn(min = 48.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -1046,29 +1113,42 @@ private fun SeasonEpisodesButton(
 @Composable
 private fun CastSection(
     cast: List<Person>,
+    onPersonClick: (Person) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    InfoSection(
+    PeopleSection(
         title = "В ролях",
+        people = cast,
+        onPersonClick = onPersonClick,
         modifier = modifier,
-    ) {
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    )
+}
+
+@Composable
+private fun PeopleSection(
+    title: String,
+    people: List<Person>,
+    onPersonClick: (Person) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    InfoSection(title = title, modifier = modifier) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(
-                items = cast,
-                key = { person -> "cast-${person.name}-${person.photoUrl.orEmpty()}" },
+                items = people,
+                key = { person -> "$title-${person.name}-${person.photoUrl.orEmpty()}" },
             ) { person ->
-                ActorCard(person)
+                ActorCard(person = person, onClick = { onPersonClick(person) })
             }
         }
     }
 }
 
 @Composable
-private fun ActorCard(person: Person) {
+private fun ActorCard(person: Person, onClick: () -> Unit) {
     Column(
-        modifier = Modifier.width(88.dp),
+        modifier = Modifier
+            .width(88.dp)
+            .clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -1126,6 +1206,166 @@ private fun ActorCard(person: Person) {
     }
 }
 
+@Composable
+private fun PersonProjectsScreen(
+    seedPerson: Person,
+    onBack: () -> Unit,
+    onOpenDetails: (MediaContent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BackHandler(onBack = onBack)
+    val result by produceState<app.movia.android.data.catalog.PersonProjectsResult?>(
+        initialValue = null,
+        seedPerson.name,
+    ) {
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getPersonProjects(seedPerson.name, limit = 200)
+        }
+    }
+    val resolved = result?.person
+    val person = Person(
+        name = resolved?.name?.takeIf { it.isNotBlank() } ?: seedPerson.name,
+        photoUrl = resolved?.photoUrl ?: seedPerson.photoUrl,
+        role = localizedPersonDepartment(resolved?.role) ?: seedPerson.role,
+        knownFor = result?.projects?.take(8)?.map { it.title } ?: seedPerson.knownFor,
+    )
+    val projects = result?.projects.orEmpty()
+    val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = topInset + 8.dp,
+            bottom = navBottom + 24.dp,
+        ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }, key = "person-header-${seedPerson.name}") {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "Назад",
+                        )
+                    }
+                    Text(
+                        text = person.name,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 26.sp,
+                        lineHeight = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    PersonAvatar(person = person, size = 104.dp)
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        person.role?.takeIf { it.isNotBlank() }?.let { role ->
+                            Text(
+                                text = role,
+                                color = MoviaBrandAmber,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                        Text(
+                            text = if (projects.isEmpty() && result == null) {
+                                "Загружаем фильмографию…"
+                            } else {
+                                "Проекты в Movia: ${projects.size}"
+                            },
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+                Text(
+                    text = "Фильмография",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+
+        if (projects.isEmpty() && result != null) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "person-empty") {
+                Text(
+                    text = "В каталоге Movia пока нет доступных проектов этого человека.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 24.dp),
+                )
+            }
+        } else {
+            gridItems(projects, key = { it.id }) { project ->
+                MediaContentCard(
+                    item = project,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onOpenDetails(project) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PersonAvatar(person: Person, size: androidx.compose.ui.unit.Dp) {
+    val bitmap by produceState<Bitmap?>(initialValue = null, key1 = person.photoUrl) {
+        value = loadActorBitmap(person.photoUrl)
+    }
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Color(0xFF1B1E26))
+            .border(1.dp, MoviaBorderSubtle, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        val image = bitmap?.asImageBitmap()
+        if (image != null) {
+            Image(
+                bitmap = image,
+                contentDescription = person.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            Text(
+                text = person.name.trim().firstOrNull()?.uppercase() ?: "?",
+                color = MoviaBrandAmber,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+private fun localizedPersonDepartment(raw: String?): String? = when (raw?.trim()?.lowercase(Locale.ROOT)) {
+    "acting" -> "Актёр"
+    "directing" -> "Режиссёр"
+    "writing" -> "Сценарист"
+    "production" -> "Продюсер"
+    "sound" -> "Музыка и звук"
+    "camera" -> "Оператор"
+    "art" -> "Художник"
+    null, "" -> null
+    else -> raw
+}
+
 private suspend fun loadActorBitmap(url: String?): Bitmap? = withContext(Dispatchers.IO) {
     if (url.isNullOrBlank()) return@withContext null
     val connection = try {
@@ -1152,7 +1392,7 @@ private fun MediaContentRowSection(
     title: String,
     items: List<MediaContent>,
     activeId: String? = null,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (MediaContent) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionTitle(title, Modifier.padding(horizontal = 16.dp))
@@ -1165,7 +1405,7 @@ private fun MediaContentRowSection(
                     item = item,
                     modifier = Modifier.width(136.dp),
                     posterBorder = if (item.id == activeId) MoviaBrandAmber else MoviaBorderSubtle,
-                    onClick = { onOpenDetails(item.title) },
+                    onClick = { onOpenDetails(item) },
                 )
             }
         }

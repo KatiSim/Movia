@@ -223,6 +223,7 @@ class PieceReprioritizationAndPrebufferTests(unittest.TestCase):
         methods = [call[0] for call in rpc_calls]
         self.assertIn("aria2.unpause", methods)
         self.assertIn("aria2.changeOption", methods)
+        self.assertLess(methods.index("aria2.changeOption"), methods.index("aria2.unpause"))
         change = next(params for method, params in rpc_calls if method == "aria2.changeOption")
         self.assertIn("head=4194304", change[1]["bt-prioritize-piece"])
 
@@ -252,7 +253,50 @@ class PieceReprioritizationAndPrebufferTests(unittest.TestCase):
             self.assertTrue(ready)
             methods = [c[0] for c in rpc_calls]
             self.assertIn("aria2.tellStatus", methods)
+            self.assertIn("aria2.changeOption", methods)
+            self.assertIn("aria2.unpause", methods)
+            self.assertLess(methods.index("aria2.changeOption"), methods.index("aria2.unpause"))
             self.assertIn("aria2.forcePause", methods)
+
+
+class TorrServerSidecarTests(unittest.TestCase):
+    def test_torrserver_url_accepts_only_loopback_http_origin(self):
+        self.assertEqual(streamer._validated_torrserver_base_url("http://127.0.0.1:18090"), "http://127.0.0.1:18090")
+        self.assertEqual(streamer._validated_torrserver_base_url("http://[::1]:18090/"), "http://[::1]:18090")
+        self.assertEqual(streamer._validated_torrserver_base_url("https://127.0.0.1:18090"), "")
+        self.assertEqual(streamer._validated_torrserver_base_url("http://example.com:18090"), "")
+        self.assertEqual(streamer._validated_torrserver_base_url("http://127.0.0.1:18090/api"), "")
+
+    def test_exact_episode_uses_torrserver_file_id_not_aria2_index(self):
+        info = {"file_stats": [
+            {"id": 5, "path": "Show.S01E01.mkv", "length": 100},
+            {"id": 6, "path": "Show.S01E02.mkv", "length": 100},
+        ]}
+        self.assertEqual(streamer._torrserver_exact_episode_file_id(info, 1, 2), "6")
+        self.assertIsNone(streamer._torrserver_exact_episode_file_id(info, 1, 3))
+
+    def test_prepare_episode_returns_local_play_url_from_prewarmed_metadata(self):
+        info_hash = "6b1f7e4e0804855d0b5236e53c2459ea1946faff"
+        torrent_info = {"file_stats": [{"id": 6, "path": "Futurama.S01E02.mkv", "length": 123}]}
+        with patch.object(streamer, "TORRSERVER_URL", "http://127.0.0.1:18090"), \
+                patch.object(streamer, "P2P_ENABLED", True), \
+                patch.object(streamer, "CLOUD_MODE", False), \
+                patch.object(streamer, "_torrserver_post", return_value=torrent_info) as post, \
+                patch.object(streamer, "_torrserver_add_magnet") as add:
+            url = streamer._torrserver_prepare_episode_stream(
+                info_hash, f"magnet:?xt=urn:btih:{info_hash}", 1, 2, timeout_sec=0.2
+            )
+        self.assertEqual(url, f"http://127.0.0.1:18090/play/{info_hash}/6")
+        add.assert_not_called()
+        post.assert_called_once()
+
+    def test_prepare_episode_fails_closed_when_sidecar_disabled(self):
+        info_hash = "6b1f7e4e0804855d0b5236e53c2459ea1946faff"
+        with patch.object(streamer, "TORRSERVER_URL", "http://127.0.0.1:18090"), \
+                patch.object(streamer, "P2P_ENABLED", False):
+            self.assertIsNone(streamer._torrserver_prepare_episode_stream(
+                info_hash, f"magnet:?xt=urn:btih:{info_hash}", 1, 2
+            ))
 
 
 class TorrentGidDeduplicationTests(unittest.TestCase):

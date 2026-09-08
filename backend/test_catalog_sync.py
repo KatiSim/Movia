@@ -213,6 +213,44 @@ class CatalogSyncTests(unittest.TestCase):
             self.assertEqual(client._get("/movie/popular", {}, max_retries=1), {"results": []})
         self.assertEqual(client.session.get.call_count, 2)
 
+    def test_person_combined_credits_uses_real_profile_and_movie_tv_ids(self):
+        client = TMDbClient(api_key="test")
+        calls = []
+
+        def fake_get(endpoint, params=None, **kwargs):
+            calls.append(endpoint)
+            if endpoint == "/search/person":
+                return {"results": [{"id": 17419, "name": "Bryan Cranston", "profile_path": "/search.jpg"}]}
+            if endpoint == "/person/17419":
+                return {
+                    "id": 17419,
+                    "name": "Bryan Cranston",
+                    "profile_path": "/profile.jpg",
+                    "known_for_department": "Acting",
+                }
+            if endpoint == "/person/17419/combined_credits":
+                return {
+                    "cast": [
+                        {"id": 1396, "media_type": "tv", "character": "Walter White", "popularity": 99.0},
+                        {"id": 75780, "media_type": "movie", "character": "Dalton Trumbo", "popularity": 30.0},
+                    ],
+                    "crew": [{"id": 1438, "media_type": "tv", "job": "Director", "department": "Directing"}],
+                }
+            return None
+
+        client._get = fake_get
+        result = client.get_person_combined_credits("Bryan Cranston")
+
+        self.assertEqual(result["person_id"], 17419)
+        self.assertEqual(result["profile_url"], "https://image.tmdb.org/t/p/w342/profile.jpg")
+        self.assertEqual(result["known_for_department"], "Acting")
+        self.assertEqual(
+            {(x["tmdb_id"], x["media_type"], x["credit_type"]) for x in result["credits"]},
+            {(1396, "tv", "cast"), (75780, "movie", "cast"), (1438, "tv", "crew")},
+        )
+        self.assertEqual(calls, ["/search/person", "/person/17419", "/person/17419/combined_credits"])
+
+
 
 if __name__ == "__main__":
     unittest.main()

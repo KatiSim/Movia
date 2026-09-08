@@ -95,6 +95,72 @@ class MetadataQualityTest(unittest.TestCase):
         self.assertLessEqual(north_america, 18)
         self.assertEqual(len(result), 40)
 
+    def test_unknown_compact_metadata_stays_unknown_instead_of_fabricated(self):
+        row = {
+            "id": 999,
+            "tmdb_id": 999,
+            "media_type": "movie",
+            "title": "Тест",
+            "localized_ru_title": "Тест",
+            "original_title": "Test",
+            "alternative_titles": "[]",
+            "year": 0,
+            "rating": 0.0,
+            "vote_count": 0,
+            "vote_average": 0.0,
+            "duration_minutes": 0,
+            "seasons_count": 0,
+            "episodes_count": 0,
+            "season_episode_counts": "[]",
+            "collection_id": 0,
+            "poster_url": "https://example.invalid/poster.jpg",
+            "backdrop_url": "https://example.invalid/backdrop.jpg",
+            "genres": "[]",
+            "cast": "[]",
+            "director": "",
+            "creators": "[]",
+            "country": "",
+            "category": "movies",
+            "streams": "[]",
+            "quality": "",
+            "seeders": 0,
+            "link_verified": 0,
+            "link_updated_at": None,
+            "imdb_id": "",
+            "metadata_source": "",
+        }
+        media = map_row_to_media(row, compact=True)
+        self.assertEqual(media["country"], "")
+        self.assertEqual(media["durationMinutes"], 0)
+        self.assertEqual(media["duration"], "")
+        self.assertEqual(media["quality"], "Auto")
+        self.assertEqual(media["ageRating"], 0)
+        self.assertFalse(media["isNew"])
+
+
+    def test_person_fallback_quotes_cast_column(self):
+        import sqlite3
+        import catalog_api
+
+        conn = sqlite3.connect(":memory:")
+        try:
+            conn.execute(
+                "CREATE TABLE movies (tmdb_id INTEGER, media_type TEXT, localized_ru_title TEXT, poster_url TEXT, director TEXT, \"cast\" TEXT, year INTEGER, rating REAL)"
+            )
+            conn.execute(
+                "INSERT INTO movies VALUES (1, 'movie', 'Тест', 'https://example.invalid/p.jpg', '', ?, 2020, 7.0)",
+                ('[{"name":"Брайан Крэнстон"}]',),
+            )
+            like = "%Брайан Крэнстон%"
+            rows = conn.execute(
+                f"SELECT * FROM movies WHERE {catalog_api._USER_VISIBLE_SQL} AND (director LIKE ? OR [cast] LIKE ?) ORDER BY year DESC, rating DESC LIMIT ?",
+                (like, like, 10),
+            ).fetchall()
+            self.assertEqual(len(rows), 1)
+        finally:
+            conn.close()
+
+
 
 if __name__ == "__main__":
     unittest.main()

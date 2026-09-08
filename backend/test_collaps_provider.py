@@ -16,6 +16,7 @@ class CollapsProviderTrackIndexTest(unittest.TestCase):
         streams = parse_collaps_page(html, "https://api.example", "tt123")
         self.assertEqual(["Дубляж", "Original"], [s["voice"] for s in streams])
         self.assertEqual([0, 1], [s["audio_track_index"] for s in streams])
+        self.assertEqual(["Auto", "Auto"], [s["quality"] for s in streams])
         self.assertEqual([9, 9], [s["source_type_id"] for s in streams])
 
     def test_series_voice_order_maps_to_hls_audio_track_indexes(self):
@@ -31,6 +32,7 @@ class CollapsProviderTrackIndexTest(unittest.TestCase):
         )
         self.assertEqual(["LostFilm", "Original"], [s["voice"] for s in streams])
         self.assertEqual([0, 1], [s["audio_track_index"] for s in streams])
+        self.assertEqual(["Auto", "Auto"], [s["quality"] for s in streams])
         self.assertEqual([9, 9], [s["source_type_id"] for s in streams])
 
 

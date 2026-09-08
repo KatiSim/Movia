@@ -1,12 +1,15 @@
 package app.movia.android.ui.player
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -23,6 +26,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.session.MediaSession
+import app.movia.android.MainActivity
 import app.movia.android.domain.model.ActiveStreamSelection
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.PlaybackState
@@ -75,6 +79,7 @@ internal object MoviaPlaybackRegistry {
 
 private const val TAG = "MoviaPlayer"
 private const val STARTUP_WATCHDOG_MS = 5_000L
+private const val ADJACENT_PREWARM_REMAINING_MS = 90_000L
 private const val RELOAD_TIMEOUT_MS = 3_000L
 private const val STALL_WATCHDOG_MS = 10_000L
 private const val MAX_PROBLEM_MEMORY = 64
@@ -365,6 +370,40 @@ class DynamicHeaderDataSource(
     }
 }
 
+internal fun normalizePlaybackArtworkUrl(rawUrl: String?): String? {
+    val value = rawUrl?.trim()?.takeIf { it.isNotBlank() } ?: return null
+    return when {
+        value.startsWith("/") && !value.startsWith("//") -> "https://image.tmdb.org/t/p/w780$value"
+        value.startsWith("http://", ignoreCase = true) ||
+            value.startsWith("https://", ignoreCase = true) ||
+            value.startsWith("content://", ignoreCase = true) ||
+            value.startsWith("file://", ignoreCase = true) -> value
+        else -> null
+    }
+}
+
+internal fun playbackNotificationTitle(request: PlaybackRequest): String =
+    if (request.isSeries && request.seasonNumber != null && request.episodeNumber != null) {
+        "${request.title} · S${request.seasonNumber.toString().padStart(2, '0')}E${request.episodeNumber.toString().padStart(2, '0')}"
+    } else {
+        request.title
+    }
+
+internal fun shouldPrewarmAdjacentEpisode(
+    request: PlaybackRequest?,
+    status: PlaybackStatus,
+    positionMs: Long,
+    durationMs: Long,
+    alreadyPrewarmedGeneration: Long?,
+): Boolean {
+    val current = request ?: return false
+    if (!current.isSeries || current.seasonNumber == null || current.episodeNumber == null) return false
+    if (status != PlaybackStatus.READY || durationMs <= 0L || positionMs < 0L) return false
+    if (alreadyPrewarmedGeneration == current.generationId) return false
+    val remaining = durationMs - positionMs
+    return remaining in 1..ADJACENT_PREWARM_REMAINING_MS
+}
+
 class PlaybackSession(context: Context) {
     private val appContext = context.applicationContext
     private val extractorsFactory = DefaultExtractorsFactory().apply {
@@ -405,6 +444,7 @@ class PlaybackSession(context: Context) {
     val streamOptions: StateFlow<List<StreamOption>> = _streamOptions.asStateFlow()
 
     private var playbackGeneration = 0L
+    private var adjacentPrewarmGeneration: Long? = null
     private var playbackRequest: PlaybackRequest? = null
     private var candidates: List<StreamCandidate> = emptyList()
     private var activeCandidate: StreamCandidate? = null
@@ -436,7 +476,19 @@ class PlaybackSession(context: Context) {
             PlaybackStatus.ENDED -> Player.STATE_ENDED
         }
 
-    val mediaSession: MediaSession = MediaSession.Builder(appContext, player).build()
+    private val sessionActivity: PendingIntent = PendingIntent.getActivity(
+        appContext,
+        1001,
+        Intent(appContext, MainActivity::class.java).apply {
+            action = MainActivity.ACTION_OPEN_FROM_PLAYBACK_NOTIFICATION
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        },
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
+
+    val mediaSession: MediaSession = MediaSession.Builder(appContext, player)
+        .setSessionActivity(sessionActivity)
+        .build()
 
     init {
         MoviaPlaybackRegistry.current = this
@@ -510,9 +562,29 @@ class PlaybackSession(context: Context) {
         })
         scope.launch {
             while (isActive) {
-                if (_state.value.hasMedia) publishSnapshot()
+                if (_state.value.hasMedia) {
+                    publishSnapshot()
+                    maybeScheduleAdjacentPrewarm()
+                }
                 delay(250L)
             }
+        }
+    }
+
+    private fun maybeScheduleAdjacentPrewarm() {
+        val request = playbackRequest ?: return
+        val state = _state.value
+        if (!shouldPrewarmAdjacentEpisode(
+                request = request,
+                status = state.status,
+                positionMs = state.currentPositionMs,
+                durationMs = state.totalDurationMs,
+                alreadyPrewarmedGeneration = adjacentPrewarmGeneration,
+            )
+        ) return
+        adjacentPrewarmGeneration = request.generationId
+        scope.launch {
+            DomainPlaybackResolver.prewarmNextEpisode(request)
         }
     }
 
@@ -658,6 +730,8 @@ class PlaybackSession(context: Context) {
         StreamRankingContext(
             requestedVoice = request.requestedVoice,
             requestedQuality = request.requestedQuality,
+            strictRequestedVoice = request.strictRequestedVoice,
+            strictRequestedQuality = request.strictRequestedQuality,
             failedStreamIds = failedStreamIds.toSet(),
         )
 
@@ -969,13 +1043,31 @@ class PlaybackSession(context: Context) {
         return null
     }
 
+    private fun notificationSubtitle(candidate: StreamCandidate): String? =
+        listOf(candidate.voice, candidate.quality)
+            .map { it.trim() }
+            .filter { it.isNotBlank() && !it.equals("Не указано", ignoreCase = true) && !it.equals("Auto", ignoreCase = true) }
+            .distinct()
+            .joinToString(" • ")
+            .takeIf { it.isNotBlank() }
+
     private fun buildMediaItem(
         request: PlaybackRequest,
         candidate: StreamCandidate,
         consumedUri: String,
     ): MediaItem = MediaItem.Builder()
-        .setMediaId(request.mediaId)
+        .setMediaId(request.canonicalEpisodeKey)
         .setUri(consumedUri)
+        .setMediaMetadata(
+            MediaMetadata.Builder()
+                .setTitle(playbackNotificationTitle(request))
+                .setDisplayTitle(playbackNotificationTitle(request))
+                .apply {
+                    notificationSubtitle(candidate)?.let(::setSubtitle)
+                    normalizePlaybackArtworkUrl(request.artworkUrl)?.let { setArtworkUri(Uri.parse(it)) }
+                }
+                .build(),
+        )
         .apply {
             safeMimeType(candidate, consumedUri)?.let(::setMimeType)
             val subtitles = safeExternalSubtitleConfigurations(candidate)
@@ -1067,6 +1159,7 @@ class PlaybackSession(context: Context) {
             if (resumePositionMs > 0L) player.seekTo(resumePositionMs)
             player.playWhenReady = true
             player.play()
+            MoviaPlaybackService.ensureStarted(appContext)
             startWatchdog(candidate, resumePositionMs, generation)
             publishSnapshot()
             true
@@ -1243,8 +1336,11 @@ class PlaybackSession(context: Context) {
         candidateStreams: List<String> = emptyList(),
         contentYear: Int? = null,
         mediaType: ContentType? = null,
+        artworkUrl: String? = null,
         preferredQuality: String? = null,
         preferredVoice: String? = null,
+        strictPreferredQuality: Boolean = false,
+        strictPreferredVoice: Boolean = false,
         preferredStreamId: String? = null,
         candidateStreamOptions: List<StreamOption> = emptyList(),
     ) {
@@ -1275,10 +1371,13 @@ class PlaybackSession(context: Context) {
             title = canonicalRequestTitle(title),
             mediaType = effectiveMediaType,
             year = contentYear,
+            artworkUrl = artworkUrl,
             seasonNumber = seasonNumber,
             episodeNumber = episodeNumber,
             requestedVoice = preferredVoice?.trim()?.takeIf { it.isNotBlank() },
             requestedQuality = preferredQuality?.trim()?.takeIf { it.isNotBlank() },
+            strictRequestedVoice = strictPreferredVoice,
+            strictRequestedQuality = strictPreferredQuality,
             requestedStreamId = preferredStreamId?.trim()?.takeIf { it.isNotBlank() },
             startPositionMs = startPositionMs.coerceAtLeast(0L),
             generationId = generation,

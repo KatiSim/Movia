@@ -7,6 +7,7 @@ import android.graphics.Shader
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -145,6 +147,22 @@ private val topLevelDestinations = listOf(
 
 internal fun playbackBaseTitle(current: String): String =
     current.substringBefore(" · S").substringBefore(" · E")
+
+private const val DETAILS_ROUTE_SEPARATOR = "\u001F"
+
+internal data class DetailsRouteIdentity(val mediaId: String?, val title: String)
+
+internal fun encodeDetailsRoute(mediaId: String?, title: String): String =
+    mediaId.orEmpty() + DETAILS_ROUTE_SEPARATOR + title
+
+internal fun decodeDetailsRoute(value: String): DetailsRouteIdentity {
+    val separatorIndex = value.indexOf(DETAILS_ROUTE_SEPARATOR)
+    if (separatorIndex < 0) return DetailsRouteIdentity(mediaId = null, title = value)
+    return DetailsRouteIdentity(
+        mediaId = value.substring(0, separatorIndex).takeIf { it.isNotBlank() },
+        title = value.substring(separatorIndex + DETAILS_ROUTE_SEPARATOR.length),
+    )
+}
 
 internal fun nextEpisodeTitleForCounts(current: String, seasonEpisodeCounts: List<Int>): String? {
     val seasonMatch = Regex("^(.*) · S(\\d{2})E(\\d{2})(?: · Эпизод (\\d+))?$").matchEntire(current)
@@ -295,10 +313,14 @@ private fun MoviaContent(
     val saveableStateHolder = rememberSaveableStateHolder()
     var catalogLaunchPreset by remember { mutableStateOf<CatalogLaunchPreset?>(null) }
     var catalogResetTrigger by remember { mutableIntStateOf(0) }
-    // Survives the details route so CatalogScreen can restore its pages and grid offset.
+    // Both the route snapshot and the live LazyGridState survive Details. Hoisting the
+    // grid object is the primary guarantee; CatalogRetentionState remains the process/
+    // data-reload fallback.
     val catalogRetention = remember { CatalogRetentionState() }
+    val catalogGridState = rememberSaveable(saver = LazyGridState.Saver) { LazyGridState() }
     var detailsStack by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
-    val activeDetailsTitle = detailsStack.lastOrNull()
+    val activeDetailsRoute = detailsStack.lastOrNull()?.let(::decodeDetailsRoute)
+    val activeDetailsTitle = activeDetailsRoute?.title
     var settingsRoute by rememberSaveable { mutableStateOf<String?>(null) }
     var profileOpen by rememberSaveable { mutableStateOf(false) }
     var fullPlayerOpen by rememberSaveable { mutableStateOf(false) }
@@ -369,6 +391,7 @@ private fun MoviaContent(
             candidateStreams = streamCandidates,
             contentYear = content?.year,
             mediaType = content?.type,
+            artworkUrl = content?.posterUrl ?: content?.backdropUrl,
             preferredQuality = playbackPreferences.quality.takeUnless { it.equals("Auto", ignoreCase = true) },
             preferredVoice = playbackPreferences.audio.takeUnless { it.equals("Auto", ignoreCase = true) },
             candidateStreamOptions = knownStreams,
@@ -461,8 +484,9 @@ private fun MoviaContent(
     val miniVisible = playbackState.hasMedia
     val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
 
-    if (activeDetailsTitle != null) {
-        val title = activeDetailsTitle
+    if (activeDetailsRoute != null) {
+        val title = activeDetailsRoute.title
+        val mediaId = activeDetailsRoute.mediaId
         val titlePreferencesFlow = remember(title, preferencesRepository) {
             preferencesRepository.titlePlaybackPreferences(title)
         }
@@ -488,13 +512,14 @@ private fun MoviaContent(
         Box(modifier = Modifier.fillMaxSize()) {
             DetailsScreen(
                 title = title,
+                mediaId = mediaId,
                 onBack = {
                     detailsStack = if (detailsStack.isNotEmpty()) detailsStack.dropLast(1) else emptyList()
                 },
                 onPlay = startPlayback,
-                onOpenDetails = { relatedTitle ->
-                    detailsStack = detailsStack + relatedTitle
-                    scope.launch { libraryRepository.addHistory(relatedTitle) }
+                onOpenDetails = { relatedItem ->
+                    detailsStack = detailsStack + encodeDetailsRoute(relatedItem.id, relatedItem.title)
+                    scope.launch { libraryRepository.addHistory(relatedItem.title) }
                 },
                 inMyList = inMyList,
                 onMyListChange = { enabled ->
@@ -608,8 +633,14 @@ private fun MoviaContent(
     }
 
     val openDetails: (String) -> Unit = { title ->
-        detailsStack = detailsStack + title
-        scope.launch { libraryRepository.addHistory(title) }
+        val baseTitle = playbackBaseTitle(title)
+        val cached = DemoCatalogRepository.findByTitle(baseTitle)
+        detailsStack = detailsStack + encodeDetailsRoute(cached?.id, cached?.title ?: baseTitle)
+        scope.launch { libraryRepository.addHistory(cached?.title ?: baseTitle) }
+    }
+    val openCatalogDetails: (app.movia.android.domain.model.MediaContent) -> Unit = { item ->
+        detailsStack = detailsStack + encodeDetailsRoute(item.id, item.title)
+        scope.launch { libraryRepository.addHistory(item.title) }
     }
 
     val screenContent: @Composable (PaddingValues) -> Unit = { innerPadding ->
@@ -633,13 +664,14 @@ private fun MoviaContent(
                 launchPreset = catalogLaunchPreset,
                 onLaunchPresetConsumed = { catalogLaunchPreset = null },
                 retention = catalogRetention,
+                gridState = catalogGridState,
                 history = history,
                 favorites = favorites,
                 recentQueries = recentSearches,
                 onSearchCommitted = { query -> scope.launch { libraryRepository.addSearchQuery(query) } },
                 onClearRecent = { scope.launch { libraryRepository.clearSearchHistory() } },
                 resetTrigger = catalogResetTrigger,
-                onOpenDetails = openDetails,
+                onOpenDetails = openCatalogDetails,
             )
             2 -> LibraryScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -886,6 +918,18 @@ private fun MoviaBottomNavigation(
         modifier = Modifier
             .fillMaxWidth()
             .height(68.dp + systemBottom)
+            // One continuous surface owns the entire bottom bar. The individual
+            // destinations never paint their own rectangular backgrounds, so
+            // underlying cards cannot create visible vertical color seams.
+            .background(MoviaNavGlassSurface)
+            .drawBehind {
+                drawLine(
+                    color = MoviaNavTopBorder,
+                    start = androidx.compose.ui.geometry.Offset.Zero,
+                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            }
             .zIndex(1000f),
     ) {
         // Extend only the panel/background upward by 4dp. The 64dp button row stays
@@ -901,11 +945,18 @@ private fun MoviaBottomNavigation(
                 val selected = selectedIndex == index
                 val isLibrary = destination.moviaIcon == MoviaNavIcon.LIBRARY
                 val contentColor = if (selected) activeColor else inactiveColor
+                val interactionSource = remember(destination.moviaIcon) { MutableInteractionSource() }
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .height(64.dp)
-                        .clickable { onSelected(index) },
+                        // Keep every destination background strictly transparent.
+                        // Selection is represented only by icon/text color and the
+                        // existing radial glow; bounded rectangular ripples are off.
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                        ) { onSelected(index) },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                 ) {

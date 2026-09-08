@@ -2,6 +2,7 @@ package app.movia.android.agent
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class AgentPlaybackSelectionTest {
@@ -61,4 +62,26 @@ class AgentPlaybackSelectionTest {
         assertNull(intent.requiredQuality)
         assertNull(intent.requiredVoice)
     }
+    @Test
+    fun explicitSeriesMediaIdCanStartWithoutWarmCatalogCard() {
+        val content = minimalExplicitSeriesPlaybackContent(
+            mediaId = "217",
+            requestedTitle = null,
+            season = 1,
+            episode = 1,
+        )
+
+        assertNotNull(content)
+        assertEquals("217", content?.id)
+        assertEquals("217", content?.title)
+        assertEquals(app.movia.android.domain.model.ContentType.SERIES, content?.type)
+    }
+
+    @Test
+    fun minimalExplicitSeriesFallbackRejectsIncompleteIdentity() {
+        assertNull(minimalExplicitSeriesPlaybackContent("217", null, 1, null))
+        assertNull(minimalExplicitSeriesPlaybackContent("217", null, null, 1))
+        assertNull(minimalExplicitSeriesPlaybackContent(null, "Футурама", 1, 1))
+    }
+
 }

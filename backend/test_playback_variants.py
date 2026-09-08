@@ -303,6 +303,31 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
         self.assertIn("https://media.example.test/stale-but-recent.m3u8", urls)
         self.assertIn("magnet:?xt=urn:btih:" + "b" * 40, urls)
 
+    def test_playback_balancer_does_not_run_legacy_zona_title_lookup(self):
+        import balancer_integration
+
+        captured = {}
+
+        def fake_query(**kwargs):
+            captured.update(kwargs)
+            return []
+
+        with patch.object(balancer_integration, "query_open_balancer_stream", side_effect=fake_query):
+            result = self.streamer._resolve_balancer_provider(
+                title="Example",
+                tmdb_id=123,
+                year=2024,
+                season=1,
+                episode=2,
+                expected_titles=["Example"],
+                media_type="tv",
+                force_refresh=True,
+            )
+
+        self.assertEqual(result, [])
+        self.assertFalse(captured["allow_torrent_fallback"])
+        self.assertFalse(captured["allow_zona_content_lookup"])
+
     def test_zona_contract_merges_same_locator_variants(self):
         import balancer_integration
         from zona_contract import ZonaLookup

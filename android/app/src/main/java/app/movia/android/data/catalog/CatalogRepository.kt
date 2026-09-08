@@ -76,6 +76,11 @@ enum class SearchStatus {
     BACKEND_ERROR,
 }
 
+data class PersonProjectsResult(
+    val person: Person,
+    val projects: List<MediaContent>,
+)
+
 data class CatalogSearchResult(
     val status: SearchStatus,
     val items: List<MediaContent> = emptyList(),
@@ -108,6 +113,7 @@ object DemoCatalogRepository : CatalogRepository {
 
     private val movieCache = LruCache<String, MediaContent>(500)
     private val titleCache = LruCache<String, MediaContent>(500)
+    private val personProjectsCache = LruCache<String, PersonProjectsResult>(64)
 
     @Volatile
     private var cachedPopular: List<MediaContent> = emptyList()
@@ -232,8 +238,22 @@ object DemoCatalogRepository : CatalogRepository {
     }
 
     private fun cacheItem(item: MediaContent) {
+        val newTitleKey = CanonicalTextNormalizer.normalize(item.title)
+        val previousById = movieCache.get(item.id)
+        if (previousById != null) {
+            val previousTitleKey = CanonicalTextNormalizer.normalize(previousById.title)
+            if (previousTitleKey != newTitleKey && titleCache.get(previousTitleKey)?.id == item.id) {
+                titleCache.remove(previousTitleKey)
+            }
+        }
         movieCache.put(item.id, item)
-        titleCache.put(CanonicalTextNormalizer.normalize(item.title), item)
+
+        // A localized title is not a unique identity. Never let late enrichment of
+        // another mediaId silently replace the title alias of an already cached card.
+        val existingByTitle = titleCache.get(newTitleKey)
+        if (existingByTitle == null || existingByTitle.id == item.id) {
+            titleCache.put(newTitleKey, item)
+        }
     }
 
     private fun httpGet(
@@ -520,6 +540,55 @@ object DemoCatalogRepository : CatalogRepository {
     override fun searchPeople(query: String, limit: Int): List<Person> =
         searchDetailed(query, limit, discover = true).people
 
+    fun getPersonProjects(name: String, limit: Int = 200): PersonProjectsResult {
+        val cleanName = name.trim()
+        val key = CanonicalTextNormalizer.normalize(cleanName)
+        if (key.isBlank()) return PersonProjectsResult(Person(name = cleanName), emptyList())
+        personProjectsCache.get(key)?.let { return it }
+
+        val encoded = URLEncoder.encode(cleanName, "UTF-8")
+        val body = httpGet(
+            "/api/person?name=$encoded&limit=${limit.coerceIn(1, 300)}",
+            connectTimeoutMs = 2_000,
+            readTimeoutMs = 8_000,
+        )
+        if (body.isNullOrBlank()) {
+            val fallbackProjects = cachedCatalogItems().filter { item ->
+                item.director?.equals(cleanName, ignoreCase = true) == true ||
+                    item.cast.any { it.name.equals(cleanName, ignoreCase = true) }
+            }
+            val fallbackPerson = fallbackProjects.asSequence()
+                .flatMap { it.cast.asSequence() }
+                .firstOrNull { it.name.equals(cleanName, ignoreCase = true) }
+                ?: Person(name = cleanName)
+            return PersonProjectsResult(fallbackPerson, fallbackProjects)
+        }
+
+        return try {
+            val json = JSONObject(body)
+            val personObj = json.optJSONObject("person")
+            val projects = parseMediaList(json.optJSONArray("projects"))
+            projects.forEach(::cacheItem)
+            val resolvedName = personObj?.optString("name")?.takeIf { it.isNotBlank() } ?: cleanName
+            val photoUrl = personObj?.optString("photo_url")?.takeIf { it.isNotBlank() }
+                ?: personObj?.optString("photoUrl")?.takeIf { it.isNotBlank() }
+            val department = personObj?.optString("known_for_department")?.takeIf { it.isNotBlank() }
+            val result = PersonProjectsResult(
+                person = Person(
+                    name = resolvedName,
+                    photoUrl = photoUrl,
+                    role = department,
+                    knownFor = projects.take(8).map { it.title },
+                ),
+                projects = projects,
+            )
+            personProjectsCache.put(key, result)
+            result
+        } catch (_: Exception) {
+            PersonProjectsResult(Person(name = cleanName), emptyList())
+        }
+    }
+
     /**
      * Fast cache-only lookup. UI composition and player surface attachment must
      * never perform implicit network I/O. Call findFullBy* explicitly from an
@@ -535,7 +604,7 @@ object DemoCatalogRepository : CatalogRepository {
         val resp = httpGet(
             "/api/movie/$id",
             connectTimeoutMs = 1_000,
-            readTimeoutMs = 1_800,
+            readTimeoutMs = 2_500,
         ) ?: return@runSafe null
         val json = JSONObject(resp)
         val mObj = json.optJSONObject("movie") ?: json
@@ -760,14 +829,14 @@ object DemoCatalogRepository : CatalogRepository {
         val typeStr = obj.optString("type", "MOVIE").uppercase()
         val type = if (typeStr == "SERIES" || typeStr == "TV") ContentType.SERIES else ContentType.MOVIE
 
-        val year = obj.optInt("year", 2024)
+        val year = obj.optInt("year", 0)
         val rating = obj.optDouble("rating", 0.0)
-        val country = obj.optString("country", "Зарубежный")
-        val quality = obj.optString("quality", "1080p")
-        val duration = obj.optInt("durationMinutes", obj.optInt("duration", 90))
+        val country = obj.optString("country", "")
+        val quality = obj.optString("quality", "Auto")
+        val duration = obj.optInt("durationMinutes", obj.optInt("duration", 0))
         val isNew = obj.optBoolean("isNew", year >= 2024)
-        val popularity = obj.optInt("popularity", 100)
-        val ageRating = obj.optInt("ageRating", 16)
+        val popularity = obj.optInt("popularity", 0)
+        val ageRating = obj.optInt("ageRating", 0)
         
         val synopsis = (obj.optString("description").takeIf { it.isNotBlank() } 
             ?: obj.optString("synopsis")).takeIf { it.isNotBlank() } ?: ""

@@ -193,7 +193,9 @@ def parse_collaps_page(
                             "provider": "collaps",
                             "source_type_id": 9,
                             "voice": norm_voice,
-                            "quality": "1080p",
+                            # The URL is an adaptive HLS master. Do not claim a
+                            # fixed rendition until the player inspects its tracks.
+                            "quality": "Auto",
                             "audio_track_index": audio_index,
                             "url": str(hls_url).strip(),
                             "transport": "hls",
@@ -244,7 +246,9 @@ def parse_collaps_page(
             "provider": "collaps",
             "source_type_id": 9,
             "voice": norm_voice,
-            "quality": "1080p",
+            # The URL is an adaptive HLS master. Media3 determines the
+            # concrete rendition at playback time.
+            "quality": "Auto",
             "audio_track_index": audio_index,
             "url": hls_url,
             "transport": "hls",

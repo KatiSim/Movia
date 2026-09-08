@@ -60,6 +60,11 @@ class FakeAria2:
         if method == "aria2.addUri":
             self.added.append(params)
             return "new-gid"
+        if method == "aria2.unpause":
+            gid = str(params[0])
+            if gid in self.status_by_gid:
+                self.status_by_gid[gid]["status"] = "active"
+            return "OK"
         raise AssertionError(f"unexpected aria2 method: {method}")
 
 
@@ -277,6 +282,71 @@ class TorrentGidTests(unittest.TestCase):
         self.assertNotIn(gid, STREAMER._TORRENT_OWNED_GIDS)
         self.assertEqual(fake.removed, [])
 
+    def test_cold_timeout_keeps_owned_task_reusable_for_next_attempt(self):
+        gid = "warm-retry-gid"
+        STREAMER._TORRENT_GIDS[INFO_HASH] = gid
+        STREAMER._TORRENT_OWNED_GIDS.add(gid)
+        STREAMER._TORRENT_METADATA_GIDS.add(gid)
+        waiting = {
+            "gid": gid,
+            "status": "paused",
+            "completedLength": "4096",
+            "infoHash": INFO_HASH,
+        }
+        fake = FakeAria2(waiting=[waiting], status_by_gid=[waiting])
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            STREAMER.release_torrent_gid(INFO_HASH, gid, remove_task=False)
+            reused = STREAMER.get_or_create_torrent_gid(
+                INFO_HASH, f"magnet:?xt=urn:btih:{INFO_HASH}", self.task_dir
+            )
+
+        self.assertEqual(reused, gid)
+        self.assertEqual(fake.removed, [])
+        self.assertEqual(fake.added, [])
+        self.assertIn(gid, STREAMER._TORRENT_OWNED_GIDS)
+
+    def test_adjacent_prewarm_adds_pause_metadata_without_selecting_media(self):
+        fake = FakeAria2()
+        stream = {
+            "url": f"magnet:?xt=urn:btih:{INFO_HASH}&dn=episode",
+            "info_hash": INFO_HASH,
+        }
+        with patch.object(STREAMER, "DIR", self.task_dir), \
+                patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            gid = STREAMER._prewarm_torrent_metadata_candidate(stream)
+
+        self.assertEqual(gid, "new-gid")
+        self.assertEqual(len(fake.added), 1)
+        options = fake.added[0][1]
+        self.assertEqual(options["follow-torrent"], "mem")
+        self.assertEqual(options["pause-metadata"], "true")
+        self.assertNotIn("select-file", options)
+        self.assertIn(gid, STREAMER._TORRENT_METADATA_GIDS)
+
+    def test_adjacent_prewarm_worker_moves_catalog_lookup_off_request_path(self):
+        details = {
+            "movie": {
+                "id": 217,
+                "seasonEpisodeCounts": [9, 20],
+            }
+        }
+        catalog_stub = type("CatalogStub", (), {"get_movie_details": staticmethod(lambda movie_id: details)})()
+        with patch.object(STREAMER, "catalog_api", catalog_stub), \
+                patch.object(STREAMER, "_prewarm_exact_episode_torrents", return_value={"status": "PREWARMING", "started": 1}) as prewarm:
+            result = STREAMER._prewarm_next_episode_for_movie_id("217", 1, 9)
+
+        prewarm.assert_called_once_with(details["movie"], 2, 1)
+        self.assertEqual(result, {"status": "PREWARMING", "started": 1})
+
+    def test_next_episode_uses_only_real_catalog_counts_and_crosses_season_boundary(self):
+        movie = {"seasonEpisodeCounts": [9, 20, 0, 12]}
+        self.assertEqual(STREAMER._next_episode_from_catalog_counts(movie, 1, 1), (1, 2))
+        self.assertEqual(STREAMER._next_episode_from_catalog_counts(movie, 1, 9), (2, 1))
+        self.assertEqual(STREAMER._next_episode_from_catalog_counts(movie, 2, 20), (4, 1))
+        self.assertIsNone(STREAMER._next_episode_from_catalog_counts(movie, 4, 12))
+        self.assertIsNone(STREAMER._next_episode_from_catalog_counts({}, 1, 1))
+
     def test_new_task_is_owned_and_can_be_removed_by_release_timeout(self):
         fake = FakeAria2()
         with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
@@ -284,6 +354,8 @@ class TorrentGidTests(unittest.TestCase):
                 INFO_HASH, f"magnet:?xt=urn:btih:{INFO_HASH}", self.task_dir
             )
             self.assertIn(gid, STREAMER._TORRENT_OWNED_GIDS)
+            self.assertEqual(fake.added[0][1]["pause-metadata"], "true")
+            self.assertEqual(fake.added[0][1]["follow-torrent"], "mem")
             STREAMER.release_torrent_gid(INFO_HASH, gid, remove_task=True)
         self.assertEqual(fake.removed, [gid])
         self.assertNotIn(gid, STREAMER._TORRENT_OWNED_GIDS)
@@ -415,6 +487,36 @@ class MediaTaskProfileTests(unittest.TestCase):
         self.assertEqual(gid, "media-task")
         self.assertNotIn("metadata-task", removed)
         self.assertIn("aria2.getFiles", calls)
+
+    def test_paused_metadata_task_is_unpaused_when_reused(self):
+        info_hash = "ab12" * 10
+        paused = {
+            "gid": "paused-metadata",
+            "status": "paused",
+            "completedLength": "0",
+            "infoHash": info_hash,
+            "followedBy": [],
+        }
+        fake = FakeAria2(
+            waiting=[paused],
+            files_by_gid={
+                "paused-metadata": [
+                    {"index": "1", "path": "[METADATA] release info", "length": "41998"},
+                ],
+            },
+        )
+
+        with patch.object(STREAMER, "aria2_rpc", side_effect=fake.rpc):
+            gid = STREAMER.get_or_create_torrent_gid(
+                info_hash,
+                f"magnet:?xt=urn:btih:{info_hash}",
+                self.task_dir,
+            )
+
+        self.assertEqual(gid, "paused-metadata")
+        self.assertIn("aria2.unpause", [method for method, _, _ in fake.calls])
+        self.assertEqual(fake.status_by_gid["paused-metadata"]["status"], "active")
+        self.assertEqual(fake.added, [])
 
     def test_metadata_only_task_is_reused_while_follow_torrent_materializes(self):
         info_hash = "cd34" * 10

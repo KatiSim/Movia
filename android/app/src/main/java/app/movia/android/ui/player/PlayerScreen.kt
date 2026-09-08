@@ -71,7 +71,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -1311,23 +1310,16 @@ fun PlayerScreen(
                     .padding(top = 130.dp)
                     .zIndex(15f),
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    MoviaLoadingSpinner(
-                        color = Color(0xFFE5A93C),
-                        strokeWidth = 2.5.dp,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = playback.statusMessage ?: "Поиск доступных источников...",
-                        color = Color(0xFFE5A93C),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
+                // The central player control is the single animated buffering indicator.
+                // Keep this surface text-only so a quality/voice switch does not show two
+                // competing spinners at once.
+                Text(
+                    text = playback.statusMessage ?: "Поиск доступных источников...",
+                    color = Color(0xFFE5A93C),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 11.dp),
+                )
             }
         }
 
@@ -1788,30 +1780,17 @@ private fun PlayerEpisodeSelectionScreen(
                 )
             }
 
-            // Фиксированный Header: [←]  Сезоны и серии  [ ✕ ]
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PlayerGlassAction(
-                    onClick = onBack,
-                    icon = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Назад к плееру",
-                )
-                Text(
-                    text = "Сезоны и серии",
-                    color = scheme.onBackground,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                )
-                PlayerGlassAction(
-                    onClick = onBack,
-                    icon = Icons.Filled.Close,
-                    contentDescription = "Закрыть",
-                )
-            }
+            // Один заголовок: закрытие выполняется свайпом вниз за drag-handle.
+            Text(
+                text = "Сезоны и серии",
+                color = scheme.onBackground,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+            )
         }
 
         // Горизонтальный ряд сезонов

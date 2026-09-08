@@ -36,6 +36,43 @@ class DomainPlaybackResolverTest {
     )
 
     @Test
+    fun unverifiedCollapsAdaptiveMasterDoesNotClaimFixed1080p() {
+        assertEquals(
+            "Auto",
+            normalizeUnverifiedAdaptiveQuality(
+                source = "Collaps",
+                transport = "hls",
+                url = "https://cdn.example/master.m3u8",
+                declaredQuality = "1080p",
+                resolutionHeight = null,
+                videoTrackIndex = null,
+            ),
+        )
+        assertEquals(
+            "1080p",
+            normalizeUnverifiedAdaptiveQuality(
+                source = "Collaps",
+                transport = "hls",
+                url = "https://cdn.example/master.m3u8",
+                declaredQuality = "1080p",
+                resolutionHeight = 1080,
+                videoTrackIndex = null,
+            ),
+        )
+        assertEquals(
+            "1080p",
+            normalizeUnverifiedAdaptiveQuality(
+                source = "Other",
+                transport = "hls",
+                url = "https://cdn.example/master.m3u8",
+                declaredQuality = "1080p",
+                resolutionHeight = null,
+                videoTrackIndex = null,
+            ),
+        )
+    }
+
+    @Test
     fun testPlaybackRequestCanonicalEpisodeKey() {
         val seriesRequest = PlaybackRequest(
             mediaId = "100",
@@ -672,4 +709,52 @@ class DomainPlaybackResolverTest {
             ),
         )
     }
+    @Test
+    fun saved720PreferenceDoesNotBeatColdTorrentOverHealthyDirect1080() {
+        val direct = resolvedCandidate(
+            id = "direct-1080",
+            url = "https://cdn.example/movie/master.m3u8",
+            quality = "1080p",
+            voice = "Дубляж",
+        ).copy(transport = "hls", healthScore = 0.5, startupLatencyMs = null)
+        val torrent = resolvedCandidate(
+            id = "torrent-720",
+            url = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567",
+            quality = "720p",
+            voice = "Дубляж",
+        ).copy(transport = "torrent_p2p", seeders = 500, healthScore = 0.5, startupLatencyMs = null)
+        val context = StreamRankingContext(
+            requestedVoice = "Дубляж",
+            requestedQuality = "HD 720",
+            strictRequestedVoice = false,
+            strictRequestedQuality = false,
+        )
+
+        assertEquals("direct-1080", StreamRanker.rankCandidates(listOf(torrent, direct), context = context).first().stableStreamId)
+        assertEquals("direct-1080", StreamRanker.fallbackOrder(listOf(torrent, direct), context).first().stableStreamId)
+    }
+
+    @Test
+    fun explicit720QualityStillConstrainsStrictBestGroup() {
+        val direct1080 = resolvedCandidate(
+            id = "direct-1080",
+            url = "https://cdn.example/movie/master.m3u8",
+            quality = "1080p",
+            voice = "Дубляж",
+        ).copy(transport = "hls")
+        val direct720 = resolvedCandidate(
+            id = "direct-720",
+            url = "https://cdn.example/movie/720.m3u8",
+            quality = "720p",
+            voice = "Дубляж",
+        ).copy(transport = "hls")
+        val context = StreamRankingContext(
+            requestedQuality = "720p",
+            strictRequestedQuality = true,
+        )
+
+        val strict = StreamRanker.strictBestGroup(listOf(direct1080, direct720), context)
+        assertEquals(listOf("direct-720"), strict.map { it.stableStreamId })
+    }
+
 }

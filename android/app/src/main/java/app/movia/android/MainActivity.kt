@@ -10,6 +10,10 @@ import app.movia.android.ui.MoviaApp
 import app.movia.android.ui.player.MoviaPiPState
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val ACTION_OPEN_FROM_PLAYBACK_NOTIFICATION = "app.movia.android.action.OPEN_PLAYBACK"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DemoCatalogRepository.init(this)

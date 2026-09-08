@@ -71,6 +71,28 @@ internal fun resolveMediaPlayVariantIntent(
     requiredVoice = explicitVoice,
 )
 
+internal fun minimalExplicitSeriesPlaybackContent(
+    mediaId: String?,
+    requestedTitle: String?,
+    season: Int?,
+    episode: Int?,
+): MediaContent? {
+    val id = mediaId?.trim().takeUnless { it.isNullOrBlank() } ?: return null
+    if (season == null || episode == null || season <= 0 || episode <= 0) return null
+    val title = requestedTitle?.trim().takeUnless { it.isNullOrBlank() } ?: id
+    return MediaContent(
+        id = id,
+        title = title,
+        type = ContentType.SERIES,
+        year = 0,
+        rating = 0.0,
+        genres = emptySet(),
+        country = "",
+        quality = "Auto",
+        durationMinutes = 0,
+    )
+}
+
 object AgentControlRuntime {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val lock = Any()
@@ -905,10 +927,17 @@ object AgentControlRuntime {
                         durationMinutes = 0,
                     )
                 }
+                val explicitSeriesFallback = minimalExplicitSeriesPlaybackContent(
+                    mediaId = mediaId,
+                    requestedTitle = requestedTitle,
+                    season = season,
+                    episode = episode,
+                )
                 val content = cachedContent?.takeIf { cached -> cached.streams.any { it.url.isNotBlank() } }
                     ?: persistedContent
                     ?: cachedContent
                     ?: minimalPlaybackContent
+                    ?: explicitSeriesFallback
                     ?: throw IllegalArgumentException("MEDIA_NOT_FOUND")
                 val displayTitle = displayTitle(content, season, episode)
                 val playbackPrefs = prefs.playbackPreferences.first()
@@ -939,6 +968,7 @@ object AgentControlRuntime {
                         mediaId = content.id,
                         title = displayTitle,
                         contentYear = content.year,
+                        artworkUrl = content.posterUrl ?: content.backdropUrl,
                         seasonNumber = season,
                         episodeNumber = episode,
                         mediaType = content.type,
@@ -948,6 +978,8 @@ object AgentControlRuntime {
                         subtitleTrackId = if (playbackPrefs.subtitlesEnabled) "Auto" else null,
                         preferredQuality = quality,
                         preferredVoice = voice,
+                        strictPreferredQuality = variantIntent.requiredQuality != null,
+                        strictPreferredVoice = variantIntent.requiredVoice != null,
                         preferredStreamId = streamId,
                         candidateStreams = knownStreams.map { it.url },
                         candidateStreamOptions = knownStreams,

@@ -174,6 +174,29 @@ class CatalogRetentionState {
     var hasMore: Boolean = true
     var firstVisibleItemIndex: Int = 0
     var firstVisibleItemScrollOffset: Int = 0
+    private var lastHandledResetTrigger: Int = 0
+
+    fun shouldHandleReset(resetTrigger: Int): Boolean {
+        if (resetTrigger <= 0 || resetTrigger <= lastHandledResetTrigger) return false
+        lastHandledResetTrigger = resetTrigger
+        return true
+    }
+
+    fun capture(
+        currentRequestKey: String,
+        currentItemIds: String,
+        currentTotalCount: Int,
+        currentHasMore: Boolean,
+        visibleItemIndex: Int,
+        visibleItemScrollOffset: Int,
+    ) {
+        requestKey = currentRequestKey
+        itemIds = currentItemIds
+        totalCount = currentTotalCount
+        hasMore = currentHasMore
+        firstVisibleItemIndex = visibleItemIndex.coerceAtLeast(0)
+        firstVisibleItemScrollOffset = visibleItemScrollOffset.coerceAtLeast(0)
+    }
 
     fun reset(nextRequestKey: String) {
         requestKey = nextRequestKey
@@ -192,6 +215,7 @@ fun CatalogScreen(
     launchPreset: CatalogLaunchPreset?,
     onLaunchPresetConsumed: () -> Unit,
     retention: CatalogRetentionState,
+    gridState: LazyGridState,
     history: List<String> = emptyList(),
     favorites: Set<String> = emptySet(),
     recentQueries: List<String> = emptyList(),
@@ -199,7 +223,7 @@ fun CatalogScreen(
     onClearRecent: () -> Unit = {},
     resetTrigger: Int = 0,
     modifier: Modifier = Modifier,
-    onOpenDetails: (String) -> Unit,
+    onOpenDetails: (MediaContent) -> Unit,
 ) {
     var selectedTypeName by rememberSaveable { mutableStateOf("ALL") }
     var selectedCategoryName by rememberSaveable { mutableStateOf("ALL") }
@@ -230,8 +254,8 @@ fun CatalogScreen(
     var isLoading by remember { mutableStateOf(false) }
     var hasMore by remember { mutableStateOf(true) }
 
-    // Keep the grid position and already loaded pages when the details route temporarily replaces this screen.
-    val gridState = rememberSaveable(saver = LazyGridState.Saver) { LazyGridState() }
+    // gridState is owned by MoviaApp above the Details route. The catalog can leave
+    // composition without losing the live scroll object.
     var savedRequestKey by rememberSaveable { mutableStateOf("") }
     var savedItemIds by rememberSaveable { mutableStateOf("") }
     var savedTotalCount by rememberSaveable { mutableIntStateOf(0) }
@@ -239,7 +263,7 @@ fun CatalogScreen(
     var retentionCaptureEnabled by remember { mutableStateOf(false) }
 
     LaunchedEffect(resetTrigger) {
-        if (resetTrigger > 0 && launchPreset == null) {
+        if (launchPreset == null && retention.shouldHandleReset(resetTrigger)) {
             selectedTypeName = "ALL"
             selectedCategoryName = "ALL"
             selectedGenresState = ""
@@ -416,6 +440,23 @@ fun CatalogScreen(
         derivedStateOf { gridState.firstVisibleItemIndex > 10 }
     }
 
+    fun openDetailsPreservingCatalogPosition(item: MediaContent) {
+        val visibleIds = if (searchQuery.isNotBlank()) {
+            searchResults.joinToString("|") { it.id }
+        } else {
+            pagedItems.joinToString("|") { it.id }
+        }
+        retention.capture(
+            currentRequestKey = requestKey,
+            currentItemIds = visibleIds,
+            currentTotalCount = if (searchQuery.isNotBlank()) searchResults.size else totalCount,
+            currentHasMore = if (searchQuery.isNotBlank()) false else hasMore,
+            visibleItemIndex = gridState.firstVisibleItemIndex,
+            visibleItemScrollOffset = gridState.firstVisibleItemScrollOffset,
+        )
+        onOpenDetails(item)
+    }
+
     // Capture the exact grid position independently from the catalog subtree.
     // The existing "Наверх" behavior remains unchanged and still uses gridState.
     LaunchedEffect(gridState, requestKey) {
@@ -446,6 +487,13 @@ fun CatalogScreen(
                 searchResults = results
                 totalCount = results.size
                 hasMore = false
+                if (retention.requestKey == requestKey && results.isNotEmpty()) {
+                    gridState.scrollToItem(
+                        retention.firstVisibleItemIndex.coerceIn(0, results.lastIndex + 3),
+                        retention.firstVisibleItemScrollOffset.coerceAtLeast(0),
+                    )
+                }
+                retentionCaptureEnabled = true
                 isLoading = false
                 return@LaunchedEffect
             }
@@ -794,7 +842,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title) },
+                        onClick = { openDetailsPreservingCatalogPosition(item) },
                     )
                 }
             }
@@ -824,7 +872,7 @@ fun CatalogScreen(
                     MediaContentCard(
                         item = item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { onOpenDetails(item.title) },
+                        onClick = { openDetailsPreservingCatalogPosition(item) },
                     )
                 }
             }

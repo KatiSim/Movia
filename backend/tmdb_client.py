@@ -130,6 +130,55 @@ class TMDbClient:
             })
         return result
 
+    def get_person_combined_credits(self, name: str) -> Optional[Dict[str, Any]]:
+        """Resolve one person and return their complete movie/TV credit surface.
+
+        The caller is responsible for intersecting these TMDB credits with Movia's
+        own catalog. This keeps person discovery authoritative without inventing
+        cards that are not actually present in Movia.
+        """
+        clean_name = str(name or "").strip()
+        if not clean_name:
+            return None
+        search = self._get("/search/person", {"query": clean_name, "include_adult": "false"})
+        results = search.get("results", []) if isinstance(search, dict) else []
+        candidates = [item for item in results if isinstance(item, dict) and item.get("id")]
+        if not candidates:
+            return None
+        folded = clean_name.casefold()
+        person = next((item for item in candidates if str(item.get("name") or "").strip().casefold() == folded), candidates[0])
+        person_id = int(person.get("id") or 0)
+        if person_id <= 0:
+            return None
+        details = self._get(f"/person/{person_id}") or person
+        combined = self._get(f"/person/{person_id}/combined_credits") or {}
+        profile_path = details.get("profile_path") or person.get("profile_path")
+        credits = []
+        for role_type in ("cast", "crew"):
+            for credit in combined.get(role_type, []) if isinstance(combined, dict) else []:
+                if not isinstance(credit, dict):
+                    continue
+                media_type = str(credit.get("media_type") or "").lower()
+                tmdb_id = int(credit.get("id") or 0)
+                if media_type not in {"movie", "tv"} or tmdb_id <= 0:
+                    continue
+                credits.append({
+                    "tmdb_id": tmdb_id,
+                    "media_type": media_type,
+                    "credit_type": role_type,
+                    "character": str(credit.get("character") or ""),
+                    "job": str(credit.get("job") or ""),
+                    "department": str(credit.get("department") or ""),
+                    "popularity": float(credit.get("popularity") or 0.0),
+                })
+        return {
+            "person_id": person_id,
+            "name": str(details.get("name") or person.get("name") or clean_name),
+            "profile_url": f"{self.person_base}{profile_path}" if profile_path else None,
+            "known_for_department": str(details.get("known_for_department") or person.get("known_for_department") or ""),
+            "credits": credits,
+        }
+
     def get_movie_details(self, movie_id: int) -> Optional[Dict[str, Any]]:
         data = self._get(
             f"/movie/{movie_id}",

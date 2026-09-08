@@ -1,6 +1,8 @@
 package app.movia.android.ui.player
 
 import app.movia.android.domain.playback.PLAYBACK_USER_ERROR_MESSAGE
+import app.movia.android.domain.playback.PlaybackRequest
+import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.PlaybackStatus
 import app.movia.android.domain.model.PlaybackSwitchState
@@ -130,6 +132,39 @@ class Media3PlaybackStabilizationTest {
         assertEquals(2, openAttempts)
     }
     @Test
+    fun adjacentPrewarmTriggersOnlyNearEndOnceForRealSeriesEpisode() {
+        val request = app.movia.android.domain.playback.PlaybackRequest(
+            mediaId = "217",
+            title = "Футурама",
+            mediaType = app.movia.android.domain.model.ContentType.SERIES,
+            seasonNumber = 1,
+            episodeNumber = 1,
+            generationId = 7L,
+        )
+        assertFalse(shouldPrewarmAdjacentEpisode(
+            request, app.movia.android.domain.model.PlaybackStatus.READY,
+            positionMs = 1_000L, durationMs = 120_000L, alreadyPrewarmedGeneration = null,
+        ))
+        assertTrue(shouldPrewarmAdjacentEpisode(
+            request, app.movia.android.domain.model.PlaybackStatus.READY,
+            positionMs = 31_000L, durationMs = 120_000L, alreadyPrewarmedGeneration = null,
+        ))
+        assertFalse(shouldPrewarmAdjacentEpisode(
+            request, app.movia.android.domain.model.PlaybackStatus.READY,
+            positionMs = 31_000L, durationMs = 120_000L, alreadyPrewarmedGeneration = 7L,
+        ))
+        assertFalse(shouldPrewarmAdjacentEpisode(
+            request.copy(
+                mediaType = app.movia.android.domain.model.ContentType.MOVIE,
+                seasonNumber = null,
+                episodeNumber = null,
+            ),
+            app.movia.android.domain.model.PlaybackStatus.READY,
+            positionMs = 31_000L, durationMs = 120_000L, alreadyPrewarmedGeneration = null,
+        ))
+    }
+
+    @Test
     fun adaptiveDirectTracksReplaceProviderQualityAndExposeOnlyRuUkVoices() {
         val url = "https://cdn.example/master.m3u8"
         val russian = StreamCandidate(
@@ -174,6 +209,62 @@ class Media3PlaybackStabilizationTest {
         assertFalse(source.contains("playbackError"))
         assertFalse(source.contains("Ошибка воспроизведения:"))
         assertFalse(source.contains("Источники для данного тайтла временно недоступны"))
+    }
+
+    @Test
+    fun notificationTitleIncludesExactEpisodeIdentity() {
+        val request = PlaybackRequest(
+            mediaId = "217",
+            title = "Футурама",
+            mediaType = ContentType.SERIES,
+            seasonNumber = 1,
+            episodeNumber = 2,
+        )
+        val movie = request.copy(
+            mediaId = "movie-1",
+            title = "Начало",
+            mediaType = ContentType.MOVIE,
+            seasonNumber = null,
+            episodeNumber = null,
+        )
+
+        assertEquals("Футурама · S01E02", playbackNotificationTitle(request))
+        assertEquals("Начало", playbackNotificationTitle(movie))
+    }
+
+    @Test
+    fun notificationArtworkNormalizesSupportedUrls() {
+        assertEquals(
+            "https://image.tmdb.org/t/p/w780/poster.jpg",
+            normalizePlaybackArtworkUrl("/poster.jpg"),
+        )
+        assertEquals(
+            "https://image.tmdb.org/t/p/w500/poster.jpg",
+            normalizePlaybackArtworkUrl("https://image.tmdb.org/t/p/w500/poster.jpg"),
+        )
+        assertEquals(null, normalizePlaybackArtworkUrl("javascript:alert(1)"))
+        assertEquals(null, normalizePlaybackArtworkUrl("   "))
+    }
+
+    @Test
+    fun mediaSessionPublishesExplicitMoviaSessionActivity() {
+        val source = java.io.File("src/main/java/app/movia/android/ui/player/PlaybackSession.kt").readText()
+        assertTrue(source.contains("Intent(appContext, MainActivity::class.java)"))
+        assertTrue(source.contains(".setSessionActivity(sessionActivity)"))
+        assertTrue(source.contains("ACTION_OPEN_FROM_PLAYBACK_NOTIFICATION"))
+    }
+
+    @Test
+    fun bufferingOverlayKeepsOnlyOneAnimatedLoader() {
+        val source = java.io.File("src/main/java/app/movia/android/ui/player/PlayerScreen.kt").readText()
+        val statusStart = source.indexOf("} else if (!inPictureInPicture && playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING")
+        assertTrue(statusStart >= 0)
+        val statusEnd = source.indexOf("\n        }\n\n    }\n}", statusStart)
+        assertTrue(statusEnd > statusStart)
+        val statusBlock = source.substring(statusStart, statusEnd)
+
+        assertTrue(statusBlock.contains("playback.statusMessage"))
+        assertFalse(statusBlock.contains("MoviaLoadingSpinner("))
     }
 
 }

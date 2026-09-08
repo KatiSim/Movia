@@ -75,6 +75,22 @@ internal fun shouldUseCatalogDetailFastPath(
     forceRefresh: Boolean,
 ): Boolean = !forceRefresh && season == null && episode == null
 
+internal fun normalizeUnverifiedAdaptiveQuality(
+    source: String,
+    transport: String,
+    url: String,
+    declaredQuality: String?,
+    resolutionHeight: Int?,
+    videoTrackIndex: Int?,
+): String {
+    val quality = declaredQuality?.trim().takeUnless { it.isNullOrBlank() } ?: "Не указано"
+    val unverifiedCollapsMaster = source.equals("Collaps", ignoreCase = true) &&
+        transport.equals("hls", ignoreCase = true) &&
+        url.contains(".m3u8", ignoreCase = true) &&
+        resolutionHeight == null && videoTrackIndex == null
+    return if (unverifiedCollapsMaster) "Auto" else quality
+}
+
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
     private val backendBaseUrl: String
@@ -299,14 +315,28 @@ object DomainPlaybackResolver {
             val sizeBytes = sObj.optLong("size_bytes", 0L).takeIf { it > 0L }
                 ?: sObj.optLong("size", 0L).takeIf { it > 0L }
             val resolution = firstString(sObj, "resolution", "video_resolution", "videoResolution")
+            val resolutionWidth = sObj.optInt("resolution_width", -1).takeIf { it > 0 }
+                ?: sObj.optInt("resolutionWidth", -1).takeIf { it > 0 }
+                ?: resolutionDimension(resolution, width = true)
+            val resolutionHeight = sObj.optInt("resolution_height", -1).takeIf { it > 0 }
+                ?: sObj.optInt("resolutionHeight", -1).takeIf { it > 0 }
+                ?: resolutionDimension(resolution, width = false)
             val transport = transportFor(url, firstString(sObj, "transport"))
             val streamVoice = firstString(sObj, "voice", "translation") ?: "Не указано"
+            val streamQuality = normalizeUnverifiedAdaptiveQuality(
+                source = source,
+                transport = transport,
+                url = url,
+                declaredQuality = firstString(sObj, "quality"),
+                resolutionHeight = resolutionHeight,
+                videoTrackIndex = videoTrackIndex,
+            )
             val stableStreamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
                 ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty()
             val streamLanguageEvidence = listOf(streamVoice, stableStreamId).joinToString(" ")
             val option = StreamOption(
                 voice = streamVoice,
-                quality = firstString(sObj, "quality") ?: "Не указано",
+                quality = streamQuality,
                 seeders = sObj.optInt("seeders", sObj.optInt("seeds", 0)),
                 url = url,
                 source = source,
@@ -358,12 +388,8 @@ object DomainPlaybackResolver {
                         ?: sObj.optJSONObject("transportMetadata")
                 ),
                 resolution = resolution,
-                resolutionWidth = sObj.optInt("resolution_width", -1).takeIf { it > 0 }
-                    ?: sObj.optInt("resolutionWidth", -1).takeIf { it > 0 }
-                    ?: resolutionDimension(resolution, width = true),
-                resolutionHeight = sObj.optInt("resolution_height", -1).takeIf { it > 0 }
-                    ?: sObj.optInt("resolutionHeight", -1).takeIf { it > 0 }
-                    ?: resolutionDimension(resolution, width = false),
+                resolutionWidth = resolutionWidth,
+                resolutionHeight = resolutionHeight,
                 unavailableQuality = sObj.optBoolean("unavailable_quality", false) ||
                     sObj.optBoolean("unavailableQuality", false),
                 isTrailer = sObj.optBoolean("is_trailer", false) ||
@@ -450,7 +476,7 @@ object DomainPlaybackResolver {
             // for most known media. Reusing them avoids a second, expensive
             // provider discovery call during one-click playback.
             if (shouldUseCatalogDetailFastPath(season, episode, forceRefresh)) {
-                val details = fetch("$backendBaseUrl/api/movie/$encodedId", 1_600)
+                val details = fetch("$backendBaseUrl/api/movie/$encodedId", 2_500)
                 if (details != null && details.first in 200..299 && details.second.isNotBlank()) {
                     val root = JSONObject(details.second)
                     val movie = root.optJSONObject("movie") ?: root
@@ -670,6 +696,8 @@ object DomainPlaybackResolver {
                     context = StreamRankingContext(
                         requestedVoice = request.requestedVoice,
                         requestedQuality = request.requestedQuality,
+                        strictRequestedVoice = request.strictRequestedVoice,
+                        strictRequestedQuality = request.strictRequestedQuality,
                         failedStreamIds = emptySet(),
                     ),
                 )
@@ -704,6 +732,8 @@ object DomainPlaybackResolver {
                 context = StreamRankingContext(
                     requestedVoice = request.requestedVoice,
                     requestedQuality = request.requestedQuality,
+                    strictRequestedVoice = request.strictRequestedVoice,
+                    strictRequestedQuality = request.strictRequestedQuality,
                     failedStreamIds = emptySet(),
                 ),
             )
@@ -720,6 +750,32 @@ object DomainPlaybackResolver {
         } catch (e: Exception) {
             Log.e(TAG, "resolveStreams failure: ${e::class.java.simpleName}")
             PlaybackResolverResult.Error("Ошибка резолвера", e)
+        }
+    }
+
+    suspend fun prewarmNextEpisode(request: PlaybackRequest): Boolean {
+        val season = request.seasonNumber ?: return false
+        val episode = request.episodeNumber ?: return false
+        if (!request.isSeries || request.mediaId.isBlank()) return false
+        return withContext(Dispatchers.IO) {
+            var conn: HttpURLConnection? = null
+            try {
+                val mediaId = URLEncoder.encode(request.mediaId, "UTF-8")
+                val url = URL(
+                    "$backendBaseUrl/api/movie/$mediaId/prewarm-next?season=$season&episode=$episode"
+                )
+                conn = (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    connectTimeout = 1_000
+                    readTimeout = 1_500
+                    useCaches = false
+                }
+                conn.responseCode in setOf(202, 204)
+            } catch (_: Throwable) {
+                false
+            } finally {
+                conn?.disconnect()
+            }
         }
     }
 

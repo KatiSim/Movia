@@ -4,6 +4,8 @@ package app.movia.android.domain.playback
 data class StreamRankingContext(
     val requestedVoice: String? = null,
     val requestedQuality: String? = null,
+    val strictRequestedVoice: Boolean? = null,
+    val strictRequestedQuality: Boolean? = null,
     val preferredLanguage: String = "ru",
     /** Default quality preference used by Zona-style base calculators. */
     val preferredResolutionHeight: Int = 1080,
@@ -129,6 +131,12 @@ object StreamRanker {
             it.isBlank() || it.equals("Auto", ignoreCase = true) || it.equals("Any", ignoreCase = true)
         }
 
+    private fun strictVoiceRequested(context: StreamRankingContext): Boolean =
+        context.strictRequestedVoice ?: (activeRequestedVoice(context) != null)
+
+    private fun strictQualityRequested(context: StreamRankingContext): Boolean =
+        context.strictRequestedQuality ?: (activeRequestedQuality(context) != null)
+
     private fun resolutionBounds(preferredResolutionHeight: Int): IntArray {
         val preferred = qualityTiers.indexOf(preferredResolutionHeight).takeIf { it >= 0 }
             ?: qualityTiers.indexOf(1080)
@@ -170,9 +178,11 @@ object StreamRanker {
 
         val requestedVoice = activeRequestedVoice(context)
         val requestedQuality = activeRequestedQuality(context)
-        if (requestedVoice != null || requestedQuality != null) {
-            if (requestedQuality != null) pool = pool.filter { requestedQualityMatches(it, requestedQuality) }
-            if (requestedVoice != null) pool = pool.filter { requestedVoiceMatches(it, requestedVoice) }
+        val strictVoice = requestedVoice?.takeIf { strictVoiceRequested(context) }
+        val strictQuality = requestedQuality?.takeIf { strictQualityRequested(context) }
+        if (strictVoice != null || strictQuality != null) {
+            if (strictQuality != null) pool = pool.filter { requestedQualityMatches(it, strictQuality) }
+            if (strictVoice != null) pool = pool.filter { requestedVoiceMatches(it, strictVoice) }
             return pool
         }
 
@@ -266,18 +276,16 @@ object StreamRanker {
                 if (effectiveContext.failedStreamIds.contains(it.stableStreamId) || it.isProblematic) 1 else 0
             }
                 .thenBy { if (it.unavailableQuality) 1 else 0 }
+                .thenBy { healthPenalty(it) }
+                // A saved voice/quality is aspirational. At comparable health, do not
+                // burn the READY budget on an unmeasured torrent merely because it
+                // matches an old preference more closely. Explicit strict requests are
+                // already constrained by strictBestGroup before reaching this sorter.
+                .thenBy { coldP2pPenalty(it) }
                 .thenBy { requestedVoicePenalty(it, effectiveContext.requestedVoice) }
                 .thenBy { requestedQualityPenalty(it, effectiveContext.requestedQuality) }
                 .thenBy { voiceLanguageRank(it, effectiveContext.preferredLanguage) }
                 .thenBy { codecPenalty(it, effectiveContext) }
-                .thenBy { healthPenalty(it) }
-                // At comparable health, a direct stream is immediately consumable while
-                // cold P2P still needs metadata/file/piece startup. Apply this before
-                // Auto voice preference so a studio label cannot burn the READY budget
-                // on an unmeasured torrent. Measured P2P has no cold penalty and may
-                // still win on observed startup latency; unhealthy direct still loses
-                // earlier on health.
-                .thenBy { coldP2pPenalty(it) }
                 .thenBy { StreamVariantSelection.voicePreferenceRank(it.language, it.voice) }
                 .thenBy { it.startupLatencyMs?.coerceAtLeast(0L) ?: Long.MAX_VALUE }
                 .thenBy { if (hasPeers(it)) 0 else 1 }
@@ -325,9 +333,15 @@ object StreamRanker {
                 if (seen.add(candidate.stableStreamId)) ordered += candidate
             }
         }
-        appendRanked(better)
-        appendRanked(strict)
-        appendRanked(healthyPool(candidates, context.failedStreamIds))
+        if (!strictVoiceRequested(context) && !strictQualityRequested(context)) {
+            appendRanked(healthyPool(candidates, context.failedStreamIds))
+            appendRanked(better)
+            appendRanked(strict)
+        } else {
+            appendRanked(better)
+            appendRanked(strict)
+            appendRanked(healthyPool(candidates, context.failedStreamIds))
+        }
         return ordered
     }
 }
