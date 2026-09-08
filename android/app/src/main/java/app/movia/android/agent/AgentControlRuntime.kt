@@ -20,6 +20,7 @@ import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.playback.StreamVariantSelection
+import app.movia.android.network.ControlPlaneEndpoint
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.PlaybackSession
 import androidx.media3.common.C
@@ -449,6 +450,7 @@ object AgentControlRuntime {
                 .put("policy", "no_network_probe_in_snapshot")
                 .put("catalog", "query_on_demand")
                 .put("resolver", "query_on_demand")
+                .put("controlPlaneBaseUrl", ControlPlaneEndpoint.baseUrl)
                 .put("streamProxy", "player_observed"))
         }
     }

@@ -11,6 +11,19 @@ android {
 
     defaultConfig {
         applicationId = "app.movia.android"
+        val controlPlaneUrl = (
+            providers.gradleProperty("MOVIA_CONTROL_PLANE_URL").orNull
+                ?: System.getenv("MOVIA_CONTROL_PLANE_URL")
+                ?: "http://127.0.0.1:8888"
+        ).trim()
+        val escapedControlPlaneUrl = controlPlaneUrl
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+        buildConfigField(
+            "String",
+            "MOVIA_CONTROL_PLANE_URL",
+            "\"$escapedControlPlaneUrl\"",
+        )
         minSdk = 26
         targetSdk = 35
         versionCode = 302
@@ -58,6 +71,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

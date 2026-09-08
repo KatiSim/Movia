@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.SystemClock
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.PlaybackState
+import app.movia.android.network.ControlPlaneEndpoint
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import org.json.JSONArray
 import org.json.JSONObject
@@ -252,6 +253,7 @@ class AgentStateRepository(
             put("network", JSONObject().apply {
                 put("snapshotPolicy", "read_hot_state_only")
                 put("networkProbePerformed", false)
+                put("controlPlaneBaseUrl", ControlPlaneEndpoint.baseUrl)
             })
             put("library", library)
             put("downloads", JSONObject().apply {

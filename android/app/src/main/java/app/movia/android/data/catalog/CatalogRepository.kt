@@ -12,6 +12,7 @@ import app.movia.android.domain.model.StreamAdvertisement
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
+import app.movia.android.network.ControlPlaneEndpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -93,7 +94,8 @@ private data class CatalogHttpResponse(
 
 object DemoCatalogRepository : CatalogRepository {
     private const val TAG = "HttpCatalogRepo"
-    private const val BASE_URL = "http://127.0.0.1:8888"
+    private val baseUrl: String
+        get() = ControlPlaneEndpoint.baseUrl
     private const val HOME_REFRESH_MS = 5 * 60 * 1000L
 
     @Volatile
@@ -241,7 +243,7 @@ object DemoCatalogRepository : CatalogRepository {
     ): String? {
         var conn: HttpURLConnection? = null
         return try {
-            val url = URL(if (path.startsWith("http")) path else "$BASE_URL$path")
+            val url = URL(if (path.startsWith("http")) path else "$baseUrl$path")
             conn = url.openConnection() as HttpURLConnection
             conn.connectTimeout = connectTimeoutMs
             conn.readTimeout = readTimeoutMs
@@ -413,7 +415,7 @@ object DemoCatalogRepository : CatalogRepository {
     private fun httpGetDetailed(path: String): CatalogHttpResponse {
         var conn: HttpURLConnection? = null
         return try {
-            val url = URL(if (path.startsWith("http")) path else "$BASE_URL$path")
+            val url = URL(if (path.startsWith("http")) path else "$baseUrl$path")
             conn = url.openConnection() as HttpURLConnection
             conn.connectTimeout = 10_000
             conn.readTimeout = 12_000

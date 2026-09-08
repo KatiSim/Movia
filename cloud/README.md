@@ -37,10 +37,10 @@ mkdir -p runtime/stream_cache runtime/logs
 # Copy a SQLite-consistent catalog snapshot to runtime/catalog.db.
 # Do not copy a live WAL pair piecemeal.
 sqlite3 runtime/catalog.db 'PRAGMA quick_check;'
-python ../backend/cloud_runtime_preflight.py
+MOVIA_CATALOG_DB="$PWD/runtime/catalog.db" python ../backend/cloud_runtime_preflight.py
 ```
 
-For that direct host-side preflight command, either copy/symlink the snapshot to `backend/catalog.db` temporarily or set `MOVIA_CATALOG_DB="$PWD/runtime/catalog.db"`. The container itself uses `/app/backend/catalog.db` automatically.
+The container itself mounts the snapshot at `/app/backend/catalog.db`, so no path override is needed inside Compose.
 
 For the first migration, create the snapshot on the source host with SQLite's backup API or `VACUUM INTO`, transfer the completed snapshot, then verify `PRAGMA quick_check` on the VPS.
 
@@ -68,6 +68,19 @@ curl -i 'http://127.0.0.1:8080/stream?url=https%3A%2F%2Fexample.invalid%2Fvideo.
 ```
 
 Both requests must return HTTP 404 with `media_proxy_disabled`.
+
+## Build an Android staging client
+
+The Android control-plane endpoint is a build-time value. It must be an **HTTPS origin only** (scheme + host and optional port, with no path, query, fragment or credentials). Local development keeps the default `http://127.0.0.1:8888`; the local `/stream` P2P gateway remains a separate rollback/fallback path.
+
+```bash
+cd android
+ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk" \
+  ./gradlew :app:assembleDebug \
+  -PMOVIA_CONTROL_PLANE_URL=https://staging.movia.example
+```
+
+After installing that APK, read the headless agent snapshot/diagnostics and verify `network.controlPlaneBaseUrl` / `backend.controlPlaneBaseUrl` equals the expected HTTPS origin before any playback acceptance run. A normal build without `MOVIA_CONTROL_PLANE_URL` is the rollback build and resolves back to `http://127.0.0.1:8888`.
 
 ## Metadata job
 

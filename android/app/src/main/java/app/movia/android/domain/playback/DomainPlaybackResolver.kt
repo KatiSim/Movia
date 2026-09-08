@@ -8,6 +8,7 @@ import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
 import app.movia.android.domain.model.sameRequestedVariant
+import app.movia.android.network.ControlPlaneEndpoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -70,7 +71,8 @@ internal fun playbackMediaProbeBudgetMs(remainingReadyMs: Long): Long =
 
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
-    private const val BASE_BACKEND_URL = "http://127.0.0.1:8888"
+    private val backendBaseUrl: String
+        get() = ControlPlaneEndpoint.baseUrl
 
     private val httpBackend = object : PlaybackResolverBackend {
         override suspend fun resolveByIdentity(
@@ -442,7 +444,7 @@ object DomainPlaybackResolver {
             // for most known media. Reusing them avoids a second, expensive
             // provider discovery call during one-click playback.
             if (!forceRefresh) {
-                val details = fetch("$BASE_BACKEND_URL/api/movie/$encodedId", 1_600)
+                val details = fetch("$backendBaseUrl/api/movie/$encodedId", 1_600)
                 if (details != null && details.first in 200..299 && details.second.isNotBlank()) {
                     val root = JSONObject(details.second)
                     val movie = root.optJSONObject("movie") ?: root
@@ -456,7 +458,7 @@ object DomainPlaybackResolver {
             val sParam = if (season != null) "?season=$season" else ""
             val eParam = if (episode != null) "${if (sParam.isEmpty()) "?" else "&"}episode=$episode" else ""
             val rParam = "${if (sParam.isEmpty() && eParam.isEmpty()) "?" else "&"}refresh=${if (forceRefresh) 1 else 0}"
-            val endpointUrl = "$BASE_BACKEND_URL/api/movie/$encodedId/stream$sParam$eParam$rParam"
+            val endpointUrl = "$backendBaseUrl/api/movie/$encodedId/stream$sParam$eParam$rParam"
             val response = fetch(endpointUrl, 2_000)
                 ?: return@withContext PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
             val (code, body) = response
@@ -506,7 +508,7 @@ object DomainPlaybackResolver {
                 ContentType.MOVIE -> "movies"
             }
             val rParam = "&refresh=${if (forceRefresh) 1 else 0}"
-            val endpointUrl = "$BASE_BACKEND_URL/resolve?title=${URLEncoder.encode(cleanTitle, "UTF-8")}" +
+            val endpointUrl = "$backendBaseUrl/resolve?title=${URLEncoder.encode(cleanTitle, "UTF-8")}" +
                 "&category=${URLEncoder.encode(category, "UTF-8")}$yParam$sParam$eParam$rParam"
 
             val conn = (URL(endpointUrl).openConnection() as HttpURLConnection).apply {
