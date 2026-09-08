@@ -402,8 +402,15 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         row_provider_errors += 1
         logger.debug("Balancer error for %s: %s", title, exc)
 
-    background_bulk = os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
-    allow_background_torrent = os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
+    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+    background_bulk = (
+        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+        or cloud_mode
+    )
+    allow_background_torrent = (
+        not cloud_mode
+        and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
+    )
     if not found_stream and (not background_bulk or allow_background_torrent):
         try:
             torrent_result = resolve_torrent(
@@ -502,7 +509,11 @@ def fill_content(
     )
     state = load_state()
     last_id = state["last_id"] if resume else 0
-    background_guard = os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+    background_guard = (
+        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+        and not cloud_mode
+    )
     if background_guard:
         decision = background_bulk_allowed()
         if not decision.allowed:

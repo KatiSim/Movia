@@ -140,7 +140,8 @@ def main() -> int:
     ap.add_argument("--reset-state", action="store_true")
     args = ap.parse_args()
 
-    if os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1":
+    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+    if os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1" and not cloud_mode:
         decision = background_bulk_allowed()
         if not decision.allowed:
             print(json.dumps({"blocked": True, "reason": decision.reason}, ensure_ascii=False))

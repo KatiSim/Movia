@@ -1,0 +1,41 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: cloud/Dockerfile
+    restart: unless-stopped
+    environment:
+      MOVIA_CLOUD_MODE: "1"
+      MOVIA_P2P_ENABLED: "0"
+      MOVIA_BACKGROUND_TORRENT_LOOKUP: "0"
+      MOVIA_CATALOG_SYNC_ENABLED: "0"
+      MOVIA_HOST: "0.0.0.0"
+      MOVIA_PORT: "8080"
+    ports:
+      - "127.0.0.1:${MOVIA_CLOUD_PORT:-8080}:8080"
+    volumes:
+      - ./runtime/catalog.db:/app/backend/catalog.db
+      - ./runtime/stream_cache:/app/backend/stream_cache
+      - ./runtime/logs:/app/backend/logs
+    tmpfs:
+      - /tmp
+
+  metadata-job:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: cloud/Dockerfile
+    restart: "no"
+    environment:
+      MOVIA_CLOUD_MODE: "1"
+      MOVIA_P2P_ENABLED: "0"
+      MOVIA_BACKGROUND_BULK: "1"
+      MOVIA_BACKGROUND_TORRENT_LOOKUP: "0"
+      MOVIA_CATALOG_SYNC_ENABLED: "0"
+    command: ["sh", "-c", "python cloud_runtime_preflight.py && exec python -u metadata_repair.py --resume --limit 200 --workers 4"]
+    volumes:
+      - ./runtime/catalog.db:/app/backend/catalog.db
+      - ./runtime/stream_cache:/app/backend/stream_cache
+      - ./runtime/logs:/app/backend/logs
+    tmpfs:
+      - /tmp

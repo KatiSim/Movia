@@ -115,3 +115,6 @@ reference/*.csv
 
 # Generated acceptance outputs
 android/acceptance/*.latest.*
+# Cloud runtime data — provisioned outside Git
+cloud/runtime/*
+!cloud/runtime/.gitkeep

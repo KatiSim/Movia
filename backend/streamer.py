@@ -34,8 +34,20 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-HOST = "127.0.0.1"
-PORT = 8888
+CLOUD_MODE = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+P2P_ENABLED = (
+    not CLOUD_MODE
+    and os.environ.get("MOVIA_P2P_ENABLED", "1") != "0"
+)
+CATALOG_SYNC_ENABLED = os.environ.get(
+    "MOVIA_CATALOG_SYNC_ENABLED",
+    "0" if CLOUD_MODE else "1",
+) == "1"
+HOST = os.environ.get("MOVIA_HOST", "127.0.0.1").strip() or "127.0.0.1"
+try:
+    PORT = int(os.environ.get("MOVIA_PORT", "8888"))
+except (TypeError, ValueError):
+    PORT = 8888
 # Keep this checkout self-contained. A release worker can copy the directory
 # as a unit without an accidental read/write through an old live absolute path.
 DIR = Path(__file__).resolve().parent
@@ -53,6 +65,36 @@ def is_test_stream_url(url: Optional[str]) -> bool:
         return False
     low = url.lower()
     return any(p in low for p in TEST_STREAM_PATTERNS)
+
+
+def cloud_exposable_streams(streams: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """In cloud mode expose provider/CDN URLs only, never P2P/local proxy locators."""
+    if not CLOUD_MODE:
+        return list(streams or [])
+    result: List[Dict[str, Any]] = []
+    for raw in streams or []:
+        if not isinstance(raw, dict):
+            continue
+        url = str(raw.get("url") or "").strip()
+        try:
+            parsed = urllib.parse.urlparse(url)
+        except Exception:
+            continue
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            continue
+        host = parsed.hostname.strip().lower()
+        if host in {"localhost", "0.0.0.0"} or host.endswith(".localhost"):
+            continue
+        try:
+            ip = ipaddress.ip_address(host)
+        except ValueError:
+            ip = None
+        if ip is not None and (
+            ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
+        ):
+            continue
+        result.append(dict(raw))
+    return result
 
 
 def enrich_stream_identity(
@@ -1678,6 +1720,8 @@ def _resolve_torrent_provider(
     season: Optional[int],
     episode: Optional[int],
 ) -> List[Dict[str, Any]]:
+    if not P2P_ENABLED:
+        return []
     try:
         from torrent_resolver import resolve_torrents_for_query
         return resolve_torrents_for_query(
@@ -1939,7 +1983,11 @@ def resolve_on_demand_streams(
         cached = get_cached_streams(cache_key)
         if cached:
             scoped = _scope_streams_to_catalog_card(cached, catalog_identity, season, episode)
-            return rank_playback_streams(filter_streams_for_episode(scoped, season, episode))
+            cached_playable = rank_playback_streams(cloud_exposable_streams(
+                filter_streams_for_episode(scoped, season, episode)
+            ))
+            if cached_playable:
+                return cached_playable
 
     resolve_lock = _resolve_lock_for(cache_key)
     resolve_lock.acquire()
@@ -1948,7 +1996,11 @@ def resolve_on_demand_streams(
             cached = get_cached_streams(cache_key)
             if cached:
                 scoped = _scope_streams_to_catalog_card(cached, catalog_identity, season, episode)
-                return rank_playback_streams(filter_streams_for_episode(scoped, season, episode))
+                cached_playable = rank_playback_streams(cloud_exposable_streams(
+                    filter_streams_for_episode(scoped, season, episode)
+                ))
+                if cached_playable:
+                    return cached_playable
 
         stale_direct_streams = get_recent_stale_direct_streams(cache_suffix)
         if force_refresh and stale_direct_streams and _allow_stale_fast_path:
@@ -2007,7 +2059,7 @@ def resolve_on_demand_streams(
                     f"[INFO] Serving {len(scoped_stale)} stale direct stream(s) "
                     f"immediately while revalidating {clean_title!r}"
                 )
-                return rank_playback_streams(scoped_stale)
+                return rank_playback_streams(cloud_exposable_streams(scoped_stale))
 
         effective_tmdb_id = tmdb_id
         if effective_tmdb_id == 0 and catalog_identity:
@@ -2095,7 +2147,7 @@ def resolve_on_demand_streams(
             episode,
         )
         streams = filter_streams_for_episode(streams, season, episode)
-        streams = rank_playback_streams(streams)
+        streams = rank_playback_streams(cloud_exposable_streams(streams))
 
         has_direct_http = any(
             str(s.get("url", "")).lower().startswith(("http://", "https://"))
@@ -2214,7 +2266,16 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             if send_body:
-                self.wfile.write(b"{\"status\":\"ok\",\"service\":\"movia-p2p-streamer-on-demand\",\"port\":8888,\"security\":\"isolated-localhost\"}")
+                health_payload = {
+                    "status": "ok",
+                    "service": "movia-cloud-control-plane" if CLOUD_MODE else "movia-p2p-streamer-on-demand",
+                    "host": HOST,
+                    "port": PORT,
+                    "cloudMode": CLOUD_MODE,
+                    "p2pEnabled": P2P_ENABLED,
+                    "security": "cloud-direct-only" if CLOUD_MODE else "isolated-localhost",
+                }
+                self.wfile.write(json.dumps(health_payload, separators=(",", ":")).encode("utf-8"))
             return
 
         if parsed.path == "/diagnostics":
@@ -2259,6 +2320,15 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
                 self.wfile.write(json.dumps(diag_payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if CLOUD_MODE and parsed.path.startswith("/stream"):
+            self.send_response(404)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(b'{"error":"media_proxy_disabled","status":"DIRECT_ONLY"}')
             return
 
         if parsed.path == "/stream/test":
@@ -2459,9 +2529,9 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             season,
                             episode,
                         )
-                        streams_list = rank_playback_streams(
+                        streams_list = rank_playback_streams(cloud_exposable_streams(
                             filter_streams_for_episode(stored_streams, season, episode)
-                        )
+                        ))
                         refresh_requested = params.get("refresh", ["0"])[0].lower() in {"1", "true", "yes"}
                         persisted_needs_refresh = catalog_streams_need_refresh(
                             movie_obj,
@@ -3176,6 +3246,8 @@ _CACHE_PRUNER_STARTED = False
 
 def start_background_cache_pruner(interval_seconds: float = 60.0) -> None:
     """Continuously enforce transient P2P cache bounds off the request path."""
+    if not P2P_ENABLED:
+        return
     global _CACHE_PRUNER_STARTED
     with _CACHE_PRUNER_START_LOCK:
         if _CACHE_PRUNER_STARTED:
@@ -3209,7 +3281,8 @@ def is_streamer_running() -> bool:
         return False
 
 def run_server():
-    live_catalog_sync.start_background_sync(interval_seconds=300)
+    if CATALOG_SYNC_ENABLED:
+        live_catalog_sync.start_background_sync(interval_seconds=300)
     start_background_cache_pruner(interval_seconds=60)
     try:
         print("⚡ Pre-warming catalog home cache...")
