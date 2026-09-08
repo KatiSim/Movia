@@ -69,6 +69,12 @@ internal fun playbackMediaProbeBudgetMs(remainingReadyMs: Long): Long =
         (remainingReadyMs - PLAYBACK_MEDIA3_RESERVE_MS).coerceAtLeast(0L),
     )
 
+internal fun shouldUseCatalogDetailFastPath(
+    season: Int?,
+    episode: Int?,
+    forceRefresh: Boolean,
+): Boolean = !forceRefresh && season == null && episode == null
+
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
     private val backendBaseUrl: String
@@ -443,7 +449,7 @@ object DomainPlaybackResolver {
             // Fast path: catalog details already carry provider-resolved streams
             // for most known media. Reusing them avoids a second, expensive
             // provider discovery call during one-click playback.
-            if (!forceRefresh) {
+            if (shouldUseCatalogDetailFastPath(season, episode, forceRefresh)) {
                 val details = fetch("$backendBaseUrl/api/movie/$encodedId", 1_600)
                 if (details != null && details.first in 200..299 && details.second.isNotBlank()) {
                     val root = JSONObject(details.second)

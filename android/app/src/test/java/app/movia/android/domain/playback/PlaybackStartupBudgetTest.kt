@@ -48,4 +48,11 @@ class PlaybackStartupBudgetTest {
         assertTrue(source.contains("recoveryJob = null"))
         assertTrue(source.contains("playbackMediaProbeBudgetMs(remainingReadyBudgetMs())"))
     }
+    @Test
+    fun episodeIdentitySkipsGenericCatalogDetailFastPath() {
+        assertTrue(shouldUseCatalogDetailFastPath(null, null, forceRefresh = false))
+        assertTrue(!shouldUseCatalogDetailFastPath(1, 2, forceRefresh = false))
+        assertTrue(!shouldUseCatalogDetailFastPath(null, null, forceRefresh = true))
+    }
+
 }
