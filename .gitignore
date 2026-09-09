@@ -94,6 +94,7 @@ source-apks/
 
 # Release binaries / databases
 release/*.apk
+!release/Movia-0.9.32-code302.apk
 release/catalog*.db
 release/catalog*.db-*
 release/*.sqlite

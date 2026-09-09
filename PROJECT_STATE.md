@@ -1,121 +1,70 @@
-# Movia project state
+# Movia project state — canonical 0.9.32 baseline
 
-This file records the verified phone/project baseline. Claims marked PASS are based on checks executed on the current device/source state; unresolved UI scope is kept separate from playback/runtime verification.
-
-## Current version
+## Identity
 
 - package: `app.movia.android`
 - versionName: `0.9.32`
 - versionCode: `302`
-- canonical source root: `/storage/emulated/0/Movia`
-- Android working source: `/data/data/com.termux/files/home/projects/movia`
-- backend working source: `/data/data/com.termux/files/home/projects/media-parser`
-- MCP working source: `/data/data/com.termux/files/home/termux-mcp`
-- code baseline commit: `37b7f0524f0dc7990d21e4262302e186ed942ce4`
+- exact installed APK SHA-256: `25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b`
+- APK source commit: `35d1d9f82396eab7641359633740a642586eb254`
+- recovery artifact: `release/Movia-0.9.32-code302.apk`
+- canonical GitHub repository: `KatiSim/Movia`
 
-## Android
+## Android — PASS
 
-Status: PASS for the audited build gate.
+Full gate before this recovery publication:
 
-The current source contains the Compose UI, catalog/search stack, Room state, native agent runtime, and AndroidX Media3/ExoPlayer playback. HLS and DASH are explicit Media3 dependencies. The verified command set completed successfully:
+- `:app:testDebugUnitTest`
+- `:app:compileDebugKotlin`
+- `:app:assembleDebug`
+- `:app:compileDebugAndroidTestKotlin`
+- Gradle result: `BUILD SUCCESSFUL`, 58 actionable tasks
 
-- `testDebugUnitTest`
-- `compileDebugKotlin`
-- `assembleDebug`
+Installed package was updated via Shizuku/rish after local/remote APK hashes matched.
 
-The resulting debug APK was installed in-place and the installed package remained `0.9.32` / code `302`.
+Current major UI/runtime features include stable catalog return position, mediaId-based Details identity, person filmographies, unified glass BottomBar, gold/slate design system, Media3 media notification artwork and correct notification PendingIntent, exact series routing, quality/voice selection, player/season-sheet gesture fixes and one-buffering-spinner UI.
 
-Generated APK/build outputs are verification artifacts only and are excluded from Git.
+## Backend — PASS
 
-## Backend
-
-Status: PASS for the audited runtime and selected test suite.
-
+- runtime: `$HOME/projects/media-parser`
 - service: `movia-media-parser`
-- active health endpoint: `http://127.0.0.1:8888/health`
-- observed health result: HTTP 200
-- legacy endpoint `127.0.0.1:5001`: retired/unreachable
-- selected playback/catalog/backend suite: 71/71 PASS after contract-alignment fixes
-- `movia-cache-pruner`: running during audit
-- `movia-stream-enricher`: down during audit; not required for the verified direct-HLS path
+- health: `http://127.0.0.1:8888/health` → HTTP 200
+- full backend regression: `198 tests`, `OK`
+- Person API live validation: Russian/English Bryan Cranston and Bong Joon-ho names resolved profile images and Movia project lists.
 
-Runtime databases, caches, logs, backups and `.env` are excluded from Git.
+## P2P runtime — PASS
+
+- TorrServer: `MatriX.144.1`, loopback `127.0.0.1:18090`, `/echo` HTTP 200
+- TorrServer SHA-256: `bb7e9b4d0dc894f8da3e32496e7487be93b8f8b04ada549396a7ab4dc85ea63b`
+- aria2: `1.37.0`, loopback RPC `127.0.0.1:6800`
+- architecture: direct source preferred → TorrServer bounded local P2P → aria2 fallback/metadata
 
 ## Catalog
 
-- runtime SSOT: `/data/data/com.termux/files/home/projects/media-parser/catalog.db`
-- rows in `movies`: 65,337 at audit time
-- schema version: 4
-- catalog revision: 6578
-- normalization version: 1
-- policy: runtime SSOT remains outside Git; source/schema/migration logic is versioned
+At recovery observation time:
 
-## Playback
+- runtime SSOT: `$HOME/projects/media-parser/catalog.db`
+- rows: 71,899
+- schema: 4
+- revision: 9718
+- normalization: 1
+- quick_check: ok
+- observed DB SHA-256: `5c688c34c899f8d3cc3319db8714a34a2d9a5e1325298c1e8b298d2e943a97a9`
 
-Status: PASS for the explicitly tested movie/HLS path; this is not a universal provider/title claim.
-
-Verified on the installed application:
-
-1. A real catalog title (`Сплит`) resolved to a concrete Collaps HLS candidate.
-2. Media3 reached `READY`.
-3. `isPlaying=true` was observed.
-4. Playback position advanced across observations.
-5. The player was paused.
-6. Voice selection was changed to another concrete candidate/track.
-7. The requested voice became the active voice and the native agent operation completed while the player remained paused.
-
-The paused-selection completion policy was fixed during the audit: paused track/stream changes no longer require fabricated timeline movement, while actively playing changes retain the stricter READY + playing + position-movement evidence gate.
+The DB changes continuously and is not committed to Git. Export/import helpers are tracked under `scripts/`.
 
 ## MCP / agent
 
-- native Android agent schema version: 2
-- Termux MCP source: synchronized into `agent/mcp/`
-- TypeScript package: 5.9.3
-- direct TypeScript typecheck: PASS (`node node_modules/typescript/bin/tsc -p tsconfig.json`)
-- direct TypeScript build: PASS (`node node_modules/typescript/bin/tsc -p tsconfig.build.json`)
-- note: the `npm run` wrapper did not resolve `tsc` in its PATH on this Termux environment, but the installed compiler itself executed both configurations successfully
+- native agent schema: 2
+- source-registered Movia MCP tools: 30
+- local MCP health observed: `127.0.0.1:8940/healthz` HTTP 200
 
-## Repository policy
+## Design SSOT
 
-Git contains reproducible source, tests, ADRs, scripts and baseline metadata. It excludes:
+- `android/.../ui/theme/ColorTokens.kt` — executable token source
+- `docs/DESIGN_SYSTEM_0.9.32.md` — human-readable design reconstruction
+- `docs/INTERACTION_LOGIC_0.9.32.md` — behavior/button reconstruction
 
-- Android/Gradle build products and APKs
-- live catalog databases and sidecars
-- stream/torrent caches
-- backend backups and runtime state
-- logs and diagnostics
-- `.bak-*`, `.trashed-*`, `.orig` and scratch projects
-- MCP `node_modules`/`dist`
-- secrets, tokens, keys and `.env`
+## Recovery policy
 
-## Remaining active UI specification
-
-The separate UI specification is stored at `docs/TZ_UI_PLAYBACK_LAYOUT_2026-09-03.md`.
-
-Source inspection shows partial implementation already exists:
-
-- the home hero card body opens Details and its central Play surface invokes playback;
-- Details already contains conditional Cast and Director sections;
-- the Details top app bar uses `WindowInsets.statusBars`.
-
-However the full specification is **not marked PASS** because the current source inspection does not establish all requirements, notably the explicit extra 12.dp top clearance and the complete Crew/technical-details block, and the full UI acceptance matrix has not been re-run on-device in this audit.
-
-## Last verified baseline
-
-- date: 2026-09-05
-- branch: `main`
-- code baseline commit: `37b7f0524f0dc7990d21e4262302e186ed942ce4`
-- Android build: PASS
-- selected backend suite: PASS (71/71)
-- backend runtime health: PASS on port 8888
-- basic real HLS playback: PASS
-- paused voice switch: PASS after fix
-- MCP direct TypeScript typecheck/build: PASS
-- full provider/title/series coverage: not claimed
-- separate UI specification: partially implemented, acceptance pending
-
-## Post-push local cleanup
-
-After `main` was confirmed on GitHub at `e183f264ceea7047218b15ef0ad600e772ebd82c`, regenerable local artifacts were cleaned. Android `app/build`, backend `.tmp_native_probe`, and backend `stream_cache` contents were removed. The backend torrent-cache was pruned through its own policy-aware pruner rather than force-deleted. Four legacy schema-2 catalog backups were reduced to one newest verified compressed recovery point (~151 MiB); the live schema-4 `catalog.db` was left intact.
-
-Post-cleanup verification: `movia-media-parser` remained healthy on port 8888 and a fresh real HLS playback request again reached Media3 `READY`, played with advancing position, and paused normally.
+GitHub stores source, exact APK, schemas, design/behavior specs, tests, runit templates and setup scripts. It excludes secrets, keystore, caches/logs and mutable DB payloads. Android private user data is not recoverable after uninstall unless separately backed up.

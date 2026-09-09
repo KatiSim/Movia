@@ -1,25 +1,20 @@
 {
   "device": "24069PC21G",
-  "transport": "Jarvis 2.0 / Shizuku-rish",
+  "transport": "Shizuku/rish + native Movia loopback agent",
   "installedPackage": {
     "package": "app.movia.android",
-    "versionName": "0.9.23",
-    "versionCode": 293
+    "versionName": "0.9.32",
+    "versionCode": 302,
+    "apkSha256": "25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b"
   },
-  "canonicalRoot": "/storage/emulated/0/Movia",
-  "sourceRoots": {
-    "android": "/data/data/com.termux/files/home/projects/movia",
+  "canonicalRepository": "https://github.com/KatiSim/Movia",
+  "apkSourceCommit": "35d1d9f82396eab7641359633740a642586eb254",
+  "runtime": {
     "backend": "/data/data/com.termux/files/home/projects/media-parser",
-    "agentMcp": "/data/data/com.termux/files/home/termux-mcp",
-    "zonaReference": "/data/data/com.termux/files/home/projects/zona-reference-20260829-223618"
-  },
-  "externalData": {
     "catalogDb": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
-    "catalogDbSidecars": [
-      "/data/data/com.termux/files/home/projects/media-parser/catalog.db-wal",
-      "/data/data/com.termux/files/home/projects/media-parser/catalog.db-shm"
-    ],
-    "rawZonaReference": "/data/data/com.termux/files/home/projects/zona-reference-20260829-223618"
+    "controlPlane": "http://127.0.0.1:8888",
+    "torrServer": "http://127.0.0.1:18090",
+    "mcpHealth": "http://127.0.0.1:8940/healthz"
   },
-  "policy": "Large DB, caches, old APKs, raw reference captures, logs and secrets are external or ignored; restore manifests point to them."
+  "policy": "Source, exact APK, design/logic specs and service templates are Git-tracked. Secrets, keystore, mutable DB, caches, logs and personal Android app data are external."
 }

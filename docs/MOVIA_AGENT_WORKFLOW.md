@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED.** This file documents an older implementation. Current recovery authority is `README.md`, `RESTORE.md`, `CURRENT_BASELINE.json` and `docs/*0.9.32.md`. Do not use old package/version/path values from this file for a restore.
+
 # MOVIA — главный паттерн работы Android-агента
 
 Статус: обязательный регламент проекта. Применять перед каждой задачей, изменением версии и установкой APK.

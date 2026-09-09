@@ -1,81 +1,85 @@
 # Movia
 
-Movia is an Android media catalog and playback client backed by the current
-media-parser service and a local agent/MCP control plane.
+Movia is an Android media catalog/player with a phone-local control plane, direct-stream discovery and bounded local P2P fallback.
 
-## Current version
+## Canonical recovery baseline
 
-- versionName: 0.9.23
-- versionCode: 293
-- package: app.movia.android
-- status: current baseline/checkpoint; not labelled stable
+- package: `app.movia.android`
+- version: `0.9.32` / code `302`
+- exact installed APK: `release/Movia-0.9.32-code302.apk`
+- APK SHA-256: `25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b`
+- APK source commit: `35d1d9f82396eab7641359633740a642586eb254`
+- canonical branch: `main` (the recovery publication also keeps `integration` at the same head)
 
-The installed phone control point is device 24069PC21G. The source of truth used
-for this canonicalization is the Termux workspace documented in
-reference/CURRENT_PHONE_STATE.json.
+The repository intentionally contains the exact APK in addition to source so an app-only recovery does not require rebuilding.
+
+## Recovery
+
+Start with [`RESTORE.md`](RESTORE.md).
+
+For a phone where only the Android app was deleted:
+
+```bash
+git clone https://github.com/KatiSim/Movia.git
+cd Movia
+bash scripts/install.sh
+```
+
+For a clean Termux/device recovery, follow the full procedure in `RESTORE.md` and `docs/RECOVERY_BLUEPRINT_0.9.32.md`.
+
+## Documentation map
+
+- [`docs/DESIGN_SYSTEM_0.9.32.md`](docs/DESIGN_SYSTEM_0.9.32.md) — exact visual system: logo, palette, gold glow/outlines, geometry, cards, Details, player, notification and bottom bar.
+- [`docs/INTERACTION_LOGIC_0.9.32.md`](docs/INTERACTION_LOGIC_0.9.32.md) — button, navigation, playback, gesture, quality/voice, series and persistence logic.
+- [`docs/RECOVERY_BLUEPRINT_0.9.32.md`](docs/RECOVERY_BLUEPRINT_0.9.32.md) — architecture, versions, services, runtime and rebuild identity.
+- [`PROJECT_STATE.md`](PROJECT_STATE.md) — verified baseline snapshot.
+- [`CURRENT_BASELINE.json`](CURRENT_BASELINE.json) — machine-readable baseline.
+- [`SECRETS_SETUP.md`](SECRETS_SETUP.md) — private configuration names and rules; no secrets are stored in Git.
 
 ## Architecture
 
-- Android — Compose UI, catalog/search, Media3 playback, Room schema, and the
-  native Movia Agent runtime. See android/.
-- Backend — media-parser catalog/search/discovery, playback resolver, streamer
-  and P2P helpers. See backend/.
-- Catalog — schema/migration documentation and an external catalog.db manifest.
-  The multi-hundred-megabyte DB is not stored in Git history.
-- Playback — Android Media3 client plus backend stream/torrent resolution.
-- Agent/MCP — native Android agent API and the Termux MCP integration. See
-  agent/.
+### Android
+
+Jetpack Compose Material 3 UI, Media3/ExoPlayer, MediaSessionService, Room, DataStore, WorkManager and a native loopback control agent. Default backend URL is `http://127.0.0.1:8888`.
+
+### Local backend
+
+`backend/streamer.py` is the phone-local HTTP control plane. It serves catalog/details/person APIs, direct stream resolution and bounded local P2P fallback. `catalog.db` is mutable runtime data and is not committed to Git.
+
+### P2P
+
+Direct HTTP/HLS/DASH remains preferred. TorrServer MatriX.144.1 is the low-latency localhost torrent streaming sidecar; aria2 1.37.0 is localhost metadata/fallback infrastructure. Neither is exposed publicly.
+
+### Cloud
+
+The architecture is cloud-first/direct-only when cloud mode is enabled. Cloud mode explicitly disables P2P media proxying; provider/CDN URLs go directly to Android.
 
 ## Build
 
-Requirements are listed in RESTORE.md.
+```bash
+pkg install git python nodejs openjdk-21 curl aria2 termux-services
+# Android SDK platform 35 and compatible build-tools are required.
+bash scripts/bootstrap-debug-keystore.sh
+bash scripts/build.sh
+```
 
-    cd android
-    ./gradlew --no-daemon assembleDebug
-
-Generated build directories are ignored. The current checked APK artifact is
-described by release/README.md and is uploaded to the baseline GitHub Release
-rather than committed to every source commit.
-
-## Install
-
-Install without clearing application data:
-
-    adb install -r release/Movia-0.9.23-code293.apk
-
-Verify the package and version after installation with
-bash scripts/health-check.sh --package.
-
-## Services
-
-The current Termux service definitions are under agent/services/. The observed
-services are:
-
-- movia-media-parser — currently runs streamer.py;
-- movia-stream-enricher — catalog enrichment worker;
-- movia-stream-enricher-log — log forwarder;
-- movia-cache-pruner — runtime cache pruning;
-- Termux MCP — started from agent/mcp/start.sh.
-
-Runtime paths and current health observations are recorded in
-PROJECT_STATE.md. The source definitions do not contain runtime credentials.
+The normal build script does **not** overwrite the canonical recovery APK in `release/`.
 
 ## Verification
 
-Run:
+```bash
+bash scripts/restore-check.sh
+bash scripts/verify-project.sh
+bash scripts/health-check.sh --full --package
+```
 
-    bash scripts/verify-project.sh
-    bash scripts/restore-check.sh
-    bash scripts/health-check.sh
+Baseline gates before publication:
 
-The verifier returns PASS only when every requested check, including live
-service checks, succeeds. A current baseline may therefore remain a valid
-source checkpoint while verification reports FAIL for a real unavailable
-service. No document in this repository treats an unverified playback path as
-fixed.
+- backend: `198 tests`, `OK`
+- Android: `testDebugUnitTest + compileDebugKotlin + assembleDebug + compileDebugAndroidTestKotlin`, `BUILD SUCCESSFUL`, 58 tasks
+- live `127.0.0.1:8888/health`: HTTP 200
+- live TorrServer `/echo`: HTTP 200
 
-## Restore
+## Data boundary
 
-Start with RESTORE.md. It is the single recovery entry point and documents
-source checkout, Termux setup, catalog recovery, secrets, services, APK
-build/install, agent provisioning and verification.
+Source, design, APK, service definitions and recovery tooling are recoverable from GitHub. Android private user data (history, My List, app preferences and local download records) is deleted by Android uninstall unless exported separately beforehand. The continuously changing 757 MiB runtime catalog is documented and can be exported with `scripts/export-runtime-catalog.sh`, but is intentionally not part of ordinary Git history.

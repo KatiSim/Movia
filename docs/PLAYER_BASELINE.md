@@ -1,3 +1,5 @@
+> **HISTORICAL / SUPERSEDED.** This file documents an older implementation. Current recovery authority is `README.md`, `RESTORE.md`, `CURRENT_BASELINE.json` and `docs/*0.9.32.md`. Do not use old package/version/path values from this file for a restore.
+
 # Movia Player — Authoritative Baseline / Recovery Contract
 
 **Статус:** CURRENT APPROVED SPEC

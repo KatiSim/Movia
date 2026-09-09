@@ -1,42 +1,38 @@
-# Secrets setup
+# Movia private configuration / secrets
 
-No real token, cookie, API key, password, signing key or private credential is
-stored in this repository or its GitHub Releases.
+No real Internet credential, GitHub credential, private signing key, provider cookie or private API token is stored in this repository.
 
 ## Backend
 
-The backend reads configuration through backend/config.py and python-dotenv.
-Create a private backend .env in the Termux backend working directory:
+Create a private file at `$HOME/projects/media-parser/.env` when needed. Start from `.env.example` and fill values privately.
 
-    /data/data/com.termux/files/home/projects/media-parser/.env
+Common private value:
 
-Typical private values include the TMDB API key and any source-specific
-credentials required by the configured discovery integrations. Use the names
-expected by backend/config.py. Do not copy the file into backend/ or Git.
+- `TMDB_API_KEY` or the TMDB authentication variable consumed by `backend/config.py`/`tmdb_client.py`.
+
+Provider-specific credentials, if a configured provider ever requires them, belong in the same private environment and must not be committed.
 
 ## Termux MCP
 
-The MCP server reads TERMUX_MCP_HOST, TERMUX_MCP_PORT, TERMUX_MCP_SECRET,
-TERMUX_MCP_ROOTS and TERMUX_MCP_JOB_ROOT from the environment as defined in
-agent/mcp/src/config.ts. Keep the secret in the Termux environment or a private
-shell/service configuration.
+Private/environment values:
 
-## Native Movia Agent
+- `TERMUX_MCP_SECRET`
+- optional host/port/root/job-root overrides.
 
-The native agent provisioning helper is
-agent/tools/provision-agent-token.sh. It writes the private agent token to the
-private configuration location expected by the current Android/Termux
-integration. Run it interactively or with the private environment documented by
-the script. Never paste the value into GitHub Issues, source, manifests or logs.
+The native Movia agent token is provisioned with `agent/tools/provision-agent-token.sh` into its private location.
 
-## GitHub credentials
+## Android signing
 
-Git credentials are held by the Termux credential helper outside this project.
-They are not copied into the canonical root. Never print them or put them in
-.env.example, config.example, CURRENT_BASELINE.json or release assets.
+The development baseline expects `$HOME/.android/debug.keystore`. The actual key file is not stored on GitHub. `scripts/bootstrap-debug-keystore.sh` can generate a new development key after a full uninstall. A different key cannot update an already-installed package signed by the old key.
 
-## Rotation
+## Local aria2 RPC
 
-If a credential is exposed, revoke/rotate it at the provider and provision the
-replacement privately. A repository secret scan is required before every
-commit and push.
+`agent/runtime/aria2.conf.example` contains a fixed loopback-only RPC token used by the local 0.9.32 backend contract. It is not an Internet credential and the RPC listener is explicitly non-public (`rpc-listen-all=false`).
+
+## GitHub
+
+Git authentication remains in the user's credential helper/session outside this repository. Never copy credential stores or tokens into recovery files.
+
+## Before every push
+
+Run a secret-pattern scan and `git diff --check`. If any real credential is ever exposed, revoke/rotate it at its provider before continuing.

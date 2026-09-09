@@ -1,133 +1,191 @@
-# Movia restore procedure
+# Movia 0.9.32 restore procedure
 
-This file is the recovery entry point. It describes how to restore the current
-baseline without relying on the memory of the previous agent.
+This is the single recovery entry point for the canonical `0.9.32 / 302` baseline.
 
-## 1. Clone the repository
+## A. App-only restore after uninstall
 
-    git clone https://github.com/KatiSim/Movia.git
-    cd Movia
-    git checkout main
+If Termux/backend still exists and only the Android app was deleted, no rebuild is required.
 
-For a reproducible checkpoint, checkout the current movia-baseline-YYYYMMDD tag
-or the current baseline tag listed in the GitHub Release.
+```bash
+git clone https://github.com/KatiSim/Movia.git
+cd Movia
+git checkout main
+sha256sum -c release/SHA256SUMS.txt
+bash scripts/install.sh
+```
 
-## 2. Install Termux requirements
+Expected APK SHA-256:
 
-Install Termux packages:
+`25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b`
 
-    pkg update
-    pkg install git python nodejs openjdk-17 curl openssl
+The install script uses Shizuku/rish when available and otherwise adb.
 
-Install Python dependencies:
+**Android uninstall removes private app data.** The APK/source cannot recreate deleted history, My List, DataStore preferences or private download records unless those were backed up separately.
 
-    python -m pip install -r backend/requirements.txt
+## B. Clean Termux/device restore
 
-Install/build MCP dependencies:
+### 1. Clone
 
-    cd agent/mcp
-    npm ci
-    npm run build
-    cd ../..
+```bash
+git clone https://github.com/KatiSim/Movia.git
+cd Movia
+git checkout main
+bash scripts/restore-check.sh
+```
 
-Android SDK/command-line tools and an Android SDK platform/build-tools version
-compatible with the Gradle files under android/ are also required. Do not commit
-android/local.properties; create it locally with the SDK path.
+For an immutable checkpoint use tag `v0.9.32` after it is published.
 
-## 3. Restore backend
+### 2. Install Termux packages
 
-The repository contains the backend source, tests, service definitions and
-catalog schema. It intentionally does not contain the live multi-hundred-
-megabyte database, WAL, runtime caches or secrets.
+A captured working environment used Python 3.14.6, Node 24.18.0, npm 11.19.1, JDK 21.0.12 and aria2 1.37.0. The project itself targets Java 17 bytecode.
 
-The observed current SSOT is:
+```bash
+pkg update
+pkg install git python nodejs openjdk-21 curl openssl aria2 termux-services
+python3 -m pip install -r backend/requirements.txt
+cd agent/mcp
+npm ci
+npm run build
+cd ../..
+```
 
-    /data/data/com.termux/files/home/projects/media-parser/catalog.db
+Android builds additionally require Android SDK platform 35. Set:
 
-To restore the catalog, use a verified GitHub Release catalog snapshot when one
-is attached, or rebuild it from the schema and discovery code:
+```bash
+export ANDROID_HOME="$HOME/android-sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+```
 
-    python backend/restore_all.py
+### 3. Private configuration
 
-Before replacing a live DB, stop writers and validate the snapshot checksum from
-the release SHA256SUMS.txt. If no snapshot is attached, run the documented
-discovery/import pipeline and record the resulting DB path and checksum in
-database/CATALOG_DB_STATUS.md.
+Copy only variable names from `.env.example`; provide values privately. Read `SECRETS_SETUP.md`.
 
-## 4. Configure services
+Typical backend file:
 
-Copy or install the service definitions from agent/services/ into the Termux
-runit service directory:
+```text
+$HOME/projects/media-parser/.env
+```
 
-    mkdir -p "$PREFIX/var/service"
-    cp -a agent/services/movia-media-parser "$PREFIX/var/service/"
-    cp -a agent/services/movia-stream-enricher "$PREFIX/var/service/"
-    cp -a agent/services/movia-stream-enricher-log "$PREFIX/var/service/"
-    cp -a agent/services/movia-cache-pruner "$PREFIX/var/service/"
+At minimum TMDB enrichment requires a private TMDB credential. Never commit `.env`, tokens, cookies, keystores or GitHub credentials.
 
-The definitions expect the backend checkout at $HOME/projects/media-parser.
-Either restore the backend there or adapt the working directory locally; do
-not put the DB into Git.
+### 4. Install local runtime and P2P services
 
-Start/check services with sv up <service> and sv status <service>. The MCP
-process is started by bash agent/mcp/start.sh after npm ci and npm run build.
+```bash
+bash scripts/setup-local-runtime.sh
+```
 
-## 5. Configure secrets
+This script:
 
-Read SECRETS_SETUP.md. Copy examples and fill them only in Termux/private
-configuration locations. Never put values in this repository, GitHub Issues,
-logs or release assets.
+- creates `$HOME/projects/media-parser` as a link to this checkout's `backend/` when no runtime exists;
+- creates the Movia aria2 loopback configuration when absent;
+- downloads official TorrServer `MatriX.144.1` Android ARM64;
+- verifies SHA-256 `bb7e9b4d0dc894f8da3e32496e7487be93b8f8b04ada549396a7ab4dc85ea63b`;
+- installs the tracked runit service definitions.
 
-The backend reads environment values through backend/config.py. The MCP server
-reads TERMUX_MCP_SECRET and related values through agent/mcp/src/config.ts. The
-native Android agent token is provisioned by
-agent/tools/provision-agent-token.sh into the private agent config area.
+Then:
 
-## 6. Build and install APK
+```bash
+sv up movia-torrserver
+sv up movia-media-parser
+sv up movia-stream-enricher
+sv up movia-stream-enricher-log
+sv up movia-cache-pruner
+```
 
-    bash scripts/build.sh
-    bash scripts/install.sh --apk android/app/build/outputs/apk/debug/app-debug.apk
+The media-parser service ensures localhost aria2 RPC is started before `streamer.py`.
 
-Install with replacement using adb install -r and verify app.movia.android,
-versionName and versionCode. Do not clear app data as a restore step.
+### 5. Catalog
 
-## 7. Provision agent
+Current runtime catalog is mutable and intentionally excluded from Git. The recovery capture observed:
 
-After the APK is installed and the private token is available:
+- 71,899 movie rows
+- schema 4
+- catalog revision 9718
+- normalization 1
+- `PRAGMA quick_check = ok`
 
-    agent/tools/provision-agent-token.sh
+If the old Termux runtime survived, keep `$HOME/projects/media-parser/catalog.db`.
 
-The value is supplied interactively or via the private environment expected by
-that script. The value must not be written to Git-tracked files.
+For an exact catalog snapshot exported earlier:
 
-## 8. Start services
+```bash
+bash scripts/import-runtime-catalog.sh ~/Movia-catalog-YYYYMMDD_HHMMSS.sqlite.gz
+```
 
-    sv up movia-media-parser
-    sv up movia-stream-enricher
-    sv up movia-stream-enricher-log
-    sv up movia-cache-pruner
-    bash agent/mcp/start.sh
+To make a future SQLite-consistent backup:
 
-## 9. Verify health
+```bash
+bash scripts/export-runtime-catalog.sh
+```
 
-    bash scripts/health-check.sh
-    bash scripts/verify-project.sh
-    bash scripts/restore-check.sh
+Without a snapshot, rebuild/populate the catalog using the backend schema/sync/enrichment tools and private provider/TMDB configuration. See `database/CATALOG_DB_STATUS.md` and `backend/README.md`.
 
-A health failure is a real failure to resolve, not a reason to write PASS into
-the manifest.
+### 6. Development signing key
 
-## 10. Verify MCP
+The exact tracked APK is already signed, so an app-only reinstall after uninstall does not require creating a key.
 
-Confirm the MCP process is listening on the configured local port, then run the
-current MCP smoke/acceptance script and verify the native Movia tool inventory
-contains the 29 source-registered tools. The MCP endpoint is HTTP POST /mcp; a
-GET request may return 404/405 and is not by itself a protocol failure.
+To build new APKs:
 
-## 11. Verify installed version
+```bash
+bash scripts/bootstrap-debug-keystore.sh
+```
 
-    adb shell dumpsys package app.movia.android | grep -E 'versionCode|versionName'
-    adb shell pm path app.movia.android
+A new debug key is acceptable after a complete uninstall. It cannot update an already-installed package signed with another key.
 
-The current phone baseline is package app.movia.android, versionName 0.9.23,
-versionCode 293.
+### 7. Install exact canonical APK
+
+```bash
+bash scripts/install.sh
+```
+
+Verify:
+
+```bash
+bash scripts/health-check.sh --package
+```
+
+Expected: `app.movia.android`, `0.9.32`, code `302`.
+
+### 8. Rebuild from source when needed
+
+```bash
+bash scripts/build.sh
+```
+
+Output:
+
+`android/app/build/outputs/apk/debug/app-debug.apk`
+
+The canonical checked-in APK is not overwritten by this command. A rebuilt APK may have a different byte hash due to build/signing environment even when behavior/source is equivalent.
+
+### 9. Start MCP / native agent
+
+```bash
+bash agent/mcp/start.sh
+```
+
+The native Android agent token is provisioned privately with `agent/tools/provision-agent-token.sh`. Current source registers 30 Movia MCP tools.
+
+### 10. Verify everything
+
+```bash
+bash scripts/restore-check.sh
+bash scripts/verify-project.sh
+bash scripts/health-check.sh --full --package
+```
+
+Expected localhost services:
+
+- control plane: `127.0.0.1:8888`
+- TorrServer: `127.0.0.1:18090`
+- aria2 RPC: `127.0.0.1:6800`
+- MCP health: `127.0.0.1:8940/healthz`
+
+## C. Visual and behavior reconstruction
+
+If UI code ever has to be reconstructed rather than merely rebuilt, use these as the canonical specification:
+
+- `docs/DESIGN_SYSTEM_0.9.32.md`
+- `docs/INTERACTION_LOGIC_0.9.32.md`
+
+They document palette, launcher/logo, bottom glass bar, gold glow/outlines, cards, metadata, Details, people, player, notification, season sheets, gestures and button state logic.

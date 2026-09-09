@@ -1,22 +1,10 @@
-# Movia (Android) 🎬
+# Movia 0.9.32 documentation
 
-Movia — медиаплеер и каталог на Jetpack Compose Material 3 с локальной медиатекой, поиском, фильтрами и Media3 ExoPlayer.
+Canonical current documentation:
 
-## Каноническая сборка 0.3.70
+- `DESIGN_SYSTEM_0.9.32.md` — exact visual language and component construction.
+- `INTERACTION_LOGIC_0.9.32.md` — navigation, button, gesture and playback behavior.
+- `RECOVERY_BLUEPRINT_0.9.32.md` — complete engineering/runtime restore blueprint.
+- `decisions/ADR-288-cloud-first-hybrid-backend.md` — cloud-first hybrid architecture decision.
 
-- Пакет: `app.viora.android`, versionCode `176`.
-- Каталог: 157 материалов — 120 фильмов и 37 сериалов.
-- Источник проекта: `/data/data/com.termux/files/home/projects/viora`.
-- Канонический полный снимок: `/data/data/com.termux/files/home/MoviaApp/Movia/Каноническая версия/0.3.70/Полный проект-0.3.70`.
-- Независимая копия: `/data/data/com.termux/files/home/.movia-backups/0.3.70-canonical-20260824`.
-- APK: `Movia-0.3.70-cast-photos.apk`.
-- Парсер и генератор каталога: `media-parser-0.3.70/` рядом с APK и снимком проекта.
-
-## Изменение этой сборки
-
-- `MediaContent.cast` переведён на `List<Person>`.
-- В базе и сгенерированном Kotlin-каталоге сохранены имя, роль и `photoUrl` актёров.
-- Экран деталей загружает фотографии актёров с безопасным буквенным fallback, если URL недоступен.
-- Существующие данные пользователя, навигация, плеер и каталог сохранены.
-
-Перед каждой новой генерацией каталога сначала обновляйте базу, затем запускайте `generate_catalog_repository.py`, `verify_canonical.py` и `./gradlew :app:assembleDebug`.
+Older historical documents may remain for archaeology, but they are not recovery authority. `README.md`, `RESTORE.md`, `CURRENT_BASELINE.json` and the three files above define the 0.9.32 baseline.

@@ -1,13 +1,19 @@
-# Movia configuration reference (no secrets)
+# Movia 0.9.32 configuration map (no private values)
 
-Backend: PARSER_HOST and PARSER_PORT are consumed by backend/config.py.
-TMDB_API_KEY is private and must be provided through the Termux environment or
-private .env.
+Android build:
+  MOVIA_CONTROL_PLANE_URL=http://127.0.0.1:8888
 
-MCP: TERMUX_MCP_HOST, TERMUX_MCP_PORT, TERMUX_MCP_SECRET, TERMUX_MCP_ROOTS and
-TERMUX_MCP_JOB_ROOT are consumed by agent/mcp/src/config.ts.
+Backend/private metadata:
+  TMDB_API_KEY=<private>
 
-Native agent: provision its token through agent/tools/provision-agent-token.sh.
+Local P2P:
+  MOVIA_TORRSERVER_URL=http://127.0.0.1:18090
+  aria2 RPC: 127.0.0.1:6800, configured from agent/runtime/aria2.conf.example
 
-Runtime catalog: MOVIA_CATALOG_DB may point scripts/create-baseline.sh at the
-private catalog DB.
+Cloud policy:
+  MOVIA_CLOUD_MODE=1 forces direct-only behavior and P2P off.
+
+MCP:
+  TERMUX_MCP_HOST / TERMUX_MCP_PORT / TERMUX_MCP_SECRET / TERMUX_MCP_ROOTS / TERMUX_MCP_JOB_ROOT
+
+See SECRETS_SETUP.md for private-value handling and docs/RECOVERY_BLUEPRINT_0.9.32.md for the full runtime graph.

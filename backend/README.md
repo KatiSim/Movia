@@ -1,107 +1,49 @@
-# Movia media-parser — безопасный локальный контур
+# Movia local media backend — 0.9.32 baseline
 
-Сервис предоставляет Movia метаданные из TMDb и воспроизводимые прямые медиаресурсы из явно разрешённого каталога.
+The phone-local control plane runs `streamer.py` on loopback port 8888.
 
-## Что поддерживается
+## Responsibilities
 
-- Flask API на 127.0.0.1:5001;
-- SQLite catalog.db;
-- TMDb-поиск на русском языке;
-- карточки с названием, постером, описанием, годом, рейтингом, жанрами и актёрами;
-- прямые HTTP/HTTPS-ссылки на MP4, WebM, HLS (.m3u8) и DASH (.mpd);
-- фильтрация технических страниц и неполных записей;
-- пагинация и фильтры каталога;
-- локальный манифест для контролируемого пополнения каталога.
+- catalog/details/search/person APIs from SQLite catalog;
+- TMDB metadata/person enrichment;
+- direct HTTP/HLS/DASH discovery and validation;
+- exact series season/episode stream routing;
+- provider reliability/ranking;
+- bounded local P2P fallback;
+- adjacent-episode prewarm;
+- cache pruning and background enrichment policy.
 
-Поиск по произвольным торрент-индексам, получение magnet-ссылок и BitTorrent-стриминг в этой сборке отключены. Воспроизведение разрешается только по явно предоставленной прямой медиассылке.
+## Start
 
-## Запуск
+Preferred production-on-phone path is runit via `agent/services/`:
 
-~~~bash
-cd ~/projects/media-parser
-python -m pip install -r requirements.txt
-nohup python -u server.py >> server.log 2>&1 &
-~~~
+```bash
+bash scripts/setup-local-runtime.sh
+sv up movia-torrserver movia-media-parser
+```
 
-Проверка:
+Manual development start:
 
-~~~bash
-curl http://127.0.0.1:5001/health
-curl http://127.0.0.1:5001/diagnostics
-curl 'http://127.0.0.1:5001/catalog?limit=20'
-~~~
+```bash
+cd backend
+python3 -m pip install -r requirements.txt
+MOVIA_TORRSERVER_URL=http://127.0.0.1:18090 python3 -u streamer.py
+```
 
-Остановка:
+Health:
 
-~~~bash
-pkill -f 'python.*server.py'
-~~~
+```bash
+curl http://127.0.0.1:8888/health
+```
 
-## API
+## P2P boundary
 
-- GET /health
-- GET /diagnostics
-- GET /catalog?limit=100&offset=0
-- GET /catalog?genre=драма&year=2020
-- GET /catalog?playable_only=1
-- GET /content/<id>
-- GET /content/<id>/playback
-- GET /stream/<id>
-- POST /search
-- POST /parse
+Direct URLs are preferred. Local torrent playback uses loopback TorrServer MatriX.144.1 with aria2 metadata/fallback infrastructure. Cloud mode is direct-only and does not proxy torrent/video media through a VPS.
 
-Пример поиска:
+## Runtime catalog
 
-~~~bash
-curl -X POST http://127.0.0.1:5001/search \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"Inception","year":2010,"media_type":"movie","limit":5}'
-~~~
+`catalog.db` is mutable runtime state and excluded from Git. Schema/recovery code is versioned. Use `scripts/export-runtime-catalog.sh` for a consistent private snapshot and `scripts/import-runtime-catalog.sh` to restore one.
 
-## Авторизованный манифест
+## Tests
 
-Файл authorized_catalog.json обрабатывается скриптом catalog_sync.py:
-
-~~~json
-[
-  {
-    "query": "Название материала",
-    "year": 2020,
-    "media_type": "movie",
-    "playback_url": "https://authorized.example/video.mp4",
-    "source_id": "AUTHORIZED_OPEN_DATA",
-    "source_page": "https://authorized.example/item",
-    "license_name": "Public Domain или CC",
-    "license_url": "https://authorized.example/license"
-  }
-]
-~~~
-
-Синхронизация:
-
-~~~bash
-python catalog_sync.py
-~~~
-
-Скрипт не удаляет существующие записи. Неполные строки и ссылки на страницы просмотра пропускаются.
-
-## Movia Android
-
-Клиент использует:
-
-    http://127.0.0.1:5001/
-
-Он принимает envelope каталога {"items": [...], "pagination": {...}} и совместимый ответ /content/<id>/playback.
-
-В Android-манифесте уже разрешён локальный cleartext-доступ для 127.0.0.1 и localhost.
-
-## Диагностика
-
-Текущие счётчики доступны в /diagnostics:
-
-- catalog.raw_count — все строки БД;
-- catalog.displayable_count — записи, пригодные для карточек;
-- catalog.playable_count — записи с прямой медиассылкой;
-- rules — только историческая статистика правил, не активный механизм сканирования источников.
-
-Существующие catalog.db, sources.txt и папка backups не очищаются автоматически.
+The recovery baseline completed 198 backend tests successfully. Run all regular backend unit tests (excluding the network diagnostic `test_tmdb_connection.py`) with the command documented in the recovery blueprint.

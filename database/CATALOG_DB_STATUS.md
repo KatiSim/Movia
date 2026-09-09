@@ -1,35 +1,31 @@
-# Current catalog database status
+# Current catalog database status — 2026-09-09 recovery capture
 
-This status was captured from the correct Jarvis 2.0 context on 2026-08-30
-immediately before the current baseline manifest was regenerated.
+Runtime SSOT:
 
-## Current SSOT
+`/data/data/com.termux/files/home/projects/media-parser/catalog.db`
 
-Path:
+Observed while the accepted 0.9.32 phone runtime was healthy:
 
-    /data/data/com.termux/files/home/projects/media-parser/catalog.db
+- size: approximately 757 MiB
+- SHA-256 at observation: `5c688c34c899f8d3cc3319db8714a34a2d9a5e1325298c1e8b298d2e943a97a9`
+- `PRAGMA quick_check`: `ok`
+- `movies` rows: `71,899`
+- `catalog_meta.schema_version`: `4`
+- `catalog_meta.catalog_revision`: `9718`
+- `catalog_meta.normalization_version`: `1`
 
-Sidecars:
+The database is continuously mutated by catalog/background workers, so its hash/revision changes after this observation. It is deliberately excluded from ordinary Git history.
 
-    /data/data/com.termux/files/home/projects/media-parser/catalog.db-wal
-    /data/data/com.termux/files/home/projects/media-parser/catalog.db-shm
+Create a private SQLite-consistent recovery snapshot with:
 
-Observed facts at capture time:
+```bash
+bash scripts/export-runtime-catalog.sh
+```
 
-- catalog.db size: 793509888 bytes
-- catalog.db SHA256: 750d5f7f85cf41711f4347176e48d2cc557021ff42665a6528bf3f98a44c3a72
-- catalog.db-wal size: 202922392 bytes
-- catalog.db-wal SHA256: a6540b0328d8ade617f673d71d9aff2b38ef63ba0ccbdb550ea13740bad1aff23
-- catalog.db-shm size: 425984 bytes
-- catalog.db-shm SHA256: 26ce3bde39275bb3a343e37358b47825db411660dd6414c11e7c5e4977281a5f
-- catalog_meta.schema_version: 2
-- catalog_meta.catalog_revision: 280
-- movies rows: 50491
+Restore one with:
 
-The database is live and changes as backend workers run. CURRENT_BASELINE.json is
-the machine-readable manifest generated from the same system; regenerate it
-before a later checkpoint. The canonical project stores this status and the
-recovery code, not the live DB or sidecars.
+```bash
+bash scripts/import-runtime-catalog.sh SNAPSHOT.sqlite.gz
+```
 
-A release snapshot must be made with scripts/create-baseline.sh using
-MOVIA_DB_SNAPSHOT=1, then its checksum must be listed in SHA256SUMS.txt.
+A source-only clean recovery can rebuild a functional catalog using the tracked schema/sync/enrichment code and privately configured provider/TMDB credentials, but it cannot reproduce a later live DB byte-for-byte without a saved snapshot.

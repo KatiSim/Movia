@@ -3,33 +3,60 @@
   "package": "app.movia.android",
   "versionName": "0.9.32",
   "versionCode": 302,
-  "verificationApkPath": "/data/data/com.termux/files/home/projects/movia/app/build/outputs/apk/debug/app-debug.apk",
-  "verificationApkSizeBytes": 23968219,
-  "verificationApkSha256": "5a82988cb09e0462a33838f884d2ee961b2b5e29fe4a7e377313b852e131307e",
-  "catalogRows": 65337,
-  "catalogSchemaVersion": "4",
-  "catalogRevision": "6578",
-  "catalogNormalizationVersion": "1",
-  "catalogDbPath": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
-  "catalogDbPolicy": "runtime SSOT; excluded from Git",
-  "backendService": "movia-media-parser / streamer.py",
-  "backendHealthEndpoint": "http://127.0.0.1:8888/health",
-  "retiredHealthEndpoint": "http://127.0.0.1:5001/health",
-  "agentSchemaVersion": 2,
-  "sourceRoots": {
-    "android": "/data/data/com.termux/files/home/projects/movia",
-    "backend": "/data/data/com.termux/files/home/projects/media-parser",
-    "agentMcp": "/data/data/com.termux/files/home/termux-mcp"
+  "canonicalBranch": "main",
+  "apk": {
+    "path": "release/Movia-0.9.32-code302.apk",
+    "sizeBytes": 24321643,
+    "sha256": "25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b",
+    "sourceCommit": "35d1d9f82396eab7641359633740a642586eb254"
   },
-  "sourceCommit": "37b7f0524f0dc7990d21e4262302e186ed942ce4",
-  "createdAt": "2026-09-05T08:10:00Z",
+  "android": {
+    "compileSdk": 35,
+    "targetSdk": 35,
+    "minSdk": 26,
+    "javaTarget": 17,
+    "agentSchemaVersion": 2
+  },
+  "backend": {
+    "service": "movia-media-parser",
+    "health": "http://127.0.0.1:8888/health",
+    "tests": {
+      "count": 198,
+      "status": "PASS"
+    }
+  },
+  "p2p": {
+    "torrServer": {
+      "version": "MatriX.144.1",
+      "url": "http://127.0.0.1:18090",
+      "sha256": "bb7e9b4d0dc894f8da3e32496e7487be93b8f8b04ada549396a7ab4dc85ea63b"
+    },
+    "aria2": {
+      "version": "1.37.0",
+      "rpc": "http://127.0.0.1:6800/jsonrpc"
+    }
+  },
+  "catalog": {
+    "runtimePath": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
+    "observedRows": 71899,
+    "schemaVersion": "4",
+    "revision": "9718",
+    "normalizationVersion": "1",
+    "observedSha256": "5c688c34c899f8d3cc3319db8714a34a2d9a5e1325298c1e8b298d2e943a97a9",
+    "quickCheck": "ok",
+    "policy": "mutable runtime SSOT; export separately for byte-identical recovery"
+  },
   "verification": {
-    "android": "PASS: testDebugUnitTest + compileDebugKotlin + assembleDebug",
-    "backend": "PASS: selected playback/catalog suite, 71 tests",
-    "backendRuntime": "PASS: movia-media-parser running; 127.0.0.1:8888/health HTTP 200; 5001 retired/unreachable",
-    "playback": "PASS: real title reached Media3 READY, isPlaying true, timeline position advanced",
-    "pausedVoiceSwitch": "PASS after fix: requested voice became active and operation completed while player remained paused",
-    "mcpBuild": "PASS: TypeScript 5.9.3 typecheck and build completed via direct node invocation of node_modules/typescript/bin/tsc",
-    "scope": "Basic movie playback and paused voice-switch verified; this is not a claim that every provider/title/series path is healthy."
-  }
+    "android": "PASS: testDebugUnitTest + compileDebugKotlin + assembleDebug + compileDebugAndroidTestKotlin; BUILD SUCCESSFUL; 58 tasks",
+    "backendRuntime": "PASS: 127.0.0.1:8888/health HTTP 200",
+    "torrServerRuntime": "PASS: 127.0.0.1:18090/echo HTTP 200",
+    "mcpHealth": "PASS: 127.0.0.1:8940/healthz HTTP 200"
+  },
+  "designDocs": [
+    "docs/DESIGN_SYSTEM_0.9.32.md",
+    "docs/INTERACTION_LOGIC_0.9.32.md",
+    "docs/RECOVERY_BLUEPRINT_0.9.32.md"
+  ],
+  "privateDataBoundary": "Android uninstall removes private Room/DataStore/download state unless separately backed up",
+  "createdAt": "2026-09-09T07:30:00+02:00"
 }

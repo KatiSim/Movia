@@ -1,0 +1,22 @@
+# Movia 0.9.32 local aria2 configuration.
+# RPC is loopback-only. The rpc-secret value matches the local-only backend RPC
+# token used by the 0.9.32 source; it is not an Internet/API credential.
+dir=__MOVIA_TORRENT_CACHE__
+enable-rpc=true
+rpc-listen-all=false
+rpc-listen-port=6800
+rpc-secret=movia_secret
+file-allocation=none
+max-concurrent-downloads=4
+continue=true
+split=10
+min-split-size=1M
+bt-max-peers=55
+bt-tracker-connect-timeout=5
+bt-tracker-timeout=5
+bt-prioritize-piece=head=20M,tail=20M
+follow-torrent=mem
+seed-time=0
+bt-save-metadata=true
+bt-load-saved-metadata=true
+dht-entry-point=router.bittorrent.com:6881

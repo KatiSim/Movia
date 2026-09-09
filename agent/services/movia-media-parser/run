@@ -3,5 +3,20 @@ set -euo pipefail
 exec 2>&1
 export PYTHONUNBUFFERED=1
 export SSL_CERT_FILE="$PREFIX/etc/tls/cert.pem"
+export MOVIA_TORRSERVER_URL="http://127.0.0.1:18090"
 cd "$HOME/projects/media-parser"
+
+# aria2 is localhost-only metadata/fallback infrastructure. Keep its RPC daemon
+# available before the HTTP control plane starts.
+aria2_conf="$HOME/.aria2/aria2.conf"
+if ! curl -sS --max-time 1 http://127.0.0.1:6800/jsonrpc >/dev/null 2>&1; then
+  "$PREFIX/bin/aria2c" --conf-path="$aria2_conf" -D >/dev/null 2>&1 || true
+fi
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+  if curl -sS --max-time 1 http://127.0.0.1:6800/jsonrpc >/dev/null 2>&1; then
+    break
+  fi
+  sleep 0.2
+done
+
 exec "$PREFIX/bin/python3" -u streamer.py

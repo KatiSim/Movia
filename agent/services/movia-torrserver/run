@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+exec 2>&1
+BIN="$HOME/.local/lib/movia-torrserver/TorrServer-android-arm64"
+STATE="$HOME/.local/share/movia-torrserver"
+mkdir -p "$STATE"
+exec "$BIN" --ip 127.0.0.1 --port 18090 --path "$STATE" --logpath "$STATE/torrserver.log"

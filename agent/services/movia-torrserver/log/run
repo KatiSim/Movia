@@ -1,0 +1,5 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+LOG="$HOME/.local/share/movia-torrserver/service-log"
+mkdir -p "$LOG"
+exec "$PREFIX/bin/svlogd" -tt "$LOG"

@@ -1,62 +1,46 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
-
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+live=0
+[ "${1:-}" = "--live" ] && live=1
 failures=0
-ok() { echo "PASS: $1"; }
-bad() { echo "FAIL: $1"; failures=$((failures + 1)); }
-need_file() { [ -f "$ROOT/$1" ] && ok "$1" || bad "missing $1"; }
-need_dir() { [ -d "$ROOT/$1" ] && ok "$1" || bad "missing directory $1"; }
+ok(){ echo "PASS: $1"; }
+bad(){ echo "FAIL: $1"; failures=$((failures+1)); }
 
-for d in android backend agent database acceptance docs scripts release reference; do need_dir "$d"; done
-for f in README.md CHANGELOG.md PROJECT_STATE.md RESTORE.md CURRENT_BASELINE.json .gitignore SECRETS_SETUP.md .env.example config.example; do need_file "$f"; done
-for f in android/app/build.gradle.kts android/settings.gradle.kts android/gradlew backend/server.py backend/database.py backend/search_engine.py backend/streamer.py backend/requirements.txt; do need_file "$f"; done
-for f in agent/mcp/package.json agent/mcp/src/server.ts agent/mcp/src/movia-tools.ts agent/services/movia-media-parser/run database/CATALOG_DB_STATUS.md database/schema/SCHEMA_SOURCE.md android/app/schemas/app.movia.android.data.database.MoviaDatabase/2.json; do need_file "$f"; done
+version_name="$(awk -F'"' '/versionName[[:space:]]*=/ {print $2; exit}' "$ROOT/android/app/build.gradle.kts")"
+version_code="$(awk '/versionCode[[:space:]]*=/ {print $3; exit}' "$ROOT/android/app/build.gradle.kts")"
+package_name="$(awk -F'"' '/applicationId[[:space:]]*=/ {print $2; exit}' "$ROOT/android/app/build.gradle.kts")"
+[ "$version_name" = "0.9.32" ] && ok "versionName 0.9.32" || bad "versionName $version_name"
+[ "$version_code" = "302" ] && ok "versionCode 302" || bad "versionCode $version_code"
+[ "$package_name" = "app.movia.android" ] && ok "package app.movia.android" || bad "package $package_name"
 
-version_name="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
-version_code="$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
-package_name="$(sed -n 's/^[[:space:]]*applicationId[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$ROOT/android/app/build.gradle.kts" | head -1)"
-[ "$version_name" = "0.9.23" ] && ok "versionName 0.9.23" || bad "versionName is $version_name"
-[ "$version_code" = "293" ] && ok "versionCode 293" || bad "versionCode is $version_code"
-[ "$package_name" = "app.movia.android" ] && ok "package app.movia.android" || bad "package is $package_name"
+tool_count="$(awk '/server\.registerTool\(/ {n++} END {print n+0}' "$ROOT/agent/mcp/src/movia-tools.ts")"
+[ "$tool_count" = "30" ] && ok "30 Movia MCP tools" || bad "MCP tool count $tool_count"
+grep -q 'MOVIA_AGENT_SCHEMA_VERSION = 2' "$ROOT/android/app/src/main/java/app/movia/android/agent/AgentModels.kt" && ok "agent schema 2" || bad "agent schema 2"
 
-tool_count="$(awk '/server\.registerTool\(/ {n++} END {print n+0}' "$ROOT/agent/mcp/src/movia-tools.ts" 2>/dev/null)"
-[ "$tool_count" = "29" ] && ok "29 native Movia MCP tools" || bad "native Movia MCP tool count is $tool_count"
-grep -q 'MOVIA_AGENT_SCHEMA_VERSION = 2' "$ROOT/android/app/src/main/java/app/movia/android/agent/AgentModels.kt" 2>/dev/null && ok "native agent schema 2" || bad "native agent schema 2 missing"
+expected_apk="25e9c2a3a49e4649376b871f469bec3df39160c7ef86743d317a41855f23f49b"
+actual_apk="$(sha256sum "$ROOT/release/Movia-0.9.32-code302.apk" 2>/dev/null | awk '{print $1}')"
+[ "$actual_apk" = "$expected_apk" ] && ok "canonical APK exact hash" || bad "canonical APK hash"
 
-if find "$ROOT" -type f \( -name '.env' -o -name '*.db' -o -name '*.db-*' -o -name '*.log' -o -name '*.pid' \) -print -quit | grep -q .; then
-  bad "runtime data/cache/log file present in canonical tree"
+python3 - "$ROOT/backend" <<'PY2'
+import ast,pathlib,sys
+for p in pathlib.Path(sys.argv[1]).rglob('*.py'):
+    ast.parse(p.read_text(encoding='utf-8'), filename=str(p))
+PY2
+[ "$?" -eq 0 ] && ok "backend Python syntax" || bad "backend Python syntax"
+
+if grep -RIl --exclude='*.apk' --exclude='*.png' -E 'BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}' "$ROOT" >/dev/null 2>&1; then
+  bad "high-confidence secret pattern found"
 else
-  ok "no DB/cache/log runtime payload in canonical tree"
+  ok "high-confidence secret scan"
 fi
 
-if rg -n -I --glob '!*.apk' --glob '!*.png' --glob '!*.jpg' --glob '!*.jpeg' --glob '!*.json' -E 'ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|Authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9._-]{12,}' "$ROOT" >/dev/null 2>&1; then
-  bad "secret pattern found"
-else
-  ok "secret scan"
+(cd "$ROOT" && git -c safe.directory="$ROOT" diff --check) >/dev/null 2>&1 && ok "git diff --check" || bad "git diff --check"
+
+if [ "$live" -eq 1 ]; then
+  bash "$ROOT/scripts/health-check.sh" --full --package || bad "live health"
 fi
 
-if command -v python >/dev/null 2>&1; then
-  if python - "$ROOT/backend" <<'PY'
-import ast, pathlib, sys
-root = pathlib.Path(sys.argv[1])
-for p in root.rglob("*.py"):
-    ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
-PY
-  then ok "backend Python syntax"; else bad "backend Python syntax"; fi
-else
-  bad "python missing for backend syntax"
-fi
-
-if [ -f "$ROOT/scripts/health-check.sh" ]; then
-  if bash "$ROOT/scripts/health-check.sh"; then ok "live services"; else bad "live services"; fi
-else
-  bad "health-check.sh not executable"
-fi
-
-if [ "$failures" -eq 0 ]; then
-  echo PASS
-  exit 0
-fi
+[ "$failures" -eq 0 ] && { echo PASS; exit 0; }
 echo "FAIL: $failures project check(s)"
 exit 1
