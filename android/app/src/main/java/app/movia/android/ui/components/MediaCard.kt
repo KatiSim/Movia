@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaBrandAmber
+import app.movia.android.ui.theme.MoviaSurfaceCanvas
 import java.util.Locale
 
 /**
@@ -97,7 +98,7 @@ fun MediaContentCard(
             if (!item.playbackUrl.isNullOrBlank() || item.streams.isNotEmpty()) {
                 Surface(
                     shape = RoundedCornerShape(topStart = 0.dp, bottomEnd = 8.dp),
-                    color = Color.Black.copy(alpha = 0.72f),
+                    color = MoviaSurfaceCanvas.copy(alpha = 0.72f),
                     modifier = Modifier.align(Alignment.TopStart),
                 ) {
                     Text(

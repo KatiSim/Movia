@@ -95,7 +95,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -1031,7 +1030,7 @@ private fun CatalogSearchField(
                     if (searchQuery.isEmpty()) {
                         Text(
                             text = "Поиск фильмов и сериалов",
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 15.sp,
                             lineHeight = 22.sp,
                             maxLines = 1,

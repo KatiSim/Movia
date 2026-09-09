@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="movia_icon_background">#0E1015</color>
+    <!-- Movia cinematic palette: Android resources mirror Compose design tokens. -->
+    <color name="movia_surface_canvas">#0E1015</color>
+    <color name="movia_surface_card">#191B22</color>
+    <color name="movia_surface_elevated">#22242C</color>
+    <color name="movia_border_subtle">#2A2F3D</color>
     <color name="movia_accent_base">#D4AF37</color>
+    <color name="movia_neon_gold">#F2CF5F</color>
+    <color name="movia_text_primary">#F8F4E6</color>
+    <color name="movia_text_secondary">#A0A6B2</color>
+    <color name="movia_text_muted">#788191</color>
+    <color name="movia_icon_background">#0E1015</color>
 </resources>

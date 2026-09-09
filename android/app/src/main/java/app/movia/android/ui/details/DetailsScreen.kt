@@ -1063,8 +1063,8 @@ private fun SeasonEpisodesButton(
             .fillMaxWidth()
             .height(56.dp),
         shape = RoundedCornerShape(14.dp),
-        color = Color(0xFF1E2129),
-        contentColor = Color.White,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(1.dp, MoviaBorderSubtle),
     ) {
         Box(
@@ -1085,13 +1085,13 @@ private fun SeasonEpisodesButton(
                     Icon(
                         Icons.AutoMirrored.Outlined.PlaylistPlay,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(28.dp),
                     )
                 }
                 Text(
                     text = "Выбор сезона и серий",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -1101,7 +1101,7 @@ private fun SeasonEpisodesButton(
             Icon(
                 Icons.Outlined.ChevronRight,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.72f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .size(22.dp),
@@ -1159,7 +1159,7 @@ private fun ActorCard(person: Person, onClick: () -> Unit) {
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF1B1E26))
+                .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MoviaBorderSubtle, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
@@ -1331,7 +1331,7 @@ private fun PersonAvatar(person: Person, size: androidx.compose.ui.unit.Dp) {
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .background(Color(0xFF1B1E26))
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MoviaBorderSubtle, CircleShape),
         contentAlignment = Alignment.Center,
     ) {

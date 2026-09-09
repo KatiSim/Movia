@@ -95,6 +95,9 @@ import app.movia.android.ui.theme.MoviaGlowLuminescence
 import app.movia.android.ui.theme.MoviaPlayShadow
 import app.movia.android.ui.theme.MoviaPlayHighlight
 import app.movia.android.ui.theme.MoviaProgressTrack
+import app.movia.android.ui.theme.MoviaSurfaceCanvas
+import app.movia.android.ui.theme.MoviaTextPrimary
+import app.movia.android.ui.theme.MoviaTextSecondary
 import kotlin.math.ceil
 
 @Composable
@@ -377,7 +380,7 @@ private fun ContinueWatchingCard(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFF0E1015).copy(alpha = 0.12f)),
+                            .background(MoviaSurfaceCanvas.copy(alpha = 0.12f)),
                     )
                     Box(
                         modifier = Modifier
@@ -387,10 +390,10 @@ private fun ContinueWatchingCard(
                                     colorStops = arrayOf(
                                         0.0f to Color.Transparent,
                                         0.22f to Color.Transparent,
-                                        0.42f to Color(0xFF0E1015).copy(alpha = 0.12f),
-                                        0.62f to Color(0xFF0E1015).copy(alpha = 0.44f),
-                                        0.80f to Color(0xFF0E1015).copy(alpha = 0.78f),
-                                        1.0f to Color(0xFF0E1015).copy(alpha = 0.98f),
+                                        0.42f to MoviaSurfaceCanvas.copy(alpha = 0.12f),
+                                        0.62f to MoviaSurfaceCanvas.copy(alpha = 0.44f),
+                                        0.80f to MoviaSurfaceCanvas.copy(alpha = 0.78f),
+                                        1.0f to MoviaSurfaceCanvas.copy(alpha = 0.98f),
                                     ),
                                 ),
                             ),
@@ -401,7 +404,7 @@ private fun ContinueWatchingCard(
                             .fillMaxWidth()
                             .height(116.dp)
                             .blur(18.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-                            .background(Color(0xFF0E1015).copy(alpha = 0.38f)),
+                            .background(MoviaSurfaceCanvas.copy(alpha = 0.38f)),
                     )
 
                     Surface(
@@ -425,7 +428,7 @@ private fun ContinueWatchingCard(
                             )
                             Text(
                                 text = badgeLabel,
-                                color = Color.White,
+                                color = MoviaTextPrimary,
                                 fontSize = 10.sp,
                                 lineHeight = 12.sp,
                                 fontWeight = FontWeight.Bold,
@@ -480,7 +483,7 @@ private fun ContinueWatchingCard(
                     ) {
                         Text(
                             text = displayTitle,
-                            color = Color.White,
+                            color = MoviaTextPrimary,
                             fontSize = 17.sp,
                             lineHeight = 21.sp,
                             fontWeight = FontWeight.Bold,
@@ -489,7 +492,7 @@ private fun ContinueWatchingCard(
                         )
                         Text(
                             text = progressMeta,
-                            color = Color.White.copy(alpha = 0.86f),
+                            color = MoviaTextSecondary,
                             fontSize = 12.sp,
                             lineHeight = 16.sp,
                             maxLines = 1,

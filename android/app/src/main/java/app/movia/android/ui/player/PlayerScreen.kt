@@ -166,6 +166,9 @@ import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaGlowLuminescence
 import app.movia.android.ui.theme.MoviaOnBrandAmber
+import app.movia.android.ui.theme.MoviaGlowLuminescenceOpaque
+import app.movia.android.ui.theme.MoviaSurfaceCanvas
+import app.movia.android.ui.theme.MoviaTextPrimary
 
 private val PLAYER_CENTER_CONTROL_SIZE = 66.1.dp
 private val PLAYER_CENTER_ICON_SIZE = 33.1.dp
@@ -844,8 +847,8 @@ fun PlayerScreen(
                             colorStops = arrayOf(
                                 0.00f to Color.Transparent,
                                 0.46f to Color.Transparent,
-                                0.70f to Color.Black.copy(alpha = 0.30f),
-                                1.00f to Color.Black.copy(alpha = 0.75f),
+                                0.70f to MoviaSurfaceCanvas.copy(alpha = 0.30f),
+                                1.00f to MoviaSurfaceCanvas.copy(alpha = 0.75f),
                             ),
                         ),
                     ),
@@ -856,8 +859,8 @@ fun PlayerScreen(
                     .drawWithCache {
                         val bottomRightScrim = Brush.linearGradient(
                             colorStops = arrayOf(
-                                0.00f to Color.Black.copy(alpha = 0.60f),
-                                0.30f to Color.Black.copy(alpha = 0.20f),
+                                0.00f to MoviaSurfaceCanvas.copy(alpha = 0.60f),
+                                0.30f to MoviaSurfaceCanvas.copy(alpha = 0.20f),
                                 0.60f to Color.Transparent,
                             ),
                             start = Offset(size.width, size.height),
@@ -992,7 +995,7 @@ fun PlayerScreen(
                         ) {
                             if (playback.status == app.movia.android.domain.model.PlaybackStatus.BUFFERING) {
                                 MoviaLoadingSpinner(
-                                    color = Color(0xFFE5A93C),
+                                    color = MoviaGlowLuminescenceOpaque,
                                     strokeWidth = 3.dp,
                                     modifier = Modifier.size(36.dp),
                                 )
@@ -1280,7 +1283,7 @@ fun PlayerScreen(
                         ) {
                             Text(
                                 text = "Повторить",
-                                color = Color.Black,
+                                color = MoviaOnBrandAmber,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
                             )
@@ -1304,7 +1307,7 @@ fun PlayerScreen(
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = scheme.surfaceContainerHigh.copy(alpha = 0.94f),
-                border = BorderStroke(1.dp, Color(0xFFE5A93C).copy(alpha = 0.35f)),
+                border = BorderStroke(1.dp, MoviaGlowLuminescenceOpaque.copy(alpha = 0.35f)),
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(top = 130.dp)
@@ -1315,7 +1318,7 @@ fun PlayerScreen(
                 // competing spinners at once.
                 Text(
                     text = playback.statusMessage ?: "Поиск доступных источников...",
-                    color = Color(0xFFE5A93C),
+                    color = MoviaGlowLuminescenceOpaque,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 11.dp),
@@ -2071,7 +2074,7 @@ private fun PlayerGlassAction(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = Color.White,
+                tint = MoviaTextPrimary,
                 modifier = Modifier.size(iconSize),
             )
         }
@@ -2148,7 +2151,7 @@ private fun PlayerTimeline(
         ) {
             Text(
                 text = formatTime(positionMs),
-                color = Color.White,
+                color = MoviaTextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
@@ -2286,7 +2289,7 @@ private fun PlayerTimeline(
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = "−" + formatTime(remainingMs),
-                color = Color.White.copy(alpha = 0.90f),
+                color = MoviaTextPrimary.copy(alpha = 0.90f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
