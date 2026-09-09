@@ -326,7 +326,6 @@ private fun ContinueWatchingCard(
     val cardScale = if (pressed) 0.97f else 1f
     val glowBlur = if (pressed) 10.dp else 18.dp
     val glowAlpha = if (pressed) 0.22f else 0.36f
-    val borderAlpha = if (pressed) 0.72f else 0.92f
 
     Column(
         modifier = Modifier
@@ -368,7 +367,6 @@ private fun ContinueWatchingCard(
                 modifier = Modifier.fillMaxSize(),
                 shape = shape,
                 color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.5.dp, MoviaBrandAmber.copy(alpha = borderAlpha)),
             ) {
                 MoviaArtwork(
                     url = heroBackdropUrl,
