@@ -124,6 +124,11 @@ fun HomeScreen(
             DemoCatalogRepository.getNew(12)
         }
     }
+    val soonPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getSoon(12)) {
+        value = withContext(Dispatchers.IO) {
+            DemoCatalogRepository.getSoon(12)
+        }
+    }
     val forYouPool by produceState<List<MediaContent>>(initialValue = DemoCatalogRepository.getForYou(12)) {
         value = withContext(Dispatchers.IO) {
             DemoCatalogRepository.getForYou(12)
@@ -136,6 +141,7 @@ fun HomeScreen(
     }
 
     val newItems = remember(newPool) { newPool.take(12) }
+    val soonItems = remember(soonPool) { soonPool.take(12) }
     val popularItems = remember(popularPool) { popularPool.take(12) }
     val forYouItems = remember(forYouPool, recommendation.items) {
         if (recommendation.items.isNotEmpty()) recommendation.items.take(12) else forYouPool.take(12)
@@ -173,6 +179,17 @@ fun HomeScreen(
                     items = newItems,
                     onOpenDetails = onOpenDetails,
                     onViewAll = { onOpenCatalog(CatalogLaunchPreset.NEW) },
+                )
+            }
+        }
+
+        if (soonItems.isNotEmpty()) {
+            item(key = "coming-soon") {
+                HomeMediaSection(
+                    title = "Скоро",
+                    items = soonItems,
+                    onOpenDetails = onOpenDetails,
+                    onViewAll = { onOpenCatalog(CatalogLaunchPreset.SOON) },
                 )
             }
         }

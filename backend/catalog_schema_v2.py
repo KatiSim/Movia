@@ -20,10 +20,12 @@ from catalog_localization import (
     clean_title,
     is_russian_display_title,
     parse_alternative_titles,
+    persisted_localized_ru_title,
 )
 
 SCHEMA_VERSION = 4
 NORMALIZATION_VERSION = 1
+LOCALIZATION_POLICY_VERSION = 2
 _DASHES = frozenset("‐‑‒–—―−﹘﹣－")
 _SCHEMA_LOCK = threading.RLock()
 
@@ -67,6 +69,14 @@ def prefix_successor(prefix: str) -> str:
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _persisted_display_title(row: sqlite3.Row) -> str:
+    return persisted_localized_ru_title(
+        localized_ru_title=row["localized_ru_title"],
+        original_title=row["original_title"],
+        alternative_titles=row["alternative_titles"],
+    ) or ""
 
 
 def connect_catalog(path: str | Path) -> sqlite3.Connection:
@@ -292,20 +302,36 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
             )
 
             updated = 0
-            rows = conn.execute(
-                """
-                SELECT id,title,original_title,localized_ru_title,
-                       alternative_titles,localization_source,localization_updated_at,
-                       created_at
-                FROM movies
-                WHERE normalized_ru_title='' OR normalized_ru_title IS NULL
-                   OR normalized_original_title='' OR normalized_original_title IS NULL
-                   OR updated_at='' OR updated_at IS NULL
-                   OR localized_ru_title='' OR localized_ru_title IS NULL
-                   OR alternative_titles='' OR alternative_titles IS NULL
-                ORDER BY id
-                """
-            ).fetchall()
+            localization_policy_upgrade = (
+                _meta_int(conn, "localization_policy_version", 0) < LOCALIZATION_POLICY_VERSION
+            )
+            if localization_policy_upgrade:
+                # Revalidate all display titles exactly once when the language
+                # boundary changes. This clears legacy entries that were merely
+                # Cyrillic (for example Macedonian/Serbian) but not Russian.
+                rows = conn.execute(
+                    """
+                    SELECT id,title,original_title,localized_ru_title,
+                           alternative_titles,localization_source,localization_updated_at,
+                           created_at
+                    FROM movies ORDER BY id
+                    """
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT id,title,original_title,localized_ru_title,
+                           alternative_titles,localization_source,localization_updated_at,
+                           created_at
+                    FROM movies
+                    WHERE normalized_ru_title='' OR normalized_ru_title IS NULL
+                       OR normalized_original_title='' OR normalized_original_title IS NULL
+                       OR updated_at='' OR updated_at IS NULL
+                       OR localized_ru_title='' OR localized_ru_title IS NULL
+                       OR alternative_titles='' OR alternative_titles IS NULL
+                    ORDER BY id
+                    """
+                ).fetchall()
             for start in range(0, len(rows), 1000):
                 batch = rows[start:start + 1000]
                 conn.executemany(
@@ -325,27 +351,13 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                     """,
                     [
                         (
-                            choose_localized_ru_title(
-                                localized_ru_title=row["localized_ru_title"],
-                                title=row["title"],
-                                original_title=row["original_title"],
-                                alternative_titles=row["alternative_titles"],
-                            ) or "",
+                            _persisted_display_title(row),
                             json_dumps_alternative_titles(row["alternative_titles"]),
                             (
-                                str(row["localization_source"] or "").strip()
-                                or (
-                                    "legacy_cyrillic"
-                                    if is_russian_display_title(row["title"], row["original_title"])
-                                    else ""
-                                )
+                                (str(row["localization_source"] or "").strip() or "verified_localization")
+                                if _persisted_display_title(row) else ""
                             ),
-                            choose_localized_ru_title(
-                                localized_ru_title=row["localized_ru_title"],
-                                title=row["title"],
-                                original_title=row["original_title"],
-                                alternative_titles=row["alternative_titles"],
-                            ) or "",
+                            _persisted_display_title(row),
                             utc_now(),
                             normalize_ru_text(
                                 choose_localized_ru_title(
@@ -399,10 +411,12 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                 bump_revision(conn)
             set_meta(conn, "schema_version", SCHEMA_VERSION)
             set_meta(conn, "normalization_version", NORMALIZATION_VERSION)
+            set_meta(conn, "localization_policy_version", LOCALIZATION_POLICY_VERSION)
             conn.commit()
             return {
                 "schema_version": SCHEMA_VERSION,
                 "normalization_version": NORMALIZATION_VERSION,
+                "localization_policy_version": LOCALIZATION_POLICY_VERSION,
                 "added_columns": added,
                 "backfilled_rows": updated,
                 "trigram_backfilled_rows": trigram_backfilled,
@@ -438,19 +452,9 @@ def refresh_normalized_rows(
         "normalized_original_title=?,updated_at=? WHERE id=?",
         [
             (
-                choose_localized_ru_title(
-                    localized_ru_title=row["localized_ru_title"],
-                    title=row["title"],
-                    original_title=row["original_title"],
-                    alternative_titles=row["alternative_titles"],
-                ) or "",
+                _persisted_display_title(row),
                 normalize_ru_text(
-                    choose_localized_ru_title(
-                        localized_ru_title=row["localized_ru_title"],
-                        title=row["title"],
-                        original_title=row["original_title"],
-                        alternative_titles=row["alternative_titles"],
-                    ) or ""
+                    _persisted_display_title(row)
                 ),
                 normalize_ru_text(row["original_title"]),
                 utc_now(),

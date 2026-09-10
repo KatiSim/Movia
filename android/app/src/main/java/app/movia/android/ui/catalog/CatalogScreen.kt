@@ -157,7 +157,7 @@ private val yearPresets = listOf(
     YearPreset("2000-е", 2000, 2009),
 )
 
-enum class CatalogLaunchPreset { ALL, POPULAR, NEW, RECOMMENDED }
+enum class CatalogLaunchPreset { ALL, POPULAR, NEW, SOON, RECOMMENDED }
 
 private enum class QuickSheet { GENRE, YEAR, RATING, RESOLUTION }
 
@@ -363,6 +363,8 @@ fun CatalogScreen(
         subtitleLanguage = subtitleLanguage,
     )
 
+    val currentCatalogYear = remember { java.util.Calendar.getInstance().get(java.util.Calendar.YEAR) }
+
     LaunchedEffect(launchPreset) {
         launchPreset?.let { preset ->
             when (preset) {
@@ -373,6 +375,20 @@ fun CatalogScreen(
                     applyFilter(
                         CatalogFilter(
                             type = null,
+                            yearFrom = currentCatalogYear - 1,
+                            yearTo = currentCatalogYear,
+                            newOnly = false,
+                        ),
+                    )
+                }
+                CatalogLaunchPreset.SOON -> {
+                    sortName = CatalogSort.OLDEST.name
+                    recommendedOnly = false
+                    selectedCategoryName = "ALL"
+                    applyFilter(
+                        CatalogFilter(
+                            type = null,
+                            yearFrom = currentCatalogYear + 1,
                             newOnly = false,
                         ),
                     )

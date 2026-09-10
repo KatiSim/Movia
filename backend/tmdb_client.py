@@ -13,6 +13,7 @@ except ImportError:  # pragma: no cover - deployment fallback
 from catalog_localization import (
     clean_title,
     is_russian_display_title,
+    is_verified_russian_localization,
     parse_alternative_titles,
     russian_alternative_titles,
 )
@@ -203,8 +204,8 @@ class TMDbClient:
 
         alternative_titles = parse_alternative_titles(data.get("alternative_titles"))
         official_title = clean_title(data.get("title"))
-        localized_title = official_title if is_russian_display_title(
-            official_title, data.get("original_title")
+        localized_title = official_title if is_verified_russian_localization(
+            official_title, data.get("original_title"), data.get("original_language")
         ) else (russian_alternative_titles(alternative_titles) or [None])[0]
 
         vote_average = float(data.get("vote_average") or 0.0)
@@ -275,8 +276,8 @@ class TMDbClient:
 
         alternative_titles = parse_alternative_titles(data.get("alternative_titles"))
         official_title = clean_title(data.get("name"))
-        localized_title = official_title if is_russian_display_title(
-            official_title, data.get("original_name")
+        localized_title = official_title if is_verified_russian_localization(
+            official_title, data.get("original_name"), data.get("original_language")
         ) else (russian_alternative_titles(alternative_titles) or [None])[0]
         vote_average = float(data.get("vote_average") or 0.0)
         vote_count = int(data.get("vote_count") or 0)

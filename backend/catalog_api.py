@@ -249,7 +249,7 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
             "quality": str(d.get("quality") or "Auto"),
             "duration": duration_str,
             "durationMinutes": duration,
-            "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
+            "isNew": bool(year > 0 and datetime.now(timezone.utc).year - 1 <= year <= datetime.now(timezone.utc).year),
             "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
             "ageRating": 0,
             "category": category,
@@ -341,7 +341,7 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         "quality": str(d.get("quality") or "Auto"),
         "duration": duration_str,
         "durationMinutes": duration,
-        "isNew": bool(year > 0 and year >= datetime.now(timezone.utc).year - 1),
+        "isNew": bool(year > 0 and datetime.now(timezone.utc).year - 1 <= year <= datetime.now(timezone.utc).year),
         "popularity": min(2_000_000_000, vote_count * 10 + int(d.get("seeders") or 0)),
         "ageRating": 0,
         "audioLanguages": ["Русский", "Оригинал"],
@@ -520,7 +520,25 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
                 new_releases.append(m)
                 excluded_ids.add(m["id"])
 
-        # 3. Section «Сейчас популярно» (10 items: most seeded & viewed global hits)
+        # 3. Section «Скоро»: announced future projects stay searchable but
+        # never masquerade as already-released items in «Новинки».  With the
+        # current schema we have a release year (not an exact date), so future
+        # means strictly later than the current UTC calendar year.
+        cur.execute(f"""
+            SELECT * FROM movies
+            WHERE {_USER_VISIBLE_SQL}
+              AND year > ?
+              AND {not_in_sql()}
+              AND poster_url IS NOT NULL AND poster_url != ''
+            ORDER BY year ASC, vote_count DESC, seeders DESC, id ASC
+            LIMIT 10;
+        """, (current_year,))
+        coming_soon = [map_row_to_media(r, compact=True) for r in cur.fetchall()]
+        coming_soon = [item for item in coming_soon if item.get("title")]
+        for it in coming_soon:
+            excluded_ids.add(it["id"])
+
+        # 4. Section «Сейчас популярно» (10 items: most seeded & viewed global hits)
         cur.execute(f"""
             SELECT * FROM movies 
             WHERE {_USER_VISIBLE_SQL}
@@ -533,7 +551,7 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
         for it in popular:
             excluded_ids.add(it["id"])
 
-        # 4. Section «Для вас» (10 items: Diverse IMDb Top masterpieces with genre alternation)
+        # 5. Section «Для вас» (10 items: Diverse IMDb Top masterpieces with genre alternation)
         cur.execute(f"""
             SELECT * FROM movies 
             WHERE {_USER_VISIBLE_SQL}
@@ -567,7 +585,7 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
                     for_you.append(cand)
                     excluded_ids.add(cand["id"])
 
-        # 5. Section «Сериалы и Мультсериалы» (10 items: Strictly TV / Series)
+        # 6. Section «Сериалы и Мультсериалы» (10 items: Strictly TV / Series)
         cur.execute(f"""
             SELECT * FROM movies 
             WHERE {_USER_VISIBLE_SQL}
@@ -586,6 +604,11 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
                 "id": "new_releases",
                 "title": "Новинки",
                 "items": new_releases
+            },
+            {
+                "id": "coming_soon",
+                "title": "Скоро",
+                "items": coming_soon
             },
             {
                 "id": "popular_now",
@@ -610,6 +633,7 @@ def get_home_payload(force_refresh: bool = False) -> Dict[str, Any]:
             "featured": featured,
             "heroBanners": hero_banners,
             "newReleases": new_releases,
+            "comingSoon": coming_soon,
             "popular": popular,
             "forYou": for_you,
             "series": series,

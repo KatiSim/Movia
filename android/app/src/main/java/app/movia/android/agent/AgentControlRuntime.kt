@@ -968,7 +968,7 @@ object AgentControlRuntime {
                         mediaId = content.id,
                         title = displayTitle,
                         contentYear = content.year,
-                        artworkUrl = content.posterUrl ?: content.backdropUrl,
+                        artworkUrl = content.backdropUrl?.takeIf { backdrop -> backdrop.isNotBlank() && backdrop != content.posterUrl },
                         seasonNumber = season,
                         episodeNumber = episode,
                         mediaType = content.type,

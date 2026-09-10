@@ -261,6 +261,12 @@ def save_or_update_movie(meta: Dict[str, Any], streams: List[Dict[str, Any]]) ->
             meta.get("category", "movies"),
             streams_json
         ))
+        if str(meta.get("metadata_source") or "").strip() == "tmdb_detail" and not localized_title:
+            conn.execute(
+                "UPDATE movies SET localized_ru_title='', localization_source='' "
+                "WHERE media_type=? AND tmdb_id=?",
+                (str(meta.get("media_type") or "movie"), int(meta.get("tmdb_id") or 0)),
+            )
         conn.commit()
         return cur.rowcount > 0
 

@@ -16,4 +16,10 @@ class RussianDisplayTitlePolicyTest {
     fun allowsLatinAcronymInsideRussianTitle() {
         assertTrue(RussianDisplayTitlePolicy.isValid("Миссия: FIFA"))
     }
+
+    @Test
+    fun rejectsForeignCyrillicAsRussianLocalization() {
+        assertFalse(RussianDisplayTitlePolicy.isValid("(Не)Нормална Фамилија", "(Не)Нормална Фамилија"))
+        assertFalse(RussianDisplayTitlePolicy.isValid("Фільм", "Фільм"))
+    }
 }

@@ -10,11 +10,16 @@ import java.util.Locale
  */
 object RussianDisplayTitlePolicy {
     private val cyrillic = Regex("[А-Яа-яЁё]")
+    private val cyrillicBlock = Regex("[\u0400-\u04FF]")
+    private val russianCyrillic = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя".toSet()
     private val cjk = Regex("[\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF]")
 
     fun isValid(value: String?, originalTitle: String? = null): Boolean {
         val title = clean(value)
         if (title.isBlank() || !cyrillic.containsMatchIn(title) || cjk.containsMatchIn(title)) {
+            return false
+        }
+        if (cyrillicBlock.findAll(title).any { match -> match.value.first() !in russianCyrillic }) {
             return false
         }
         val original = clean(originalTitle)

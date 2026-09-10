@@ -14,6 +14,8 @@ from typing import Any, Iterable, Mapping, Optional
 
 
 _CYRILLIC_RE = re.compile(r"[А-Яа-яЁё]")
+_CYRILLIC_BLOCK_RE = re.compile(r"[\u0400-\u04FF]")
+_RUSSIAN_CYRILLIC = frozenset("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя")
 _CJK_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
 _SPACE_RE = re.compile(r"\s+")
 
@@ -33,6 +35,11 @@ def has_cjk(value: Any) -> bool:
     return bool(_CJK_RE.search(clean_title(value)))
 
 
+def has_non_russian_cyrillic(value: Any) -> bool:
+    title = clean_title(value)
+    return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+
+
 def normalized_title_key(value: Any) -> str:
     """Return a comparison key; never use this key as canonical identity."""
     value = clean_title(value).casefold().replace("ё", "е")
@@ -47,11 +54,29 @@ def is_russian_display_title(value: Any, original_title: Any = None) -> bool:
     but a foreign/original value copied verbatim is not accepted.
     """
     title = clean_title(value)
-    if not title or not has_cyrillic(title) or has_cjk(title):
+    if not title or not has_cyrillic(title) or has_cjk(title) or has_non_russian_cyrillic(title):
         return False
     original = clean_title(original_title)
     if original and not has_cyrillic(original) and normalized_title_key(title) == normalized_title_key(original):
         return False
+    return True
+
+
+def is_verified_russian_localization(
+    value: Any,
+    original_title: Any = None,
+    original_language: Any = None,
+) -> bool:
+    """Validate a ru-RU display title without trusting a copied original name."""
+    if not is_russian_display_title(value, original_title):
+        return False
+    title = clean_title(value)
+    original = clean_title(original_title)
+    language = clean_title(original_language).casefold()
+    if original and normalized_title_key(title) == normalized_title_key(original):
+        # TMDb falls back to the original title when a requested localization is
+        # missing. The same title is trustworthy only for Russian originals.
+        return language in {"ru", "ru-ru", "rus"} if language else True
     return True
 
 
@@ -126,6 +151,27 @@ def choose_localized_ru_title(
     return None
 
 
+def persisted_localized_ru_title(
+    *,
+    localized_ru_title: Any = None,
+    original_title: Any = None,
+    alternative_titles: Any = None,
+) -> Optional[str]:
+    """Validate persisted localization without guessing from a legacy title.
+
+    Once a writer has an explicit localization field, an empty value means that
+    no Russian display title was verified.  Only an existing valid localized
+    value or an explicitly RU-scoped alternative may make the row visible.
+    """
+    candidates = [localized_ru_title]
+    candidates.extend(russian_alternative_titles(alternative_titles))
+    for candidate in candidates:
+        value = clean_title(candidate)
+        if is_russian_display_title(value, original_title):
+            return value
+    return None
+
+
 def row_display_title(row: Mapping[str, Any]) -> Optional[str]:
     return choose_localized_ru_title(
         localized_ru_title=row.get("localized_ru_title"),
@@ -153,13 +199,22 @@ def is_user_visible_row(row: Mapping[str, Any]) -> bool:
 
 
 def meta_localized_title(meta: Mapping[str, Any]) -> Optional[str]:
+    explicit_keys = ("localized_ru_title", "localizedRuTitle", "ru_title", "title_ru")
+    explicit_present = any(key in meta for key in explicit_keys)
+    explicit_value = next((meta.get(key) for key in explicit_keys if key in meta), None)
+    original = meta.get("original_title") or meta.get("originalTitle")
+    alternatives = meta.get("alternative_titles") or meta.get("alternativeTitles")
+    if explicit_present:
+        return persisted_localized_ru_title(
+            localized_ru_title=explicit_value,
+            original_title=original,
+            alternative_titles=alternatives,
+        )
+    # Legacy importers that never supplied a localization field retain their
+    # historical Cyrillic-title fallback. Modern TMDb writers always include
+    # an explicit verified field, including an explicit empty value on miss.
     return choose_localized_ru_title(
-        localized_ru_title=meta.get("localized_ru_title")
-        or meta.get("localizedRuTitle")
-        or meta.get("ru_title")
-        or meta.get("title_ru"),
         title=meta.get("title"),
-        original_title=meta.get("original_title") or meta.get("originalTitle"),
-        alternative_titles=meta.get("alternative_titles")
-        or meta.get("alternativeTitles"),
+        original_title=original,
+        alternative_titles=alternatives,
     )

@@ -391,7 +391,7 @@ private fun MoviaContent(
             candidateStreams = streamCandidates,
             contentYear = content?.year,
             mediaType = content?.type,
-            artworkUrl = content?.posterUrl ?: content?.backdropUrl,
+            artworkUrl = content?.backdropUrl?.takeIf { backdrop -> backdrop.isNotBlank() && backdrop != content.posterUrl },
             preferredQuality = playbackPreferences.quality.takeUnless { it.equals("Auto", ignoreCase = true) },
             preferredVoice = playbackPreferences.audio.takeUnless { it.equals("Auto", ignoreCase = true) },
             candidateStreamOptions = knownStreams,

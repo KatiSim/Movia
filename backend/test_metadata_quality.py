@@ -199,5 +199,63 @@ class MetadataQualityTest(unittest.TestCase):
 
 
 
+class RussianLocalizationBoundaryTests(unittest.TestCase):
+    def test_foreign_cyrillic_is_not_russian_display_title(self):
+        from catalog_localization import is_russian_display_title, is_verified_russian_localization
+        self.assertFalse(is_russian_display_title("(Не)Нормална Фамилија", "(Не)Нормална Фамилија"))
+        self.assertFalse(is_russian_display_title("Фільм", "Фільм"))
+        self.assertTrue(is_russian_display_title("Миссия: FIFA", "Mission: FIFA"))
+        self.assertFalse(is_verified_russian_localization("Нормална Фамилия", "Нормална Фамилия", "mk"))
+        self.assertTrue(is_verified_russian_localization("Ирония судьбы", "Ирония судьбы", "ru"))
+
+    def test_future_year_is_not_marked_as_new(self):
+        from datetime import datetime, timezone
+        import catalog_api
+
+        current = datetime.now(timezone.utc).year
+        base = {
+            "id": 1,
+            "tmdb_id": 1,
+            "media_type": "movie",
+            "title": "Будущий фильм",
+            "localized_ru_title": "Будущий фильм",
+            "original_title": "Future Film",
+            "poster_url": "https://example.invalid/poster.jpg",
+            "backdrop_url": "https://example.invalid/backdrop.jpg",
+            "genres": "[]",
+            "creators": "[]",
+            "alternative_titles": "[]",
+            "year": current + 1,
+        }
+        self.assertFalse(catalog_api.map_row_to_media(base)["isNew"])
+        base["year"] = current
+        self.assertTrue(catalog_api.map_row_to_media(base)["isNew"])
+
+    def test_home_contract_separates_new_releases_from_coming_soon(self):
+        import inspect
+        import catalog_api
+        source = inspect.getsource(catalog_api.get_home_payload)
+        self.assertIn('year IN (?, ?)', source)
+        self.assertIn('year > ?', source)
+        self.assertIn('ORDER BY year ASC', source)
+        self.assertIn('\"comingSoon\": coming_soon', source)
+
+    def test_explicit_empty_localization_does_not_fall_back_to_foreign_title(self):
+        from catalog_localization import meta_localized_title
+        self.assertIsNone(meta_localized_title({
+            "title": "Лили - Любовта е живот",
+            "original_title": "Лили - Любовта е живот",
+            "localized_ru_title": "",
+            "alternative_titles": [],
+        }))
+        self.assertEqual(
+            "Ирония судьбы",
+            meta_localized_title({
+                "title": "Ирония судьбы",
+                "original_title": "Ирония судьбы",
+            }),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

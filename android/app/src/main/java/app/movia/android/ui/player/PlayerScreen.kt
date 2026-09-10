@@ -344,10 +344,7 @@ fun PlayerScreen(
             settingsOpen = false
             settingsPicker = null
             val params = buildMoviaPictureInPictureParams(
-                context = context,
                 sourceRectHint = sourceRectHint,
-                isPlaying = playback.isPlaying,
-                title = displayPlayerTitle(title),
                 autoEnter = playback.playWhenReady,
             )
             host.setPictureInPictureParams(params)
@@ -371,10 +368,7 @@ fun PlayerScreen(
     LaunchedEffect(activity, sourceRectHint, playback.isPlaying, playback.playWhenReady, title) {
         activity?.setPictureInPictureParams(
             buildMoviaPictureInPictureParams(
-                context = context,
                 sourceRectHint = sourceRectHint,
-                isPlaying = playback.isPlaying,
-                title = displayPlayerTitle(title),
                 autoEnter = playback.playWhenReady,
             ),
         )

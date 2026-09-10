@@ -20,7 +20,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from catalog_localization import meta_localized_title, parse_alternative_titles
+from catalog_localization import (
+    clean_title,
+    is_verified_russian_localization,
+    meta_localized_title,
+    parse_alternative_titles,
+)
 from tmdb_client import tmdb
 from metadata_quality import bayesian_rating
 
@@ -236,18 +241,16 @@ def _summary_to_meta(item: Dict[str, Any], media_type: str) -> Dict[str, Any]:
     if not duration:
         duration = 45 if media_type == "tv" else 90
 
+    localized_title = clean_title(title) if is_verified_russian_localization(
+        title, original, item.get("original_language")
+    ) else ""
+
     return {
         "tmdb_id": _positive_int(item.get("id")),
         "media_type": media_type,
         "title": str(title or original or "Без названия"),
-        "localized_ru_title": meta_localized_title({
-            "title": title,
-            "original_title": original,
-        }) or "",
-        "localization_source": "tmdb_ru" if meta_localized_title({
-            "title": title,
-            "original_title": original,
-        }) else "",
+        "localized_ru_title": localized_title,
+        "localization_source": "tmdb_ru" if localized_title else "",
         "alternative_titles": [],
         "original_title": str(original or ""),
         # Unknown dates remain unknown. Do not fabricate the current year.

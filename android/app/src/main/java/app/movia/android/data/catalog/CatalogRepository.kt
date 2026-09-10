@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 interface CatalogRepository {
     fun getPopular(limit: Int = 40): List<MediaContent>
     fun getNew(limit: Int = 40): List<MediaContent>
+    fun getSoon(limit: Int = 40): List<MediaContent> = emptyList()
     fun getPaged(
         limit: Int = 40,
         offset: Int = 0,
@@ -148,6 +149,9 @@ object DemoCatalogRepository : CatalogRepository {
     private var cachedNew: List<MediaContent> = emptyList()
 
     @Volatile
+    private var cachedSoon: List<MediaContent> = emptyList()
+
+    @Volatile
     private var cachedAnimations: List<MediaContent> = emptyList()
 
     @Volatile
@@ -215,6 +219,7 @@ object DemoCatalogRepository : CatalogRepository {
             val json = JSONObject(jsonStr)
             val popArr = json.optJSONArray("popular")
             val newArr = json.optJSONArray("newReleases") ?: json.optJSONArray("new")
+            val soonArr = json.optJSONArray("comingSoon") ?: json.optJSONArray("coming_soon")
             val serArr = json.optJSONArray("series")
             val forYouArr = json.optJSONArray("forYou") ?: json.optJSONArray("for_you")
             val heroArr = json.optJSONArray("heroBanners") ?: json.optJSONArray("hero")
@@ -222,10 +227,11 @@ object DemoCatalogRepository : CatalogRepository {
 
             val popList = parseMediaList(popArr)
             val newList = parseMediaList(newArr)
+            val soonList = parseMediaList(soonArr)
             val serList = parseMediaList(serArr)
             val forYouList = parseMediaList(forYouArr)
             val heroList = parseMediaList(heroArr)
-            val featuredList = listOfNotNull(featuredObj?.let(::parseMediaObject))
+            val featuredList = listOfNotNull(featuredObj?.let(::parseMediaObject)).filter { it.title.isNotBlank() }
 
             val sectionsArr = json.optJSONArray("sections")
             val sectionItems = mutableListOf<MediaContent>()
@@ -238,11 +244,12 @@ object DemoCatalogRepository : CatalogRepository {
 
             if (popList.isNotEmpty()) cachedPopular = popList
             if (newList.isNotEmpty()) cachedNew = newList
+            if (soonList.isNotEmpty()) cachedSoon = soonList
             if (serList.isNotEmpty()) cachedSeries = serList
             if (forYouList.isNotEmpty()) cachedForYou = forYouList
             if (heroList.isNotEmpty()) cachedHero = heroList
 
-            (popList + newList + serList + forYouList + heroList + featuredList + sectionItems).forEach { cacheItem(it) }
+            (popList + newList + soonList + serList + forYouList + heroList + featuredList + sectionItems).forEach { cacheItem(it) }
             lastHomeFetchMs = System.currentTimeMillis()
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing /api/home", e)
@@ -389,6 +396,11 @@ object DemoCatalogRepository : CatalogRepository {
         cachedNew.take(limit)
     }
 
+    override fun getSoon(limit: Int): List<MediaContent> = runSafe {
+        refreshHomeAsync()
+        cachedSoon.take(limit)
+    }
+
     fun getSeries(limit: Int = 12): List<MediaContent> = runSafe {
         refreshHomeAsync()
         cachedSeries.take(limit)
@@ -405,7 +417,7 @@ object DemoCatalogRepository : CatalogRepository {
     }
 
     private fun cachedCatalogItems(): List<MediaContent> =
-        (cachedPopular + cachedNew + cachedAnimations + cachedSeries + cachedForYou + cachedHero)
+        (cachedPopular + cachedNew + cachedSoon + cachedAnimations + cachedSeries + cachedForYou + cachedHero)
             .distinctBy { it.id }
 
     override fun all(): List<MediaContent> {
@@ -680,7 +692,8 @@ object DemoCatalogRepository : CatalogRepository {
         val list = mutableListOf<MediaContent>()
         for (i in 0 until arr.length()) {
             val itemObj = arr.optJSONObject(i) ?: continue
-            list.add(parseMediaObject(itemObj))
+            val item = parseMediaObject(itemObj)
+            if (item.title.isNotBlank()) list.add(item)
         }
         return list
     }
@@ -853,7 +866,14 @@ object DemoCatalogRepository : CatalogRepository {
 
     private fun parseMediaObject(obj: JSONObject): MediaContent {
         val id = obj.optString("id", "")
-        val title = obj.optString("title", "Без названия")
+        val originalTitleCandidate = (obj.optString("original_title").takeIf { it.isNotBlank() }
+            ?: obj.optString("originalTitle")).takeIf { it.isNotBlank() }
+        val rawDisplayTitle = (obj.optString("localized_ru_title").takeIf { it.isNotBlank() }
+            ?: obj.optString("localizedRuTitle").takeIf { it.isNotBlank() }
+            ?: obj.optString("title")).trim()
+        val title = RussianDisplayTitlePolicy.clean(rawDisplayTitle).takeIf {
+            RussianDisplayTitlePolicy.isValid(it, originalTitleCandidate)
+        }.orEmpty()
         val typeStr = obj.optString("type", "MOVIE").uppercase()
         val type = if (typeStr == "SERIES" || typeStr == "TV") ContentType.SERIES else ContentType.MOVIE
 
@@ -862,15 +882,15 @@ object DemoCatalogRepository : CatalogRepository {
         val country = obj.optString("country", "")
         val quality = obj.optString("quality", "Auto")
         val duration = obj.optInt("durationMinutes", obj.optInt("duration", 0))
-        val isNew = obj.optBoolean("isNew", year >= 2024)
+        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        val isNew = obj.optBoolean("isNew", year in (currentYear - 1)..currentYear)
         val popularity = obj.optInt("popularity", 0)
         val ageRating = obj.optInt("ageRating", 0)
         
         val synopsis = (obj.optString("description").takeIf { it.isNotBlank() } 
             ?: obj.optString("synopsis")).takeIf { it.isNotBlank() } ?: ""
             
-        val originalTitle = (obj.optString("original_title").takeIf { it.isNotBlank() }
-            ?: obj.optString("originalTitle")).takeIf { it.isNotBlank() }
+        val originalTitle = originalTitleCandidate
             
         val crewObj = obj.optJSONObject("crew")
         val director = obj.optString("director").takeIf { it.isNotBlank() }
