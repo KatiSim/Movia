@@ -793,17 +793,29 @@ object AgentControlRuntime {
 
         val result = runBlocking(Dispatchers.IO) {
             val totalAvailable = DemoCatalogRepository.getTotalCount().coerceAtLeast(0)
-            val fetchLimit = totalAvailable.coerceIn(1, 10_000)
-            val all = DemoCatalogRepository.getPaged(
-                limit = fetchLimit,
-                offset = 0,
-                sort = CatalogSort.POPULAR,
-                category = null,
-                filter = null,
-                query = null,
-            )
-            val searched = if (query.isBlank()) all else searchCatalogLocally(all, query, limit = all.size)
-            val categoryFiltered = if (category == null) searched else searched.filter { it.category == category }
+            val backendQuery = query.takeIf { it.isNotBlank() }
+            val backendTotal = DemoCatalogRepository.getTotalCount(
+                category = category,
+                filter = filter,
+                query = backendQuery,
+            ).coerceAtLeast(0)
+            val fetchLimit = backendTotal.coerceIn(1, 10_000)
+            val candidates = if (backendTotal == 0) {
+                emptyList()
+            } else {
+                DemoCatalogRepository.getPaged(
+                    limit = fetchLimit,
+                    offset = 0,
+                    sort = sort,
+                    category = category,
+                    filter = filter,
+                    query = backendQuery,
+                )
+            }
+            // Backend search owns title relevance and canonical identity. Keep
+            // the local pass only for filter dimensions not expressible by the
+            // current /api/catalog contract (duration/audio/subtitles/etc.).
+            val categoryFiltered = if (category == null) candidates else candidates.filter { it.category == category }
             val filtered = filterCatalog(categoryFiltered, filter)
             val sorted = sortCatalog(filtered, sort)
             val page = if (offset >= sorted.size) emptyList() else sorted.drop(offset).take(limit)
