@@ -280,7 +280,7 @@ fun DetailsScreen(
     ) {
         value = withContext(Dispatchers.IO) {
             creativeNames.map { name ->
-                val resolved = DemoCatalogRepository.getPersonProjects(name, limit = 200).person
+                val resolved = DemoCatalogRepository.getPersonProjects(name, role = creativeCreditTitle, limit = 200).person
                 resolved.copy(name = resolved.name.ifBlank { name }, role = creativeCreditTitle)
             }
         }
@@ -1219,14 +1219,14 @@ private fun PersonProjectsScreen(
         seedPerson.name,
     ) {
         value = withContext(Dispatchers.IO) {
-            DemoCatalogRepository.getPersonProjects(seedPerson.name, limit = 200)
+            DemoCatalogRepository.getPersonProjects(seedPerson.name, role = seedPerson.role, limit = 200)
         }
     }
     val resolved = result?.person
     val person = Person(
         name = resolved?.name?.takeIf { it.isNotBlank() } ?: seedPerson.name,
         photoUrl = resolved?.photoUrl ?: seedPerson.photoUrl,
-        role = localizedPersonDepartment(resolved?.role) ?: seedPerson.role,
+        role = seedPerson.role?.takeIf { it.isNotBlank() } ?: localizedPersonDepartment(resolved?.role),
         knownFor = result?.projects?.take(8)?.map { it.title } ?: seedPerson.knownFor,
     )
     val projects = result?.projects.orEmpty()

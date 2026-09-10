@@ -1,7 +1,14 @@
 import unittest
 
 from metadata_quality import bayesian_rating
-from catalog_api import _balanced_catalog_items, _catalog_region_bucket, map_row_to_media
+from catalog_api import (
+    _balanced_catalog_items,
+    _catalog_region_bucket,
+    _normalize_person_credit_scope,
+    _remote_credit_matches_scope,
+    _row_has_exact_person_credit,
+    map_row_to_media,
+)
 
 
 class MetadataQualityTest(unittest.TestCase):
@@ -137,6 +144,36 @@ class MetadataQualityTest(unittest.TestCase):
         self.assertEqual(media["ageRating"], 0)
         self.assertFalse(media["isNew"])
 
+
+    def test_person_credit_scope_filters_professions(self):
+        actor_credit = {"credit_type": "cast", "character": "Tyler Durden"}
+        director_credit = {"credit_type": "crew", "department": "Directing", "job": "Director"}
+        producer_credit = {"credit_type": "crew", "department": "Production", "job": "Producer"}
+        creator_credit = {"credit_type": "crew", "department": "Creator", "job": "Creator"}
+
+        self.assertEqual(_normalize_person_credit_scope("Актёр"), "actor")
+        self.assertEqual(_normalize_person_credit_scope("Режиссёр"), "director")
+        self.assertEqual(_normalize_person_credit_scope("Создатели"), "creator")
+        self.assertTrue(_remote_credit_matches_scope(actor_credit, "actor"))
+        self.assertFalse(_remote_credit_matches_scope(producer_credit, "actor"))
+        self.assertTrue(_remote_credit_matches_scope(director_credit, "director"))
+        self.assertFalse(_remote_credit_matches_scope(producer_credit, "director"))
+        self.assertTrue(_remote_credit_matches_scope(creator_credit, "creator"))
+        self.assertFalse(_remote_credit_matches_scope(actor_credit, "creator"))
+
+    def test_local_person_credit_requires_exact_structured_name(self):
+        row = {
+            "cast": '[{"name":"Брэд Питт","role":"Tyler Durden"},{"name":"Питт Дэвис"}]',
+            "director": "Дэвид Финчер, Второй Режиссёр",
+            "creators": '["Алекс Хирш"]',
+        }
+        self.assertTrue(_row_has_exact_person_credit(row, ["Брэд Питт"], "actor"))
+        self.assertFalse(_row_has_exact_person_credit(row, ["Брэд"], "actor"))
+        self.assertFalse(_row_has_exact_person_credit(row, ["Tyler Durden"], "actor"))
+        self.assertTrue(_row_has_exact_person_credit(row, ["Дэвид Финчер"], "director"))
+        self.assertFalse(_row_has_exact_person_credit(row, ["Финчер"], "director"))
+        self.assertTrue(_row_has_exact_person_credit(row, ["Алекс Хирш"], "creator"))
+        self.assertFalse(_row_has_exact_person_credit(row, ["Алекс"], "creator"))
 
     def test_person_fallback_quotes_cast_column(self):
         import sqlite3

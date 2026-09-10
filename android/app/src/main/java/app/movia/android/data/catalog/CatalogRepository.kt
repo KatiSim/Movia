@@ -24,6 +24,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
 interface CatalogRepository {
@@ -96,6 +97,31 @@ private data class CatalogHttpResponse(
     val body: String?,
     val errorMessage: String? = null,
 )
+
+internal fun personCreditScope(role: String?): String {
+    val normalized = role.orEmpty().trim().lowercase(Locale.ROOT)
+    return when {
+        normalized == "acting" || normalized.contains("актёр") || normalized.contains("актер") -> "actor"
+        normalized == "directing" || normalized.contains("режисс") -> "director"
+        normalized == "creator" || normalized.contains("создател") -> "creator"
+        else -> "all"
+    }
+}
+
+internal fun mediaMatchesPersonCredit(item: MediaContent, name: String, creditScope: String): Boolean {
+    val cleanName = name.trim()
+    if (cleanName.isBlank()) return false
+    val actorMatch = item.cast.any { it.name.trim().equals(cleanName, ignoreCase = true) }
+    val creativeMatch = item.director
+        ?.split(',')
+        ?.map(String::trim)
+        ?.any { it.equals(cleanName, ignoreCase = true) } == true
+    return when (creditScope) {
+        "actor" -> actorMatch
+        "director", "creator" -> creativeMatch
+        else -> actorMatch || creativeMatch
+    }
+}
 
 object DemoCatalogRepository : CatalogRepository {
     private const val TAG = "HttpCatalogRepo"
@@ -540,22 +566,24 @@ object DemoCatalogRepository : CatalogRepository {
     override fun searchPeople(query: String, limit: Int): List<Person> =
         searchDetailed(query, limit, discover = true).people
 
-    fun getPersonProjects(name: String, limit: Int = 200): PersonProjectsResult {
+    fun getPersonProjects(name: String, role: String? = null, limit: Int = 200): PersonProjectsResult {
         val cleanName = name.trim()
-        val key = CanonicalTextNormalizer.normalize(cleanName)
-        if (key.isBlank()) return PersonProjectsResult(Person(name = cleanName), emptyList())
+        val normalizedName = CanonicalTextNormalizer.normalize(cleanName)
+        val creditScope = personCreditScope(role)
+        val key = "$normalizedName|$creditScope"
+        if (normalizedName.isBlank()) return PersonProjectsResult(Person(name = cleanName), emptyList())
         personProjectsCache.get(key)?.let { return it }
 
         val encoded = URLEncoder.encode(cleanName, "UTF-8")
+        val encodedScope = URLEncoder.encode(creditScope, "UTF-8")
         val body = httpGet(
-            "/api/person?name=$encoded&limit=${limit.coerceIn(1, 300)}",
+            "/api/person?name=$encoded&limit=${limit.coerceIn(1, 300)}&credit_scope=$encodedScope",
             connectTimeoutMs = 2_000,
             readTimeoutMs = 8_000,
         )
         if (body.isNullOrBlank()) {
             val fallbackProjects = cachedCatalogItems().filter { item ->
-                item.director?.equals(cleanName, ignoreCase = true) == true ||
-                    item.cast.any { it.name.equals(cleanName, ignoreCase = true) }
+                mediaMatchesPersonCredit(item, cleanName, creditScope)
             }
             val fallbackPerson = fallbackProjects.asSequence()
                 .flatMap { it.cast.asSequence() }

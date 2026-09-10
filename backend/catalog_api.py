@@ -1165,37 +1165,104 @@ def search_catalog(query_text: str, limit: int = 20) -> Dict[str, Any]:
             "people": people
         }
 
-def get_person_projects(name: str, limit: int = 200) -> Dict[str, Any]:
-    """Return one person's Movia-available filmography with a real profile image.
+def _normalize_person_credit_scope(value: Any) -> str:
+    raw = str(value or "").strip().casefold()
+    aliases = {
+        "actor": "actor", "acting": "actor", "актёр": "actor", "актер": "actor",
+        "director": "director", "directing": "director", "режиссёр": "director", "режиссер": "director",
+        "creator": "creator", "creators": "creator", "создатель": "creator", "создатели": "creator",
+        "all": "all", "": "all",
+    }
+    return aliases.get(raw, "all")
 
-    TMDB combined credits provide the complete identity/credit list; catalog.db
-    remains authoritative for which projects can be opened inside Movia.
+
+def _remote_credit_matches_scope(credit: Dict[str, Any], credit_scope: str) -> bool:
+    scope = _normalize_person_credit_scope(credit_scope)
+    credit_type = str(credit.get("credit_type") or "").strip().casefold()
+    if scope == "actor":
+        return credit_type == "cast"
+    if scope == "director":
+        return credit_type == "crew" and str(credit.get("job") or "").strip().casefold() == "director"
+    if scope == "creator":
+        if credit_type != "crew":
+            return False
+        job = str(credit.get("job") or "").strip().casefold()
+        department = str(credit.get("department") or "").strip().casefold()
+        return job == "creator" or department == "creator"
+    return credit_type in {"cast", "crew"}
+
+
+def _normalized_person_name(value: Any) -> str:
+    return " ".join(str(value or "").strip().casefold().split())
+
+
+def _row_has_exact_person_credit(row: Any, names: List[str], credit_scope: str) -> bool:
+    """Check exact person names in structured local credits; never substring-match JSON."""
+    row_data = dict(row)
+    aliases = {_normalized_person_name(value) for value in names if _normalized_person_name(value)}
+    if not aliases:
+        return False
+    scope = _normalize_person_credit_scope(credit_scope)
+
+    cast_people = parse_json_safely(row_data.get("cast"), [])
+    actor_match = any(
+        _normalized_person_name(person.get("name") if isinstance(person, dict) else person) in aliases
+        for person in cast_people if isinstance(cast_people, list)
+    )
+    director_names = [part.strip() for part in str(row_data.get("director") or "").split(",") if part.strip()]
+    director_match = any(_normalized_person_name(value) in aliases for value in director_names)
+    creators_raw = parse_json_safely(row_data.get("creators"), [])
+    creator_names = creators_raw if isinstance(creators_raw, list) else []
+    creator_match = any(
+        _normalized_person_name(value.get("name") if isinstance(value, dict) else value) in aliases
+        for value in creator_names
+    )
+
+    if scope == "actor":
+        return actor_match
+    if scope == "director":
+        return director_match
+    if scope == "creator":
+        return creator_match or director_match
+    return actor_match or director_match or creator_match
+
+
+def get_person_projects(name: str, limit: int = 200, credit_scope: str = "all") -> Dict[str, Any]:
+    """Return one person's Movia-available filmography for the requested profession.
+
+    TMDB combined credits provide person identity and exact external credit IDs;
+    catalog.db remains authoritative for which projects can be opened in Movia.
+    Actor pages contain cast credits only, director pages contain Director jobs only,
+    and local fallback rows must carry an exact structured person-name match.
     """
     clean_name = str(name or "").strip()
     if not clean_name:
-        return {"person": None, "projects": []}
+        return {"person": None, "projects": [], "credit_scope": "all"}
+    scope = _normalize_person_credit_scope(credit_scope)
     safe_limit = max(1, min(int(limit or 200), 300))
     remote = tmdb.get_person_combined_credits(clean_name)
     projects = []
     profile_url = remote.get("profile_url") if isinstance(remote, dict) else None
     known_for_department = remote.get("known_for_department") if isinstance(remote, dict) else ""
     canonical_name = remote.get("name") if isinstance(remote, dict) else clean_name
+    person_aliases = list(dict.fromkeys(value for value in (clean_name, canonical_name) if value))
 
     with get_db() as conn:
         seen = set()
         if isinstance(remote, dict):
-            credits = remote.get("credits") or []
+            credits = [
+                credit for credit in (remote.get("credits") or [])
+                if isinstance(credit, dict) and _remote_credit_matches_scope(credit, scope)
+            ]
             by_type = {"movie": [], "tv": []}
             for credit in credits:
-                if not isinstance(credit, dict):
-                    continue
                 media_type = str(credit.get("media_type") or "").lower()
                 tmdb_id = int(credit.get("tmdb_id") or 0)
                 if media_type in by_type and tmdb_id > 0 and tmdb_id not in by_type[media_type]:
                     by_type[media_type].append(tmdb_id)
             for media_type, ids in by_type.items():
-                for start in range(0, len(ids), 400):
-                    chunk = ids[start:start + 400]
+                for chunk_start in range(0, len(ids), 400):
+                    chunk = ids[chunk_start:chunk_start + 400]
                     if not chunk:
                         continue
                     placeholders = ",".join("?" for _ in chunk)
@@ -1210,23 +1277,35 @@ def get_person_projects(name: str, limit: int = 200) -> Dict[str, Any]:
                         seen.add(key)
                         projects.append(map_row_to_media(row, compact=True))
 
-        # Offline/legacy fallback, and also fills local credits that TMDB search could
-        # not resolve because of transliteration/localized person names.
+        # SQL is only a coarse prefilter. Exact structured-name verification below
+        # prevents character names, surnames and unrelated JSON text from leaking
+        # random titles into a person's filmography.
         like = f"%{clean_name}%"
+        if scope == "actor":
+            predicate, params = "[cast] LIKE ?", (like,)
+        elif scope == "director":
+            predicate, params = "director LIKE ?", (like,)
+        elif scope == "creator":
+            predicate, params = "(creators LIKE ? OR director LIKE ?)", (like, like)
+        else:
+            predicate, params = "(director LIKE ? OR [cast] LIKE ? OR creators LIKE ?)", (like, like, like)
         rows = conn.execute(
-            f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND (director LIKE ? OR [cast] LIKE ?) ORDER BY year DESC, rating DESC LIMIT ?",
-            (like, like, safe_limit),
+            f"SELECT * FROM movies WHERE {_USER_VISIBLE_SQL} AND {predicate} ORDER BY year DESC, rating DESC LIMIT ?",
+            tuple(params) + (min(max(safe_limit * 4, 50), 1200),),
         ).fetchall()
         for row in rows:
+            if not _row_has_exact_person_credit(row, person_aliases, scope):
+                continue
             key = int(row["id"])
             if key in seen:
                 continue
             seen.add(key)
             projects.append(map_row_to_media(row, compact=True))
-            if not profile_url:
+            if not profile_url and scope in {"actor", "all"}:
                 cast = parse_json_safely(row["cast"], [])
+                alias_keys = {_normalized_person_name(alias) for alias in person_aliases}
                 for person in cast if isinstance(cast, list) else []:
-                    if isinstance(person, dict) and str(person.get("name") or "").strip().casefold() == clean_name.casefold():
+                    if isinstance(person, dict) and _normalized_person_name(person.get("name")) in alias_keys:
                         profile_url = person.get("photo_url") or person.get("photoUrl")
                         break
 
@@ -1240,6 +1319,7 @@ def get_person_projects(name: str, limit: int = 200) -> Dict[str, Any]:
             "known_for_department": known_for_department or "",
         },
         "projects": projects,
+        "credit_scope": scope,
     }
 
 

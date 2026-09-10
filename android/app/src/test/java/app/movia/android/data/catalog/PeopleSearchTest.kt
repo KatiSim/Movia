@@ -30,4 +30,21 @@ class PeopleSearchTest {
         assertTrue(person.knownFor.contains("Граница миров"))
         assertTrue(person.knownFor.contains("Город после дождя"))
     }
+    @Test
+    fun personFilmographyScopePreservesTappedProfession() {
+        assertEquals("actor", personCreditScope("Актёр"))
+        assertEquals("director", personCreditScope("Режиссёр"))
+        assertEquals("creator", personCreditScope("Создатели"))
+        assertEquals("all", personCreditScope(null))
+
+        val martaActorAndDirector = catalogTestItems.first { it.title == "Город после дождя" }
+        assertTrue(mediaMatchesPersonCredit(martaActorAndDirector, "Marta Soler", "actor"))
+        assertTrue(mediaMatchesPersonCredit(martaActorAndDirector, "Marta Soler", "director"))
+
+        val zeroOrbit = catalogTestItems.first { it.title == "Нулевая орбита" }
+        assertTrue(mediaMatchesPersonCredit(zeroOrbit, "Marta Soler", "actor"))
+        assertTrue(!mediaMatchesPersonCredit(zeroOrbit, "Marta Soler", "director"))
+        assertTrue(!mediaMatchesPersonCredit(zeroOrbit, "Lucía", "director"))
+    }
+
 }

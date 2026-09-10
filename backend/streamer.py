@@ -2799,7 +2799,10 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     self.wfile.write(b'{"error":"missing_name"}')
                 return
             limit = int(params.get("limit", [200])[0])
-            payload = catalog_api.get_person_projects(person_name, limit=limit)
+            credit_scope = params.get("credit_scope", ["all"])[0].strip()
+            payload = catalog_api.get_person_projects(
+                person_name, limit=limit, credit_scope=credit_scope
+            )
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Access-Control-Allow-Origin", "*")
