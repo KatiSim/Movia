@@ -3,6 +3,7 @@ import threading
 import tempfile
 import sqlite3
 import time
+from contextlib import nullcontext
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -57,7 +58,34 @@ class ResolverIdentityAndConcurrencyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         import streamer
+        import catalog_api
         cls.streamer = streamer
+        cls.catalog_api = catalog_api
+
+    def test_playback_card_is_local_only_and_skips_detail_enrichment(self):
+        conn = object()
+        row = object()
+        mapped = {"id": "217", "title": "Fast playback card", "streams": []}
+        with patch.object(self.catalog_api, "get_db", return_value=nullcontext(conn)), \
+                patch.object(self.catalog_api, "_lookup_movie_row", return_value=row) as lookup, \
+                patch.object(self.catalog_api, "map_row_to_media", return_value=mapped) as mapper, \
+                patch.object(self.catalog_api, "_refresh_authoritative_metadata_if_needed") as refresh, \
+                patch.object(self.catalog_api, "_enrich_tv_structure_if_needed") as enrich:
+            result = self.catalog_api.get_movie_playback_card("217")
+
+        self.assertEqual(result, mapped)
+        lookup.assert_called_once_with(conn, "217")
+        mapper.assert_called_once_with(row, compact=False)
+        refresh.assert_not_called()
+        enrich.assert_not_called()
+
+    def test_playback_route_helper_uses_fast_card_without_full_details(self):
+        fast = {"id": "217", "title": "Fast"}
+        with patch.object(self.streamer.catalog_api, "get_movie_playback_card", return_value=fast) as playback, \
+                patch.object(self.streamer.catalog_api, "get_movie_details") as details:
+            self.assertIs(self.streamer._catalog_playback_movie("217"), fast)
+            playback.assert_called_once_with("217")
+            details.assert_not_called()
 
     def test_stream_id_is_tracker_stable_and_voice_distinct(self):
         info_hash = "fedcba9876543210" * 2 + "fedcba98"

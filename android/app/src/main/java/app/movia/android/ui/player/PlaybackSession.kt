@@ -79,6 +79,8 @@ internal object MoviaPlaybackRegistry {
 
 private const val TAG = "MoviaPlayer"
 private const val STARTUP_WATCHDOG_MS = 5_000L
+private const val P2P_STARTUP_WATCHDOG_MS = 9_000L
+private const val P2P_WARM_RETRY_MIN_REMAINING_MS = 2_000L
 private const val ADJACENT_PREWARM_REMAINING_MS = 90_000L
 private const val RELOAD_TIMEOUT_MS = 3_000L
 private const val STALL_WATCHDOG_MS = 10_000L
@@ -389,6 +391,34 @@ internal fun playbackNotificationTitle(request: PlaybackRequest): String =
         request.title
     }
 
+internal fun startupWatchdogMsForCandidate(candidate: StreamCandidate): Long {
+    val transport = candidate.transport.trim().lowercase()
+    val rawUrl = candidate.url.trim()
+    val p2p = transport in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway") ||
+        rawUrl.startsWith("magnet:", ignoreCase = true) ||
+        rawUrl.contains("127.0.0.1:8888/stream", ignoreCase = true) ||
+        rawUrl.contains("localhost:8888/stream", ignoreCase = true)
+    return if (p2p) P2P_STARTUP_WATCHDOG_MS else STARTUP_WATCHDOG_MS
+}
+
+internal fun shouldRetryWarmedP2pCandidate(
+    candidate: StreamCandidate?,
+    reason: String,
+    remainingBudgetMs: Long,
+    alreadyRetried: Boolean,
+): Boolean {
+    val current = candidate ?: return false
+    if (alreadyRetried || reason != "STARTUP_TIMEOUT") return false
+    if (remainingBudgetMs < P2P_WARM_RETRY_MIN_REMAINING_MS) return false
+    val transport = current.transport.trim().lowercase()
+    val rawUrl = current.url.trim()
+    val p2p = transport in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway") ||
+        rawUrl.startsWith("magnet:", ignoreCase = true) ||
+        rawUrl.contains("127.0.0.1:8888/stream", ignoreCase = true) ||
+        rawUrl.contains("localhost:8888/stream", ignoreCase = true)
+    return p2p
+}
+
 internal fun shouldPrewarmAdjacentEpisode(
     request: PlaybackRequest?,
     status: PlaybackStatus,
@@ -452,6 +482,7 @@ class PlaybackSession(context: Context) {
     private val failedStreamIds = linkedSetOf<String>()
     private val problemTracker = StreamProblemTracker(maxEntries = MAX_PROBLEM_MEMORY)
     private val reloadAttemptedStreamIds = linkedSetOf<String>()
+    private val p2pWarmRetryStreamIds = linkedSetOf<String>()
     private var recoveryAttemptCount = 0
     private var recoveryAttemptBudget = 1
     private var watchdogJob: Job? = null
@@ -1093,7 +1124,7 @@ class PlaybackSession(context: Context) {
         val candidateId = candidate.stableStreamId
         watchdogJob = scope.launch {
             val remainingMs = remainingAttemptBudgetMs()
-            val candidateWaitMs = minOf(STARTUP_WATCHDOG_MS, remainingMs)
+            val candidateWaitMs = minOf(startupWatchdogMsForCandidate(candidate), remainingMs)
             if (candidateWaitMs > 0L) delay(candidateWaitMs)
             if (!isActive || !isCurrentGeneration(generation)) return@launch
             if (activeCandidate?.stableStreamId != candidateId) return@launch
@@ -1280,8 +1311,30 @@ class PlaybackSession(context: Context) {
             }
         }
 
-        // Reload was unavailable or failed. Only now apply the original failure
-        // to the problem memory, matching the verified Zona ordering.
+        // A cold P2P request often leaves TorrServer metadata/head pieces warm
+        // even when the first Media3 attempt misses the short startup watchdog.
+        // Retry the same logical candidate once inside the existing absolute READY
+        // budget before switching to another equally-cold torrent.
+        if (failed != null && request != null && shouldRetryWarmedP2pCandidate(
+                candidate = failed,
+                reason = reason,
+                remainingBudgetMs = remainingAttemptBudgetMs(),
+                alreadyRetried = p2pWarmRetryStreamIds.contains(failed.stableStreamId),
+            )
+        ) {
+            p2pWarmRetryStreamIds += failed.stableStreamId
+            _state.value = _state.value.copy(
+                statusMessage = "Повторяем прогретый P2P-поток...",
+                activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(
+                    source = failed.provider,
+                    fallbackReason = "P2P_WARM_RETRY",
+                ),
+            )
+            if (prepareCandidate(failed, request, resumePositionMs, generation)) return
+        }
+
+        // Reload/warm retry was unavailable or failed. Only now apply the
+        // original failure to problem memory before normal fallback ordering.
         recordFailure(failed, failureClass)
 
         val currentRequest = playbackRequest
@@ -1353,6 +1406,7 @@ class PlaybackSession(context: Context) {
         failedStreamIds.clear()
         problemTracker.reset()
         reloadAttemptedStreamIds.clear()
+        p2pWarmRetryStreamIds.clear()
         recoveryAttemptCount = 0
         candidates = emptyList()
         activeCandidate = null

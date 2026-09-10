@@ -77,6 +77,8 @@ TORRSERVER_URL = _validated_torrserver_base_url(
 )
 TORRSERVER_DISCOVERY_SECONDS = 2.25
 TORRSERVER_RPC_TIMEOUT_SECONDS = 0.75
+TORRSERVER_HEAD_PREBUFFER_BYTES = 1024 * 1024
+TORRSERVER_HEAD_PREBUFFER_TIMEOUT_SECONDS = 4.0
 # Keep this checkout self-contained. A release worker can copy the directory
 # as a unit without an accidental read/write through an old live absolute path.
 DIR = Path(__file__).resolve().parent
@@ -924,6 +926,131 @@ def _next_episode_from_catalog_counts(
     return None
 
 
+def _prewarm_resolved_torrent_streams(streams: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Prewarm bounded P2P metadata from already-resolved playback candidates."""
+    if CLOUD_MODE or not P2P_ENABLED:
+        return {"status": "P2P_DISABLED", "started": 0}
+    direct = [
+        item for item in streams
+        if str(item.get("url") or "").lower().startswith(("http://", "https://"))
+        and not str(item.get("url") or "").startswith(("http://127.0.0.1:", "http://localhost:"))
+    ]
+    if direct:
+        return {"status": "DIRECT_AVAILABLE", "started": 0}
+    ranked_magnets = [
+        stream for stream in rank_playback_streams(streams)
+        if str(stream.get("url") or "").lower().startswith("magnet:")
+    ]
+    started = 0
+    if _torrserver_enabled():
+        for stream in ranked_magnets[:TORRENT_ADJACENT_PREWARM_LIMIT]:
+            magnet = sanitize_magnet_uri(str(stream.get("url") or ""))
+            if magnet and _torrserver_add_magnet(magnet):
+                started += 1
+        if started:
+            return {"status": "PREWARMING_TORRSERVER", "started": started}
+
+    for stream in ranked_magnets:
+        if started >= TORRENT_ADJACENT_PREWARM_LIMIT:
+            break
+        try:
+            if _prewarm_torrent_metadata_candidate(stream):
+                started += 1
+        except Exception as exc:
+            print(f"[DEBUG] Torrent metadata prewarm error: {exc}")
+    return {"status": "PREWARMING" if started else "NO_P2P", "started": started}
+
+
+def _torrserver_prebuffer_exact_head(
+    stream: Dict[str, Any],
+    season: int,
+    episode: int,
+) -> int:
+    """Read at most one bounded head range for the exact episode file.
+
+    The request is intentionally small and background-only. It primes the same
+    TorrServer piece window Media3 will consume next; it never walks the full file.
+    """
+    if not _torrserver_enabled():
+        return 0
+    magnet = sanitize_magnet_uri(str(stream.get("url") or ""))
+    raw_hash = stream.get("info_hash") or stream.get("infoHash")
+    if not raw_hash:
+        match = re.search(r"xt=urn:btih:([a-zA-Z0-9]+)", magnet, re.IGNORECASE)
+        raw_hash = match.group(1) if match else ""
+    info_hash = _normalize_torrent_info_hash(raw_hash)
+    if not magnet or not re.fullmatch(r"[0-9a-f]{40}", info_hash):
+        return 0
+    play_url = _torrserver_prepare_episode_stream(
+        info_hash, magnet, season, episode,
+        timeout_sec=TORRSERVER_DISCOVERY_SECONDS,
+    )
+    if not play_url:
+        return 0
+    end = TORRSERVER_HEAD_PREBUFFER_BYTES - 1
+    request = urllib.request.Request(
+        play_url,
+        headers={
+            "Range": f"bytes=0-{end}",
+            "Accept": "*/*",
+            "Connection": "close",
+        },
+        method="GET",
+    )
+    total = 0
+    try:
+        with urllib.request.urlopen(
+            request, timeout=TORRSERVER_HEAD_PREBUFFER_TIMEOUT_SECONDS
+        ) as response:
+            while total < TORRSERVER_HEAD_PREBUFFER_BYTES:
+                chunk = response.read(min(64 * 1024, TORRSERVER_HEAD_PREBUFFER_BYTES - total))
+                if not chunk:
+                    break
+                total += len(chunk)
+    except Exception:
+        return total
+    return total
+
+
+def _prewarm_exact_resolved_streams(
+    streams: List[Dict[str, Any]],
+    season: int,
+    episode: int,
+) -> Dict[str, Any]:
+    result = _prewarm_resolved_torrent_streams(streams)
+    if result.get("status") == "DIRECT_AVAILABLE" or not _torrserver_enabled():
+        return result
+    ranked = [
+        item for item in rank_playback_streams(streams)
+        if str(item.get("url") or "").lower().startswith("magnet:")
+    ]
+    if ranked:
+        prebuffered = _torrserver_prebuffer_exact_head(ranked[0], season, episode)
+        result = dict(result)
+        result["headPrebufferBytes"] = prebuffered
+    return result
+
+
+def _schedule_exact_torrent_prewarm(
+    movie_id: Any,
+    season: Optional[int],
+    episode: Optional[int],
+    streams: List[Dict[str, Any]],
+) -> None:
+    """Give local P2P metadata a head start without delaying the stream API."""
+    if CLOUD_MODE or not P2P_ENABLED or season is None or episode is None or not streams:
+        return
+    snapshot = [dict(item) for item in streams if isinstance(item, dict)]
+    if not snapshot:
+        return
+    threading.Thread(
+        target=_prewarm_exact_resolved_streams,
+        args=(snapshot, season, episode),
+        daemon=True,
+        name=f"movia-exact-prewarm-{movie_id}-s{season}e{episode}",
+    ).start()
+
+
 def _prewarm_exact_episode_torrents(
     movie_obj: Dict[str, Any],
     season: int,
@@ -964,35 +1091,12 @@ def _prewarm_exact_episode_torrents(
         persist_resolved_streams_to_catalog(movie_obj.get("id"), streams)
     except Exception:
         pass
-    direct = [
-        item for item in streams
-        if str(item.get("url") or "").lower().startswith(("http://", "https://"))
-        and not str(item.get("url") or "").startswith("http://127.0.0.1:")
-    ]
-    if direct:
-        return {"status": "DIRECT_AVAILABLE", "started": 0}
-    ranked_magnets = [
-        stream for stream in rank_playback_streams(streams)
-        if str(stream.get("url") or "").lower().startswith("magnet:")
-    ]
-    started = 0
-    if _torrserver_enabled():
-        for stream in ranked_magnets[:TORRENT_ADJACENT_PREWARM_LIMIT]:
-            magnet = sanitize_magnet_uri(str(stream.get("url") or ""))
-            if magnet and _torrserver_add_magnet(magnet):
-                started += 1
-        if started:
-            return {"status": "PREWARMING_TORRSERVER", "started": started}
+    return _prewarm_exact_resolved_streams(streams, season, episode)
 
-    for stream in ranked_magnets:
-        if started >= TORRENT_ADJACENT_PREWARM_LIMIT:
-            break
-        try:
-            if _prewarm_torrent_metadata_candidate(stream):
-                started += 1
-        except Exception as exc:
-            print(f"[DEBUG] Adjacent torrent metadata prewarm error: {exc}")
-    return {"status": "PREWARMING" if started else "NO_P2P", "started": started}
+
+def _catalog_playback_movie(movie_id: Any) -> Optional[Dict[str, Any]]:
+    """Use a local-only card for playback; never trigger Details enrichment."""
+    return catalog_api.get_movie_playback_card(str(movie_id))
 
 
 def _prewarm_next_episode_for_movie_id(
@@ -1000,13 +1104,12 @@ def _prewarm_next_episode_for_movie_id(
     season: Optional[int],
     episode: Optional[int],
 ) -> Dict[str, Any]:
-    """Resolve catalog details off the HTTP request thread, then prewarm adjacent P2P."""
+    """Use the local playback card and prewarm the exact adjacent P2P file."""
     try:
-        details = catalog_api.get_movie_details(str(movie_id))
+        movie_obj = _catalog_playback_movie(movie_id)
     except Exception as exc:
         print(f"[DEBUG] Adjacent prewarm catalog lookup error: {exc}")
         return {"status": "CATALOG_ERROR", "started": 0}
-    movie_obj = (details or {}).get("movie") if isinstance(details, dict) else None
     if not isinstance(movie_obj, dict):
         return {"status": "MOVIE_NOT_FOUND", "started": 0}
     target = _next_episode_from_catalog_counts(movie_obj, season, episode)
@@ -1952,19 +2055,7 @@ def _torrent_declared_seasons(stream: Dict[str, Any]) -> Optional[set[int]]:
     if not (url.lower().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
         return None
 
-    texts = [
-        str(stream.get("name") or ""),
-        str(stream.get("title") or ""),
-        str(stream.get("release_name") or stream.get("releaseName") or ""),
-    ]
-    if url.lower().startswith("magnet:"):
-        try:
-            parsed = urllib.parse.urlsplit(url)
-            dn = urllib.parse.parse_qs(parsed.query).get("dn", [])
-            texts.extend(str(value) for value in dn)
-        except Exception:
-            pass
-    text = " ".join(value for value in texts if value).strip()
+    text = _torrent_release_identity_text(stream)
     if not text:
         return None
 
@@ -1996,6 +2087,80 @@ def _torrent_declared_seasons(stream: Dict[str, Any]) -> Optional[set[int]]:
             seasons.add(value)
 
     return seasons if declared and seasons else None
+
+
+def _torrent_release_identity_text(stream: Dict[str, Any]) -> str:
+    texts = [
+        str(stream.get("name") or ""),
+        str(stream.get("title") or ""),
+        str(stream.get("release_name") or stream.get("releaseName") or ""),
+    ]
+    url = str(stream.get("url") or "").strip()
+    if url.lower().startswith("magnet:"):
+        try:
+            texts.extend(
+                str(value)
+                for value in urllib.parse.parse_qs(
+                    urllib.parse.urlsplit(url).query
+                ).get("dn", [])
+            )
+        except Exception:
+            pass
+    return " ".join(value for value in texts if value).strip()
+
+
+def _retarget_reusable_multiseason_torrent_packs(
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    """Retarget stale per-episode annotations on an explicit multi-season pack.
+
+    Provider resolution historically persisted the same season pack after each
+    episode request, attaching that request's S/E to the shared magnet. Reusing
+    it for another season is safe only when the release explicitly advertises a
+    multi-season range and does not advertise one exact SxxEyy. The torrent
+    gateway still validates the requested episode against exact file paths.
+    """
+    if season is None or episode is None:
+        return [dict(item) for item in streams if isinstance(item, dict)]
+    target_season = int(season)
+    target_episode = int(episode)
+    result: List[Dict[str, Any]] = []
+    for raw in streams:
+        if not isinstance(raw, dict):
+            continue
+        item = dict(raw)
+        url = str(item.get("url") or "").strip()
+        if not url.lower().startswith("magnet:"):
+            result.append(item)
+            continue
+        declared = _torrent_declared_seasons(item)
+        release_text = _torrent_release_identity_text(item)
+        explicit_episode = bool(re.search(
+            r"(?i)\bS0*\d{1,2}\s*E0*\d{1,3}\b", release_text
+        ))
+        if (
+            declared is None
+            or len(declared) < 2
+            or target_season not in declared
+            or explicit_episode
+        ):
+            result.append(item)
+            continue
+        if (
+            _stream_part_number(item, "season") != target_season
+            or _stream_part_number(item, "episode") != target_episode
+        ):
+            item["season"] = target_season
+            item["episode"] = target_episode
+            for key in (
+                "file_index", "fileIndex", "file_path", "filePath",
+                "local_path", "localPath", "local_ready", "localReady",
+            ):
+                item.pop(key, None)
+        result.append(item)
+    return result
 
 
 def filter_streams_for_episode(
@@ -2231,6 +2396,7 @@ def _scope_streams_to_catalog_card(
     clean = sanitize_streams(streams, require_source=True)
     if not identity:
         return clean
+    clean = _retarget_reusable_multiseason_torrent_packs(clean, season, episode)
     try:
         from database import filter_streams_for_content
 
@@ -2870,9 +3036,16 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                         }, ensure_ascii=False).encode("utf-8"))
                     return
 
-                details = catalog_api.get_movie_details(movie_id)
-                if details and details.get("movie"):
-                    movie_obj = details["movie"]
+                # Exact playback uses the persisted local card only. Full Details
+                # may trigger metadata/TV-structure enrichment and recommendations,
+                # which must not consume the 10s playback READY budget.
+                details = None
+                if is_stream_request:
+                    movie_obj = _catalog_playback_movie(movie_id)
+                else:
+                    details = catalog_api.get_movie_details(movie_id)
+                    movie_obj = (details or {}).get("movie") if isinstance(details, dict) else None
+                if movie_obj:
                     if is_sequels_request:
                         sequels_list = details.get("sequels", [])
                         self.send_response(200)
@@ -2974,6 +3147,9 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                         if streams_list:
                             streams_list = rank_playback_streams(streams_list)
                             resolution_status = "RESULTS"
+                            _schedule_exact_torrent_prewarm(
+                                movie_obj.get("id"), season, episode, streams_list
+                            )
                         elif resolution_status != "ERROR":
                             resolution_status = "NO_RESULTS"
 

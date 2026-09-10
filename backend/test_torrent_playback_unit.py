@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import cache_pruner
 import streamer
+import torrent_resolver
 from streamer import episode_path_matches, parse_single_http_byte_range
 from stream_validation import (
     canonical_stream_locator,
@@ -108,6 +109,28 @@ class EpisodePatternMatchingTests(unittest.TestCase):
         self.assertIsNone(streamer._torrent_file_by_index(files, 1))
 
 
+class ReleaseSeasonRangeTests(unittest.TestCase):
+    def test_multiseason_release_range_covers_requested_season(self):
+        release = "Футурама / Futurama [S01-07 + Films] (1999-2013) WEB-DL 720p"
+        self.assertTrue(torrent_resolver._release_declares_season(release, 2))
+        self.assertTrue(torrent_resolver._release_matches_expected(
+            release, ["Футурама", "Futurama"], 1999, 2, 1
+        ))
+        self.assertFalse(torrent_resolver._release_declares_season(release, 8))
+        self.assertFalse(torrent_resolver._release_matches_expected(
+            release, ["Футурама", "Futurama"], 1999, 8, 1
+        ))
+
+    def test_exact_episode_release_cannot_match_another_episode(self):
+        release = "Futurama.S02E01.720p.WEB.H264"
+        self.assertTrue(torrent_resolver._release_matches_expected(
+            release, ["Futurama"], 1999, 2, 1
+        ))
+        self.assertFalse(torrent_resolver._release_matches_expected(
+            release, ["Futurama"], 1999, 2, 2
+        ))
+
+
 class EpisodeStreamScopingTests(unittest.TestCase):
     def test_torrent_pack_that_explicitly_excludes_requested_season_is_dropped(self):
         stale = {
@@ -148,6 +171,42 @@ class EpisodeStreamScopingTests(unittest.TestCase):
         }
         result = streamer.filter_streams_for_episode([direct], season=5, episode=6)
         self.assertEqual(["direct"], [item["stream_id"] for item in result])
+
+
+    def test_persisted_multiseason_pack_can_be_retargeted_to_covered_episode(self):
+        pack = {
+            "stream_id": "futurama-pack",
+            "source": "Rutor",
+            "url": "magnet:?xt=urn:btih:" + "d" * 40 + "&dn=Futurama+[S01-07]+720p",
+            "title": "Futurama [S01-07] 720p",
+            "season": 1,
+            "episode": 9,
+            "voice": "Дубляж",
+            "quality": "720p",
+        }
+        result = streamer._retarget_reusable_multiseason_torrent_packs(
+            [pack], season=2, episode=1
+        )
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["season"], 2)
+        self.assertEqual(result[0]["episode"], 1)
+
+    def test_single_episode_torrent_is_never_retargeted(self):
+        exact = {
+            "stream_id": "exact",
+            "source": "Apibay",
+            "url": "magnet:?xt=urn:btih:" + "e" * 40 + "&dn=Futurama.S02E01.720p",
+            "title": "Futurama.S02E01.720p",
+            "season": 2,
+            "episode": 1,
+            "voice": "Original",
+            "quality": "720p",
+        }
+        result = streamer._retarget_reusable_multiseason_torrent_packs(
+            [exact], season=2, episode=2
+        )
+        self.assertEqual(result[0]["episode"], 1)
+
 
 
 class ContainerAndMimeTypeTests(unittest.TestCase):

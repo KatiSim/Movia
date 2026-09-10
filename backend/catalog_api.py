@@ -916,34 +916,56 @@ def _refresh_authoritative_metadata_if_needed(conn: sqlite3.Connection, row: sql
     return row
 
 
+def _lookup_movie_row(conn: sqlite3.Connection, movie_id: str) -> Optional[sqlite3.Row]:
+    """Resolve one canonical catalog row without network/enrichment side effects."""
+    cur = conn.cursor()
+    # API ids emitted by Movia are local row ids. Prefer them deterministically;
+    # only then fall back to an unambiguous external TMDb id or exact title.
+    query_id = movie_id.replace("m_", "").strip()
+    row = None
+    if query_id.isdigit():
+        cur.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (int(query_id),))
+        row = cur.fetchone()
+    if row is None and query_id.isdigit():
+        external_rows = cur.execute(
+            "SELECT * FROM movies WHERE tmdb_id=? "
+            "AND media_type IN ('movie','tv') LIMIT 2",
+            (int(query_id),),
+        ).fetchall()
+        # An external id without media type is not enough to choose a
+        # canonical entity when the catalog contains both forms.
+        row = external_rows[0] if len(external_rows) == 1 else None
+    if row is None:
+        title_rows = cur.execute(
+            "SELECT * FROM movies WHERE localized_ru_title=? "
+            "OR original_title=? LIMIT 2",
+            (movie_id, movie_id),
+        ).fetchall()
+        row = title_rows[0] if len(title_rows) == 1 else None
+    if not row or not is_user_visible_row(dict(row)):
+        return None
+    return row
+
+
+def get_movie_playback_card(movie_id: str) -> Optional[Dict[str, Any]]:
+    """Return the persisted playback card only; never refresh metadata or recommendations.
+
+    Exact playback has a strict 10s READY budget. The full details path may do
+    TMDb metadata repair, TV-structure enrichment and recommendation queries,
+    which are useful for Details UI but must not sit on the playback critical path.
+    """
+    with get_db() as conn:
+        row = _lookup_movie_row(conn, movie_id)
+        if row is None:
+            return None
+        return map_row_to_media(row, compact=False)
+
+
 def get_movie_details(movie_id: str) -> Optional[Dict[str, Any]]:
     with get_db() as conn:
         cur = conn.cursor()
-        
-        # API ids emitted by Movia are local row ids. Prefer them deterministically;
-        # only then fall back to external TMDb id or exact title.
-        query_id = movie_id.replace("m_", "").strip()
-        row = None
-        if query_id.isdigit():
-            cur.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (int(query_id),))
-            row = cur.fetchone()
-        if row is None and query_id.isdigit():
-            external_rows = cur.execute(
-                "SELECT * FROM movies WHERE tmdb_id=? "
-                "AND media_type IN ('movie','tv') LIMIT 2",
-                (int(query_id),),
-            ).fetchall()
-            # An external id without media type is not enough to choose a
-            # canonical entity when the catalog contains both forms.
-            row = external_rows[0] if len(external_rows) == 1 else None
+        row = _lookup_movie_row(conn, movie_id)
         if row is None:
-            title_rows = cur.execute(
-                "SELECT * FROM movies WHERE localized_ru_title=? "
-                "OR original_title=? LIMIT 2",
-                (movie_id, movie_id),
-            ).fetchall()
-            row = title_rows[0] if len(title_rows) == 1 else None
-        if not row or not is_user_visible_row(dict(row)):
             return None
         row = _repair_media_type_if_ambiguous(conn, row)
         row = _refresh_authoritative_metadata_if_needed(conn, row)

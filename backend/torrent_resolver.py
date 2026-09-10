@@ -312,6 +312,39 @@ def _strip_release_noise(value: str) -> str:
     return " ".join(t for t in tokens if t not in noise)
 
 
+def _release_declares_season(release_name: str, season: int) -> bool:
+    """Return True only when release metadata explicitly covers ``season``.
+
+    Supports exact episode/season markers and bounded season ranges such as
+    ``S01-07``, ``S01-S07`` and ``Сезоны 1-7``. This is identity metadata only;
+    playback still selects an exact episode file from the torrent.
+    """
+    raw = str(release_name or "")
+    target = int(season)
+    if target <= 0:
+        return False
+
+    for match in re.finditer(
+        r"(?i)\bS0*(\d{1,2})\s*[-–—]\s*S?0*(\d{1,2})(?!\d)", raw
+    ):
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= target <= end <= 99:
+            return True
+    for match in re.finditer(
+        r"(?i)\bсезон(?:ы|а|ов)?\s*0*(\d{1,2})\s*[-–—]\s*0*(\d{1,2})(?!\d)", raw
+    ):
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= target <= end <= 99:
+            return True
+
+    exact_patterns = (
+        rf"(?i)\bS0*{target}(?=\b|E0*\d)",
+        rf"(?i)\bseason\s*0*{target}\b",
+        rf"(?i)\bсезон\s*0*{target}\b",
+    )
+    return any(re.search(pattern, raw) for pattern in exact_patterns)
+
+
 def _release_matches_expected(
     release_name: str,
     expected_titles: List[str],
@@ -343,11 +376,12 @@ def _release_matches_expected(
     low = _normalize_release_text(raw)
     if season is not None:
         season_value = int(season)
-        season_patterns = [
-            rf"\bs0*{season_value}\b",
-            rf"\bseason\s*0*{season_value}\b",
-            rf"\bсезон\s*0*{season_value}\b",
-        ]
+        has_explicit_season = bool(re.search(
+            r"(?i)\bS0*\d{1,2}(?=\b|E0*\d)|\bseason\s*0*\d{1,2}\b|\bсезон(?:ы|а|ов)?\s*0*\d{1,2}\b",
+            raw,
+        ))
+        if has_explicit_season and not _release_declares_season(raw, season_value):
+            return False
         if episode is not None:
             episode_value = int(episode)
             episode_patterns = [
@@ -360,10 +394,6 @@ def _release_matches_expected(
                 re.search(pattern, low) for pattern in episode_patterns
             ):
                 return False
-        if re.search(r"\bs\d{1,2}\b", low) and not any(
-            re.search(pattern, low) for pattern in season_patterns
-        ):
-            return False
 
     for title in expected_titles:
         if title and _release_has_expected_title(raw, title):

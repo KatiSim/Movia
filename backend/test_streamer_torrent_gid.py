@@ -324,20 +324,142 @@ class TorrentGidTests(unittest.TestCase):
         self.assertNotIn("select-file", options)
         self.assertIn(gid, STREAMER._TORRENT_METADATA_GIDS)
 
-    def test_adjacent_prewarm_worker_moves_catalog_lookup_off_request_path(self):
-        details = {
-            "movie": {
-                "id": 217,
-                "seasonEpisodeCounts": [9, 20],
+    def test_resolved_prewarm_skips_p2p_when_direct_source_exists(self):
+        streams = [
+            {"url": "https://media.example.test/episode.m3u8"},
+            {"url": f"magnet:?xt=urn:btih:{INFO_HASH}", "info_hash": INFO_HASH},
+        ]
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER, "_torrserver_add_magnet") as add:
+            result = STREAMER._prewarm_resolved_torrent_streams(streams)
+
+        self.assertEqual(result, {"status": "DIRECT_AVAILABLE", "started": 0})
+        add.assert_not_called()
+
+    def test_resolved_prewarm_prefers_torrserver_and_limits_candidates(self):
+        streams = [
+            {
+                "url": f"magnet:?xt=urn:btih:{i:040x}",
+                "info_hash": f"{i:040x}",
+                "seeders": 100 - i,
             }
+            for i in range(1, 6)
+        ]
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER, "_torrserver_enabled", return_value=True), \
+                patch.object(STREAMER, "_torrserver_add_magnet", return_value=True) as add:
+            result = STREAMER._prewarm_resolved_torrent_streams(streams)
+
+        self.assertEqual(result, {"status": "PREWARMING_TORRSERVER", "started": 3})
+        self.assertEqual(add.call_count, STREAMER.TORRENT_ADJACENT_PREWARM_LIMIT)
+
+    def test_torrserver_exact_head_prebuffer_is_capped_to_one_megabyte(self):
+        # Deliberately omit info_hash so the helper must derive BTIH from magnet.
+        stream = {
+            "url": f"magnet:?xt=urn:btih:{INFO_HASH}",
         }
-        catalog_stub = type("CatalogStub", (), {"get_movie_details": staticmethod(lambda movie_id: details)})()
-        with patch.object(STREAMER, "catalog_api", catalog_stub), \
+
+        class FakeResponse:
+            def __init__(self):
+                self.remaining = STREAMER.TORRSERVER_HEAD_PREBUFFER_BYTES * 2
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def read(self, size):
+                if self.remaining <= 0:
+                    return b""
+                n = min(size, self.remaining)
+                self.remaining -= n
+                return b"x" * n
+
+        captured = []
+        def fake_urlopen(request, timeout=None):
+            captured.append((request, timeout))
+            return FakeResponse()
+
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER, "TORRSERVER_URL", "http://127.0.0.1:18090"), \
+                patch.object(STREAMER, "_torrserver_prepare_episode_stream", return_value=f"http://127.0.0.1:18090/play/{INFO_HASH}/13"), \
+                patch.object(STREAMER.urllib.request, "urlopen", side_effect=fake_urlopen):
+            total = STREAMER._torrserver_prebuffer_exact_head(stream, 1, 9)
+
+        self.assertEqual(total, STREAMER.TORRSERVER_HEAD_PREBUFFER_BYTES)
+        self.assertEqual(len(captured), 1)
+        request, timeout = captured[0]
+        self.assertEqual(
+            request.headers.get("Range"),
+            f"bytes=0-{STREAMER.TORRSERVER_HEAD_PREBUFFER_BYTES - 1}",
+        )
+        self.assertEqual(timeout, STREAMER.TORRSERVER_HEAD_PREBUFFER_TIMEOUT_SECONDS)
+
+    def test_exact_resolved_prewarm_prebuffers_only_top_ranked_torrent(self):
+        streams = [
+            {"url": f"magnet:?xt=urn:btih:{1:040x}", "info_hash": f"{1:040x}", "seeders": 20},
+            {"url": f"magnet:?xt=urn:btih:{2:040x}", "info_hash": f"{2:040x}", "seeders": 10},
+        ]
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER, "_torrserver_enabled", return_value=True), \
+                patch.object(STREAMER, "_prewarm_resolved_torrent_streams", return_value={"status": "PREWARMING_TORRSERVER", "started": 2}), \
+                patch.object(STREAMER, "_torrserver_prebuffer_exact_head", return_value=524288) as prebuffer:
+            result = STREAMER._prewarm_exact_resolved_streams(streams, 1, 9)
+
+        self.assertEqual(result["headPrebufferBytes"], 524288)
+        prebuffer.assert_called_once()
+        selected = prebuffer.call_args.args[0]
+        self.assertEqual(selected["info_hash"], f"{1:040x}")
+        self.assertEqual(prebuffer.call_args.args[1:], (1, 9))
+
+    def test_exact_prewarm_scheduler_is_async_and_respects_p2p_policy(self):
+        streams = [{"url": f"magnet:?xt=urn:btih:{INFO_HASH}", "info_hash": INFO_HASH}]
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER.threading, "Thread") as thread_cls:
+            STREAMER._schedule_exact_torrent_prewarm(217, 1, 9, streams)
+            thread_cls.assert_called_once()
+            thread_cls.return_value.start.assert_called_once_with()
+
+        with patch.object(STREAMER, "CLOUD_MODE", True), \
+                patch.object(STREAMER.threading, "Thread") as thread_cls:
+            STREAMER._schedule_exact_torrent_prewarm(217, 1, 9, streams)
+            thread_cls.assert_not_called()
+
+    def test_adjacent_prewarm_worker_uses_local_playback_card(self):
+        movie = {
+            "id": 217,
+            "seasonEpisodeCounts": [9, 20],
+        }
+        with patch.object(STREAMER, "_catalog_playback_movie", return_value=movie) as lookup, \
                 patch.object(STREAMER, "_prewarm_exact_episode_torrents", return_value={"status": "PREWARMING", "started": 1}) as prewarm:
             result = STREAMER._prewarm_next_episode_for_movie_id("217", 1, 9)
 
-        prewarm.assert_called_once_with(details["movie"], 2, 1)
+        lookup.assert_called_once_with("217")
+        prewarm.assert_called_once_with(movie, 2, 1)
         self.assertEqual(result, {"status": "PREWARMING", "started": 1})
+
+    def test_adjacent_episode_prewarm_primes_exact_episode_head(self):
+        movie = {
+            "id": 217,
+            "title": "Футурама",
+            "original_title": "Futurama",
+            "year": 1999,
+            "mediaType": "tv",
+        }
+        streams = [{"url": f"magnet:?xt=urn:btih:{INFO_HASH}", "info_hash": INFO_HASH}]
+        with patch.object(STREAMER, "CLOUD_MODE", False), \
+                patch.object(STREAMER, "P2P_ENABLED", True), \
+                patch.object(STREAMER, "resolve_on_demand_streams", return_value=streams), \
+                patch.object(STREAMER, "filter_streams_for_episode", return_value=streams), \
+                patch.object(STREAMER, "persist_resolved_streams_to_catalog"), \
+                patch.object(STREAMER, "_prewarm_exact_resolved_streams", return_value={"status": "PREWARMING_TORRSERVER", "started": 1, "headPrebufferBytes": 1048576}) as exact:
+            result = STREAMER._prewarm_exact_episode_torrents(movie, 2, 1)
+
+        exact.assert_called_once_with(streams, 2, 1)
+        self.assertEqual(result["headPrebufferBytes"], 1048576)
 
     def test_next_episode_uses_only_real_catalog_counts_and_crosses_season_boundary(self):
         movie = {"seasonEpisodeCounts": [9, 20, 0, 12]}

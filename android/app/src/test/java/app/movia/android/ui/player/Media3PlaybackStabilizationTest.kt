@@ -132,6 +132,39 @@ class Media3PlaybackStabilizationTest {
         assertEquals(2, openAttempts)
     }
     @Test
+    fun p2pStartupGetsNineSecondWatchdogWhileDirectRemainsFiveSeconds() {
+        val p2p = testCandidate(
+            id = "torrent-cold",
+            url = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567",
+        ).copy(transport = "torrent_p2p")
+        assertEquals(9_000L, startupWatchdogMsForCandidate(p2p))
+        assertEquals(5_000L, startupWatchdogMsForCandidate(testCandidate()))
+    }
+
+    @Test
+    fun coldP2pStartupRetriesSameCandidateOnceWithinRemainingReadyBudget() {
+        val p2p = testCandidate(
+            id = "torrent-e9",
+            url = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567",
+        ).copy(transport = "torrent_p2p")
+        assertTrue(shouldRetryWarmedP2pCandidate(
+            p2p, "STARTUP_TIMEOUT", remainingBudgetMs = 4_000L, alreadyRetried = false,
+        ))
+        assertFalse(shouldRetryWarmedP2pCandidate(
+            p2p, "STARTUP_TIMEOUT", remainingBudgetMs = 1_999L, alreadyRetried = false,
+        ))
+        assertFalse(shouldRetryWarmedP2pCandidate(
+            p2p, "STARTUP_TIMEOUT", remainingBudgetMs = 4_000L, alreadyRetried = true,
+        ))
+        assertFalse(shouldRetryWarmedP2pCandidate(
+            p2p, "BUFFERING_TIMEOUT", remainingBudgetMs = 4_000L, alreadyRetried = false,
+        ))
+        assertFalse(shouldRetryWarmedP2pCandidate(
+            testCandidate(), "STARTUP_TIMEOUT", remainingBudgetMs = 4_000L, alreadyRetried = false,
+        ))
+    }
+
+    @Test
     fun adjacentPrewarmTriggersOnlyNearEndOnceForRealSeriesEpisode() {
         val request = app.movia.android.domain.playback.PlaybackRequest(
             mediaId = "217",
