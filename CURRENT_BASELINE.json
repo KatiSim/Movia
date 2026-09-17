@@ -1,0 +1,23 @@
+{
+  "project": "Movia",
+  "package": "app.movia.android",
+  "versionName": "0.9.32",
+  "versionCode": 302,
+  "canonicalRef": "refs/tags/v0.9.32",
+  "sourceRoot": "/data/data/com.termux/files/home/projects/movia",
+  "buildApkPath": "app/build/outputs/apk/debug/app-debug.apk",
+  "installedApkSha256": "8c608bf16f5798b388200e9b4334c249ae8e751765ee66063559632021d9d4c0",
+  "createdAt": "2026-09-17T08:30:00+02:00",
+  "status": "canonical-approved",
+  "verification": {
+    "assembleDebug": "PASS",
+    "install": "PASS",
+    "installedHashMatch": "PASS"
+  },
+  "repositoryPolicy": {
+    "historicalBackupFilesInTip": false,
+    "oldApksInGit": false,
+    "runtimeDiagnosticsInGit": false,
+    "secretsInGit": false
+  }
+}
