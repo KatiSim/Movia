@@ -33,4 +33,17 @@ class EpisodeNavigationTest {
         assertEquals(3, result?.season)
         assertEquals(5, result?.episode)
     }
+
+    @Test fun unknownSeasonDoesNotInventTenEpisodes() {
+        assertNull(MediaRef("show", 1, 1).nextEpisode(emptyList()))
+        assertNull(MediaRef("show", 1, 1).previousEpisode(emptyList()))
+    }
+    @Test fun emptySeasonsAreSkippedInBothDirections() {
+        assertEquals(MediaRef("show", 3, 1), MediaRef("show", 1, 2).nextEpisode(listOf(2, 0, 3)))
+        assertEquals(MediaRef("show", 1, 2), MediaRef("show", 3, 1).previousEpisode(listOf(2, 0, 3)))
+    }
+    @Test fun outOfRangeEpisodeCannotAdvanceToAnotherContent() {
+        assertNull(MediaRef("show", 1, 12).nextEpisode(listOf(2)))
+        assertNull(MediaRef("show", 1, 12).previousEpisode(listOf(2)))
+    }
 }

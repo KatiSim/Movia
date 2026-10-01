@@ -1,8 +1,11 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package app.movia.android.ui.player
 
 import android.content.Context
 import android.net.Uri
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -23,12 +26,16 @@ import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.session.MediaSession
 import app.movia.android.domain.model.ActiveStreamSelection
+import app.movia.android.domain.model.MediaRef
+import app.movia.android.data.download.OfflineMediaStore
+import androidx.media3.datasource.cache.SimpleCache
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.PlaybackState
 import app.movia.android.domain.model.PlaybackStatus
 import app.movia.android.domain.model.PlaybackSwitchState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.sameRequestedVariant
+import app.movia.android.domain.legacy.LegacyPlaybackResolver
 import app.movia.android.domain.playback.DomainPlaybackResolver
 import app.movia.android.domain.playback.PlaybackRequest
 import app.movia.android.domain.playback.PlaybackResolverResult
@@ -45,6 +52,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -181,11 +190,15 @@ class DynamicHeaderDataSourceFactory(
     @Volatile
     private var requestProfile = StreamRequestProfile(userAgent = userAgent)
 
+    @Volatile private var offlineFactory: DataSource.Factory? = null
+
+    fun setOfflineFactory(factory: DataSource.Factory?) { offlineFactory = factory }
+
     fun setRequestProfile(profile: StreamRequestProfile) {
         requestProfile = profile
     }
 
-    override fun createDataSource(): DataSource = DynamicHeaderDataSource(
+    override fun createDataSource(): DataSource = offlineFactory?.createDataSource() ?: DynamicHeaderDataSource(
         context.applicationContext,
         requestProfile,
     )
@@ -215,7 +228,12 @@ class DynamicHeaderDataSource(
             if (headers.none { it.key.equals("accept", ignoreCase = true) }) {
                 headers["Accept"] = "*/*"
             }
-            val httpFactory = DefaultHttpDataSource.Factory()
+            val httpFactory: androidx.media3.datasource.HttpDataSource.Factory = if (requestProfile.publicNetworkOnly) {
+                androidx.media3.datasource.okhttp.OkHttpDataSource.Factory(
+                    app.movia.android.domain.legacy.LegacyMediaHttp.client(requestProfile))
+                    .setUserAgent(requestProfile.userAgent)
+                    .setDefaultRequestProperties(headers)
+            } else DefaultHttpDataSource.Factory()
                 .setUserAgent(requestProfile.userAgent)
                 .setAllowCrossProtocolRedirects(true)
                 .setConnectTimeoutMs(5_000)
@@ -289,6 +307,29 @@ class PlaybackSession(context: Context) {
     private val _streamOptions = MutableStateFlow<List<StreamOption>>(emptyList())
     val streamOptions: StateFlow<List<StreamOption>> = _streamOptions.asStateFlow()
 
+    private val _choices = MutableStateFlow(PlaybackChoices())
+    val choices: StateFlow<PlaybackChoices> = _choices.asStateFlow()
+    var recordHistory: Boolean = true
+        private set
+    private var requestedVideoQuality: String = "Auto"
+    private var userSelectedAutoQuality = false
+    private var userSelectedAutoAudio = false
+    private var requestedAudioTrack: String? = null
+    private var desiredPlayWhenReady = false
+    private var frameProbe: PlaybackFrameProbe? = null
+    val probeFrames: Long get() = frameProbe?.frames ?: 0L
+    fun setFrameProbe(enabled: Boolean) {
+        require(appContext.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) { "Probe requires a debug build" }
+        frameProbe?.close()
+        frameProbe = if (enabled) PlaybackFrameProbe(player) else null
+    }
+    private var feedbackGeneration = -1L
+    private var requestStartedMs = 0L
+    var readyLatencyMs: Long? = null
+        private set
+    var firstFrameLatencyMs: Long? = null
+        private set
+
     private var playbackGeneration = 0L
     private var playbackRequest: PlaybackRequest? = null
     private var candidates: List<StreamCandidate> = emptyList()
@@ -302,11 +343,14 @@ class PlaybackSession(context: Context) {
     private var watchdogJob: Job? = null
     private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
+    private var discoveryJob: Job? = null
+    private var webResolveJob: Job? = null
     private var appliedTrackSelectionKey: String? = null
 
     // Compatibility getters; state and candidate metadata remain authoritative.
     val activeTitle: String? get() = _state.value.displayTitle.takeIf { _state.value.hasMedia }
     val activeSourceUri: String? get() = activeConsumedUri
+    val isOffline: Boolean get() = activeCandidate?.provider == "offline"
     val isPlaying: Boolean get() = _state.value.isPlaying
     val playWhenReady: Boolean get() = _state.value.playWhenReady
     val playbackState: Int
@@ -333,6 +377,7 @@ class PlaybackSession(context: Context) {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_READY -> {
+                        if (readyLatencyMs == null && requestStartedMs > 0L) readyLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
                         watchdogJob?.cancel()
                         stallWatchdogJob?.cancel()
                     }
@@ -350,10 +395,20 @@ class PlaybackSession(context: Context) {
 
             override fun onTracksChanged(tracks: Tracks) {
                 applyCandidateTrackOverrides(tracks)
+                applyUserTrackPreferences(tracks)
                 publishSnapshot()
             }
 
+            override fun onRenderedFirstFrame() {
+                if (firstFrameLatencyMs == null && requestStartedMs > 0L) {
+                    firstFrameLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
+                }
+                publishSnapshot()
+                recordNativeFirstFrame()
+            }
+
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                desiredPlayWhenReady = playWhenReady
                 if (!playWhenReady) {
                     stallWatchdogJob?.cancel()
                 } else if (player.playbackState == Player.STATE_BUFFERING) {
@@ -390,7 +445,125 @@ class PlaybackSession(context: Context) {
         }
     }
 
+    /** Provider voices and Media3 tracks are separate identity spaces. */
+    fun selectVideoQuality(value: String): Boolean {
+        val quality = value.trim()
+        userSelectedAutoQuality = quality.equals("Auto", true)
+        val tracks = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
+        val wantedHeight = qualityHeight(quality)
+        if (quality.equals("Auto", true) || tracks.video.any { it.height == wantedHeight }) {
+            requestedVideoQuality = if (quality.equals("Auto", true)) "Auto" else quality
+            _state.value = _state.value.copy(activeStreamSelection =
+                (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedQuality = requestedVideoQuality, fallbackReason = null))
+            applyUserTrackPreferences(player.currentTracks)
+            publishSnapshot()
+            return true
+        }
+        val voice = _state.value.activeStreamSelection?.activeVoice
+        val option = streamOptions.value.firstOrNull {
+            qualityHeight(it.quality) == wantedHeight && (voice.isNullOrBlank() || it.voice.equals(voice, true))
+        } ?: return false
+        requestedVideoQuality = quality
+        switchToStream(option)
+        return true
+    }
+
+    fun selectVoice(value: String): Boolean {
+        val voice = value.trim()
+        userSelectedAutoAudio = voice.equals("Auto", true)
+        if (voice.equals("Auto", true)) {
+            requestedAudioTrack = null
+            _state.value = _state.value.copy(activeStreamSelection =
+                (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = "Auto"))
+            applyUserTrackPreferences(player.currentTracks)
+            publishSnapshot()
+            return true
+        }
+        val option = StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
+        if (option != null && option.voice.equals(voice, true)) {
+            requestedAudioTrack = null
+            if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option)
+            _state.value = _state.value.copy(activeStreamSelection =
+                (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = voice, requestedQuality = requestedVideoQuality))
+            publishSnapshot()
+            return true
+        }
+        val choice = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0).audio
+            .firstOrNull { it.id == voice || it.label.equals(voice, true) } ?: return false
+        requestedAudioTrack = choice.id
+        _state.value = _state.value.copy(audioTrackId = choice.id, activeStreamSelection =
+            (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = choice.label))
+        applyUserTrackPreferences(player.currentTracks)
+        publishSnapshot()
+        return true
+    }
+
+    private fun applyUserTrackPreferences(tracks: Tracks) {
+        val choices = playbackChoices(tracks, player.videoFormat?.height ?: 0)
+        val builder = player.trackSelectionParameters.buildUpon()
+        if (requestedVideoQuality == "Auto") {
+            // Respect a provider's explicit video index unless the user chose Auto.
+            if (userSelectedAutoQuality || activeCandidate?.videoTrackIndex == null) builder.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+        } else {
+            val track = choices.video.firstOrNull { it.height == qualityHeight(requestedVideoQuality) }
+            if (track != null) builder.setOverrideForType(track.override)
+            else if (choices.video.isNotEmpty()) {
+                _state.value = _state.value.copy(activeStreamSelection =
+                    (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(fallbackReason = "QUALITY_UNAVAILABLE_FOR_VOICE"))
+            }
+        }
+        if (requestedAudioTrack == null && (userSelectedAutoAudio || activeCandidate?.audioTrackIndex == null)) builder.clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+        requestedAudioTrack?.let { wanted ->
+            choices.audio.firstOrNull { it.id == wanted || it.label.equals(wanted, true) }?.let {
+                builder.setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false).setOverrideForType(it.override)
+            }
+        }
+        val parameters = builder.build()
+        if (parameters != player.trackSelectionParameters) player.trackSelectionParameters = parameters
+    }
+
+    private fun recordNativeFirstFrame() {
+        val candidate = activeCandidate ?: return
+        val request = playbackRequest ?: return
+        val isLegacy = candidate.transportMetadata["legacy_engine"] == "3.466"
+        val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() }
+        if (sourceId == null && !isLegacy) return
+        if (feedbackGeneration == playbackGeneration || isOffline) return
+        feedbackGeneration = playbackGeneration
+        val observation = org.json.JSONObject().put("sourceId", sourceId)
+            .put("startupLatencyMs", firstFrameLatencyMs ?: readyLatencyMs ?: 0L)
+            .put("actualQuality", player.videoFormat?.height?.takeIf { it > 0 }?.let { "${it}p" } ?: "Auto")
+            .put("actualQualities", org.json.JSONArray(choices.value.video.map { it.label }))
+            .put("actualAudioTracks", org.json.JSONArray().apply { choices.value.audio.forEach {
+                put(org.json.JSONObject().put("label", it.label).put("language", it.language ?: "und"))
+            } })
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val token = java.io.File(appContext.filesDir, "agent/movia-agent.token").readText().trim()
+                val endpoint = if (isLegacy) "legacy-media3-success" else "media3-success"
+                val payload = if (isLegacy) {
+                    val facts = org.json.JSONObject(observation.toString()).apply { remove("sourceId") }
+                    LegacyPlaybackResolver.firstFramePayload(candidate, request, facts)
+                } else observation
+                val connection = java.net.URL("http://127.0.0.1:8888/internal/playback-availability/$endpoint").openConnection() as java.net.HttpURLConnection
+                try {
+                    connection.requestMethod = "POST"
+                    connection.connectTimeout = 2000
+                    connection.readTimeout = 3000
+                    connection.doOutput = true
+                    connection.setRequestProperty("Content-Type", "application/json")
+                    connection.setRequestProperty("Authorization", "Bearer " + token)
+                    connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
+                    connection.inputStream.use { it.readBytes() }
+                } finally { connection.disconnect() }
+            }
+        }
+    }
+
     private fun nextPlaybackGeneration(): Long {
+        requestStartedMs = SystemClock.elapsedRealtime()
+        readyLatencyMs = null
+        firstFrameLatencyMs = null
         playbackGeneration += 1L
         return playbackGeneration
     }
@@ -458,7 +631,11 @@ class PlaybackSession(context: Context) {
     }
 
     private fun publishCandidateOptions() {
-        _streamOptions.value = candidates.map(StreamCandidate::toStreamOption)
+        // StreamOption has no problematic flag. Filter before converting so
+        // a voice/quality choice cannot repeatedly pick its known failed URL.
+        _streamOptions.value = candidates.filter {
+            !it.isProblematic && it.stableStreamId !in failedStreamIds
+        }.map(StreamCandidate::toStreamOption)
     }
 
     private fun requestContext(request: PlaybackRequest): StreamRankingContext =
@@ -680,7 +857,13 @@ class PlaybackSession(context: Context) {
         request: PlaybackRequest,
         candidate: StreamCandidate,
         consumedUri: String,
-    ): MediaItem = MediaItem.Builder()
+    ): MediaItem {
+        if (candidate.provider == "offline") {
+            val ref = MediaRef(request.mediaId, request.seasonNumber, request.episodeNumber)
+            val downloaded = OfflineMediaStore.request(appContext, ref) ?: error("Offline metadata missing")
+            return downloaded.toMediaItem().buildUpon().setMediaId(request.mediaId).build()
+        }
+        return MediaItem.Builder()
         .setMediaId(request.mediaId)
         .setUri(consumedUri)
         .apply {
@@ -698,6 +881,7 @@ class PlaybackSession(context: Context) {
             }
         }
         .build()
+    }
 
     private fun startWatchdog(
         candidate: StreamCandidate,
@@ -745,10 +929,41 @@ class PlaybackSession(context: Context) {
         generation: Long,
     ): Boolean {
         if (!isCurrentGeneration(generation)) return false
+        webResolveJob?.cancel()
+        webResolveJob = null
+        if (candidate.transportMetadata["legacy_web_player"] == "true") {
+            player.stop()
+            player.clearMediaItems()
+            activeCandidate = candidate
+            activeConsumedUri = null
+            _state.value = _state.value.copy(status = PlaybackStatus.BUFFERING,
+                switchState = PlaybackSwitchState.CONNECTING, statusMessage = "Открываем источник…",
+                currentPositionMs = resumePositionMs.coerceAtLeast(0))
+            webResolveJob = scope.launch {
+                val resolved = try { LegacyPlaybackResolver.playable(appContext, candidate) }
+                catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { null }
+                if (!isCurrentGeneration(generation)) return@launch
+                webResolveJob = null
+                if (resolved == null) {
+                    handleCandidateFailure("WEB_RESOLUTION_FAILED", resumePositionMs, generation)
+                } else {
+                    replaceCandidate(candidate, resolved)
+                    if (!prepareCandidate(resolved, request, resumePositionMs, generation)) {
+                        handleCandidateFailure("WEB_PREPARE_FAILED", resumePositionMs, generation)
+                    }
+                }
+            }
+            publishSnapshot()
+            return true
+        }
         val uri = consumedUri(candidate, request) ?: return false
         stallWatchdogJob?.cancel()
         activeCandidate = candidate
         activeConsumedUri = uri
+        dataSourceFactory.setOfflineFactory(if (candidate.provider == "offline") {
+            OfflineMediaStore.playbackFactory(appContext, MediaRef(request.mediaId, request.seasonNumber, request.episodeNumber))
+        } else null)
         dataSourceFactory.setRequestProfile(StreamRequestProfile.from(candidate, uri))
         val previousSwitchState = _state.value.switchState
         val preparationState = when (previousSwitchState) {
@@ -781,8 +996,10 @@ class PlaybackSession(context: Context) {
             player.setMediaItem(buildMediaItem(request, candidate, uri))
             player.prepare()
             if (resumePositionMs > 0L) player.seekTo(resumePositionMs)
-            player.playWhenReady = true
-            player.play()
+            // Preparing another URL must preserve the user's pause intent.
+            // New media starts set this intent before discovery; pause/play
+            // can change it while a web source is still being resolved.
+            player.playWhenReady = desiredPlayWhenReady
             startWatchdog(candidate, resumePositionMs, generation)
             publishSnapshot()
             true
@@ -792,13 +1009,33 @@ class PlaybackSession(context: Context) {
         }
     }
 
-    private fun nextHealthyCandidates(request: PlaybackRequest): List<StreamCandidate> =
-        StreamRanker.fallbackOrder(
+    private fun isP2pCandidate(candidate: StreamCandidate): Boolean {
+        val transport = candidate.transport.trim().lowercase()
+        return candidate.url.startsWith("magnet:", ignoreCase = true) ||
+            transport in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway")
+    }
+
+    private fun nextHealthyCandidates(
+        request: PlaybackRequest,
+        excludeStreamId: String? = null,
+        preferNonP2p: Boolean = false,
+    ): List<StreamCandidate> {
+        val ordered = StreamRanker.fallbackOrder(
             candidates = candidates,
             context = requestContext(request),
         ).filter {
-            !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic
+            it.stableStreamId != excludeStreamId &&
+                !failedStreamIds.contains(it.stableStreamId) &&
+                !it.isProblematic
         }
+        return if (preferNonP2p) {
+            // After a cold P2P network timeout, try an already-resolved direct/HLS source
+            // before burning another watchdog window on a second cold torrent candidate.
+            ordered.sortedBy { if (isP2pCandidate(it)) 1 else 0 }
+        } else {
+            ordered
+        }
+    }
 
     private fun failPlayback(reason: String) {
         watchdogJob?.cancel()
@@ -853,13 +1090,10 @@ class PlaybackSession(context: Context) {
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
             val refreshed = withTimeoutOrNull(RELOAD_TIMEOUT_MS) {
-                DomainPlaybackResolver.reloadStreamCandidate(
-                    failed,
-                    request.copy(
-                        startPositionMs = resumePositionMs.coerceAtLeast(0L),
-                        attempt = request.attempt + 1,
-                    ),
-                )
+                val refreshRequest = request.copy(startPositionMs = resumePositionMs.coerceAtLeast(0L), attempt = request.attempt + 1)
+                if (failed.transportMetadata["legacy_engine"] == "3.466") {
+                    LegacyPlaybackResolver.refresh(appContext, failed, refreshRequest)
+                } else DomainPlaybackResolver.reloadStreamCandidate(failed, refreshRequest)
             }
             if (isCurrentGeneration(generation) && refreshed != null) {
                 replaceCandidate(failed, refreshed)
@@ -896,7 +1130,11 @@ class PlaybackSession(context: Context) {
             failPlayback("REQUEST_UNAVAILABLE")
             return
         }
-        val next = nextHealthyCandidates(currentRequest)
+        val next = nextHealthyCandidates(
+            request = currentRequest,
+            excludeStreamId = failed?.stableStreamId,
+            preferNonP2p = failureClass == StreamFailureClass.NETWORK && failed?.let(::isP2pCandidate) == true,
+        )
         for (candidate in next) {
             if (!isCurrentGeneration(generation)) return
             _state.value = _state.value.copy(
@@ -942,7 +1180,18 @@ class PlaybackSession(context: Context) {
         preferredVoice: String? = null,
         preferredStreamId: String? = null,
         candidateStreamOptions: List<StreamOption> = emptyList(),
+        recordHistory: Boolean = true,
     ) {
+        this.recordHistory = recordHistory
+        discoveryJob?.cancel()
+        userSelectedAutoQuality = false
+        userSelectedAutoAudio = false
+        requestedVideoQuality = preferredQuality?.takeIf { it.isNotBlank() } ?: "Auto"
+        requestedAudioTrack = null
+        requestStartedMs = SystemClock.elapsedRealtime()
+        readyLatencyMs = null
+        firstFrameLatencyMs = null
+        _choices.value = PlaybackChoices()
         val generation = nextPlaybackGeneration()
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
@@ -1005,43 +1254,91 @@ class PlaybackSession(context: Context) {
                 requestedVoice = request.requestedVoice,
             ),
         )
-        scope.launch {
+        desiredPlayWhenReady = true
+        player.playWhenReady = true
+        val ref = MediaRef(request.mediaId, request.seasonNumber, request.episodeNumber)
+        val downloaded = OfflineMediaStore.request(appContext, ref)
+        if (downloaded != null) {
+            val candidate = StreamCandidate(stableStreamId = "offline:" + ref.storageKey,
+                provider = "offline", url = downloaded.uri.toString(), mimeType = downloaded.mimeType,
+                voice = "Офлайн", quality = preferredQuality ?: "Auto", transport = "local_storage",
+                seasonNumber = ref.season, episodeNumber = ref.episode, catalogMediaId = ref.contentId)
+            candidates = listOf(candidate)
+            publishCandidateOptions()
+            prepareCandidate(candidate, request, request.startPositionMs, generation)
+            return
+        }
+        // The card's HTTP variants are already bound to its identity. Start one
+        // without waiting for every provider; refreshing locators and adding
+        // voices continues in parallel, with the usual failure/reload policy.
+        val cachedStartup = DomainPlaybackResolver.cachedStartupCandidates(request, seeds)
+        if (cachedStartup.isNotEmpty()) {
+            candidates = StreamRanker.rankCandidates(cachedStartup, context = requestContext(request))
+            publishCandidateOptions()
+            selectInitialCandidate(request)?.let { candidate ->
+                if (!prepareCandidate(candidate, request, request.startPositionMs, generation)) {
+                    handleCandidateFailure("CACHED_PREPARE_FAILED", request.startPositionMs, generation)
+                }
+            }
+        }
+        discoveryJob = scope.launch {
+            val updates = kotlinx.coroutines.channels.Channel<List<StreamCandidate>>(kotlinx.coroutines.channels.Channel.CONFLATED)
+            suspend fun mergeDiscovered(incoming: List<StreamCandidate>) {
+                val current = playbackRequest ?: return
+                if (current.correlationId != request.correlationId || incoming.isEmpty()) return
+                val needsRecovery = _state.value.switchState == PlaybackSwitchState.FAILED
+                candidates = StreamRanker.rankCandidates(
+                    StreamDeduplicator.deduplicate(incoming + candidates), context = requestContext(current))
+                publishCandidateOptions()
+                recoveryAttemptBudget = candidates.size.coerceAtLeast(1) * 2 + 1
+                val desired = selectInitialCandidate(current) ?: return
+                if (activeCandidate == null) {
+                    _state.value = _state.value.copy(
+                        activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(source = desired.provider))
+                    if (!prepareCandidate(desired, current, current.startPositionMs, playbackGeneration)) {
+                        handleCandidateFailure("PREPARE_FAILED", current.startPositionMs, playbackGeneration)
+                    }
+                    return
+                }
+                val preferredVoiceArrived = !current.requestedVoice.isNullOrBlank() &&
+                    desired.voice == current.requestedVoice && activeCandidate?.voice != current.requestedVoice
+                val preferredQualityArrived = !current.requestedQuality.isNullOrBlank() &&
+                    !current.requestedQuality.equals("Auto", true) && desired.quality == current.requestedQuality &&
+                    activeCandidate?.quality != current.requestedQuality && player.videoFormat?.height != desired.resolutionHeight
+                if (desired.stableStreamId != activeCandidate?.stableStreamId &&
+                    (needsRecovery || preferredVoiceArrived || preferredQualityArrived)) {
+                    val position = if (needsRecovery) _state.value.currentPositionMs else player.currentPosition
+                    switchToStream(desired.toStreamOption(), position.coerceAtLeast(0))
+                }
+            }
+            val updateConsumer = launch { for (incoming in updates) mergeDiscovered(incoming) }
+            val nativeDiscovery = async(Dispatchers.IO) {
+                try {
+                    if (seeds.isNotEmpty() && seeds.all { it.url.startsWith("http://127.") || it.transport == "local_storage" }) {
+                        emptyList()
+                    } else LegacyPlaybackResolver.discover(appContext, request) { updates.trySend(it) }
+                } finally { updates.close() }
+            }
             val result = try {
                 withTimeoutOrNull(RESOLVER_TIMEOUT_MS) {
-                    DomainPlaybackResolver.resolveStreams(
-                        request = request,
-                        initialCandidates = seeds,
-                    )
+                    DomainPlaybackResolver.resolveStreams(request = request, initialCandidates = seeds)
                 } ?: PlaybackResolverResult.Error("Таймаут резолвера потоков (${RESOLVER_TIMEOUT_MS / 1000}с)")
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
             } catch (throwable: Throwable) {
                 PlaybackResolverResult.Error("Резолвер потоков завершился с ошибкой", throwable)
             }
-            if (!isCurrentGeneration(generation)) return@launch
-            when (result) {
-                is PlaybackResolverResult.Success -> {
-                    val probed = ZonaMediaProbe.expand(appContext, result.candidates)
-                    candidates = StreamRanker.rankCandidates(
-                        StreamDeduplicator.deduplicate(probed),
-                        context = requestContext(request),
-                    )
-                    publishCandidateOptions()
-                    recoveryAttemptBudget = (candidates.size.coerceAtLeast(1) * 2) + 1
-                    val selected = selectInitialCandidate(request)
-                    if (selected == null) {
-                        failPlayback("NO_HEALTHY_CANDIDATE")
-                        return@launch
-                    }
-                    _state.value = _state.value.copy(
-                        activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(
-                            source = selected.provider,
-                        ),
-                    )
-                    if (!prepareCandidate(selected, request, request.startPositionMs, generation)) {
-                        handleCandidateFailure("PREPARE_FAILED", request.startPositionMs, generation)
-                    }
-                }
-                is PlaybackResolverResult.NoSource -> failPlayback("NO_SOURCE")
-                is PlaybackResolverResult.Error -> failPlayback("RESOLVER_ERROR")
+            if (playbackRequest?.correlationId != request.correlationId) return@launch
+            if (result is PlaybackResolverResult.Success) {
+                // Probe only the backend rows; original provider rows already identify their variants.
+                mergeDiscovered(ZonaMediaProbe.expand(appContext, result.candidates))
+            }
+            val additional = nativeDiscovery.await()
+            updateConsumer.join()
+            if (playbackRequest?.correlationId != request.correlationId) return@launch
+            mergeDiscovered(additional)
+            if (activeCandidate == null && candidates.isEmpty()) {
+                failPlayback(if (result is PlaybackResolverResult.Error) "RESOLVER_ERROR" else "NO_SOURCE")
             }
         }
     }
@@ -1176,8 +1473,22 @@ class PlaybackSession(context: Context) {
         }
     }
 
+    fun pausePlayback() {
+        desiredPlayWhenReady = false
+        if (player.playWhenReady || player.isPlaying) {
+            player.pause()
+        }
+        publishSnapshot()
+    }
+
     fun togglePlayPause() {
-        if (player.isPlaying) player.pause() else player.play()
+        if (desiredPlayWhenReady || player.playWhenReady) pausePlayback() else playPlayback()
+        publishSnapshot()
+    }
+
+    fun playPlayback() {
+        desiredPlayWhenReady = true
+        player.play()
         publishSnapshot()
     }
 
@@ -1199,6 +1510,23 @@ class PlaybackSession(context: Context) {
         player.seekTo(target)
     }
 
+    fun setPlaybackSpeed(speed: Float): Boolean {
+        if (!speed.isFinite() || speed < 0.25f || speed > 3f) return false
+        player.setPlaybackSpeed(speed)
+        return true
+    }
+
+    fun selectProvider(provider: String): Boolean {
+        val request = playbackRequest ?: return false
+        if (activeCandidate?.provider == provider && player.playbackState != Player.STATE_IDLE &&
+            _state.value.switchState != PlaybackSwitchState.FAILED) return true
+        val selected = StreamRanker.selectBest(candidates.filter { it.provider == provider },
+            request.requestedVoice, request.requestedQuality, failedStreamIds = failedStreamIds.toSet(),
+            context = requestContext(request)) ?: return false
+        switchToStream(selected.toStreamOption(), player.currentPosition.coerceAtLeast(0))
+        return true
+    }
+
     fun setTrackPreferences(audioTrackId: String, subtitleTrackId: String?) {
         _state.value = _state.value.copy(
             audioTrackId = audioTrackId,
@@ -1208,10 +1536,14 @@ class PlaybackSession(context: Context) {
     }
 
     fun stopAndClear() {
+        discoveryJob?.cancel()
+        webResolveJob?.cancel()
         nextPlaybackGeneration()
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
+        desiredPlayWhenReady = false
+        player.playWhenReady = false
         player.stop()
         player.clearMediaItems()
         playbackRequest = null
@@ -1223,6 +1555,7 @@ class PlaybackSession(context: Context) {
         problemTracker.reset()
         reloadAttemptedStreamIds.clear()
         _streamOptions.value = emptyList()
+        _choices.value = PlaybackChoices()
         _state.value = PlaybackState()
     }
 
@@ -1287,8 +1620,8 @@ class PlaybackSession(context: Context) {
             val selected = activeCandidate ?: return
             (current.activeStreamSelection ?: ActiveStreamSelection()).copy(
                 activeStreamId = selected.stableStreamId,
-                activeQuality = selected.quality,
-                activeVoice = selected.voice,
+                activeQuality = player.videoFormat?.height?.takeIf { it > 0 }?.let { if (it >= 2160) "4K" else "${it}p" } ?: selected.quality,
+                activeVoice = if (requestedAudioTrack != null) playbackChoices(player.currentTracks, 0).audio.firstOrNull { it.selected }?.label ?: selected.voice else selected.voice,
                 source = selected.provider,
             )
         } else {
@@ -1316,6 +1649,7 @@ class PlaybackSession(context: Context) {
             PlaybackSwitchState.FAILED -> current.statusMessage ?: "Не удалось найти стабильный источник."
             else -> current.statusMessage
         }
+        _choices.value = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
         _state.value = current.copy(
             currentPositionMs = position,
             bufferedPositionMs = player.bufferedPosition.coerceAtLeast(0L),
@@ -1336,6 +1670,8 @@ class PlaybackSession(context: Context) {
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
+        frameProbe?.close()
+        frameProbe = null
         scope.cancel()
         mediaSession.release()
         player.release()
@@ -1345,6 +1681,7 @@ class PlaybackSession(context: Context) {
         activeConsumedUri = null
         appliedTrackSelectionKey = null
         _streamOptions.value = emptyList()
+        _choices.value = PlaybackChoices()
         _state.value = PlaybackState()
     }
 }

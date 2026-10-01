@@ -57,7 +57,7 @@ class CatalogPagingSource(
                     sort = query.sort,
                     category = query.category,
                     filter = query.filter,
-                    query = null,
+                    query = query.query,
                 )
                 visibleItems = if (query.recommendedIds.isEmpty()) {
                     page.items
@@ -103,4 +103,5 @@ data class CatalogLoadQuery(
     val category: CatalogCategory?,
     val filter: CatalogFilter,
     val recommendedIds: Set<String>,
+    val query: String? = null,
 )

@@ -13,6 +13,14 @@
         <domain includeSubdomains="false">localhost</domain>
     </domain-config>
 
+    <!-- The original Zona media API returns HTTP video URLs from this CDN.
+         Other public destinations retain the HTTPS default. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">vibio.tv</domain>
+        <domain includeSubdomains="false">5.61.56.18</domain>
+        <domain includeSubdomains="true">hdrezka-fly.net</domain>
+    </domain-config>
+
     <!-- Разрешаем cleartext для балансеров, если они работают по HTTP -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">hdrezka.ag</domain>

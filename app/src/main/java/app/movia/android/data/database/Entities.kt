@@ -19,6 +19,14 @@ data class WatchLaterEntity(
     val contentId: String? = null,
 )
 
+@Entity(tableName = "waiting_release", indices = [Index(value = ["contentId"])])
+data class WaitingReleaseEntity(
+    @PrimaryKey val mediaKey: String,
+    val title: String,
+    val addedAt: Long,
+    val contentId: String? = null,
+)
+
 @Entity(tableName = "history", indices = [Index(value = ["contentId"])])
 data class HistoryEntity(
     @PrimaryKey val mediaKey: String,

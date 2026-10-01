@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -65,6 +66,9 @@ import androidx.compose.ui.unit.sp
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
+import app.movia.android.ui.components.rememberMoviaMediaCoverFeedback
+import app.movia.android.ui.components.MoviaMediaCoverFrame
+import app.movia.android.ui.components.MoviaTapIconButton
 import app.movia.android.ui.components.MediaMetadataRow
 import app.movia.android.ui.components.MediaArtworkPlaceholder
 import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
@@ -72,6 +76,7 @@ import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MoviaPageTitle
 import app.movia.android.ui.components.SectionHeader
+import app.movia.android.ui.components.MoviaSectionHeaderContentGap
 import app.movia.android.ui.components.moviaPrimaryGenre
 import app.movia.android.ui.components.moviaDisplayTitle
 import app.movia.android.ui.theme.MoviaBorderFocused
@@ -345,7 +350,7 @@ fun SearchScreen(
             else -> {
                 if (recentQueries.isNotEmpty()) {
                     item(key = "recent") {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(MoviaSectionHeaderContentGap)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -380,7 +385,7 @@ fun SearchScreen(
                 }
 
                 item(key = "popular") {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MoviaSectionHeaderContentGap)) {
                         SectionHeader(title = "Популярное")
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -398,7 +403,7 @@ fun SearchScreen(
                 }
 
                 item(key = "genres") {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MoviaSectionHeaderContentGap)) {
                         SectionHeader(title = "Жанры")
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(discoveryGenres, key = { it }) { genre ->
@@ -477,17 +482,14 @@ private fun MoviaSearchField(
                     }
                     innerTextField()
                 }
-                IconButton(
+                MoviaTapIconButton(
+                    icon = if (query.isNotEmpty()) Icons.Outlined.Close else Icons.Outlined.Mic,
+                    contentDescription = if (query.isNotEmpty()) "Очистить поиск" else "Голосовой поиск",
                     onClick = if (query.isNotEmpty()) onClear else onVoice,
                     modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        imageVector = if (query.isNotEmpty()) Icons.Outlined.Close else Icons.Outlined.Mic,
-                        contentDescription = if (query.isNotEmpty()) "Очистить поиск" else "Голосовой поиск",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+                    iconModifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         },
     )
@@ -611,28 +613,33 @@ private fun SearchResultRow(
     item: MediaContent,
     onClick: () -> Unit,
 ) {
+    val coverFeedback = rememberMoviaMediaCoverFeedback(onClick)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = coverFeedback.onClick)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        MoviaArtwork(
-            url = item.posterUrl,
+        MoviaMediaCoverFrame(
+            feedback = coverFeedback,
             modifier = Modifier
                 .width(92.dp)
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(10.dp)),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
-        )
+                .aspectRatio(2f / 3f),
+            shape = RoundedCornerShape(10.dp),
+        ) {
+            MoviaArtwork(
+                url = item.posterUrl,
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
+            )
+        }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
                 text = moviaDisplayTitle(item.title),

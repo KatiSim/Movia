@@ -375,7 +375,7 @@ class DomainPlaybackResolverTest {
     }
 
     @Test
-    fun usableInitialCandidateStartsWithoutBlockingOnBackendDiscovery() = runBlocking {
+    fun usableInitialCandidateFallsBackAfterFreshDiscoveryFindsNothing() = runBlocking {
         val calls = mutableListOf<String>()
         val backend = object : PlaybackResolverBackend {
             override suspend fun resolveByIdentity(
@@ -404,7 +404,7 @@ class DomainPlaybackResolverTest {
             backend = backend,
         ) as PlaybackResolverResult.Success
 
-        assertTrue(calls.isEmpty())
+        assertEquals(listOf("identity", "title"), calls)
         assertEquals("cached", result.candidates.single().stableStreamId)
     }
 
@@ -441,7 +441,6 @@ class DomainPlaybackResolverTest {
         val result = DomainPlaybackResolver.resolveStreamsWithBackend(
             request = request,
             initialCandidates = listOf(stale),
-            forceRefresh = true,
             backend = backend,
         ) as PlaybackResolverResult.Success
 
@@ -509,4 +508,27 @@ class DomainPlaybackResolverTest {
             ),
         )
     }
+    @Test fun cachedStartupRejectsOtherFilmsAndP2pAndFailedCandidates() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year=2025)
+        val rows = listOf(resolvedCandidate("http"), resolvedCandidate("foreign", mediaId="43"),
+            resolvedCandidate("wrong-year").copy(canonicalYear=2024),
+            resolvedCandidate("failed").copy(isProblematic=true),
+            resolvedCandidate("p2p").copy(transport="torrent"))
+        assertEquals(listOf("http"), DomainPlaybackResolver.cachedStartupCandidates(request, rows).map { it.stableStreamId })
+    }
+    @Test fun cachedStartupKeepsExactEpisodeAndRejectsSeriesLevelLinks() {
+        val request = PlaybackRequest("42", "The Film", ContentType.SERIES, year=2025, seasonNumber=1, episodeNumber=2)
+        val exact = resolvedCandidate("exact").copy(canonicalMediaType="tv",seasonNumber=1,episodeNumber=2)
+        val rows = listOf(exact,exact.copy(stableStreamId="other",episodeNumber=1),
+            exact.copy(stableStreamId="series",seasonNumber=null,episodeNumber=null))
+        assertEquals(listOf("exact"),DomainPlaybackResolver.cachedStartupCandidates(request,rows).map { it.stableStreamId })
+    }
+    @Test fun cachedStartupHonorsExplicitStreamIdentity() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year=2025, requestedStreamId="selected")
+        assertEquals(listOf("selected"),DomainPlaybackResolver.cachedStartupCandidates(request,
+            listOf(resolvedCandidate("other"),resolvedCandidate("selected"))).map { it.stableStreamId })
+        assertTrue(DomainPlaybackResolver.cachedStartupCandidates(request,
+            listOf(resolvedCandidate("other"))).isEmpty())
+    }
+
 }

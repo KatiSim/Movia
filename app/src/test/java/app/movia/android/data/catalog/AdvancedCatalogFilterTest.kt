@@ -34,4 +34,18 @@ class AdvancedCatalogFilterTest {
         assertTrue(result.all { "Русский" in it.audioLanguages && "Русский" in it.subtitleLanguages })
         assertTrue(result.none { it.title == "Точка возврата" })
     }
+
+    @Test fun languageCodesAndVisibleLabelsUseTheSameFilter() {
+        val item=catalogTestItems.first().copy(type=ContentType.MOVIE,audioLanguages=setOf("ru"),subtitleLanguages=setOf("en"))
+        assertEquals(listOf(item),filterCatalog(listOf(item),CatalogFilter(audioLanguage="Русский",subtitleLanguage="English")))
+    }
+    @Test fun fourKAnd2160pAreTheSameResolution() {
+        val item=catalogTestItems.first().copy(type=ContentType.MOVIE,quality="2160p")
+        assertEquals(listOf(item),filterCatalog(listOf(item),CatalogFilter(resolution="4K")))
+    }
+    @Test fun originalAudioDoesNotPromiseEnglish() {
+        val item=catalogTestItems.first().copy(type=ContentType.MOVIE,audioLanguages=setOf("original"))
+        assertTrue(filterCatalog(listOf(item),CatalogFilter(audioLanguage="English")).isEmpty())
+    }
+
 }

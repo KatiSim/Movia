@@ -108,11 +108,9 @@ fun MoviaTheme(
     highContrast: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    // Movia currently has one intentional dark cinematic palette. SYSTEM keeps
-    // platform bar icon behavior but never introduces a second visual language.
-    val systemDark = isSystemInDarkTheme()
-    val requestedSystem = themeMode.uppercase(Locale.ROOT) == "SYSTEM"
-    val darkBars = if (requestedSystem) systemDark else true
+    // Movia uses one cinematic dark palette, with optional accessible contrast.
+    val darkBars = true
+    androidx.compose.runtime.SideEffect { MoviaColorPolicy.highContrast = highContrast }
 
     val view = LocalView.current
     DisposableEffect(view, darkBars) {
@@ -132,7 +130,13 @@ fun MoviaTheme(
     }
 
     MaterialTheme(
-        colorScheme = MoviaDarkColors,
+        colorScheme = if (highContrast) MoviaDarkColors.copy(
+            onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFE3E8F2),
+            secondary = androidx.compose.ui.graphics.Color(0xFFE3E8F2),
+            tertiary = androidx.compose.ui.graphics.Color(0xFFCDD5E5),
+            outline = androidx.compose.ui.graphics.Color(0xFF7B8598),
+            outlineVariant = androidx.compose.ui.graphics.Color(0xFF7B8598),
+        ) else MoviaDarkColors,
         typography = MoviaTypography,
     ) {
         CompositionLocalProvider(

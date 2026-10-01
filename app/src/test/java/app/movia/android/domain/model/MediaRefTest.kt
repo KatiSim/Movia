@@ -10,11 +10,23 @@ class MediaRefTest {
     fun episodeIdentityDoesNotDependOnLocalizedDisplayTitle() {
         val russian = MediaRef.from("provider:42", "Сериал · S02E05 · Эпизод 5")
         val english = MediaRef.from("provider:42", "Series · S02E05")
+        val englishCaption = MediaRef.from("provider:42", "Series · S02E05 · Episode 5")
 
         assertEquals("provider:42", russian?.contentId)
         assertEquals(2, russian?.season)
         assertEquals(5, russian?.episode)
         assertEquals(russian?.storageKey, english?.storageKey)
+        assertEquals(russian?.storageKey, englishCaption?.storageKey)
+    }
+
+    @Test
+    fun invalidEpisodeNumbersRemainDistinctLegacyRows() {
+        assertNull(MediaRef.from("provider:42", "Series · S00E01 · Episode 1"))
+        assertNull(MediaRef.from("provider:42", "Series · S01E999999999999 · Episode 2"))
+        assertNotEquals(
+            MediaRef.storageKey("provider:42", "Series · S00E01 · Episode 1"),
+            MediaRef.storageKey("provider:42", "Series · S00E02 · Episode 2"),
+        )
     }
 
     @Test

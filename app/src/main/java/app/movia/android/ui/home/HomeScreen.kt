@@ -3,11 +3,15 @@ package app.movia.android.ui.home
 import android.content.res.Configuration
 import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +20,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,6 +53,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -65,14 +71,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -85,6 +97,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -98,17 +111,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
+import app.movia.android.R
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.PlaybackProgress
 import app.movia.android.ui.catalog.CatalogLaunchPreset
+import app.movia.android.ui.components.rememberMoviaMediaCoverFeedback
+import app.movia.android.ui.components.MoviaMediaCoverFrame
+import app.movia.android.ui.components.rememberMoviaAnimatedAction
+import app.movia.android.ui.components.rememberMoviaActionTriggerState
 import app.movia.android.ui.components.MediaMetadataRow
 import app.movia.android.ui.components.MediaArtworkPlaceholder
+import app.movia.android.ui.components.MoviaGoldMedallionKind
+import app.movia.android.ui.components.MoviaHeaderCircleControl
+import app.movia.android.ui.components.MoviaIconMotionKind
+import app.movia.android.ui.components.rememberMoviaIconMotion
+import app.movia.android.ui.components.rememberMoviaIconTapAlpha
+import app.movia.android.ui.components.MoviaHeaderGlyph
+import app.movia.android.ui.components.MoviaGoldMedallion
 import app.movia.android.ui.components.MediaArtworkPlaceholderStyle
 import app.movia.android.ui.components.MoviaAmbientStrength
 import app.movia.android.ui.components.MoviaArtwork
 import app.movia.android.ui.components.MoviaSpotlightActionButton
 import app.movia.android.ui.components.SectionHeader
+import app.movia.android.ui.components.MoviaSectionHeaderContentGap
 import app.movia.android.ui.components.moviaAmbient
 import app.movia.android.ui.components.moviaDisplayTitle
 import app.movia.android.ui.components.moviaPrimaryGenre
@@ -132,6 +158,7 @@ import app.movia.android.ui.theme.MoviaLogoGradientPastelGold
 import app.movia.android.ui.theme.MoviaLogoGradientSoftGold
 import app.movia.android.ui.theme.MoviaLogoGradientStart
 import app.movia.android.ui.theme.MoviaSurfaceElevated
+import app.movia.android.ui.theme.MoviaSurfaceSecondary
 import app.movia.android.ui.theme.MoviaTextPrimary
 import app.movia.android.ui.theme.MoviaTextSecondary
 import app.movia.android.ui.theme.MoviaTextTertiary
@@ -153,6 +180,9 @@ fun HomeScreen(
     onContinue: (String, String) -> Unit,
     onToggleFavorite: (String, String, Boolean) -> Unit,
     onOpenCatalog: (CatalogLaunchPreset) -> Unit,
+    hasUnreadNotifications: Boolean = false,
+    notificationStartupRingToken: Int = 0,
+    onNotificationsClick: () -> Unit = {},
 ) {
     val homeViewModel: HomeViewModel = viewModel()
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
@@ -186,13 +216,19 @@ fun HomeScreen(
     val animationSeriesPool = homeUiState.animationSeries
 
     // Curate up to 7 items for Spotlight from recommendation pool with diversity and deduplication
-    val spotlightItems = remember(recommendation.items, forYouPool, newPool, popularPool, history) {
+    val spotlightItems = remember(
+        recommendation.items,
+        forYouPool,
+        newPool,
+        popularPool,
+        homeUiState.recommendationHistory,
+    ) {
         buildSpotlightItems(
             recommendations = recommendation.items,
             forYou = forYouPool,
             newItems = newPool,
             popular = popularPool,
-            history = history,
+            history = homeUiState.recommendationHistory,
             maxItems = 7,
         )
     }
@@ -215,7 +251,7 @@ fun HomeScreen(
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(this).toDp() }
     val activePosterWidth = SpotlightPosterWidth
     val activePosterHeight = SpotlightPosterHeight
-    val logoLineHeight = 30.dp
+    val logoLineHeight = 33.dp
     val logoTopY = statusBarHeight + 10.dp
     val logoBottomY = logoTopY + logoLineHeight
     val posterTop = logoBottomY + 14.dp + 16.dp
@@ -307,7 +343,12 @@ fun HomeScreen(
 
             item(key = "home-top-shell") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    HomeHeaderContainer(statusBarTopInset = statusBarHeight)
+                    HomeHeaderContainer(
+                        statusBarTopInset = statusBarHeight,
+                        hasUnreadNotifications = hasUnreadNotifications,
+                        notificationStartupRingToken = notificationStartupRingToken,
+                        onNotificationsClick = onNotificationsClick,
+                    )
                     if (showHomeStatus) {
                         Spacer(modifier = Modifier.height(20.4.dp))
                         HomeFeedStatus(
@@ -445,19 +486,7 @@ private fun HomeFeedStatus(
 }
 
 @Composable
-private fun rememberReduceMotion(): Boolean {
-    val context = LocalContext.current
-    return remember(context) {
-        val durationScale = runCatching {
-            Settings.Global.getFloat(
-                context.contentResolver,
-                Settings.Global.ANIMATOR_DURATION_SCALE,
-                1.0f,
-            )
-        }.getOrDefault(1.0f)
-        durationScale == 0f
-    }
-}
+private fun rememberReduceMotion(): Boolean = app.movia.android.ui.components.rememberMoviaReducedMotion()
 
 private fun smoothstep(t: Float): Float {
     val x = t.coerceIn(0f, 1f)
@@ -520,8 +549,13 @@ private fun buildSpotlightItems(
 }
 
 @Composable
-private fun HomeHeaderContainer(statusBarTopInset: Dp) {
-    val logoLineHeight = 30.dp
+private fun HomeHeaderContainer(
+    statusBarTopInset: Dp,
+    hasUnreadNotifications: Boolean,
+    notificationStartupRingToken: Int,
+    onNotificationsClick: () -> Unit,
+) {
+    val logoLineHeight = 33.dp
     val logoTopY = statusBarTopInset + 10.dp
     val logoBottomY = logoTopY + logoLineHeight
     Box(
@@ -534,7 +568,110 @@ private fun HomeHeaderContainer(statusBarTopInset: Dp) {
                 .align(Alignment.TopStart)
                 .padding(start = 24.dp, top = logoTopY, end = 24.dp),
         )
+        NotificationHeaderAction(
+            hasUnreadNotifications = hasUnreadNotifications,
+            startupRingToken = notificationStartupRingToken,
+            onClick = onNotificationsClick,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (-24).dp, y = logoTopY - 8.dp),
+        )
     }
+}
+
+@Composable
+private fun NotificationHeaderAction(
+    hasUnreadNotifications: Boolean,
+    startupRingToken: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val reduceMotion = rememberReduceMotion()
+    val scale = remember { Animatable(1f) }
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val iconTapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 500L, onClick)
+    var ringTrigger by remember { mutableIntStateOf(0) }
+    val bellMotion = rememberMoviaIconMotion(
+        kind = MoviaIconMotionKind.BELL,
+        active = false,
+        trigger = ringTrigger + actionTrigger.token,
+        animateStateChanges = false,
+    )
+
+    LaunchedEffect(startupRingToken) {
+        if (startupRingToken > 0) {
+            // Wait one rendered frame so rememberMoviaIconMotion finishes its initial
+            // composition before we deliver the cold-start notification trigger.
+            withFrameNanos { }
+            ringTrigger += 1
+        }
+    }
+
+    LaunchedEffect(pressed, reduceMotion) {
+        if (reduceMotion) scale.snapTo(1f)
+        else if (pressed) scale.animateTo(0.96f, tween(500, easing = FastOutSlowInEasing))
+        else if (scale.value != 1f) scale.animateTo(1f, tween(500, easing = FastOutSlowInEasing))
+    }
+
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Button,
+                onClick = animatedOnClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        NotificationProfileControl(
+            modifier = Modifier.graphicsLayer {
+                scaleX = scale.value
+                scaleY = scale.value
+            },
+            glyphModifier = Modifier.graphicsLayer {
+                scaleX = bellMotion.scale
+                scaleY = bellMotion.scale
+                rotationZ = bellMotion.rotationZ
+                transformOrigin = bellMotion.transformOrigin
+            },
+            glyphColor = lerp(MoviaTextPrimary, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f)),
+            description = if (hasUnreadNotifications) {
+                "Уведомления, есть новые"
+            } else {
+                "Уведомления"
+            },
+        )
+        if (hasUnreadNotifications) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-3).dp, y = 3.dp)
+                    .size(12.dp)
+                    .background(MoviaBrandAmber, CircleShape)
+                    .border(2.dp, MoviaBackgroundPrimary, CircleShape),
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotificationProfileControl(
+    modifier: Modifier = Modifier,
+    glyphModifier: Modifier = Modifier,
+    description: String = "Уведомления",
+    glyphColor: Color = MoviaTextPrimary,
+) {
+    MoviaHeaderCircleControl(
+        glyph = MoviaHeaderGlyph.Notification,
+        modifier = modifier,
+        glyphModifier = glyphModifier,
+        description = description,
+        glyphColor = glyphColor,
+    )
 }
 
 @Composable
@@ -586,14 +723,17 @@ private fun HomeSpotlightSection(
 
         // Spotlight 3D Carousel (or single centered card if size == 1)
         if (items.size == 1) {
-            Box(
+            val coverFeedback = rememberMoviaMediaCoverFeedback {
+                onOpenDetails(items[0].id, items[0].title)
+            }
+            MoviaMediaCoverFrame(
+                feedback = coverFeedback,
                 modifier = Modifier
                     .width(activePosterWidth)
                     .height(activePosterHeight)
-                    .clip(posterShape)
-                    .border(1.dp, MoviaBorderSubtle, posterShape)
-                    .clickable { onOpenDetails(items[0].id, items[0].title) }
+                    .clickable(onClick = coverFeedback.onClick)
                     .testTag("home.hero.open.${items[0].id}"),
+                shape = posterShape,
             ) {
                 MoviaArtwork(
                     url = items[0].posterUrl,
@@ -654,6 +794,15 @@ private fun HomeSpotlightSection(
 
                 // Continuous zIndex: active is highest, adjacent lower, distant lowest (Section 11)
                 val zIndex = (2f - d).coerceAtLeast(0f)
+                val coverFeedback = rememberMoviaMediaCoverFeedback {
+                    if (pageIndex == pagerState.currentPage) {
+                        onOpenDetails(item.id, item.title)
+                    } else {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(pageIndex)
+                        }
+                    }
+                }
 
                 Box(
                     modifier = Modifier
@@ -683,35 +832,31 @@ private fun HomeSpotlightSection(
                                 }
                             }
                         }
-                        .clip(posterShape)
-                        .border(1.dp, MoviaBorderSubtle, posterShape)
-                        .clickable {
-                            if (pageIndex == pagerState.currentPage) {
-                                onOpenDetails(item.id, item.title)
-                            } else {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pageIndex)
-                                }
-                            }
-                        }
+                        .clickable(onClick = coverFeedback.onClick)
                         .testTag("home.hero.open.${item.id}"),
                     contentAlignment = Alignment.Center,
                 ) {
-                    MoviaArtwork(
-                        url = item.posterUrl,
+                    MoviaMediaCoverFrame(
+                        feedback = coverFeedback,
                         modifier = Modifier.fillMaxSize(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
-                    )
-
-                    // Black overlay for realistic shadow depth without poster transparency (Section 13 & 29)
-                    if (overlayAlpha > 0.001f) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = overlayAlpha)),
+                        shape = posterShape,
+                    ) {
+                        MoviaArtwork(
+                            url = item.posterUrl,
+                            modifier = Modifier.fillMaxSize(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
                         )
+
+                        // Black overlay for realistic shadow depth without poster transparency (Section 13 & 29)
+                        if (overlayAlpha > 0.001f) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = overlayAlpha)),
+                            )
+                        }
                     }
                 }
             }
@@ -740,8 +885,8 @@ private fun HomeSpotlightSection(
                 Text(
                     text = displayTitle,
                     color = MoviaTextPrimary,
-                    fontSize = 19.36.sp,
-                    lineHeight = 26.62.sp,
+                    fontSize = 20.sp,
+                    lineHeight = 26.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     maxLines = 2,
@@ -752,8 +897,8 @@ private fun HomeSpotlightSection(
                 MediaMetadataRow(
                     item = item,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 14.52.sp,
-                    lineHeight = 19.36.sp,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
                 )
@@ -777,9 +922,16 @@ private fun HomeSpotlightSection(
                 onClick = {
                     if (title.isNotBlank()) onContinue(activeItem.id, title)
                 },
-                modifier = Modifier.align(Alignment.Center).testTag("home.hero.play.${activeItem.id}"),
+                modifier = if (LocalDensity.current.fontScale > 1.2f) {
+                    Modifier.align(Alignment.CenterStart).padding(end = 58.dp)
+                        .testTag("home.hero.play.${activeItem.id}")
+                } else Modifier.align(Alignment.Center).testTag("home.hero.play.${activeItem.id}"),
             )
 
+            val favoriteMotion = rememberMoviaIconMotion(
+                kind = MoviaIconMotionKind.HEART,
+                active = isFavorite,
+            )
             Surface(
                 onClick = {
                     if (title.isNotBlank()) onToggleFavorite(activeItem.id, title, !isFavorite)
@@ -798,7 +950,14 @@ private fun HomeSpotlightSection(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = if (isFavorite) "Удалить из избранного" else "Добавить в избранное",
                         tint = if (isFavorite) MoviaBrandAmber else MoviaTextPrimary,
-                        modifier = Modifier.size(26.62.dp),
+                        modifier = Modifier
+                            .size(26.62.dp)
+                            .graphicsLayer {
+                                scaleX = favoriteMotion.scale
+                                scaleY = favoriteMotion.scale
+                                rotationZ = favoriteMotion.rotationZ
+                                transformOrigin = favoriteMotion.transformOrigin
+                            },
                     )
                 }
             }
@@ -846,10 +1005,10 @@ private fun HomeHeader(
                     ),
                 ),
                 fontFamily = MoviaFontFamily,
-                fontSize = 27.sp,
-                lineHeight = 30.sp,
+                fontSize = 29.7.sp,
+                lineHeight = 33.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 0.15.sp,
+                letterSpacing = 0.165.sp,
             ),
         )
     }
@@ -865,19 +1024,22 @@ private fun HomeMediaSection(
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(MoviaSectionHeaderContentGap),
     ) {
         SectionHeader(title = title, actionTestTag = viewAllTestTag, onClick = onViewAll)
-        LazyRow(
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val cardWidth = (maxWidth - 16.dp) * 0.38f
+            LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(end = 48.dp),
         ) {
             items(items, key = { "$title-${it.id}" }) { item ->
                 HomeDiscoveryCard(
                     item = item,
-                    modifier = Modifier.width(142.dp).testTag("home.section.item.open.${item.id}"),
+                    modifier = Modifier.width(cardWidth).testTag("home.section.item.open.${item.id}"),
                     onClick = { onOpenDetails(item.id, item.title) },
                 )
+            }
             }
         }
     }
@@ -890,27 +1052,32 @@ private fun HomeDiscoveryCard(
     onClick: () -> Unit,
 ) {
     val title = moviaDisplayTitle(item.title)
+    val coverFeedback = rememberMoviaMediaCoverFeedback(onClick)
     Column(
-        modifier = modifier.clickable(onClick = onClick),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.clickable(onClick = coverFeedback.onClick),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
-        MoviaArtwork(
-            url = item.posterUrl,
+        MoviaMediaCoverFrame(
+            feedback = coverFeedback,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(14.dp))
-                .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(14.dp)),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
-        )
+                .aspectRatio(2f / 3f),
+            shape = RoundedCornerShape(14.dp),
+        ) {
+            MoviaArtwork(
+                url = item.posterUrl,
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
+            )
+        }
         Text(
             text = title,
             modifier = Modifier.fillMaxWidth(),
             color = MoviaTextPrimary,
             fontSize = 14.sp,
-            lineHeight = 18.sp,
+            lineHeight = 20.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

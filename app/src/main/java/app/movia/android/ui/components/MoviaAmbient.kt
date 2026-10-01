@@ -42,7 +42,7 @@ enum class MoviaAmbientStrength(
 ) {
     HOME(primaryAlpha = 0.7665f, secondaryAlpha = 0.735f, centerY = 0.28f),
     CATALOG(primaryAlpha = 0.11f, secondaryAlpha = 0.06f, centerY = 0.24f),
-    MY(primaryAlpha = 0.34f, secondaryAlpha = 0.26f, centerY = 0.22f),
+    MY(primaryAlpha = 0.425f, secondaryAlpha = 0.325f, centerY = 0.22f),
 }
 
 private data class AmbientPalette(
@@ -125,6 +125,16 @@ fun Modifier.moviaAmbient(
         fun drawPalette(palette: AmbientPalette, opacity: Float) {
             if (opacity <= 0f) return
 
+            val renderedPalette = if (strength == MoviaAmbientStrength.MY) {
+                AmbientPalette(
+                    primary = boostMyAmbientColor(palette.primary),
+                    secondary = boostMyAmbientColor(palette.secondary),
+                    tertiary = boostMyAmbientColor(palette.tertiary),
+                )
+            } else {
+                palette
+            }
+
             val pLeft = if (posterLeftDp >= 0f) posterLeftDp.dp.toPx() else (size.width - posterWidthDp.dp.toPx()) / 2f
             val pTop = posterTopDp.dp.toPx()
             val pWidth = posterWidthDp.dp.toPx()
@@ -151,16 +161,16 @@ fun Modifier.moviaAmbient(
             val scaleY = if (strength == MoviaAmbientStrength.MY) 1.00f else 0.80f
 
             // Color A: Primary (Bottom-Left)
-            if (palette.primary.alpha > 0f) {
+            if (renderedPalette.primary.alpha > 0f) {
                 scale(scaleX = 1.15f, scaleY = scaleY, pivot = primaryCenter) {
                     drawCircle(
                         brush = Brush.radialGradient(
                             colorStops = arrayOf(
-                                0.00f to palette.primary.copy(alpha = strength.primaryAlpha * opacity),
-                                0.25f to palette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.86f),
-                                0.50f to palette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.54f),
-                                0.72f to palette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.20f),
-                                0.88f to palette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.05f),
+                                0.00f to renderedPalette.primary.copy(alpha = strength.primaryAlpha * opacity),
+                                0.25f to renderedPalette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.86f),
+                                0.50f to renderedPalette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.54f),
+                                0.72f to renderedPalette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.20f),
+                                0.88f to renderedPalette.primary.copy(alpha = strength.primaryAlpha * opacity * 0.05f),
                                 1.00f to Color.Transparent,
                             ),
                             center = primaryCenter,
@@ -173,16 +183,16 @@ fun Modifier.moviaAmbient(
             }
 
             // Color B: Secondary (Top-Right)
-            if (palette.secondary.alpha > 0f) {
+            if (renderedPalette.secondary.alpha > 0f) {
                 scale(scaleX = 1.15f, scaleY = scaleY, pivot = secondaryCenter) {
                     drawCircle(
                         brush = Brush.radialGradient(
                             colorStops = arrayOf(
-                                0.00f to palette.secondary.copy(alpha = strength.secondaryAlpha * opacity),
-                                0.25f to palette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.86f),
-                                0.50f to palette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.54f),
-                                0.72f to palette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.20f),
-                                0.88f to palette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.05f),
+                                0.00f to renderedPalette.secondary.copy(alpha = strength.secondaryAlpha * opacity),
+                                0.25f to renderedPalette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.86f),
+                                0.50f to renderedPalette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.54f),
+                                0.72f to renderedPalette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.20f),
+                                0.88f to renderedPalette.secondary.copy(alpha = strength.secondaryAlpha * opacity * 0.05f),
                                 1.00f to Color.Transparent,
                             ),
                             center = secondaryCenter,
@@ -196,15 +206,15 @@ fun Modifier.moviaAmbient(
 
 
             // Color C: Tertiary (centered depth layer), MY only.
-            if (strength == MoviaAmbientStrength.MY && palette.tertiary.alpha > 0f) {
+            if (strength == MoviaAmbientStrength.MY && renderedPalette.tertiary.alpha > 0f) {
                 scale(scaleX = 1.08f, scaleY = 1.00f, pivot = tertiaryCenter) {
                     drawCircle(
                         brush = Brush.radialGradient(
                             colorStops = arrayOf(
-                                0.00f to palette.tertiary.copy(alpha = 0.18f * opacity),
-                                0.34f to palette.tertiary.copy(alpha = 0.075f * opacity),
-                                0.64f to palette.tertiary.copy(alpha = 0.035f * opacity),
-                                0.84f to palette.tertiary.copy(alpha = 0.010f * opacity),
+                                0.00f to renderedPalette.tertiary.copy(alpha = 0.225f * opacity),
+                                0.34f to renderedPalette.tertiary.copy(alpha = 0.09375f * opacity),
+                                0.64f to renderedPalette.tertiary.copy(alpha = 0.04375f * opacity),
+                                0.84f to renderedPalette.tertiary.copy(alpha = 0.0125f * opacity),
                                 1.00f to Color.Transparent,
                             ),
                             center = tertiaryCenter,
@@ -220,7 +230,7 @@ fun Modifier.moviaAmbient(
         drawPalette(previous, 1f - fraction)
         drawPalette(current, fraction)
 
-        // Softly dissolve to BackgroundPrimary at the bottom boundary (no visible seam)
+        // HOME keeps its existing bottom-boundary dissolve; MY remains fully radial.
         if (strength == MoviaAmbientStrength.HOME && size.height > 0f) {
             val fadeHeight = minOf(size.height * 0.22f, 48.dp.toPx())
             if (fadeHeight > 0f) {
@@ -357,6 +367,23 @@ private fun extractAmbientPalette(bitmap: Bitmap): AmbientPalette {
     val tertiary = tertiaryIndex?.let { normalizedBucketColor(it, bucketsAll) } ?: derivedTertiary(primary)
 
     return AmbientPalette(primary = primary, secondary = secondary, tertiary = tertiary)
+}
+
+
+private fun boostMyAmbientColor(color: Color): Color {
+    if (color.alpha <= 0f) return Color.Transparent
+    val hsv = FloatArray(3)
+    AndroidColor.colorToHSV(
+        AndroidColor.rgb(
+            (color.red * 255).toInt(),
+            (color.green * 255).toInt(),
+            (color.blue * 255).toInt(),
+        ),
+        hsv,
+    )
+    hsv[1] = (hsv[1] * 1.25f).coerceAtMost(1f)
+    hsv[2] = (hsv[2] * 1.25f).coerceAtMost(1f)
+    return Color(AndroidColor.HSVToColor(hsv))
 }
 
 private fun normalizedBucketColor(index: Int, buckets: Array<HueBucket>): Color {

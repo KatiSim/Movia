@@ -16,8 +16,18 @@ enum class MoviaSettingsPage {
     HELP,
 }
 
+enum class MoviaPersonCredit {
+    ACTOR,
+    DIRECTOR,
+}
+
 sealed interface MoviaRoute {
     data class Details(val mediaId: String, val title: String) : MoviaRoute
+    data class Person(
+        val name: String,
+        val photoUrl: String? = null,
+        val credit: MoviaPersonCredit = MoviaPersonCredit.ACTOR,
+    ) : MoviaRoute
     data object Profile : MoviaRoute
     data class Settings(val page: MoviaSettingsPage) : MoviaRoute
     data object Player : MoviaRoute

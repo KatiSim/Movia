@@ -106,7 +106,10 @@ import app.movia.android.agent.AgentControlRuntime
 import app.movia.android.data.library.LibraryRepository
 import app.movia.android.data.preferences.AppPreferences
 import app.movia.android.data.preferences.PlaybackPreferences
+import app.movia.android.data.preferences.ReleaseNotificationPreferences
 import app.movia.android.domain.model.PlaybackProgress
+import app.movia.android.domain.model.LibraryMediaRecord
+import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.MediaRef
 import app.movia.android.domain.model.nextEpisode
 import app.movia.android.domain.model.previousEpisode
@@ -118,15 +121,19 @@ import app.movia.android.ui.catalog.CatalogLaunchPreset
 import app.movia.android.ui.catalog.CatalogRetentionState
 import app.movia.android.ui.catalog.CatalogScreen
 import app.movia.android.ui.details.DetailsScreen
+import app.movia.android.ui.components.moviaHasPlayableSource
+import app.movia.android.ui.details.PersonFilmographyScreen
 import app.movia.android.ui.home.HomeScreen
 import app.movia.android.ui.library.LibraryScreen
 import app.movia.android.ui.library.LibraryUiState
 import app.movia.android.ui.library.LibraryViewModel
 import app.movia.android.ui.navigation.MoviaNavigationState
 import app.movia.android.ui.navigation.MoviaRoute
+import app.movia.android.ui.navigation.MoviaPersonCredit
 import app.movia.android.ui.navigation.MoviaSettingsPage
 import app.movia.android.ui.navigation.MoviaTopLevel
-import app.movia.android.ui.player.MiniPlayerBar
+import app.movia.android.ui.notifications.ReleaseNotificationUiItem
+import app.movia.android.ui.notifications.ReleaseNotificationsSheet
 import app.movia.android.ui.player.PlaybackSession
 import app.movia.android.ui.player.MoviaPlaybackRegistry
 import app.movia.android.ui.player.MoviaPiPState
@@ -142,6 +149,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.collect
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
@@ -176,6 +184,9 @@ private enum class MoviaNavBadge {
     NEW,
 }
 
+private fun releaseNotificationKey(record: LibraryMediaRecord): String =
+    record.contentId?.takeIf { it.isNotBlank() } ?: record.mediaKey
+
 private data class TopLevelDestination(
     val label: String,
     val selectedIcon: ImageVector,
@@ -189,6 +200,12 @@ private fun encodeMoviaRoute(route: MoviaRoute): String = when (route) {
         .put("type", "details")
         .put("mediaId", route.mediaId)
         .put("title", route.title)
+        .toString()
+    is MoviaRoute.Person -> JSONObject()
+        .put("type", "person")
+        .put("name", route.name)
+        .put("photoUrl", route.photoUrl.orEmpty())
+        .put("credit", route.credit.name)
         .toString()
     MoviaRoute.Profile -> "@profile"
     is MoviaRoute.Settings -> "@settings:${route.page.name.lowercase()}"
@@ -207,6 +224,18 @@ private fun decodeMoviaRoute(value: String): MoviaRoute? {
         return MoviaRoute.Settings(page)
     }
     val json = runCatching { JSONObject(value) }.getOrNull()
+    if (json?.optString("type") == "person") {
+        val name = json.optString("name").trim()
+        if (name.isBlank()) return null
+        val credit = runCatching {
+            MoviaPersonCredit.valueOf(json.optString("credit", MoviaPersonCredit.ACTOR.name))
+        }.getOrDefault(MoviaPersonCredit.ACTOR)
+        return MoviaRoute.Person(
+            name = name,
+            photoUrl = json.optString("photoUrl").takeIf { it.isNotBlank() },
+            credit = credit,
+        )
+    }
     return if (json != null && json.has("title")) {
         MoviaRoute.Details(json.optString("mediaId"), json.optString("title"))
     } else {
@@ -303,9 +332,15 @@ private fun MoviaContent(
     }
 
     val playbackPreferences by preferencesRepository.playbackPreferences.collectAsStateWithLifecycle(initialValue = PlaybackPreferences())
+    val releaseNotificationPreferences by preferencesRepository.releaseNotificationPreferences.collectAsStateWithLifecycle(
+        initialValue = ReleaseNotificationPreferences(),
+    )
     val favorites = libraryUiState.favorites
     val favoriteRecords = libraryUiState.favoriteRecords
     val favoriteContentIds = favoriteRecords.mapNotNull { it.contentId }.toSet()
+    val waitingRelease = libraryUiState.waitingRelease
+    val waitingReleaseRecords = libraryUiState.waitingReleaseRecords
+    val waitingReleaseContentIds = waitingReleaseRecords.mapNotNull { it.contentId }.toSet()
     val downloads = libraryUiState.downloads
     val downloadRecords = libraryUiState.downloadRecords
     val history = libraryUiState.history
@@ -318,6 +353,79 @@ private fun MoviaContent(
     val homeFeed by DemoCatalogRepository.homeFeed.collectAsStateWithLifecycle()
     val libraryCatalog = remember(homeFeed.catalog) {
         (homeFeed.catalog + DemoCatalogRepository.all()).distinctBy { it.id }
+    }
+
+    var releaseNotificationSheetOpen by remember { mutableStateOf(false) }
+    var releaseAvailabilityCheckStarted by remember { mutableStateOf(false) }
+    var releaseNotificationMedia by remember { mutableStateOf<Map<String, MediaContent>>(emptyMap()) }
+    var notificationStartupRingToken by remember { mutableIntStateOf(0) }
+    var notificationStartupRingConsumed by remember { mutableStateOf(false) }
+
+    val waitingReleaseByNotificationKey = remember(waitingReleaseRecords) {
+        waitingReleaseRecords.associateBy(::releaseNotificationKey)
+    }
+    val pendingReleaseNotificationRecords = remember(
+        releaseNotificationPreferences.pendingKeys,
+        waitingReleaseByNotificationKey,
+    ) {
+        releaseNotificationPreferences.pendingKeys
+            .mapNotNull(waitingReleaseByNotificationKey::get)
+            .sortedByDescending { it.updatedAt }
+    }
+    val activeReleaseNotificationKeys = remember(pendingReleaseNotificationRecords) {
+        pendingReleaseNotificationRecords.map(::releaseNotificationKey).toSet()
+    }
+    val unreadReleaseNotificationKeys = remember(
+        releaseNotificationPreferences.unreadKeys,
+        activeReleaseNotificationKeys,
+    ) {
+        releaseNotificationPreferences.unreadKeys.intersect(activeReleaseNotificationKeys)
+    }
+    val hasUnreadReleaseNotifications =
+        appPreferences.notificationsEnabled && unreadReleaseNotificationKeys.isNotEmpty()
+    val releaseNotificationItems = remember(
+        pendingReleaseNotificationRecords,
+        releaseNotificationMedia,
+        libraryCatalog,
+    ) {
+        pendingReleaseNotificationRecords.map { record ->
+            val key = releaseNotificationKey(record)
+            val cached = releaseNotificationMedia[key]
+                ?: record.contentId?.let(DemoCatalogRepository::findById)
+                ?: DemoCatalogRepository.findByTitle(record.title)
+            ReleaseNotificationUiItem(key = key, record = record, media = cached)
+        }
+    }
+
+    LaunchedEffect(waitingReleaseRecords) {
+        if (releaseAvailabilityCheckStarted || waitingReleaseRecords.isEmpty()) return@LaunchedEffect
+        releaseAvailabilityCheckStarted = true
+        DemoCatalogRepository.awaitLocalCacheReady()
+        val available = withContext(Dispatchers.IO) {
+            waitingReleaseRecords.mapNotNull { record ->
+                val key = releaseNotificationKey(record)
+                val cached = record.contentId?.let(DemoCatalogRepository::findById)
+                    ?: DemoCatalogRepository.findByTitle(record.title)
+                val fresh = withTimeoutOrNull(6_500L) {
+                    record.contentId?.takeIf { it.isNotBlank() }
+                        ?.let { DemoCatalogRepository.findFullById(it) }
+                        ?: DemoCatalogRepository.findFullByTitle(record.title)
+                }
+                val resolved = fresh ?: cached
+                if (resolved != null && moviaHasPlayableSource(resolved)) key to resolved else null
+            }
+        }
+        if (available.isNotEmpty()) {
+            releaseNotificationMedia = releaseNotificationMedia + available.toMap()
+            preferencesRepository.addReleaseNotifications(available.map { it.first }.toSet())
+        }
+    }
+
+    LaunchedEffect(hasUnreadReleaseNotifications) {
+        if (hasUnreadReleaseNotifications && !notificationStartupRingConsumed) {
+            notificationStartupRingConsumed = true
+            notificationStartupRingToken += 1
+        }
     }
     val currentPlaybackContent = remember(playbackState.mediaId) {
         playbackState.mediaId.takeIf { it.isNotBlank() }?.let(DemoCatalogRepository::findById)
@@ -365,6 +473,7 @@ private fun MoviaContent(
     val activeRoute = navigationState.currentRoute
     val activeDetailsRoute = activeRoute as? MoviaRoute.Details
     val activeDetailsTitle = activeDetailsRoute?.title
+    val activePersonRoute = activeRoute as? MoviaRoute.Person
     val settingsRoute = (activeRoute as? MoviaRoute.Settings)?.page
     val profileOpen = activeRoute == MoviaRoute.Profile
     val fullPlayerOpen = activeRoute == MoviaRoute.Player
@@ -380,8 +489,14 @@ private fun MoviaContent(
         navigationState = navigationState.pop()
     }
 
+    fun ensurePlayerOpen() {
+        if (navigationState.currentRoute != MoviaRoute.Player) {
+            navigationState = navigationState.push(MoviaRoute.Player)
+        }
+    }
+
     fun openPlayer() {
-        if (playbackState.hasMedia) pushRoute(MoviaRoute.Player)
+        if (playbackSession.state.value.hasMedia) ensurePlayerOpen()
     }
 
     fun closePlayer() {
@@ -475,7 +590,7 @@ private fun MoviaContent(
 
     val persistActiveProgress: () -> Unit = {
         val state = playbackSession.state.value
-        if (state.hasMedia && state.currentPositionMs >= 0L && state.totalDurationMs > 0L) {
+        if (playbackSession.recordHistory && state.hasMedia && state.currentPositionMs >= 0L && state.totalDurationMs > 0L) {
             scope.launch {
                 libraryRepository.saveProgress(
                     MediaRef(state.mediaId, state.seasonNumber, state.episodeNumber),
@@ -492,6 +607,23 @@ private fun MoviaContent(
         persistActiveProgress()
         playbackSession.stopAndClear()
         closePlayer()
+    }
+
+    LaunchedEffect(
+        playbackSession,
+        navigationState,
+        MoviaPiPState.isInPictureInPicture,
+    ) {
+        playbackSession.state.collect { livePlaybackState ->
+            if (
+                livePlaybackState.hasMedia &&
+                livePlaybackState.isPlaying &&
+                navigationState.currentRoute != MoviaRoute.Player &&
+                !MoviaPiPState.isInPictureInPicture
+            ) {
+                ensurePlayerOpen()
+            }
+        }
     }
 
     val startPlaybackForMedia: (MediaRef?, String) -> Unit = { requestedMediaRef, title ->
@@ -565,7 +697,7 @@ private fun MoviaContent(
                     subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
                     candidateStreams = streamCandidates,
                 )
-                openPlayer()
+                ensurePlayerOpen()
             }
         }
     }
@@ -576,7 +708,7 @@ private fun MoviaContent(
             val state = playbackSession.state.value
             val advancedEnough = lastPersistedPositionMs < 0L ||
                 kotlin.math.abs(state.currentPositionMs - lastPersistedPositionMs) >= 5_000L
-            if (state.hasMedia && state.isPlaying && advancedEnough &&
+            if (playbackSession.recordHistory && state.hasMedia && state.isPlaying && advancedEnough &&
                 state.currentPositionMs >= 0L && state.totalDurationMs > 0L
             ) {
                 libraryRepository.saveProgress(
@@ -618,8 +750,12 @@ private fun MoviaContent(
             session = playbackSession,
             title = title,
             mediaContent = currentPlaybackContent,
-            onMinimize = { persistActiveProgress(); closePlayer() },
-            onBack = { persistActiveProgress(); closePlayer() },
+            onMinimize = {
+                closePlayback()
+            },
+            onBack = {
+                closePlayback()
+            },
             preferredAudio = resolvedAudio,
             preferredQuality = resolvedQuality,
             onAudioSelected = { audio ->
@@ -674,8 +810,31 @@ private fun MoviaContent(
         return
     }
 
-    val miniVisible = playbackState.hasMedia
-    val contentBottomPadding = if (miniVisible) 76.dp else 0.dp
+    val setWaitingReleaseState: (String, String, Boolean) -> Unit = { mediaId, title, enabled ->
+        scope.launch {
+            val resolvedId = mediaId.takeIf { it.isNotBlank() }
+                ?: DemoCatalogRepository.findByTitle(title)?.id
+            val notificationKey = resolvedId ?: MediaRef.storageKey(null, title)
+            preferencesRepository.resetReleaseNotification(notificationKey)
+            libraryRepository.setWaitingRelease(mediaId, title, enabled)
+        }
+    }
+
+    val contentBottomPadding = 0.dp
+
+    if (activePersonRoute != null) {
+        PersonFilmographyScreen(
+            name = activePersonRoute.name,
+            photoUrl = activePersonRoute.photoUrl,
+            credit = activePersonRoute.credit,
+            onBack = { popRoute() },
+            onOpenDetails = { mediaId, title ->
+                pushRoute(MoviaRoute.Details(mediaId, title))
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+        return
+    }
 
     if (activeDetailsTitle != null) {
         val title = activeDetailsTitle
@@ -687,6 +846,7 @@ private fun MoviaContent(
         val resolvedQuality = titlePreferences.quality ?: playbackPreferences.quality
         val mediaId = activeDetailsRoute?.mediaId.orEmpty()
         val inMyList = mediaId in favoriteContentIds || title in favorites
+        val isWaitingRelease = mediaId in waitingReleaseContentIds || title in waitingRelease
 
         val toggleDownload: (MediaRef?, String) -> Unit = { requestedRef, target ->
             val mediaRef = requestedRef
@@ -731,11 +891,24 @@ private fun MoviaContent(
                 onOpenDetails = { relatedMediaId, relatedTitle ->
                     pushRoute(MoviaRoute.Details(relatedMediaId, relatedTitle))
                 },
+                onOpenPerson = { person, credit ->
+                    pushRoute(
+                        MoviaRoute.Person(
+                            name = person.name,
+                            photoUrl = person.photoUrl,
+                            credit = credit,
+                        ),
+                    )
+                },
                 inMyList = inMyList,
                 onMyListChange = { enabled ->
                     scope.launch {
                         setFavorite(activeDetailsRoute?.mediaId.orEmpty(), title, enabled)
                     }
+                },
+                isWaitingRelease = isWaitingRelease,
+                onWaitingReleaseChange = { enabled ->
+                    setWaitingReleaseState(activeDetailsRoute?.mediaId.orEmpty(), title, enabled)
                 },
                 downloads = downloads,
                 downloadRecords = downloadRecords,
@@ -747,17 +920,6 @@ private fun MoviaContent(
                     .fillMaxSize()
                     .padding(bottom = contentBottomPadding),
             )
-            if (miniVisible) {
-                MiniPlayerBar(
-                    session = playbackSession,
-                    mediaContent = currentPlaybackContent,
-                    onOpen = { openPlayer() },
-                    onClose = closePlayback,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding(),
-                )
-            }
         }
         return
     }
@@ -785,11 +947,15 @@ private fun MoviaContent(
                                 if (mediaRef != null) libraryRepository.setDownloaded(mediaRef, title, false)
                                 else libraryRepository.setDownloaded(title, false)
                             }
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Завершите офлайн-просмотр перед удалением загрузки.") }
                         }
                     },
                     onDeleteAll = {
                         if (DownloadScheduler.deleteAll(context.applicationContext)) {
                             scope.launch { libraryRepository.clearDownloads() }
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Не удалось удалить загрузки. Завершите офлайн-просмотр и повторите.") }
                         }
                     },
                     modifier = settingsModifier,
@@ -797,17 +963,6 @@ private fun MoviaContent(
                 MoviaSettingsPage.HELP -> HelpSettingsScreen(
                     onBack = closeSettings,
                     modifier = settingsModifier,
-                )
-            }
-            if (miniVisible) {
-                MiniPlayerBar(
-                    session = playbackSession,
-                    mediaContent = currentPlaybackContent,
-                    onOpen = { openPlayer() },
-                    onClose = closePlayback,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding(),
                 )
             }
         }
@@ -849,6 +1004,13 @@ private fun MoviaContent(
                     catalogLaunchPreset = preset
                     navigationState = navigationState.selectTab(MoviaTopLevel.CATALOG)
                 },
+                hasUnreadNotifications = hasUnreadReleaseNotifications,
+                notificationStartupRingToken = notificationStartupRingToken,
+                onNotificationsClick = {
+                    releaseNotificationSheetOpen = true
+                    val unreadNow = unreadReleaseNotificationKeys
+                    scope.launch { preferencesRepository.markReleaseNotificationsRead(unreadNow) }
+                },
             )
             1 -> CatalogScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -869,6 +1031,8 @@ private fun MoviaContent(
                 contentPadding = innerPadding,
                 favorites = favorites,
                 favoriteRecords = favoriteRecords,
+                waitingRelease = waitingRelease,
+                waitingReleaseRecords = waitingReleaseRecords,
                 history = history,
                 historyRecords = historyRecords,
                 downloads = downloads,
@@ -878,6 +1042,12 @@ private fun MoviaContent(
                 progressByMediaRef = effectiveProgressByMediaRef,
                 resumeHeroState = resumeHeroState,
                 onContinue = { mediaRef, title -> startPlaybackForMedia(mediaRef, title) },
+                onToggleFavorite = { mediaId, title, enabled ->
+                    scope.launch { setFavorite(mediaId, title, enabled) }
+                },
+                onToggleWaitingRelease = { mediaId, title, enabled ->
+                    setWaitingReleaseState(mediaId, title, enabled)
+                },
                 onOpenDetails = openDetails,
                 onOpenCatalog = {
                     navigationState = navigationState.selectTab(MoviaTopLevel.CATALOG)
@@ -941,19 +1111,9 @@ private fun MoviaContent(
                         )
                     }
                 }
-                Column(modifier = Modifier.weight(1f).fillMaxSize()) {
-                    Box(modifier = Modifier.weight(1f).fillMaxSize()) {
-                        saveableStateHolder.SaveableStateProvider("top-level-$selectedIndex") {
-                            screenContent(WindowInsets.safeDrawing.asPaddingValues())
-                        }
-                    }
-                    if (miniVisible) {
-                        MiniPlayerBar(
-                            session = playbackSession,
-                            mediaContent = currentPlaybackContent,
-                            onOpen = { openPlayer() },
-                            onClose = closePlayback,
-                        )
+                Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                    saveableStateHolder.SaveableStateProvider("top-level-$selectedIndex") {
+                        screenContent(WindowInsets.safeDrawing.asPaddingValues())
                     }
                 }
             }
@@ -961,16 +1121,15 @@ private fun MoviaContent(
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = if (miniVisible) 88.dp else 16.dp),
+                    .padding(bottom = 16.dp),
             )
         } else {
             val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
             val systemBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
             val bottomNavHazeState = remember { HazeState() }
-            val appNavHeight = 64.dp
+            val appNavHeight = 64.dp + ((androidx.compose.ui.platform.LocalDensity.current.fontScale - 1f).coerceAtLeast(0f) * 24f).dp
             val appNavSystemGap = 8.dp
             val navHeight = appNavHeight + appNavSystemGap + systemBottom
-            val miniPlayerHeight = if (miniVisible) 76.dp else 0.dp
             // Every top-level scroll surface must be able to move its final row fully
             // above the fixed navigation stack. The 16dp breathing room is part of the
             // contract, not an ad-hoc per-screen spacer.
@@ -995,7 +1154,6 @@ private fun MoviaContent(
                         .fillMaxSize()
                         // Keep each destination's existing top inset contract, but let every
                         // top-level screen paint behind the same floating glass navigation as Home.
-                        .padding(bottom = miniPlayerHeight)
                         .hazeSource(state = bottomNavHazeState),
                 ) {
                     saveableStateHolder.SaveableStateProvider("top-level-$selectedIndex") {
@@ -1011,17 +1169,10 @@ private fun MoviaContent(
                         // above the fixed bottom navigation stack.
                         .zIndex(1000f),
                 ) {
-                    if (miniVisible) {
-                        MiniPlayerBar(
-                            session = playbackSession,
-                            mediaContent = currentPlaybackContent,
-                            onOpen = { openPlayer() },
-                            onClose = closePlayback,
-                        )
-                    }
                     MoviaBottomNavigation(
                         selectedIndex = selectedIndex,
                         hazeState = bottomNavHazeState,
+                        height = appNavHeight,
                         onSelected = {
                             navigationState = navigationState.selectTab(MoviaTopLevel.fromIndex(it))
                         },
@@ -1039,10 +1190,24 @@ private fun MoviaContent(
                     hostState = snackbarHostState,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = navHeight + miniPlayerHeight + 12.dp),
+                        .padding(bottom = navHeight + 12.dp),
                 )
             }
         }
+    }
+
+    if (releaseNotificationSheetOpen) {
+        ReleaseNotificationsSheet(
+            items = releaseNotificationItems,
+            onDismissRequest = { releaseNotificationSheetOpen = false },
+            onWatchNow = { item ->
+                releaseNotificationSheetOpen = false
+                startPlaybackForMedia(item.record.mediaRef, item.record.title)
+            },
+            onRemove = { item ->
+                scope.launch { preferencesRepository.dismissReleaseNotification(item.key) }
+            },
+        )
     }
 }
 
@@ -1050,6 +1215,7 @@ private fun MoviaContent(
 private fun MoviaBottomNavigation(
     selectedIndex: Int,
     hazeState: HazeState,
+    height: androidx.compose.ui.unit.Dp,
     onSelected: (Int) -> Unit,
 ) {
     val activeColor = MoviaBrandAmber
@@ -1059,8 +1225,8 @@ private fun MoviaBottomNavigation(
         modifier = Modifier
             .padding(horizontal = 14.dp)
             .fillMaxWidth()
-            .height(64.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .height(height)
+            .clip(RoundedCornerShape(15.75.dp))
             .hazeEffect(
                 state = hazeState,
                 style = HazeStyle(
@@ -1075,7 +1241,7 @@ private fun MoviaBottomNavigation(
             .drawBehind {
                 drawRoundRect(
                     color = MoviaNavTopBorder,
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(28.dp.toPx()),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(15.75.dp.toPx()),
                     style = Stroke(width = 1.dp.toPx()),
                 )
             }
@@ -1084,7 +1250,7 @@ private fun MoviaBottomNavigation(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp),
+                .height(height),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             topLevelDestinations.forEachIndexed { index, destination ->
@@ -1095,13 +1261,13 @@ private fun MoviaBottomNavigation(
                 val navInteractionSource = remember { MutableInteractionSource() }
                 val glowAlpha by animateFloatAsState(
                     targetValue = if (selected) 1f else 0f,
-                    animationSpec = tween(durationMillis = 200),
+                    animationSpec = tween(durationMillis = 500),
                     label = "bottomNavGlowAlpha",
                 )
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .height(64.dp)
+                        .height(height)
                         .testTag(topLevelControlTag(index))
                         .clickable(
                             interactionSource = navInteractionSource,
@@ -1125,8 +1291,8 @@ private fun MoviaBottomNavigation(
                             drawCircle(
                                 brush = Brush.radialGradient(
                                     colorStops = arrayOf(
-                                        0.00f to MoviaBrandAmber.copy(alpha = 0.30f * glowAlpha),
-                                        0.45f to MoviaBrandAmber.copy(alpha = 0.14f * glowAlpha),
+                                        0.00f to MoviaBrandAmber.copy(alpha = 0.36f * glowAlpha),
+                                        0.45f to MoviaBrandAmber.copy(alpha = 0.18f * glowAlpha),
                                         1.00f to MoviaBrandAmber.copy(alpha = 0f),
                                     ),
                                     center = center,

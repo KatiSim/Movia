@@ -1,6 +1,10 @@
 package app.movia.android.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,6 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.movia.android.ui.theme.MoviaBrandAmber
+
+val MoviaSectionHeaderContentGap = 8.dp
 
 /** Authoritative Movia section heading, optionally with a 48dp "Смотреть все" action. */
 @Composable
@@ -62,18 +69,54 @@ fun SectionHeader(
             overflow = TextOverflow.Ellipsis,
         )
 
+        MoviaSectionAction(
+            label = "Смотреть все",
+            actionTestTag = actionTestTag,
+            onClick = onClick,
+        )
+    }
+}
+@Composable
+fun MoviaSectionAction(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    actionTestTag: String? = null,
+) {
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val glowAlpha = rememberMoviaNeonFeedbackAlpha(actionTrigger, durationMs = 360)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 120L, onClick)
+    val actionColor = lerp(
+        MaterialTheme.colorScheme.onSurfaceVariant,
+        MoviaBrandAmber,
+        glowAlpha.coerceIn(0f, 1f),
+    )
+
+    val glowShape = RoundedCornerShape(14.dp)
+    Box(
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .clickable(onClick = animatedOnClick)
+            .then(if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier)
+            .background(
+                color = MoviaBrandAmber.copy(alpha = 0.10f * glowAlpha),
+                shape = glowShape,
+            )
+            .border(
+                width = 1.dp,
+                color = MoviaBrandAmber.copy(alpha = 0.48f * glowAlpha),
+                shape = glowShape,
+            )
+            .padding(start = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
         Row(
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .clickable(onClick = onClick)
-                .then(if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier)
-                .padding(start = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = "Смотреть все",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = label,
+                color = actionColor,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
@@ -86,7 +129,7 @@ fun SectionHeader(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = actionColor,
                     modifier = Modifier.size(19.dp),
                 )
             }

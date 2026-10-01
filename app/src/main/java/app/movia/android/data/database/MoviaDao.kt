@@ -76,6 +76,24 @@ interface MoviaDao {
     @Query("DELETE FROM watch_later WHERE contentId = :contentId")
     suspend fun deleteWatchLaterByContentId(contentId: String)
 
+    @Query("SELECT title FROM waiting_release ORDER BY addedAt DESC")
+    fun observeWaitingRelease(): Flow<List<String>>
+
+    @Query("SELECT * FROM waiting_release ORDER BY addedAt DESC")
+    fun observeWaitingReleaseRows(): Flow<List<WaitingReleaseEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertWaitingRelease(entity: WaitingReleaseEntity)
+
+    @Query("DELETE FROM waiting_release WHERE mediaKey = :mediaKey")
+    suspend fun deleteWaitingReleaseByMediaKey(mediaKey: String)
+
+    @Query("DELETE FROM waiting_release WHERE title = :title AND contentId IS NULL")
+    suspend fun deleteWaitingRelease(title: String)
+
+    @Query("DELETE FROM waiting_release WHERE contentId = :contentId")
+    suspend fun deleteWaitingReleaseByContentId(contentId: String)
+
     @Query("SELECT title FROM history ORDER BY openedAt DESC LIMIT 30")
     fun observeHistory(): Flow<List<String>>
 
@@ -168,6 +186,15 @@ interface MoviaDao {
 
     @Query("UPDATE watch_later SET contentId = :contentId WHERE title = :title")
     suspend fun updateWatchLaterContentId(title: String, contentId: String)
+
+    @Query("SELECT * FROM waiting_release WHERE contentId IS NULL ORDER BY addedAt ASC")
+    suspend fun waitingReleaseMissingContentId(): List<WaitingReleaseEntity>
+
+    @Transaction
+    suspend fun rekeyWaitingRelease(oldMediaKey: String, entity: WaitingReleaseEntity) {
+        deleteWaitingReleaseByMediaKey(oldMediaKey)
+        upsertWaitingRelease(entity)
+    }
 
     @Query("SELECT * FROM downloads WHERE contentId IS NULL ORDER BY completedAt ASC")
     suspend fun downloadsMissingContentId(): List<DownloadEntity>

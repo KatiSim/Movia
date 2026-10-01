@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
@@ -57,6 +58,7 @@ fun MoviaArtwork(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.Crop,
+    alignment: Alignment = Alignment.Center,
     placeholderStyle: MediaArtworkPlaceholderStyle = MediaArtworkPlaceholderStyle.POSTER,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
@@ -81,6 +83,7 @@ fun MoviaArtwork(
             model = request,
             contentDescription = contentDescription,
             contentScale = contentScale,
+            alignment = alignment,
             modifier = Modifier.fillMaxSize(),
         )
 

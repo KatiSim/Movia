@@ -44,4 +44,9 @@ class StreamSettingsSelectionTest {
         )
         assertNull(StreamSettingsSelection.select(emptyList(), "LostFilm", "1080p"))
     }
+
+    @Test fun knownVoiceIsKeptWhenQualityIsUnavailableForIt() {
+        assertEquals("LostFilm", StreamSettingsSelection.select(streams, "LostFilm", "720p")?.voice)
+        assertEquals("1080p", StreamSettingsSelection.select(streams, "LostFilm", "720p")?.quality)
+    }
 }

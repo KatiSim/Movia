@@ -1,9 +1,14 @@
 package app.movia.android.ui.library
 
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -13,9 +18,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -29,23 +36,33 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,6 +71,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,29 +84,63 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.movia.android.R
 import app.movia.android.domain.model.CatalogCategory
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.MediaRef
 import app.movia.android.domain.model.PlaybackProgress
 import app.movia.android.domain.model.LibraryMediaRecord
+import app.movia.android.ui.components.rememberMoviaMediaCoverFeedback
+import app.movia.android.ui.components.MoviaMediaCoverFrame
 import app.movia.android.ui.components.MediaContentCard
 import app.movia.android.ui.components.MediaMetadataRow
 import app.movia.android.ui.components.MoviaAmbientStrength
 import app.movia.android.ui.components.MoviaArtwork
-import app.movia.android.ui.components.MoviaSpotlightActionButton
+import app.movia.android.ui.components.MoviaFadeOverflowText
+import app.movia.android.ui.components.MoviaGoldMedallionKind
+import app.movia.android.ui.components.MoviaHeaderCircleControl
+import app.movia.android.ui.components.MoviaHeaderGlyph
+import app.movia.android.ui.components.MoviaHeaderGlyphIcon
+import app.movia.android.ui.components.MoviaIconMotionKind
+import app.movia.android.ui.components.rememberMoviaIconMotion
+import app.movia.android.ui.components.rememberMoviaIconTapAlpha
+import app.movia.android.ui.components.rememberMoviaGearMotion
+import app.movia.android.ui.components.rememberMoviaAnimatedAction
+import app.movia.android.ui.components.rememberMoviaActionTriggerState
+import app.movia.android.ui.components.rememberMoviaPlaybackActionMotion
+import app.movia.android.ui.components.MoviaSectionHeaderContentGap
+import app.movia.android.ui.components.MoviaSectionAction
+import app.movia.android.ui.components.MediaReleaseState
+import app.movia.android.ui.components.moviaMediaReleaseState
+import app.movia.android.ui.components.MoviaGoldMedallion
 import app.movia.android.ui.components.MoviaChildTopBar
 import app.movia.android.ui.components.moviaAmbient
+import app.movia.android.ui.components.moviaPrimaryGenre
+import app.movia.android.ui.components.moviaRatingLabel
+import app.movia.android.ui.components.moviaYearLabel
+import app.movia.android.ui.theme.MoviaTextPrimary
+import app.movia.android.ui.theme.MoviaBackgroundPrimary
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaIconPrimary
 import app.movia.android.ui.theme.MoviaOnBrandAmber
+import app.movia.android.ui.theme.MoviaSurfaceSecondary
 import kotlin.math.ceil
 
 private enum class LibrarySection { BOOKMARKS, FAVORITES, LATER, DOWNLOADS, HISTORY }
+private enum class MyListTab { FAVORITES, WAITING_RELEASE }
 
 @Composable
 fun LibraryScreen(
@@ -91,6 +148,8 @@ fun LibraryScreen(
     modifier: Modifier = Modifier,
     favorites: Set<String> = emptySet(),
     favoriteRecords: List<LibraryMediaRecord> = emptyList(),
+    waitingRelease: Set<String> = emptySet(),
+    waitingReleaseRecords: List<LibraryMediaRecord> = emptyList(),
     history: List<String> = emptyList(),
     historyRecords: List<LibraryMediaRecord> = emptyList(),
     downloads: Set<String> = emptySet(),
@@ -100,6 +159,8 @@ fun LibraryScreen(
     progressByMediaRef: Map<String, PlaybackProgress> = emptyMap(),
     resumeHeroState: ResumeHeroState = ResumeHeroState.None,
     onContinue: (MediaRef?, String) -> Unit,
+    onToggleFavorite: (String, String, Boolean) -> Unit,
+    onToggleWaitingRelease: (String, String, Boolean) -> Unit,
     onOpenDetails: (String, String) -> Unit,
     onOpenCatalog: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -108,6 +169,7 @@ fun LibraryScreen(
 ) {
     val availableCatalog = remember(catalog) { catalog.distinctBy { it.id } }
     var routeName by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedListTab by rememberSaveable { mutableStateOf(MyListTab.FAVORITES) }
     val route = routeName?.let(LibrarySection::valueOf)
     BackHandler(enabled = route != null) { routeName = null }
 
@@ -158,10 +220,17 @@ fun LibraryScreen(
     val favoriteRows = favoriteRecords.ifEmpty {
         favorites.map { title -> LibraryMediaRecord("legacy:${title.length}:$title", null, title, 0L) }
     }
+    val waitingReleaseRows = waitingReleaseRecords.ifEmpty {
+        waitingRelease.map { title -> LibraryMediaRecord("legacy:${title.length}:$title", null, title, 0L) }
+    }
     val historyRows = historyRecords.ifEmpty {
         history.map { title -> LibraryMediaRecord("legacy:${title.length}:$title", null, title, 0L) }
     }
     val favoriteItems = favoriteRows.mapNotNull(::resolve).distinctBy { it.id }
+    val waitingReleaseItems = waitingReleaseRows.mapNotNull(::resolve).distinctBy { it.id }
+    val legacyUpcomingFavorites = favoriteItems.filter { moviaMediaReleaseState(it) == MediaReleaseState.UPCOMING }
+    val displayFavoriteItems = favoriteItems.filterNot { item -> legacyUpcomingFavorites.any { it.id == item.id } }
+    val displayWaitingReleaseItems = (waitingReleaseItems + legacyUpcomingFavorites).distinctBy { it.id }
     val recentItems = historyRows.mapNotNull(::resolve).distinctBy { it.id }
     val resumeProgress = when (resumeHeroState) {
         ResumeHeroState.None -> null
@@ -185,62 +254,100 @@ fun LibraryScreen(
         recentItems
     }
 
+    val heroReleaseState = resumeItem?.let(::moviaMediaReleaseState) ?: MediaReleaseState.UNKNOWN
+    val heroIsFavorite = resumeItem?.let { item ->
+        favoriteItems.any { it.id == item.id } || favorites.any { it.equals(item.title, ignoreCase = true) }
+    } ?: false
+    val heroStoredWaitingRelease = resumeItem?.let { item ->
+        waitingReleaseItems.any { it.id == item.id } ||
+            waitingRelease.any { it.equals(item.title, ignoreCase = true) }
+    } ?: false
+    val heroIsWaitingRelease = heroStoredWaitingRelease ||
+        (heroReleaseState == MediaReleaseState.UPCOMING && heroIsFavorite)
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(MoviaBackgroundPrimary),
         contentPadding = PaddingValues(
-            start = 16.dp,
+            start = 0.dp,
             top = contentPadding.calculateTopPadding() + 16.dp,
-            end = 16.dp,
+            end = 0.dp,
             bottom = contentPadding.calculateBottomPadding(),
         ),
     ) {
         item(key = "my-profile") {
-            ProfileHeader(
-                onOpenDownloads = onOpenDownloads,
-                onOpenSettings = onOpenSettings,
-            )
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                ProfileHeader(
+                    onOpenDownloads = onOpenDownloads,
+                    onOpenSettings = onOpenSettings,
+                )
+            }
         }
 
         if (hasHero) {
-            item(key = "my-profile-hero-gap") { Spacer(Modifier.height(26.dp)) }
+            item(key = "my-profile-hero-gap") { Spacer(Modifier.height(18.dp)) }
             item(key = "my-resume") {
                 ResumeHero(
                     item = resumeItem,
                     progress = requireNotNull(resumeProgress),
+                    releaseState = heroReleaseState,
+                    isFavorite = heroIsFavorite,
+                    isWaitingRelease = heroIsWaitingRelease,
                     onContinue = {
                         val mediaRef = resumeProgress.mediaRef
                             ?: resumeItem?.id?.let { MediaRef(it) }
                         onContinue(mediaRef, resumeProgress.title)
+                    },
+                    onToggleFavorite = {
+                        resumeItem?.let { item ->
+                            onToggleFavorite(item.id, item.title, !heroIsFavorite)
+                        }
+                    },
+                    onToggleWaitingRelease = {
+                        resumeItem?.let { item ->
+                            val enabled = !heroIsWaitingRelease
+                            if (heroIsFavorite) onToggleFavorite(item.id, item.title, false)
+                            onToggleWaitingRelease(item.id, item.title, enabled)
+                        }
+                    },
+                    onOpenDetails = {
+                        resumeItem?.let { item -> onOpenDetails(item.id, item.title) }
                     },
                 )
             }
         }
 
         if (displayRecentItems.isNotEmpty()) {
-            item(key = "my-recent-gap") { Spacer(Modifier.height(24.dp)) }
+            item(key = "my-recent-gap") { Spacer(Modifier.height(10.dp)) }
             item(key = "my-recent") {
-                MediaShelfSection(
-                    title = "Недавнее",
-                    actionText = "Вся история",
-                    items = displayRecentItems,
-                    itemTestTagPrefix = "library.history.item",
-                    onAction = { routeName = LibrarySection.HISTORY.name },
-                    onOpenDetails = onOpenDetails,
-                )
+                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    MediaShelfSection(
+                        title = "Недавно смотрели",
+                        actionText = "Вся история",
+                        items = displayRecentItems,
+                        itemTestTagPrefix = "library.history.item",
+                        onAction = { routeName = LibrarySection.HISTORY.name },
+                        onOpenDetails = onOpenDetails,
+                    )
+                }
             }
         }
 
-        item(key = "my-favorites-gap") { Spacer(Modifier.height(24.dp)) }
-        item(key = "my-favorites") {
-            FavoritesSection(
-                items = favoriteItems,
-                itemTestTagPrefix = "library.favorite.item",
-                onOpenAll = { routeName = LibrarySection.FAVORITES.name },
-                onOpenDetails = onOpenDetails,
-                onOpenCatalog = onOpenCatalog,
-            )
+        item(key = "my-lists-gap") { Spacer(Modifier.height(22.dp)) }
+        item(key = "my-lists") {
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                MyListsSection(
+                    selectedTab = selectedListTab,
+                    onSelectedTabChange = { selectedListTab = it },
+                    favoriteItems = displayFavoriteItems,
+                    waitingReleaseItems = displayWaitingReleaseItems,
+                    onOpenDetails = onOpenDetails,
+                    onOpenCatalog = onOpenCatalog,
+                )
+            }
         }
     }
+
 }
 
 @Composable
@@ -252,25 +359,20 @@ private fun ProfileHeader(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(modifier = Modifier.size(52.dp), contentAlignment = Alignment.Center) {
-            Surface(
-                modifier = Modifier.size(52.dp),
-                shape = RoundedCornerShape(26.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MoviaBorderSubtle),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        ProfileIcon,
-                        contentDescription = null,
-                        tint = MoviaIconPrimary,
-                        modifier = Modifier.size(28.dp),
-                    )
-                }
-            }
+        Box(
+            modifier = Modifier.size(69.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            MoviaHeaderCircleControl(
+                glyph = MoviaHeaderGlyph.Profile,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = 0.95f
+                    scaleY = 0.95f
+                },
+            )
         }
-        Spacer(Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Spacer(Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "Пользователь",
                 color = MaterialTheme.colorScheme.onSurface,
@@ -280,158 +382,469 @@ private fun ProfileHeader(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Icon(
-                    imageVector = CloudIcon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp),
-                )
-                Text(
-                    text = "Синхронизация",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
         Spacer(Modifier.width(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconButton(onClick = onOpenDownloads, modifier = Modifier.size(48.dp).testTag("my_downloads")) {
-                Icon(
-                    Icons.Outlined.Download,
-                    contentDescription = "Загрузки",
-                    tint = MoviaIconPrimary,
-                    modifier = Modifier.size(26.dp),
-                )
+            HeaderUtilityAction(
+                onClick = onOpenDownloads,
+                modifier = Modifier.testTag("my_downloads"),
+            ) { imageModifier, feedbackAlpha ->
+                DownloadProfileControl(imageModifier, feedbackAlpha)
             }
-            IconButton(onClick = onOpenSettings, modifier = Modifier.size(48.dp).testTag("my_settings")) {
-                Icon(
-                    Icons.Outlined.Settings,
-                    contentDescription = "Настройки",
-                    tint = MoviaIconPrimary,
-                    modifier = Modifier.size(30.dp),
-                )
-            }
+            SettingsHeaderUtilityAction(
+                onClick = onOpenSettings,
+                modifier = Modifier.testTag("my_settings"),
+            )
         }
     }
+}
+
+@Composable
+private fun HeaderUtilityAction(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier, Float) -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val reduceMotion = rememberHeaderReduceMotion()
+    val scale = remember { Animatable(1f) }
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val iconTapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 500L, onClick)
+
+    LaunchedEffect(pressed, reduceMotion) {
+        if (reduceMotion) scale.snapTo(1f)
+        else if (pressed) scale.animateTo(0.96f, tween(500, easing = FastOutSlowInEasing))
+        else if (scale.value != 1f) scale.animateTo(1f, tween(500, easing = FastOutSlowInEasing))
+    }
+
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Button,
+                onClick = animatedOnClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        content(
+            Modifier.graphicsLayer {
+                scaleX = scale.value
+                scaleY = scale.value
+            },
+            iconTapAlpha,
+        )
+    }
+}
+
+@Composable
+private fun SettingsHeaderUtilityAction(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val motion = rememberMoviaGearMotion(actionTrigger)
+    val iconTapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 500L, onClick)
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Button,
+                onClick = animatedOnClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        SettingsProfileIcon(
+            glyphColor = lerp(MoviaTextPrimary, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f)),
+            glyphModifier = Modifier.graphicsLayer {
+                scaleX = motion.scale
+                scaleY = motion.scale
+                rotationZ = motion.rotationZ
+            },
+        )
+    }
+}
+
+@Composable
+private fun rememberHeaderReduceMotion(): Boolean = app.movia.android.ui.components.rememberMoviaReducedMotion()
+
+
+@Composable
+private fun DownloadProfileControl(
+    modifier: Modifier = Modifier,
+    iconTapAlpha: Float = 0f,
+) {
+    MoviaHeaderCircleControl(
+        glyph = MoviaHeaderGlyph.Download,
+        modifier = modifier,
+        glyphColor = lerp(MoviaTextPrimary, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f)),
+        description = "Загрузки",
+    )
+}
+
+@Composable
+private fun SettingsProfileIcon(
+    modifier: Modifier = Modifier,
+    glyphModifier: Modifier = Modifier,
+    glyphColor: Color = MoviaTextPrimary,
+) {
+    MoviaHeaderCircleControl(
+        glyph = MoviaHeaderGlyph.Settings,
+        modifier = modifier,
+        glyphModifier = glyphModifier,
+        glyphColor = glyphColor,
+        description = "Настройки",
+    )
 }
 
 @Composable
 private fun ResumeHero(
     item: MediaContent?,
     progress: PlaybackProgress,
+    releaseState: MediaReleaseState,
+    isFavorite: Boolean,
+    isWaitingRelease: Boolean,
     onContinue: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onToggleWaitingRelease: () -> Unit,
+    onOpenDetails: () -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val heroWidth = maxWidth
-        val heroHeight = heroWidth / (16f / 9.9f)
+        val cardWidth = (maxWidth - 30.dp).coerceAtLeast(0.dp)
+        val contentWidth = (cardWidth - 32.dp).coerceAtLeast(0.dp)
+        val heroWidth = cardWidth
+        val heroHeight = contentWidth / (16f / 10.2465f)
         val heroWidthDp = heroWidth.value
         val heroHeightDp = heroHeight.value
         val ambientOverflow = 56.dp
-        Box(
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9.9f),
+                .align(Alignment.TopCenter)
+                .width(cardWidth),
         ) {
-            if (item != null) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .requiredSize(
-                            width = heroWidth + ambientOverflow * 2,
-                            height = heroHeight + ambientOverflow * 2,
-                        )
-                        .moviaAmbient(
-                            artworkUrl = item.backdropUrl ?: item.posterUrl,
-                            strength = MoviaAmbientStrength.MY,
-                            cacheKey = item.id,
-                            posterLeftDp = ambientOverflow.value,
-                            posterTopDp = ambientOverflow.value,
-                            posterWidthDp = heroWidthDp,
-                            posterHeightDp = heroHeightDp,
-                        ),
-                )
-            }
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(18.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MoviaBorderSubtle),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(heroHeight),
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    if (item != null) {
-                        MoviaArtwork(
-                            url = item.backdropUrl ?: item.posterUrl,
-                            modifier = Modifier.fillMaxSize(),
-                            contentDescription = null,
-                        )
-                    }
+                if (item != null) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
+                            .align(Alignment.BottomCenter)
+                            .requiredSize(
+                                width = heroWidth + ambientOverflow * 2,
+                                height = heroHeight + ambientOverflow,
+                            )
+                            .moviaAmbient(
+                                artworkUrl = item.backdropUrl ?: item.posterUrl,
+                                strength = MoviaAmbientStrength.MY,
+                                cacheKey = item.id,
+                                posterLeftDp = ambientOverflow.value,
+                                posterTopDp = ambientOverflow.value,
+                                posterWidthDp = heroWidthDp,
+                                posterHeightDp = heroHeightDp,
+                            ),
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(
+                        topStart = 18.dp,
+                        topEnd = 18.dp,
+                        bottomEnd = 0.dp,
+                        bottomStart = 0.dp,
+                    ),
+                    color = MoviaBackgroundPrimary,
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (item != null) {
+                            MoviaArtwork(
+                                url = item.backdropUrl ?: item.posterUrl,
+                                modifier = Modifier.fillMaxSize(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                            )
+                        }
+
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            // Existing readability shadow.
+                            drawRect(
+                                brush = Brush.verticalGradient(
                                     colorStops = arrayOf(
-                                        0.00f to Color.Transparent,
-                                        0.38f to Color.Transparent,
-                                        0.66f to Color.Black.copy(alpha = 0.46f),
+                                        0.28f to Color.Transparent,
+                                        0.52f to Color.Black.copy(alpha = 0.10f),
+                                        0.70f to Color.Black.copy(alpha = 0.38f),
+                                        0.86f to Color.Black.copy(alpha = 0.68f),
                                         1.00f to Color.Black.copy(alpha = 0.88f),
                                     ),
                                 ),
-                            ),
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = item?.title ?: progress.title
-                                .substringBefore(" · S")
-                                .substringBefore(" · E")
-                                .trim(),
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            lineHeight = 26.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = listOfNotNull(episodeLabel(progress.title), remainingLabel(progress)).joinToString(" · "),
-                            color = Color.White.copy(alpha = 0.82f),
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        LinearProgressIndicator(
-                            progress = { progress.fraction },
-                            modifier = Modifier.fillMaxWidth().height(4.dp),
-                            color = MoviaBrandAmber,
-                            trackColor = Color.White.copy(alpha = 0.24f),
-                        )
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            MoviaSpotlightActionButton(
-                                label = "Продолжить",
-                                contentDescription = "Продолжить просмотр",
-                                onClick = onContinue,
-                                modifier = Modifier.testTag("library.resume.continue"),
                             )
+
+                            // Restore the previous lower fog: artwork dissolves into the page background.
+                            val dissolveHeight = 72.dp.toPx()
+                            val solidBackgroundHeight = 24.dp.toPx()
+                            val dissolveStart = (size.height - dissolveHeight).coerceAtLeast(0f)
+                            val dissolveEnd = (size.height - solidBackgroundHeight).coerceAtLeast(dissolveStart)
+                            if (dissolveEnd > dissolveStart) {
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        colorStops = arrayOf(
+                                            0.00f to Color.Transparent,
+                                            0.42f to MoviaBackgroundPrimary.copy(alpha = 0.30f),
+                                            0.76f to MoviaBackgroundPrimary.copy(alpha = 0.72f),
+                                            1.00f to MoviaBackgroundPrimary,
+                                        ),
+                                        startY = dissolveStart,
+                                        endY = dissolveEnd,
+                                    ),
+                                    topLeft = androidx.compose.ui.geometry.Offset(0f, dissolveStart),
+                                    size = androidx.compose.ui.geometry.Size(size.width, dissolveEnd - dissolveStart),
+                                )
+                            }
+                            if (solidBackgroundHeight > 0f) {
+                                drawRect(
+                                    color = MoviaBackgroundPrimary,
+                                    topLeft = androidx.compose.ui.geometry.Offset(0f, size.height - solidBackgroundHeight),
+                                    size = androidx.compose.ui.geometry.Size(size.width, solidBackgroundHeight),
+                                )
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .offset(x = (-10).dp)
+                                .width(contentWidth)
+                                .padding(start = 16.dp, top = 14.dp, end = 16.dp, bottom = 6.dp),
+                            verticalArrangement = Arrangement.spacedBy(9.dp),
+                        ) {
+                            MoviaFadeOverflowText(
+                                text = item?.title ?: progress.title
+                                    .substringBefore(" · S")
+                                    .substringBefore(" · E")
+                                    .trim(),
+                                modifier = Modifier.fillMaxWidth(),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    lineHeight = 26.sp,
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                                maxLines = 2,
+                            )
+
+                            if (item != null) {
+                                val rating = (item.imdbRating ?: item.rating)?.let(::moviaRatingLabel)
+                                val genre = moviaPrimaryGenre(item)
+                                val year = moviaYearLabel(item.year)
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    rating?.let { HeroMetaChip(text = "★ $it", highlight = true) }
+                                    genre?.let { HeroMetaChip(text = it) }
+                                    year?.let { HeroMetaChip(text = it) }
+                                }
+                            }
                         }
                     }
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(74.dp),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomEnd = 18.dp,
+                    bottomStart = 18.dp,
+                ),
+                color = MoviaBackgroundPrimary,
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .width(contentWidth)
+                            .fillMaxHeight()
+                            .padding(vertical = 5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                    ResumeHeroActionButton(
+                        secondaryLabel = remainingLabel(progress),
+                        onClick = onContinue,
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("library.resume.continue"),
+                    )
+                    if (releaseState == MediaReleaseState.UPCOMING) {
+                        HeroRoundAction(
+                            icon = if (isWaitingRelease) {
+                                Icons.Outlined.NotificationsActive
+                            } else {
+                                Icons.Outlined.NotificationsNone
+                            },
+                            contentDescription = if (isWaitingRelease) {
+                                "Убрать из списка «Жду выхода»"
+                            } else {
+                                "Добавить в список «Жду выхода»"
+                            },
+                            selected = isWaitingRelease,
+                            motionKind = MoviaIconMotionKind.BELL,
+                            enabled = item != null,
+                            onClick = onToggleWaitingRelease,
+                        )
+                    } else {
+                        HeroRoundAction(
+                            icon = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = if (isFavorite) {
+                                "Убрать из избранного"
+                            } else {
+                                "Добавить в избранное"
+                            },
+                            selected = isFavorite,
+                            motionKind = MoviaIconMotionKind.HEART,
+                            enabled = item != null,
+                            onClick = onToggleFavorite,
+                        )
+                    }
+                    HeroRoundAction(
+                        icon = Icons.Outlined.Info,
+                        iconSize = 30.dp,
+                        contentDescription = "О фильме",
+                        motionKind = MoviaIconMotionKind.INFO,
+                        enabled = item != null,
+                        onClick = onOpenDetails,
+                    )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeroMetaChip(
+    text: String,
+    highlight: Boolean = false,
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xB31A2130),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            color = if (highlight) MoviaBrandAmber else Color.White.copy(alpha = 0.86f),
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun HeroRoundAction(
+    icon: ImageVector,
+    iconSize: Dp = 22.4.dp,
+    contentDescription: String,
+    selected: Boolean = false,
+    motionKind: MoviaIconMotionKind? = null,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val iconTapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val actionDelayMs = if (motionKind == MoviaIconMotionKind.INFO) 500L else 0L
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, actionDelayMs, onClick)
+    val iconMotion = motionKind?.let { kind ->
+        rememberMoviaIconMotion(
+            kind = kind,
+            active = selected,
+            trigger = if (kind == MoviaIconMotionKind.INFO) actionTrigger.token else 0,
+            animateStateChanges = kind != MoviaIconMotionKind.INFO,
+        )
+    }
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                role = Role.Button,
+                onClick = animatedOnClick,
+            )
+            .semantics {
+                role = Role.Button
+                this.contentDescription = contentDescription
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            modifier = Modifier.size(44.8.dp),
+            shape = CircleShape,
+            color = Color(0xE61A2130),
+            border = BorderStroke(
+                1.dp,
+                if (selected) MoviaBrandAmber.copy(alpha = 0.74f) else Color.White.copy(alpha = 0.14f),
+            ),
+            contentColor = if (selected) {
+                MoviaBrandAmber
+            } else {
+                lerp(Color.White, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f))
+            },
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                if (motionKind == MoviaIconMotionKind.BELL) {
+                    MoviaHeaderGlyphIcon(
+                        glyph = MoviaHeaderGlyph.Notification,
+                        color = if (selected) {
+                            MoviaBrandAmber
+                        } else {
+                            lerp(Color.White, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f))
+                        },
+                        modifier = Modifier
+                            .size(iconSize)
+                            .then(
+                                if (iconMotion == null) Modifier else Modifier.graphicsLayer {
+                                    scaleX = iconMotion.scale
+                                    scaleY = iconMotion.scale
+                                    rotationZ = iconMotion.rotationZ
+                                    transformOrigin = iconMotion.transformOrigin
+                                },
+                            ),
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(iconSize)
+                            .then(
+                                if (iconMotion == null) Modifier else Modifier.graphicsLayer {
+                                    scaleX = iconMotion.scale
+                                    scaleY = iconMotion.scale
+                                    rotationZ = iconMotion.rotationZ
+                                    transformOrigin = iconMotion.transformOrigin
+                                },
+                            ),
+                    )
                 }
             }
         }
@@ -447,51 +860,25 @@ private fun MediaShelfSection(
     onAction: () -> Unit,
     onOpenDetails: (String, String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MoviaSectionHeaderContentGap)) {
         SectionHeader(
             title = title,
             actionText = actionText,
             onAction = onAction,
-            actionTestTag = if (title == "Недавнее") "library.history.all" else null,
+            actionTestTag = "library.history.all",
         )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(end = 48.dp),
-        ) {
-            items(items, key = { "$title-${it.id}" }) { item ->
-                MediaContentCard(
-                    item = item,
-                    modifier = Modifier.width(142.dp).testTag("$itemTestTagPrefix.${item.id}"),
-                    titleFontSize = 14.sp,
-                    onClick = { onOpenDetails(item.id, item.title) },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FavoritesSection(
-    items: List<MediaContent>,
-    itemTestTagPrefix: String,
-    onOpenAll: () -> Unit,
-    onOpenDetails: (String, String) -> Unit,
-    onOpenCatalog: () -> Unit,
-) {
-    if (items.isEmpty()) {
-        SectionHeader(title = "Избранное", actionText = "Все", onAction = onOpenAll, actionTestTag = "library.favorites.all")
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(title = "Избранное", actionText = "Все", onAction = onOpenAll, actionTestTag = "library.favorites.all")
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val cardWidth = (maxWidth - 24.dp) * 0.38f
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(end = 48.dp),
+                contentPadding = PaddingValues(end = 16.dp),
             ) {
-                items(items, key = { "favorite-${it.id}" }) { item ->
-                    MediaContentCard(
+                items(items, key = { "$title-${it.id}" }) { item ->
+                    RecentMediaCard(
                         item = item,
-                        modifier = Modifier.width(142.dp).testTag("$itemTestTagPrefix.${item.id}"),
-                        titleFontSize = 14.sp,
+                        modifier = Modifier
+                            .width(cardWidth)
+                            .testTag("$itemTestTagPrefix.${item.id}"),
                         onClick = { onOpenDetails(item.id, item.title) },
                     )
                 }
@@ -501,10 +888,230 @@ private fun FavoritesSection(
 }
 
 @Composable
+private fun RecentMediaCard(
+    item: MediaContent,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    val coverFeedback = rememberMoviaMediaCoverFeedback(onClick)
+    Column(
+        modifier = modifier.clickable(onClick = coverFeedback.onClick),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        MoviaMediaCoverFrame(
+            feedback = coverFeedback,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f),
+            shape = RoundedCornerShape(14.dp),
+            backgroundColor = MaterialTheme.colorScheme.surface,
+        ) {
+            MoviaArtwork(
+                url = item.posterUrl,
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+            )
+        }
+        MoviaFadeOverflowText(
+            text = item.title,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+            maxLines = 2,
+        )
+        MediaMetadataRow(
+            item = item,
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+        )
+    }
+}
+
+@Composable
+private fun MyListsSection(
+    selectedTab: MyListTab,
+    onSelectedTabChange: (MyListTab) -> Unit,
+    favoriteItems: List<MediaContent>,
+    waitingReleaseItems: List<MediaContent>,
+    onOpenDetails: (String, String) -> Unit,
+    onOpenCatalog: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SectionHeader(title = "Мои списки")
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(end = 16.dp),
+        ) {
+            item("favorites") {
+                MyListChip(
+                    label = "Избранное",
+                    icon = Icons.Filled.Favorite,
+                    selected = selectedTab == MyListTab.FAVORITES,
+                    motionKind = MoviaIconMotionKind.HEART,
+                    onClick = { onSelectedTabChange(MyListTab.FAVORITES) },
+                )
+            }
+            item("waiting") {
+                MyListChip(
+                    label = "Жду выхода",
+                    icon = Icons.Outlined.NotificationsNone,
+                    selected = selectedTab == MyListTab.WAITING_RELEASE,
+                    motionKind = MoviaIconMotionKind.BELL,
+                    onClick = { onSelectedTabChange(MyListTab.WAITING_RELEASE) },
+                )
+            }
+        }
+
+        when (selectedTab) {
+            MyListTab.FAVORITES -> {
+                if (favoriteItems.isEmpty()) {
+                    Text(
+                        text = "В избранном пока ничего нет",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = onOpenCatalog)
+                            .padding(vertical = 10.dp),
+                    )
+                } else {
+                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                        val cardWidth = (maxWidth - 24.dp) * 0.38f
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(end = 16.dp),
+                        ) {
+                            items(favoriteItems, key = { "favorite-${it.id}" }) { item ->
+                                MediaContentCard(
+                                    item = item,
+                                    modifier = Modifier
+                                        .width(cardWidth)
+                                        .testTag("library.favorite.item.${item.id}"),
+                                    titleFontSize = 14.sp,
+                                    onClick = { onOpenDetails(item.id, item.title) },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            MyListTab.WAITING_RELEASE -> {
+                if (waitingReleaseItems.isEmpty()) {
+                    EmptyListHint("Здесь будут фильмы и сериалы, выхода которых вы ждёте")
+                } else {
+                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                        val cardWidth = (maxWidth - 24.dp) * 0.38f
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(end = 16.dp),
+                        ) {
+                            items(waitingReleaseItems, key = { "waiting-${it.id}" }) { item ->
+                                MediaContentCard(
+                                    item = item,
+                                    modifier = Modifier
+                                        .width(cardWidth)
+                                        .testTag("library.waiting.item.${item.id}"),
+                                    titleFontSize = 14.sp,
+                                    onClick = { onOpenDetails(item.id, item.title) },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MyListChip(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    motionKind: MoviaIconMotionKind,
+    onClick: () -> Unit,
+) {
+    val iconMotion = rememberMoviaIconMotion(motionKind, selected)
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.height(42.dp),
+        shape = RoundedCornerShape(21.dp),
+        color = if (selected) MoviaBrandAmber.copy(alpha = 0.10f) else Color(0xCC15181D),
+        border = BorderStroke(
+            1.dp,
+            if (selected) MoviaBrandAmber else Color.White.copy(alpha = 0.10f),
+        ),
+        contentColor = if (selected) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (motionKind == MoviaIconMotionKind.BELL) {
+                MoviaHeaderGlyphIcon(
+                    glyph = MoviaHeaderGlyph.Notification,
+                    color = if (selected) MoviaBrandAmber else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .graphicsLayer {
+                            scaleX = iconMotion.scale
+                            scaleY = iconMotion.scale
+                            rotationZ = iconMotion.rotationZ
+                            transformOrigin = iconMotion.transformOrigin
+                        },
+                )
+            } else {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .graphicsLayer {
+                            scaleX = iconMotion.scale
+                            scaleY = iconMotion.scale
+                            rotationZ = iconMotion.rotationZ
+                            transformOrigin = iconMotion.transformOrigin
+                        },
+                )
+            }
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyListHint(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+    )
+}
+
+@Composable
 private fun SectionHeader(
     title: String,
-    actionText: String,
-    onAction: () -> Unit,
+    actionText: String? = null,
+    onAction: (() -> Unit)? = null,
     actionTestTag: String? = null,
 ) {
     Row(
@@ -519,21 +1126,11 @@ private fun SectionHeader(
             lineHeight = 24.sp,
             fontWeight = FontWeight.SemiBold,
         )
-        Row(
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .clickable(onClick = onAction)
-                .then(if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier)
-                .padding(start = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(actionText, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Icon(
-                Icons.AutoMirrored.Outlined.ArrowForward,
-                contentDescription = null,
-                modifier = Modifier.size(19.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        if (actionText != null && onAction != null) {
+            MoviaSectionAction(
+                label = actionText,
+                actionTestTag = actionTestTag,
+                onClick = onAction,
             )
         }
     }
@@ -545,9 +1142,93 @@ private fun remainingLabel(progress: PlaybackProgress): String {
     return "Осталось $minutes мин"
 }
 
-private fun episodeLabel(title: String): String? {
-    val match = Regex(" · S(\\d{2})E(\\d{2})").find(title) ?: return null
-    return "S${match.groupValues[1].toInt()} · E${match.groupValues[2].toInt()}"
+private fun seasonEpisodeLabel(title: String): String? {
+    val match = Regex("S(\\d{1,2})E(\\d{1,2})").find(title) ?: return null
+    val season = match.groupValues[1].toIntOrNull() ?: return null
+    val episode = match.groupValues[2].toIntOrNull() ?: return null
+    return "$season сезон · $episode серия"
+}
+
+@Composable
+private fun ResumeHeroActionButton(
+    secondaryLabel: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val motion = rememberMoviaPlaybackActionMotion(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 220L, onClick)
+    val shape = RoundedCornerShape(18.dp)
+    Surface(
+        onClick = animatedOnClick,
+        interactionSource = interactionSource,
+        modifier = modifier
+            .height(64.dp)
+            .graphicsLayer {
+                scaleX = motion.surfaceScale
+                scaleY = motion.surfaceScale
+            }
+            .semantics(mergeDescendants = true) {
+                role = Role.Button
+                contentDescription = "Продолжить просмотр"
+            },
+        shape = shape,
+        color = Color.Transparent,
+        contentColor = MoviaOnBrandAmber,
+        shadowElevation = 0.dp,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+                    .background(
+                        color = if (pressed) MoviaBrandAmber else MoviaBrandAmber,
+                        shape = shape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.offset(x = (-10).dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.1.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = null,
+                        tint = MoviaOnBrandAmber,
+                        modifier = Modifier.size(37.268.dp),
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            text = "Продолжить",
+                            color = MoviaOnBrandAmber,
+                            fontSize = 15.sp,
+                            lineHeight = 19.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = secondaryLabel,
+                            color = MoviaOnBrandAmber.copy(alpha = 0.72f),
+                            fontSize = 11.sp,
+                            lineHeight = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 private val HistoryIcon: ImageVector by lazy {

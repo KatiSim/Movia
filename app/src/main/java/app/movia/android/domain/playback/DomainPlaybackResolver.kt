@@ -48,8 +48,8 @@ interface PlaybackResolverBackend {
 
 object DomainPlaybackResolver {
     private const val TAG = "DomainPlaybackResolver"
-    private const val BASE_BACKEND_URL = "http://127.0.0.1:8888"
-    private const val DISCOVERY_TIMEOUT_MS = 3_000L
+    private val BASE_BACKEND_URL: String get() = app.movia.android.domain.backend.MoviaBackend.apiOrigin
+    private const val DISCOVERY_TIMEOUT_MS = 6_000L
 
     private val httpBackend = object : PlaybackResolverBackend {
         override suspend fun resolveByIdentity(
@@ -415,28 +415,13 @@ object DomainPlaybackResolver {
         }
 
         try {
-            val encodedId = URLEncoder.encode(mediaId, "UTF-8")
-
-            // Fast path: catalog details already carry provider-resolved streams
-            // for most known media. Reusing them avoids a second, expensive
-            // provider discovery call during one-click playback.
-            if (!forceRefresh) {
-                val details = fetch("$BASE_BACKEND_URL/api/movie/$encodedId", 1_600)
-                if (details != null && details.first in 200..299 && details.second.isNotBlank()) {
-                    val root = JSONObject(details.second)
-                    val movie = root.optJSONObject("movie") ?: root
-                    val streams = parseCandidateArray(movie.optJSONArray("streams"), season, episode)
-                    if (streams.isNotEmpty()) {
-                        return@withContext PlaybackResolverBackendResponse(candidates = streams)
-                    }
-                }
-            }
+            val encodedId = URLEncoder.encode(mediaId, "UTF-8").replace("+", "%20")
 
             val sParam = if (season != null) "?season=$season" else ""
             val eParam = if (episode != null) "${if (sParam.isEmpty()) "?" else "&"}episode=$episode" else ""
             val rParam = "${if (sParam.isEmpty() && eParam.isEmpty()) "?" else "&"}refresh=${if (forceRefresh) 1 else 0}"
             val endpointUrl = "$BASE_BACKEND_URL/api/movie/$encodedId/stream$sParam$eParam$rParam"
-            val response = fetch(endpointUrl, 2_000)
+            val response = fetch(endpointUrl, 5_500)
                 ?: return@withContext PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
             val (code, body) = response
             if (code !in 200..299) {
@@ -579,6 +564,17 @@ object DomainPlaybackResolver {
         .filter(::isStructurallyValidCandidate)
         .filter { identityMatches(request, it) }
 
+    /** Start a validated cached HTTP candidate while fresh discovery proceeds. */
+    internal fun cachedStartupCandidates(
+        request: PlaybackRequest,
+        candidates: List<StreamCandidate>,
+    ): List<StreamCandidate> = usableCandidates(request, candidates).filter {
+        !it.isProblematic &&
+            (it.url.startsWith("https://", true) || it.url.startsWith("http://", true)) &&
+            it.transport.trim().lowercase() !in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway") &&
+            (request.requestedStreamId.isNullOrBlank() || it.stableStreamId == request.requestedStreamId)
+    }
+
     /**
      * Backend discovery is authoritative for a stable logical stream ID. Catalog
      * candidates may contain an older signed locator for the same variant; do not
@@ -630,20 +626,10 @@ object DomainPlaybackResolver {
                 }
             }
 
+            // Catalog candidates may contain expiring signed URLs. Keep them as a
+            // fallback, but always ask the identity endpoint for the current locator
+            // before selecting a network stream.
             val initial = usableCandidates(request, initialCandidates)
-            if (initial.isNotEmpty() && !forceRefresh) {
-                val rankedInitial = StreamRanker.rankCandidates(
-                    StreamDeduplicator.deduplicate(initial),
-                    context = StreamRankingContext(
-                        requestedVoice = request.requestedVoice,
-                        requestedQuality = request.requestedQuality,
-                        failedStreamIds = emptySet(),
-                    ),
-                )
-                if (rankedInitial.isNotEmpty()) {
-                    return@withContext PlaybackResolverResult.Success(rankedInitial)
-                }
-            }
 
             val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                 backend.resolveByIdentity(request, forceRefresh)

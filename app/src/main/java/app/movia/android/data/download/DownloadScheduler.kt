@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 data class DownloadStatus(
     val state: WorkInfo.State? = null,
     val progressPercent: Int = 0,
+    val errorCode: String? = null,
 )
 
 object DownloadScheduler {
@@ -48,14 +49,20 @@ object DownloadScheduler {
         mediaRef: MediaRef?,
     ) {
         val networkType = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+        val active = app.movia.android.ui.player.MoviaPlaybackRegistry.current?.state?.value
+        val selection = active?.takeIf { MediaRef(it.mediaId, it.seasonNumber, it.episodeNumber) == mediaRef }?.activeStreamSelection
         val input = workDataOf(
             OfflineDownloadWorker.KEY_TITLE to title,
             OfflineDownloadWorker.KEY_CONTENT_ID to mediaRef?.contentId,
             OfflineDownloadWorker.KEY_SEASON to (mediaRef?.season ?: 0),
             OfflineDownloadWorker.KEY_EPISODE to (mediaRef?.episode ?: 0),
+            OfflineDownloadWorker.KEY_QUALITY to selection?.requestedQuality,
+            OfflineDownloadWorker.KEY_VOICE to selection?.activeVoice,
+            OfflineDownloadWorker.KEY_STREAM_ID to selection?.activeStreamId,
         )
         val request = OneTimeWorkRequestBuilder<OfflineDownloadWorker>()
             .setInputData(input)
+            .setBackoffCriteria(androidx.work.BackoffPolicy.EXPONENTIAL, 30L, java.util.concurrent.TimeUnit.SECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(networkType).build())
             .addTag(DOWNLOAD_TAG)
             .build()
@@ -82,6 +89,7 @@ object DownloadScheduler {
             DownloadStatus(
                 state = info?.state,
                 progressPercent = info?.progress?.getInt(OfflineDownloadWorker.KEY_PROGRESS, 0) ?: 0,
+                errorCode = info?.outputData?.getString(OfflineDownloadWorker.KEY_ERROR),
             )
         }
 
@@ -94,6 +102,7 @@ object DownloadScheduler {
         localFile(context, title, mediaRef)
 
     private fun localFile(context: Context, title: String, mediaRef: MediaRef?): File? {
+        if (mediaRef != null && OfflineMediaStore.request(context, mediaRef) != null) return OfflineMediaStore.marker(context, mediaRef)
         val directory = File(context.filesDir, "offline")
         val current = File(directory, OfflineDownloadWorker.fileNameFor(mediaRef, title))
         if (current.isFile && current.length() > 0L) return current
@@ -111,6 +120,12 @@ object DownloadScheduler {
         delete(context, title, mediaRef)
 
     private fun delete(context: Context, title: String, mediaRef: MediaRef?): Boolean {
+        val active = app.movia.android.ui.player.MoviaPlaybackRegistry.current
+        if (active?.isOffline == true && active.state.value.let { MediaRef(it.mediaId, it.seasonNumber, it.episodeNumber) } == mediaRef) return false
+        if (mediaRef != null && AdaptiveOfflineDownloader.isDownloading(mediaRef)) {
+            WorkManager.getInstance(context).cancelUniqueWork(uniqueWorkName(title, mediaRef))
+            return false
+        }
         val manager = WorkManager.getInstance(context)
         manager.cancelUniqueWork(uniqueWorkName(title, mediaRef))
         manager.cancelUniqueWork(legacyUniqueWorkName(title))
@@ -120,7 +135,7 @@ object DownloadScheduler {
             OfflineDownloadWorker.fileNameFor(mediaRef, title),
             OfflineDownloadWorker.fileNameFor(title),
         )
-        var allRemoved = true
+        var allRemoved = mediaRef?.let { OfflineMediaStore.delete(context, it) } ?: true
         filenames.forEach { filename ->
             val file = File(directory, filename)
             val partial = File(directory, "$filename.part")
@@ -131,6 +146,8 @@ object DownloadScheduler {
     }
 
     fun deleteAll(context: Context): Boolean {
+        if (app.movia.android.ui.player.MoviaPlaybackRegistry.current?.isOffline == true || AdaptiveOfflineDownloader.hasDownloadsInProgress()) return false
+        OfflineMediaStore.releaseAll()
         WorkManager.getInstance(context).cancelAllWorkByTag(DOWNLOAD_TAG)
         val directory = File(context.filesDir, "offline")
         return !directory.exists() || directory.deleteRecursively()

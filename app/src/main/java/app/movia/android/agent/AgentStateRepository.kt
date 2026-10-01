@@ -41,7 +41,7 @@ class AgentStateRepository(
     )
 
     private val settingMetadata = linkedMapOf(
-        "appearance.themeMode" to SettingMeta("Theme mode", "string", "DARK", listOf("DARK", "LIGHT", "SYSTEM")),
+        "appearance.themeMode" to SettingMeta("Theme mode", "string", "DARK", listOf("DARK")),
         "accessibility.highContrast" to SettingMeta("High contrast", "boolean", false),
         "player.showSeekButtons" to SettingMeta("Persistent seek buttons", "boolean", false),
         "notifications.enabled" to SettingMeta("Notifications enabled", "boolean", true),
@@ -52,6 +52,13 @@ class AgentStateRepository(
         "downloads.wifiOnly" to SettingMeta("Downloads on Wi-Fi only", "boolean", true),
     )
 
+    private val readinessLock = Any()
+    private val readyComponents = linkedSetOf<String>()
+    fun markReady(component: String) { synchronized(readinessLock) { readyComponents.add(component) } }
+    private fun readinessJson(): JSONObject = synchronized(readinessLock) {
+        JSONObject().put("ready", readyComponents.containsAll(listOf("appearance", "playbackPreferences", "favorites", "history", "downloads", "recentSearches")))
+            .put("loaded", JSONArray(readyComponents.toList()))
+    }
     private val libraryLock = Any()
     private var favorites: Set<String> = emptySet()
     private var watchLater: Set<String> = emptySet()
@@ -241,6 +248,7 @@ class AgentStateRepository(
                 put("uiAttached", uiAttached)
                 put("screen", if (uiAttached) currentScreen else "HEADLESS")
             })
+            put("initialization", readinessJson())
             put("navigation", JSONObject().apply {
                 put("uiAttached", uiAttached)
                 put("topLevel", if (uiAttached) currentScreen else JSONObject.NULL)

@@ -1,28 +1,22 @@
 package app.movia.android.domain.model
 
-/** Returns the next episode identity without parsing a presentation title. */
+/** Unknown or empty seasons never produce invented episode identities. */
 fun MediaRef.nextEpisode(seasonEpisodeCounts: List<Int>): MediaRef? {
     val currentSeason = season ?: return null
     val currentEpisode = episode ?: return null
-    val episodeCount = seasonEpisodeCounts.getOrNull(currentSeason - 1) ?: 10
-    return when {
-        currentEpisode < episodeCount -> copy(episode = currentEpisode + 1)
-        currentSeason < seasonEpisodeCounts.size -> copy(season = currentSeason + 1, episode = 1)
-        else -> null
-    }
+    val count = seasonEpisodeCounts.getOrNull(currentSeason - 1) ?: return null
+    if (count <= 0 || currentEpisode > count) return null
+    if (currentEpisode < count) return copy(episode = currentEpisode + 1)
+    val next = (currentSeason until seasonEpisodeCounts.size).firstOrNull { seasonEpisodeCounts[it] > 0 } ?: return null
+    return copy(season = next + 1, episode = 1)
 }
 
-/** Returns the previous episode identity without parsing a presentation title. */
 fun MediaRef.previousEpisode(seasonEpisodeCounts: List<Int>): MediaRef? {
     val currentSeason = season ?: return null
     val currentEpisode = episode ?: return null
-    return when {
-        currentEpisode > 1 -> copy(episode = currentEpisode - 1)
-        currentSeason > 1 -> {
-            val previousSeason = currentSeason - 1
-            val previousEpisode = seasonEpisodeCounts.getOrNull(previousSeason - 1) ?: 10
-            copy(season = previousSeason, episode = previousEpisode)
-        }
-        else -> null
-    }
+    val count = seasonEpisodeCounts.getOrNull(currentSeason - 1) ?: return null
+    if (count <= 0 || currentEpisode > count) return null
+    if (currentEpisode > 1) return copy(episode = currentEpisode - 1)
+    val previous = (currentSeason - 2 downTo 0).firstOrNull { seasonEpisodeCounts[it] > 0 } ?: return null
+    return copy(season = previous + 1, episode = seasonEpisodeCounts[previous])
 }

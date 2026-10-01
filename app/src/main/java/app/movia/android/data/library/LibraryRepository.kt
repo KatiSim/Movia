@@ -9,6 +9,7 @@ import app.movia.android.data.database.PlaybackProgressEntity
 import app.movia.android.data.database.RecentSearchEntity
 import app.movia.android.data.database.MoviaDatabase
 import app.movia.android.data.database.WatchLaterEntity
+import app.movia.android.data.database.WaitingReleaseEntity
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.PlaybackProgress
 import app.movia.android.domain.model.MediaRef
@@ -26,6 +27,10 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
         rows.map { row -> row.toLibraryRecord(row.addedAt) }
     }
     val watchLater: Flow<Set<String>> = dao.observeWatchLater().map { it.toSet() }
+    val waitingRelease: Flow<Set<String>> = dao.observeWaitingRelease().map { it.toSet() }
+    val waitingReleaseRecords: Flow<List<LibraryMediaRecord>> = dao.observeWaitingReleaseRows().map { rows ->
+        rows.map { row -> row.toLibraryRecord(row.addedAt) }
+    }
     val history: Flow<List<String>> = dao.observeHistory()
     val historyRecords: Flow<List<LibraryMediaRecord>> = dao.observeHistoryRows().map { rows ->
         rows.map { row -> row.toLibraryRecord(row.openedAt) }
@@ -89,6 +94,33 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
 
     suspend fun migrateWatchLaterToFavorites() = database.withTransaction {
         dao.migrateWatchLaterToFavorites()
+    }
+
+    suspend fun setWaitingRelease(title: String, enabled: Boolean) {
+        setWaitingRelease(canonicalContentId(title).orEmpty(), title, enabled)
+    }
+
+    suspend fun setWaitingRelease(contentId: String, title: String, enabled: Boolean) {
+        if (title.isBlank()) return
+        database.withTransaction {
+            val resolvedContentId = contentIdFor(contentId, title)
+            val mediaKey = MediaRef.storageKey(resolvedContentId, title)
+            if (enabled) {
+                if (resolvedContentId != null) dao.deleteWaitingReleaseByContentId(resolvedContentId)
+                dao.upsertWaitingRelease(
+                    WaitingReleaseEntity(
+                        mediaKey = mediaKey,
+                        title = title,
+                        addedAt = now(),
+                        contentId = resolvedContentId,
+                    ),
+                )
+            } else {
+                dao.deleteWaitingReleaseByMediaKey(mediaKey)
+                dao.deleteWaitingRelease(title)
+                if (resolvedContentId != null) dao.deleteWaitingReleaseByContentId(resolvedContentId)
+            }
+        }
     }
 
     suspend fun addHistory(title: String, openedAt: Long = now()) {
@@ -290,6 +322,14 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
         dao.watchLaterMissingContentId().forEach { title ->
             canonicalContentId(title)?.let { dao.updateWatchLaterContentId(title, it) }
         }
+        dao.waitingReleaseMissingContentId().forEach { row ->
+            canonicalContentId(row.title)?.let { contentId ->
+                dao.rekeyWaitingRelease(
+                    row.mediaKey,
+                    row.copy(mediaKey = MediaRef.storageKey(contentId, row.title), contentId = contentId),
+                )
+            }
+        }
         dao.historyMissingContentId().forEach { row ->
             canonicalContentId(row.title)?.let { contentId ->
                 dao.rekeyHistory(
@@ -343,6 +383,9 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
     }
 
     private fun FavoriteEntity.toLibraryRecord(updatedAt: Long): LibraryMediaRecord =
+        libraryRecord(mediaKey, contentId, title, updatedAt)
+
+    private fun WaitingReleaseEntity.toLibraryRecord(updatedAt: Long): LibraryMediaRecord =
         libraryRecord(mediaKey, contentId, title, updatedAt)
 
     private fun HistoryEntity.toLibraryRecord(updatedAt: Long): LibraryMediaRecord =

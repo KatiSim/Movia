@@ -1,6 +1,8 @@
 package app.movia.android.ui.catalog
 
 import android.app.Activity
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.speech.RecognizerIntent
@@ -9,27 +11,41 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -105,13 +121,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -129,6 +154,12 @@ import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.CatalogCategory
 import app.movia.android.domain.model.MediaContent
 import androidx.compose.ui.text.style.TextAlign
+import app.movia.android.ui.components.rememberMoviaMediaCoverFeedback
+import app.movia.android.ui.components.MoviaMediaCoverFrame
+import app.movia.android.ui.components.MoviaTapIconButton
+import app.movia.android.ui.components.rememberMoviaNeonFeedbackAlpha
+import app.movia.android.ui.components.rememberMoviaAnimatedAction
+import app.movia.android.ui.components.rememberMoviaActionTriggerState
 import app.movia.android.ui.components.MediaMetadataText
 import app.movia.android.ui.components.MediaMetadataRow
 import app.movia.android.ui.components.MediaArtworkPlaceholder
@@ -169,7 +200,7 @@ private val countries = listOf("США", "Великобритания", "Фра
 private val ratingOptions = listOf<Double?>(null, 7.0, 8.0, 8.5)
 private val resolutionOptions = listOf<String?>(null, "720p", "1080p", "4K")
 private val ageOptions = listOf<Int?>(null, 6, 12, 16, 18)
-private val audioOptions = listOf<String?>(null, "Русский", "Original")
+private val audioOptions = listOf<String?>(null, "Русский", "English")
 private val subtitleOptions = listOf<String?>(null, "Русский", "English")
 
 private data class YearPreset(
@@ -252,11 +283,17 @@ fun CatalogScreen(
     var recommendedOnly by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
+    var voiceActive by remember { mutableStateOf(false) }
     var voiceUnavailable by rememberSaveable { mutableStateOf(false) }
     var genreSheetOpen by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
+    val catalogFocusManager = LocalFocusManager.current
+    val catalogKeyboardController = LocalSoftwareKeyboardController.current
+    var catalogRootCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var searchFieldCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val catalogViewModel: CatalogViewModel = viewModel()
+    val context = LocalContext.current
     val catalogUiState by catalogViewModel.uiState.collectAsStateWithLifecycle()
     val homeFeed by catalogViewModel.homeFeed.collectAsStateWithLifecycle()
     val recommendationIdsState by catalogViewModel.recommendationIds.collectAsStateWithLifecycle()
@@ -278,6 +315,12 @@ fun CatalogScreen(
     val selectedType = selectedTypeName.takeUnless { it == "ALL" }?.let(ContentType::valueOf)
     val selectedCategory = selectedCategoryName.takeUnless { it == "ALL" }?.let(CatalogCategory::valueOf)
 
+    fun dismissSearchFocus() {
+        catalogKeyboardController?.hide()
+        catalogFocusManager.clearFocus(force = true)
+        searchFocused = false
+    }
+
     fun commitSearch(value: String) {
         val normalized = value.trim()
         searchQuery = normalized
@@ -290,6 +333,7 @@ fun CatalogScreen(
     val voiceLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
+        voiceActive = false
         if (result.resultCode == Activity.RESULT_OK) {
             val recognized = result.data
                 ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
@@ -310,9 +354,11 @@ fun CatalogScreen(
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
         }
         try {
-            voiceLauncher.launch(intent)
+            voiceActive = true
             voiceUnavailable = false
+            voiceLauncher.launch(intent)
         } catch (_: ActivityNotFoundException) {
+            voiceActive = false
             voiceUnavailable = true
         }
     }
@@ -423,27 +469,18 @@ fun CatalogScreen(
     ).joinToString("|")
     val requestMatchesState = catalogUiState.requestKey == requestKey
     val isSearchRequest = searchQuery.isNotBlank()
-    val pagedItems = if (requestMatchesState && !isSearchRequest) {
+    val pagedItems = if (requestMatchesState) {
         pagingItems.itemSnapshotList.items
     } else {
         emptyList()
     }
-    val pagingItemCount = if (requestMatchesState && !isSearchRequest) pagingItems.itemCount else 0
+    val pagingItemCount = if (requestMatchesState) pagingItems.itemCount else 0
     val searchResults = if (requestMatchesState && isSearchRequest) catalogUiState.searchResults else emptyList()
     val pagingRefreshError = (pagingItems.loadState.refresh as? LoadState.Error)?.error
     val pagingAppendError = (pagingItems.loadState.append as? LoadState.Error)?.error
-    val isLoading = if (!requestMatchesState) {
-        true
-    } else if (isSearchRequest) {
-        catalogUiState.isLoading
-    } else {
+    val isLoading = !requestMatchesState || catalogUiState.isLoading ||
         pagingItems.loadState.refresh is LoadState.Loading || pagingItems.loadState.append is LoadState.Loading
-    }
-    val loadError = if (!isSearchRequest) {
-        pagingRefreshError?.message ?: pagingAppendError?.message ?: catalogUiState.errorMessage
-    } else {
-        catalogUiState.errorMessage
-    }
+    val loadError = pagingRefreshError?.message ?: pagingAppendError?.message ?: catalogUiState.errorMessage
     val showScrollToTop by remember {
         derivedStateOf { gridState.firstVisibleItemIndex > 10 }
     }
@@ -583,7 +620,30 @@ fun CatalogScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MoviaBackgroundPrimary),
+            .background(MoviaBackgroundPrimary)
+            .onGloballyPositioned { catalogRootCoordinates = it }
+            .pointerInput(searchFocused, catalogRootCoordinates, searchFieldCoordinates) {
+                awaitEachGesture {
+                    awaitFirstDown(
+                        requireUnconsumed = false,
+                        pass = PointerEventPass.Final,
+                    )
+                    val up = waitForUpOrCancellation(pass = PointerEventPass.Final)
+                    if (up != null && searchFocused) {
+                        val root = catalogRootCoordinates
+                        val search = searchFieldCoordinates
+                        val tapInWindow = root?.localToWindow(up.position)
+                        val searchBounds = search?.boundsInWindow()
+                        if (
+                            tapInWindow == null ||
+                            searchBounds == null ||
+                            !searchBounds.contains(tapInWindow)
+                        ) {
+                            dismissSearchFocus()
+                        }
+                    }
+                }
+            },
     ) {
         LazyVerticalGrid(
             state = gridState,
@@ -599,37 +659,22 @@ fun CatalogScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-header") {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 39.dp, bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .height(92.dp),
+                    contentAlignment = Alignment.CenterStart,
                 ) {
-                    MoviaPageTitle(
-                        text = "Каталог",
-                        modifier = Modifier.weight(1f, fill = false),
+                    Text(
+                        text = "Какую историю выберешь?",
+                        modifier = Modifier.offset(y = 20.dp),
+                        color = MoviaTextPrimary,
+                        fontSize = 22.sp,
+                        lineHeight = 28.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    IconButton(
-                        onClick = onOpenProfile,
-                        modifier = Modifier.size(48.dp).testTag("catalog_profile_button"),
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(40.dp),
-                            shape = CircleShape,
-                            color = MoviaSurfaceElevated,
-                            border = BorderStroke(1.dp, MoviaBorderSubtle),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Person,
-                                    contentDescription = "Профиль",
-                                    tint = MoviaTextSecondary,
-                                    modifier = Modifier.size(22.dp),
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
@@ -645,14 +690,22 @@ fun CatalogScreen(
                         onFocusChange = { searchFocused = it },
                         onClear = {
                             searchQuery = ""
-                            searchFocused = false
+                            dismissSearchFocus()
                             scope.launch { gridState.scrollToItem(0) }
                         },
-                        onVoice = ::startVoiceSearch,
-                        onFilterClick = { advancedOpen = true },
+                        onVoice = {
+                            dismissSearchFocus()
+                            startVoiceSearch()
+                        },
+                        voiceActive = voiceActive,
+                        onFilterClick = {
+                            dismissSearchFocus()
+                            advancedOpen = true
+                        },
                         activeFilterCount = advancedFilterCount,
+                        modifier = Modifier.onGloballyPositioned { searchFieldCoordinates = it },
                         onSearch = {
-                            searchFocused = false
+                            dismissSearchFocus()
                             commitSearch(searchQuery)
                             scope.launch { gridState.scrollToItem(0) }
                         },
@@ -675,11 +728,12 @@ fun CatalogScreen(
                 ) {
                     CatalogFacet.entries.forEach { facet ->
                         val isSelected = currentFacet == facet
-                        Surface(
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(48.dp)
                                 .clickable {
+                                    dismissSearchFocus()
                                     when (facet) {
                                         CatalogFacet.ALL -> {
                                             selectedTypeName = "ALL"
@@ -701,22 +755,29 @@ fun CatalogScreen(
                                     recommendedOnly = false
                                     scope.launch { gridState.scrollToItem(0) }
                                 },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (isSelected) MoviaSurfacePrimary else MoviaSurfaceSecondary,
-                            border = BorderStroke(
-                                1.dp,
-                                if (isSelected) MoviaBrandAmber else MoviaBorderSubtle,
-                            ),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isSelected) MoviaSurfacePrimary else MoviaSurfaceSecondary,
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (isSelected) MoviaBrandAmber else MoviaBorderSubtle,
+                                ),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
                                     text = facet.label,
                                     color = if (isSelected) MoviaBrandAmber else MoviaTextSecondary,
                                     fontSize = 14.sp,
                                     lineHeight = 20.sp,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                                     maxLines = 1,
-                                )
+                                    )
+                                }
                             }
                         }
                     }
@@ -732,7 +793,10 @@ fun CatalogScreen(
                     Box(
                         modifier = Modifier
                             .heightIn(min = 32.dp)
-                            .clickable { sortSheetOpen = true }
+                            .clickable {
+                                dismissSearchFocus()
+                                sortSheetOpen = true
+                            }
                             .padding(horizontal = 4.dp),
                         contentAlignment = Alignment.CenterEnd,
                     ) {
@@ -788,7 +852,10 @@ fun CatalogScreen(
                                 Surface(
                                     modifier = Modifier
                                         .height(36.dp)
-                                        .clickable { commitSearch(recent) },
+                                        .clickable {
+                                            dismissSearchFocus()
+                                            commitSearch(recent)
+                                        },
                                     shape = RoundedCornerShape(10.dp),
                                     color = MoviaSurfaceSecondary,
                                     border = BorderStroke(1.dp, MoviaBorderSubtle),
@@ -821,31 +888,6 @@ fun CatalogScreen(
                 items(6, key = { "skeleton-$it" }) {
                     CatalogSkeletonCard()
                 }
-            } else if (searchQuery.isNotBlank()) {
-                if (searchResults.isEmpty() && !isLoading) {
-                    item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-search-empty") {
-                        if (loadError != null) {
-                            CatalogLoadError(message = requireNotNull(loadError), onRetry = retryLoad)
-                        } else {
-                            CatalogEmptyState(
-                                query = searchQuery,
-                                onReset = {
-                                    searchQuery = ""
-                                    searchFocused = false
-                                    scope.launch { gridState.scrollToItem(0) }
-                                },
-                            )
-                        }
-                    }
-                } else {
-                    items(searchResults, key = { it.id }) { item ->
-                        CatalogMediaCard(
-                            item = item,
-                            modifier = Modifier.fillMaxWidth().testTag("catalog.item.open.${item.id}"),
-                            onClick = { onOpenDetails(item.id, item.title) },
-                        )
-                    }
-                }
             } else {
                 if (pagingItemCount == 0 && !isLoading) {
                     item(span = { GridItemSpan(maxLineSpan) }, key = "catalog-empty") {
@@ -853,7 +895,7 @@ fun CatalogScreen(
                             CatalogLoadError(message = requireNotNull(loadError), onRetry = retryLoad)
                         } else {
                             CatalogEmptyState(
-                                query = null,
+                                query = searchQuery.takeIf { it.isNotBlank() },
                                 filterActive = advancedFilterCount > 0 || currentFacet != CatalogFacet.ALL,
                                 onReset = {
                                     selectedTypeName = "ALL"
@@ -887,7 +929,10 @@ fun CatalogScreen(
                             CatalogMediaCard(
                                 item = item,
                                 modifier = Modifier.fillMaxWidth().testTag("catalog.item.open.${item.id}"),
-                                onClick = { onOpenDetails(item.id, item.title) },
+                                onClick = {
+                                    dismissSearchFocus()
+                                    onOpenDetails(item.id, item.title)
+                                },
                             )
                         }
                     }
@@ -1019,15 +1064,39 @@ private fun CatalogSearchField(
     onFocusChange: (Boolean) -> Unit,
     onClear: () -> Unit,
     onVoice: () -> Unit,
+    voiceActive: Boolean,
     onFilterClick: () -> Unit,
     activeFilterCount: Int,
     onSearch: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val shape = RoundedCornerShape(28.dp)
     val borderColor = if (focused) MoviaBrandAmber.copy(alpha = 0.5f) else MoviaBorderSubtle
     val filterActive = activeFilterCount > 0
+    val voiceInteractionSource = remember { MutableInteractionSource() }
+    val voicePressed by voiceInteractionSource.collectIsPressedAsState()
+    val filterInteractionSource = remember { MutableInteractionSource() }
+    val filterPressed by filterInteractionSource.collectIsPressedAsState()
+    val filterActionTrigger = rememberMoviaActionTriggerState()
+    val filterGlowAlpha = rememberMoviaNeonFeedbackAlpha(filterActionTrigger, durationMs = 500)
+    val animatedFilterClick = rememberMoviaAnimatedAction(filterActionTrigger, 500L, onFilterClick)
+    val voiceScale by animateFloatAsState(
+        targetValue = if (voicePressed) 0.90f else 1.00f,
+        animationSpec = tween(durationMillis = 500),
+        label = "catalog-voice-press",
+    )
+    val voiceGlowAlpha by animateFloatAsState(
+        targetValue = if (voiceActive) 1.00f else 0.00f,
+        animationSpec = tween(durationMillis = 500),
+        label = "catalog-voice-glow",
+    )
+    val filterScale by animateFloatAsState(
+        targetValue = if (filterPressed) 0.90f else 1.00f,
+        animationSpec = tween(durationMillis = 500),
+        label = "catalog-filter-press",
+    )
 
     BasicTextField(
         value = searchQuery,
@@ -1052,7 +1121,7 @@ private fun CatalogSearchField(
                 onSearch()
             },
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
             .background(MoviaSurfaceSecondary, shape)
@@ -1093,32 +1162,61 @@ private fun CatalogSearchField(
                     innerTextField()
                 }
                 if (searchQuery.isNotEmpty()) {
-                    IconButton(
+                    MoviaTapIconButton(
+                        icon = Icons.Outlined.Close,
+                        contentDescription = "Очистить поиск",
                         onClick = {
                             keyboardController?.hide()
                             focusManager.clearFocus()
                             onClear()
                         },
                         modifier = Modifier.size(48.dp).testTag("catalog.search.clear"),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Close,
-                            contentDescription = "Очистить поиск",
-                            tint = MoviaTextSecondary,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
+                        iconModifier = Modifier.size(20.dp),
+                        tint = MoviaTextSecondary,
+                    )
                 }
                 IconButton(
                     onClick = onVoice,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .graphicsLayer {
+                            scaleX = voiceScale
+                            scaleY = voiceScale
+                        }
+                        .testTag("catalog.voice"),
+                    interactionSource = voiceInteractionSource,
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Mic,
-                        contentDescription = "Голосовой поиск",
-                        tint = MoviaTextSecondary,
-                        modifier = Modifier.size(24.dp),
-                    )
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Canvas(
+                            modifier = Modifier
+                                .requiredSize(48.dp)
+                                .blur(
+                                    radius = 10.dp,
+                                    edgeTreatment = BlurredEdgeTreatment.Unbounded,
+                                ),
+                        ) {
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    colorStops = arrayOf(
+                                        0.00f to MoviaBrandAmber.copy(alpha = 0.34f * voiceGlowAlpha),
+                                        0.48f to MoviaBrandAmber.copy(alpha = 0.15f * voiceGlowAlpha),
+                                        1.00f to MoviaBrandAmber.copy(alpha = 0.00f),
+                                    ),
+                                    center = center,
+                                    radius = size.minDimension / 2f,
+                                ),
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Outlined.Mic,
+                            contentDescription = if (voiceActive) "Голосовой поиск активен" else "Голосовой поиск",
+                            tint = if (voiceActive || voicePressed) MoviaBrandAmber else MoviaTextSecondary,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
                 }
                 Box(
                     modifier = Modifier
@@ -1127,14 +1225,48 @@ private fun CatalogSearchField(
                         .background(MoviaBorderSubtle),
                 )
                 IconButton(
-                    onClick = onFilterClick,
-                    modifier = Modifier.size(48.dp).testTag("catalog.filter"),
+                    onClick = animatedFilterClick,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .graphicsLayer {
+                            scaleX = filterScale
+                            scaleY = filterScale
+                        }
+                        .testTag("catalog.filter"),
+                    interactionSource = filterInteractionSource,
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Canvas(
+                            modifier = Modifier
+                                .requiredSize(48.dp)
+                                .blur(
+                                    radius = 10.dp,
+                                    edgeTreatment = BlurredEdgeTreatment.Unbounded,
+                                ),
+                        ) {
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    colorStops = arrayOf(
+                                        0.00f to MoviaBrandAmber.copy(alpha = 0.40f * filterGlowAlpha),
+                                        0.48f to MoviaBrandAmber.copy(alpha = 0.18f * filterGlowAlpha),
+                                        1.00f to MoviaBrandAmber.copy(alpha = 0.00f),
+                                    ),
+                                    center = center,
+                                    radius = size.minDimension / 2f,
+                                ),
+                            )
+                        }
                         Icon(
                             imageVector = Icons.Outlined.Tune,
                             contentDescription = "Фильтры",
-                            tint = if (filterActive) MoviaBrandAmber else MoviaTextSecondary,
+                            tint = if (filterActive || filterPressed || filterGlowAlpha > 0.02f) {
+                                MoviaBrandAmber
+                            } else {
+                                MoviaTextSecondary
+                            },
                             modifier = Modifier.size(24.dp),
                         )
                         if (filterActive) {
@@ -1256,7 +1388,7 @@ private fun CatalogLoadError(
 private fun CatalogSkeletonCard(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
             modifier = Modifier
@@ -1295,6 +1427,7 @@ private fun CatalogMediaCard(
     val primaryGenre = moviaPrimaryGenre(item)?.takeIf { it.isNotBlank() }
     val genreOrType = primaryGenre ?: moviaContentTypeLabel(item).takeIf { it.isNotBlank() }
     val yearLabel = moviaYearLabel(item.year)
+    val coverFeedback = rememberMoviaMediaCoverFeedback(onClick)
 
     val talkBackText = buildString {
         append(displayTitle)
@@ -1306,20 +1439,19 @@ private fun CatalogMediaCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = coverFeedback.onClick)
             .semantics(mergeDescendants = true) {
                 contentDescription = talkBackText
             },
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.Start,
     ) {
-        Box(
+        MoviaMediaCoverFrame(
+            feedback = coverFeedback,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MoviaSurfaceSecondary, RoundedCornerShape(12.dp))
-                .border(1.dp, MoviaBorderSubtle, RoundedCornerShape(12.dp)),
+                .aspectRatio(2f / 3f),
+            shape = RoundedCornerShape(12.dp),
         ) {
             MoviaArtwork(
                 url = item.posterUrl,
@@ -1361,7 +1493,8 @@ private fun GenreFilterSheet(
     var query by remember { mutableStateOf("") }
     var draft by remember(selected) { mutableStateOf(selected) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val resultCountValue by produceState(initialValue = 0, draft) {
+    val resultCountValue by produceState<Int?>(initialValue = null, draft) {
+        value = null
         delay(250L)
         value = withContext(Dispatchers.IO) { resultCount(draft) }
     }
@@ -1424,7 +1557,7 @@ private fun GenreFilterSheet(
                 Button(
                     onClick = { onApply(draft) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inverseSurface, contentColor = MaterialTheme.colorScheme.inverseOnSurface),
-                ) { Text("Показать $resultCountValue") }
+                ) { Text(resultCountValue?.let { "Показать $it" } ?: "Показать результаты") }
             }
         }
     }
@@ -1458,7 +1591,7 @@ private fun <T> SingleChoiceSheet(
                 text = title,
                 color = MoviaTextPrimary,
                 fontSize = 20.sp,
-                lineHeight = 28.sp,
+                lineHeight = 26.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
@@ -1527,7 +1660,8 @@ private fun AdvancedFiltersSheet(
     var draft by remember(filter) { mutableStateOf(filter) }
     var showAllGenres by remember(filter) { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val resultCountValue by produceState(initialValue = 0, draft) {
+    val resultCountValue by produceState<Int?>(initialValue = null, draft) {
+        value = null
         delay(250L)
         value = withContext(Dispatchers.IO) { resultCount(draft) }
     }
@@ -1541,27 +1675,48 @@ private fun AdvancedFiltersSheet(
         .coerceIn(safeMinYear, safeMaxYear)
         .toFloat()
     val selectedRating = draft.minRating?.toFloat()?.coerceIn(0f, 10f) ?: 0f
+    val statusBarTopInset = with(LocalDensity.current) {
+        WindowInsets.statusBars.getTop(this).toDp()
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MoviaSurfacePrimary,
         scrimColor = MoviaBackgroundPrimary.copy(alpha = 0.6f),
+        dragHandle = null,
         modifier = Modifier.fillMaxHeight().testTag("catalog.filter.sheet"),
     ) {
-        Column(modifier = Modifier.fillMaxHeight(0.96f)) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight(0.96f)
+                .padding(top = statusBarTopInset),
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                    .padding(start = 12.dp, end = 24.dp, top = 8.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                MoviaTapIconButton(
+                    icon = Icons.Outlined.Close,
+                    contentDescription = "Закрыть фильтры",
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .testTag("catalog.filter.close"),
+                    iconModifier = Modifier.size(24.dp),
+                    tint = MoviaTextPrimary,
+                    actionDelayMs = 500L,
+                )
                 Text(
                     "Фильтры",
                     color = MoviaTextPrimary,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
                 )
                 TextButton(onClick = { draft = CatalogFilter(type = null) }) {
                     Text(
@@ -1866,7 +2021,7 @@ private fun AdvancedFiltersSheet(
                     contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                 ),
             ) {
-                Text("Показать $resultCountValue")
+                Text(resultCountValue?.let { "Показать $it" } ?: "Показать результаты")
             }
         }
     }
@@ -2031,12 +2186,14 @@ private fun QuickFilterPill(
                 }
             }
             if (active) {
-                IconButton(
+                MoviaTapIconButton(
+                    icon = Icons.Outlined.Close,
+                    contentDescription = "Сбросить $label",
                     onClick = onClear,
                     modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(Icons.Outlined.Close, contentDescription = "Сбросить $label", modifier = Modifier.size(18.dp))
-                }
+                    iconModifier = Modifier.size(18.dp),
+                    tint = content,
+                )
             }
         }
     }
@@ -2076,7 +2233,7 @@ private fun MoviaFilterChip(
 
 private fun catalogAudioLabel(value: String?): String = when (value) {
     null -> "Любое"
-    "Original" -> "Оригинал"
+    "Original", "English" -> "Английский"
     else -> value
 }
 

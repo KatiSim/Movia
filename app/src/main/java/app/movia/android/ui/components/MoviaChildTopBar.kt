@@ -34,17 +34,15 @@ fun MoviaChildTopBar(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(
+        MoviaTapIconButton(
+            icon = Icons.AutoMirrored.Outlined.ArrowBack,
+            contentDescription = "Назад",
             onClick = onBack,
             modifier = Modifier.size(48.dp),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "Назад",
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(24.dp),
-            )
-        }
+            iconModifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.onBackground,
+            actionDelayMs = 500L,
+        )
 
         MoviaPageTitle(
             text = title,

@@ -15,7 +15,13 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.collect
 import org.json.JSONObject
 
@@ -26,7 +32,8 @@ class AgentControlService(
     private val actionHandler: (JSONObject) -> JSONObject,
 ) {
     private val running = AtomicBoolean(false)
-    private val worker: ExecutorService = Executors.newCachedThreadPool()
+    private val worker: ExecutorService = ThreadPoolExecutor(4, 8, 30L, TimeUnit.SECONDS, ArrayBlockingQueue(16))
+    private val sseSlots = Semaphore(2)
     private var serverSocket: ServerSocket? = null
     private var acceptThread: Thread? = null
     val tokenFile: java.io.File = createTokenFile(context)
@@ -43,7 +50,12 @@ class AgentControlService(
                 )
                 while (running.get()) {
                     val socket = serverSocket?.accept() ?: break
-                    worker.execute { handle(socket) }
+                    try {
+                        worker.execute { runCatching { handle(socket) }.onFailure { runCatching { socket.close() } } }
+                    } catch (_: RejectedExecutionException) {
+                        runCatching { respond(socket, 503, error("BUSY", "Bridge capacity reached")) }
+                        socket.close()
+                    }
                 }
             } catch (throwable: Throwable) {
                 Log.e(TAG, "agent bridge stopped", throwable)
@@ -86,13 +98,21 @@ class AgentControlService(
             while (true) {
                 val line = readHttpLine(input) ?: return
                 if (line.isEmpty()) break
+                if (headers.size >= 64) { respond(client, 400, error("INVALID_REQUEST", "Too many headers")); return }
                 val separator = line.indexOf(':')
                 if (separator > 0) {
-                    headers[line.substring(0, separator).trim().lowercase()] =
-                        line.substring(separator + 1).trim()
+                    val key = line.substring(0, separator).trim().lowercase()
+                    if (headers.containsKey(key)) { respond(client, 400, error("INVALID_REQUEST", "Duplicate header")); return }
+                    headers[key] = line.substring(separator + 1).trim()
                 }
             }
-            val length = headers["content-length"]?.toIntOrNull()?.coerceIn(0, 1_000_000) ?: 0
+            if (!isAuthorized(headers)) { respond(client, 401, error("UNAUTHORIZED", "Valid local bridge token required")); return }
+            if (headers.containsKey("transfer-encoding")) { respond(client, 400, error("INVALID_REQUEST", "Transfer encoding is unsupported")); return }
+            val rawLength = headers["content-length"]
+            val parsedLength = rawLength?.toLongOrNull() ?: if (rawLength == null) 0L else -1L
+            if (parsedLength < 0L) { respond(client, 400, error("INVALID_REQUEST", "Invalid Content-Length")); return }
+            if (parsedLength > 1_000_000L) { respond(client, 413, error("PAYLOAD_TOO_LARGE", "Body limit exceeded")); return }
+            val length = parsedLength.toInt()
             val bodyBytes = ByteArray(length)
             var read = 0
             while (read < length) {
@@ -100,6 +120,7 @@ class AgentControlService(
                 if (count <= 0) break
                 read += count
             }
+            if (read != length) { respond(client, 400, error("INVALID_REQUEST", "Truncated body")); return }
 
             val firstSpace = requestLine.indexOf(' ')
             val secondSpace = requestLine.indexOf(' ', firstSpace + 1)
@@ -119,7 +140,8 @@ class AgentControlService(
             }
 
             if (method == "GET" && path == "/agent/v1/events/stream") {
-                streamEvents(client)
+                if (!sseSlots.tryAcquire()) { respond(client, 503, error("BUSY", "SSE capacity reached")); return }
+                try { streamEvents(client) } finally { sseSlots.release() }
                 return
             }
             val payload = runCatching {
@@ -200,9 +222,11 @@ class AgentControlService(
         output.flush()
         kotlinx.coroutines.runBlocking {
             try {
-                events.events.collect { event ->
-                    output.write(("event: " + event.event + "\ndata: " + event.toJson() + "\n\n")
-                        .toByteArray(StandardCharsets.UTF_8))
+                kotlinx.coroutines.flow.merge(
+                    events.events.map { event -> "event: " + event.event + "\ndata: " + event.toJson() + "\n\n" },
+                    kotlinx.coroutines.flow.flow { while (true) { kotlinx.coroutines.delay(15_000L); emit(": keep-alive\n\n") } },
+                ).collect { message ->
+                    output.write(message.toByteArray(StandardCharsets.UTF_8))
                     output.flush()
                 }
             } catch (_: Throwable) {
@@ -245,6 +269,8 @@ class AgentControlService(
             400 -> "Bad Request"
             401 -> "Unauthorized"
             404 -> "Not Found"
+            413 -> "Payload Too Large"
+            503 -> "Service Unavailable"
             else -> "Error"
         }
         val output = socket.getOutputStream()

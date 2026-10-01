@@ -25,6 +25,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -97,6 +98,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -122,6 +124,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -156,6 +159,11 @@ import app.movia.android.domain.model.MediaContent
 import app.movia.android.agent.AgentControlRuntime
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.PlaybackSwitchState
+import app.movia.android.ui.components.rememberMoviaGearMotion
+import app.movia.android.ui.components.rememberMoviaIconTapAlpha
+import app.movia.android.ui.components.MoviaTapIconButton
+import app.movia.android.ui.components.rememberMoviaAnimatedAction
+import app.movia.android.ui.components.rememberMoviaActionTriggerState
 import app.movia.android.ui.components.moviaDurationLabel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -174,6 +182,7 @@ import app.movia.android.ui.theme.MoviaTextSecondary
 
 private val PLAYER_CENTER_CONTROL_SIZE = 66.1.dp
 private val PLAYER_CENTER_ICON_SIZE = 33.1.dp
+private val PLAYER_CENTER_PLAY_ICON_SIZE = 36.41.dp
 private val SPEEDS = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
 private data class SelectableTrackOption(
     val label: String,
@@ -268,6 +277,8 @@ fun PlayerScreen(
     var settingsPicker by remember { mutableStateOf<PlayerSettingsPicker?>(null) }
     var episodesScreenOpen by remember { mutableStateOf(false) }
     var episodesScreenSeason by remember(title) { mutableIntStateOf(currentSeason) }
+    val sessionStreams by session.streamOptions.collectAsState()
+    val playbackChoices by session.choices.collectAsState()
     var audioTracks by remember { mutableStateOf(buildAudioTrackOptions(player.currentTracks)) }
     var videoQualityTracks by remember { mutableStateOf(buildVideoQualityTrackOptions(player.currentTracks)) }
     var subtitleTracks by remember { mutableStateOf(buildSubtitleTrackOptions(player.currentTracks)) }
@@ -349,26 +360,12 @@ fun PlayerScreen(
     }
 
     fun selectAudio(value: String) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-        if (value != "Auto") {
-            audioTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
-        }
-        player.trackSelectionParameters = builder.build()
-        onAudioSelected(value)
+        if (session.selectVoice(value)) onAudioSelected(value)
         showControls()
     }
 
     fun selectQuality(value: String) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-        if (value != "Auto") {
-            videoQualityTracks.firstOrNull { it.label == value }?.let { builder.setOverrideForType(it.override) }
-        }
-        player.trackSelectionParameters = builder.build()
-        onQualitySelected(value)
+        if (session.selectVideoQuality(value)) onQualitySelected(value)
         showControls()
     }
 
@@ -390,7 +387,7 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = playback.playWhenReady,
+                autoEnter = false,
             )
             host.setPictureInPictureParams(params)
             host.enterPictureInPictureMode(params)
@@ -417,13 +414,13 @@ fun PlayerScreen(
                 sourceRectHint = sourceRectHint,
                 isPlaying = playback.isPlaying,
                 title = displayPlayerTitle(title),
-                autoEnter = playback.playWhenReady,
+                autoEnter = false,
             ),
         )
     }
 
     LaunchedEffect(speed) {
-        player.playbackParameters = PlaybackParameters(speed)
+        session.setPlaybackSpeed(speed)
     }
 
     LaunchedEffect(subtitlesEnabled) {
@@ -433,26 +430,9 @@ fun PlayerScreen(
             .build()
     }
 
-    LaunchedEffect(preferredAudio, audioTracks) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-        audioTracks.firstOrNull { preferredAudio != "Auto" && it.label == preferredAudio }?.let {
-            builder.setOverrideForType(it.override)
-        }
-        player.trackSelectionParameters = builder.build()
-    }
-
-    LaunchedEffect(preferredQuality, videoQualityTracks) {
-        val builder = player.trackSelectionParameters.buildUpon()
-            .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, false)
-            .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-        videoQualityTracks.firstOrNull { preferredQuality != "Auto" && it.label == preferredQuality }?.let {
-            builder.setOverrideForType(it.override)
-        }
-        player.trackSelectionParameters = builder.build()
-    }
-
+    // PlaybackSession owns audio/video overrides, including headless playback.
+    // UI must never clear an override merely because a provider label differs
+    // from a manifest's language label.
     LaunchedEffect(scrubbing, scrubPositionMs / 5_000L, session.activeSourceUri) {
         if (!scrubbing) {
             scrubPreviewFrame = null
@@ -549,6 +529,10 @@ fun PlayerScreen(
                 showControls()
             }
 
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+                speed = playbackParameters.speed
+            }
+
             override fun onTracksChanged(tracks: Tracks) {
                 audioTracks = buildAudioTrackOptions(tracks)
                 videoQualityTracks = buildVideoQualityTrackOptions(tracks)
@@ -579,8 +563,8 @@ fun PlayerScreen(
     }
 
     val selectedSubtitleLabel = subtitleTracks.firstOrNull { it.selected }?.label
-    val audioSummary = if (effectiveAudioPreference == "Auto") audioAutoLabel else effectiveAudioPreference
-    val qualitySummary = if (effectiveQualityPreference == "Auto") qualityAutoLabel else effectiveQualityPreference
+    val audioSummary = playback.activeStreamSelection?.activeVoice?.takeUnless { it == "Не указано" } ?: audioAutoLabel
+    val qualitySummary = playback.activeStreamSelection?.activeQuality?.takeUnless { it == "Auto" } ?: qualityAutoLabel
     val speedSummary = "${formatSpeed(speed)}×"
     val subtitleSummary = when {
         subtitleTracks.isEmpty() -> "Нет"
@@ -1002,31 +986,21 @@ fun PlayerScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (isSeries) {
-                        Surface(
+                        PlayerTransportIconAction(
                             onClick = {
                                 if (hasPreviousEpisode) {
                                     onPreviousEpisode()
                                     showControls()
                                 }
                             },
+                            icon = Icons.Filled.SkipPrevious,
+                            contentDescription = "Предыдущая серия",
                             enabled = hasPreviousEpisode,
-                            shape = CircleShape,
-                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
-                            border = BorderStroke(1.dp, MoviaBorderSubtle),
                             modifier = Modifier
                                 .size(48.dp)
                                 .testTag("player.previousEpisode")
                                 .alpha(if (hasPreviousEpisode) 1.0f else 0.25f),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Filled.SkipPrevious,
-                                    contentDescription = "Предыдущая серия",
-                                    tint = scheme.onSurface,
-                                    modifier = Modifier.size(26.dp),
-                                )
-                            }
-                        }
+                        )
                         if (persistentSeekButtons) {
                             Spacer(modifier = Modifier.width(16.dp))
                         } else {
@@ -1035,22 +1009,12 @@ fun PlayerScreen(
                     }
 
                     if (persistentSeekButtons) {
-                        Surface(
+                        PlayerTransportIconAction(
                             onClick = { seekBy(-10_000L) },
-                            shape = CircleShape,
-                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
-                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            icon = Icons.Filled.Replay10,
+                            contentDescription = "Назад на 10 секунд",
                             modifier = Modifier.size(48.dp).testTag("player.seekBack"),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Filled.Replay10,
-                                    contentDescription = "Назад на 10 секунд",
-                                    tint = scheme.onSurface,
-                                    modifier = Modifier.size(26.dp),
-                                )
-                            }
-                        }
+                        )
                         Spacer(modifier = Modifier.width(20.dp))
                     }
 
@@ -1084,42 +1048,31 @@ fun PlayerScreen(
                                     modifier = Modifier.size(36.dp),
                                 )
                             } else {
-                                IconButton(
+                                MoviaTapIconButton(
+                                    icon = if (playback.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                    contentDescription = if (playback.isPlaying) "Пауза" else "Воспроизвести",
                                     onClick = {
                                         session.togglePlayPause()
                                         showControls()
                                     },
                                     modifier = Modifier.fillMaxSize().testTag("player.playPause"),
-                                ) {
-                                    Icon(
-                                        if (playback.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                                        contentDescription = if (playback.isPlaying) "Пауза" else "Воспроизвести",
-                                        tint = scheme.onSurface.copy(alpha = 0.96f),
-                                        modifier = Modifier.size(PLAYER_CENTER_ICON_SIZE),
-                                    )
-                                }
+                                    iconModifier = Modifier.size(
+                                        if (playback.isPlaying) PLAYER_CENTER_ICON_SIZE else PLAYER_CENTER_PLAY_ICON_SIZE,
+                                    ),
+                                    tint = scheme.onSurface.copy(alpha = 0.96f),
+                                )
                             }
                         }
                     }
 
                     if (persistentSeekButtons) {
                         Spacer(modifier = Modifier.width(20.dp))
-                        Surface(
+                        PlayerTransportIconAction(
                             onClick = { seekBy(10_000L) },
-                            shape = CircleShape,
-                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
-                            border = BorderStroke(1.dp, MoviaBorderSubtle),
+                            icon = Icons.Filled.Forward10,
+                            contentDescription = "Вперёд на 10 секунд",
                             modifier = Modifier.size(48.dp).testTag("player.seekForward"),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Filled.Forward10,
-                                    contentDescription = "Вперёд на 10 секунд",
-                                    tint = scheme.onSurface,
-                                    modifier = Modifier.size(26.dp),
-                                )
-                            }
-                        }
+                        )
                     }
 
                     if (isSeries) {
@@ -1128,31 +1081,21 @@ fun PlayerScreen(
                         } else {
                             Spacer(modifier = Modifier.width(44.dp))
                         }
-                        Surface(
+                        PlayerTransportIconAction(
                             onClick = {
                                 if (hasNextEpisode) {
                                     onNextEpisode()
                                     showControls()
                                 }
                             },
+                            icon = Icons.Filled.SkipNext,
+                            contentDescription = "Следующая серия",
                             enabled = hasNextEpisode,
-                            shape = CircleShape,
-                            color = scheme.surfaceContainer.copy(alpha = 0.82f),
-                            border = BorderStroke(1.dp, MoviaBorderSubtle),
                             modifier = Modifier
                                 .size(48.dp)
                                 .testTag("player.nextEpisode")
                                 .alpha(if (hasNextEpisode) 1.0f else 0.25f),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Filled.SkipNext,
-                                    contentDescription = "Следующая серия",
-                                    tint = scheme.onSurface,
-                                    modifier = Modifier.size(26.dp),
-                                )
-                            }
-                        }
+                        )
                     }
                 }
 
@@ -1284,79 +1227,43 @@ fun PlayerScreen(
         }
 
         if (!inPictureInPicture && settingsOpen) {
-            val contentStreams = mediaContent?.streams.orEmpty()
-            val streamVoices: List<String> = if (contentStreams.isNotEmpty()) {
-                contentStreams.map { it.voice.ifBlank { "Дубляж" } }.distinct().sortedWith(
-                    compareBy { v ->
-                        val low = v.lowercase()
-                        when {
-                            low.contains("дубляж") || low.contains("дублированный") -> 0
-                            low.contains("lostfilm") -> 1
-                            low.contains("red head sound") || low.contains("rhs") -> 2
-                            low.contains("hdrezka") || low.contains("rezka") -> 3
-                            low.contains("кубик") -> 4
-                            low.contains("кураж") -> 5
-                            low.contains("newstudio") -> 6
-                            low.contains("профессиональн") -> 7
-                            low.contains("русск") -> 8
-                            low.contains("original") || low.contains("english") -> 20
-                            else -> 10
-                        }
-                    }
-                )
-            } else {
-                listOf(mediaContent?.audioLanguages?.firstOrNull()?.takeIf { it.isNotBlank() } ?: "Дубляж")
-            }
-
-            val currentVoice: String = if (audioSummary in streamVoices) {
-                audioSummary
-            } else {
-                streamVoices.firstOrNull { !it.contains("Original", ignoreCase = true) && !it.contains("English", ignoreCase = true) }
-                    ?: streamVoices.firstOrNull() ?: "Дубляж"
-            }
-
-            val streamQualitiesForVoice: List<String> = if (contentStreams.isNotEmpty()) {
-                val matching = contentStreams.filter { it.voice.equals(currentVoice, ignoreCase = true) }.map { it.quality.ifBlank { "1080p" } }.distinct()
-                if (matching.isNotEmpty()) matching else contentStreams.map { it.quality.ifBlank { "1080p" } }.distinct()
-            } else {
-                listOf(mediaContent?.quality?.takeIf { it.isNotBlank() } ?: "1080p")
-            }
-
-            val currentQuality: String = if (qualitySummary in streamQualitiesForVoice) {
-                qualitySummary
-            } else {
-                streamQualitiesForVoice.firstOrNull { it.equals(qualitySummary, ignoreCase = true) } ?: streamQualitiesForVoice.firstOrNull() ?: "1080p"
-            }
+            val contentStreams = sessionStreams
+            val selection = playback.activeStreamSelection
+            val currentVoice = selection?.requestedVoice ?: "Auto"
+            val streamVoices = voiceMenu(contentStreams, playbackChoices)
+            val streamQualitiesForVoice = qualityMenu(contentStreams, playbackChoices, selection?.activeVoice)
+            val currentQuality = selection?.requestedQuality ?: "Auto"
 
             StreamSettingsScreen(
+                sourceOptions = contentStreams.mapNotNull { it.source?.takeIf { name -> name.isNotBlank() } }.distinct(),
+                selectedSource = selection?.source.orEmpty(),
+                onSourceSelected = {
+                    if (!session.selectProvider(it)) android.widget.Toast.makeText(context,
+                        "Этот источник сейчас недоступен", android.widget.Toast.LENGTH_SHORT).show()
+                },
                 audioOptions = streamVoices,
                 qualityOptions = streamQualitiesForVoice,
                 selectedAudio = currentVoice,
                 selectedQuality = currentQuality,
                 autoNextEnabled = autoNextEnabled,
                 persistentSeekButtons = persistentSeekButtons,
+                speed = speed,
+                selectedSubtitle = subtitlePickerSelected,
+                subtitleOptions = listOf("Нет", "Auto") + subtitleTracks.map { it.label }.distinct(),
+                onSpeedSelected = { session.setPlaybackSpeed(it); speed = it },
+                onSubtitleSelected = { value ->
+                    when (value) {
+                        "Нет" -> selectSubtitleTrack(null)
+                        "Auto" -> selectAutomaticSubtitles()
+                        else -> subtitleTracks.firstOrNull { it.label == value }?.let(::selectSubtitleTrack)
+                    }
+                },
                 onBack = {
                     settingsOpen = false
                     showControls()
                 },
-                onAudioSelected = { newVoice ->
-                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) && it.quality.equals(currentQuality, ignoreCase = true) }
-                        ?: contentStreams.firstOrNull { it.voice.equals(newVoice, ignoreCase = true) }
-                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
-                        val currentPosition = session.state.value.currentPositionMs
-                        session.switchToStream(matchedStream.url, currentPosition)
-                    }
-                    selectAudio(newVoice)
-                },
-                onQualitySelected = { newQuality ->
-                    val matchedStream = contentStreams.firstOrNull { it.voice.equals(currentVoice, ignoreCase = true) && it.quality.equals(newQuality, ignoreCase = true) }
-                        ?: contentStreams.firstOrNull { it.quality.equals(newQuality, ignoreCase = true) }
-                    if (matchedStream != null && matchedStream.url.isNotBlank()) {
-                        val currentPosition = session.state.value.currentPositionMs
-                        session.switchToStream(matchedStream.url, currentPosition)
-                    }
-                    selectQuality(newQuality)
-                },
+                onAudioSelected = { newVoice -> selectAudio(newVoice) },
+                onQualitySelected = { newQuality -> selectQuality(newQuality) },
                 onAutoNextChanged = onAutoNextChanged,
                 onPersistentSeekButtonsChanged = onPersistentSeekButtonsChanged,
                 modifier = Modifier
@@ -1579,7 +1486,7 @@ private fun Modifier.playerSeasonHorizontalSwipe(
 }
 
 @Composable
-private fun StreamSettingsScreen(
+internal fun StreamSettingsScreen(
     audioOptions: List<String>,
     qualityOptions: List<String>,
     selectedAudio: String,
@@ -1591,6 +1498,14 @@ private fun StreamSettingsScreen(
     onQualitySelected: (String) -> Unit,
     onAutoNextChanged: (Boolean) -> Unit,
     onPersistentSeekButtonsChanged: (Boolean) -> Unit,
+    speed: Float = 1f,
+    selectedSubtitle: String = "Нет",
+    subtitleOptions: List<String> = emptyList(),
+    onSpeedSelected: (Float) -> Unit = {},
+    onSubtitleSelected: (String) -> Unit = {},
+    sourceOptions: List<String> = emptyList(),
+    selectedSource: String = "",
+    onSourceSelected: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -1648,11 +1563,22 @@ private fun StreamSettingsScreen(
             )
         }
 
+        if (sourceOptions.isNotEmpty()) {
+            PlayerSettingsSectionLabel("ИСТОЧНИК")
+            PlayerSettingsChipsRow(sourceOptions, selectedSource, onSourceSelected, tagPrefix = "settings.source")
+        }
         PlayerSettingsSectionLabel("ОЗВУЧКА")
         PlayerSettingsChipsRow(audioOptions, selectedAudio, onAudioSelected, tagPrefix = "settings.voice")
 
         PlayerSettingsSectionLabel("КАЧЕСТВО ВИДЕО")
         PlayerSettingsChipsRow(qualityOptions, selectedQuality, onQualitySelected, tagPrefix = "settings.quality")
+
+        PlayerSettingsSectionLabel("СКОРОСТЬ")
+        PlayerSettingsChipsRow(listOf("0.5×", "0.75×", "1×", "1.25×", "1.5×", "1.75×", "2×"),
+            "${formatSpeed(speed)}×", { onSpeedSelected(it.removeSuffix("×").toFloat()) }, tagPrefix = "settings.speed")
+
+        PlayerSettingsSectionLabel("СУБТИТРЫ")
+        PlayerSettingsChipsRow(subtitleOptions, selectedSubtitle, onSubtitleSelected, tagPrefix = "settings.subtitle")
 
         PlayerSettingsSectionLabel("УПРАВЛЕНИЕ И ПЕРЕХОДЫ")
         PlayerSettingsToggleRow(
@@ -1681,7 +1607,7 @@ private fun PlayerSettingsChipsRow(
 ) {
     val scheme = MaterialTheme.colorScheme
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag("$tagPrefix.row"),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(horizontal = 2.dp),
     ) {
@@ -1692,7 +1618,7 @@ private fun PlayerSettingsChipsRow(
                 shape = RoundedCornerShape(12.dp),
                 color = if (isSelected) MoviaBrandAmber.copy(alpha = 0.16f) else scheme.surfaceContainer,
                 modifier = Modifier
-                    .heightIn(min = 46.dp)
+                    .heightIn(min = 48.dp)
                     .testTag("$tagPrefix.${option.controlTagValue()}")
                     .border(
                         width = 1.dp,
@@ -2069,7 +1995,7 @@ private fun PlayerEpisodeSelectionScreen(
                                         imageVector = Icons.Filled.PlayArrow,
                                         contentDescription = null,
                                         tint = if (selected) MoviaBrandAmber else scheme.onSurface.copy(alpha = 0.90f),
-                                        modifier = Modifier.size(22.dp),
+                                        modifier = Modifier.size(24.2.dp),
                                     )
                                 }
                             }
@@ -2227,8 +2153,41 @@ private fun PlayerTopBar(
                     icon = Icons.Outlined.Settings,
                     contentDescription = "Настройки плеера",
                     modifier = Modifier.testTag("player.settings"),
+                    animateSettingsGear = true,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PlayerTransportIconAction(
+    onClick: () -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    iconSize: androidx.compose.ui.unit.Dp = 26.dp,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val tapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 0L, onClick)
+    Surface(
+        onClick = animatedOnClick,
+        enabled = enabled,
+        shape = CircleShape,
+        color = scheme.surfaceContainer.copy(alpha = 0.82f),
+        border = BorderStroke(1.dp, MoviaBorderSubtle),
+        modifier = modifier,
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = lerp(scheme.onSurface, MoviaBrandAmber, tapAlpha.coerceIn(0f, 1f)),
+                modifier = Modifier.size(iconSize),
+            )
         }
     }
 }
@@ -2240,24 +2199,41 @@ private fun PlayerGlassAction(
     contentDescription: String,
     modifier: Modifier = Modifier,
     iconSize: androidx.compose.ui.unit.Dp = 22.dp,
+    animateSettingsGear: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val interactionSource = remember { MutableInteractionSource() }
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val gearMotion = if (animateSettingsGear) rememberMoviaGearMotion(actionTrigger) else null
+    val iconTapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 500L, onClick)
     Surface(
         shape = CircleShape,
         color = scheme.surfaceContainer.copy(alpha = 0.88f),
         modifier = modifier
-            .size(44.dp)
+            .size(48.dp)
             .border(1.dp, MoviaBorderSubtle, CircleShape),
     ) {
         IconButton(
-            onClick = onClick,
-            modifier = Modifier.fillMaxSize(),
+            onClick = animatedOnClick,
+            interactionSource = interactionSource,
+            modifier = Modifier
+                .fillMaxSize()
+,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = MoviaTextPrimary,
-                modifier = Modifier.size(iconSize),
+                tint = lerp(MoviaTextPrimary, MoviaBrandAmber, iconTapAlpha.coerceIn(0f, 1f)),
+                modifier = Modifier
+                    .size(iconSize)
+                    .then(
+                        if (gearMotion == null) Modifier else Modifier.graphicsLayer {
+                            scaleX = gearMotion.scale
+                            scaleY = gearMotion.scale
+                            rotationZ = gearMotion.rotationZ
+                        },
+                    ),
             )
         }
     }

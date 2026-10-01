@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.movia.android.data.preferences.PlaybackPreferences
+import app.movia.android.ui.components.MoviaTapIconButton
 import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaBorderSubtle
@@ -266,16 +267,17 @@ internal fun SettingsPage(
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 22.sp,
                         lineHeight = 28.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Назад",
-                        )
-                    }
+                    MoviaTapIconButton(
+                        icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "Назад",
+                        onClick = onBack,
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        actionDelayMs = 500L,
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,

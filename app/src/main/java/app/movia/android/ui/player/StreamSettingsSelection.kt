@@ -48,7 +48,7 @@ internal object StreamSettingsSelection {
                 stream.voice.equals(requestedVoice, ignoreCase = true) &&
                 sameQuality(stream.quality, requestedQuality)
         } ?: usable.firstOrNull { stream ->
-            requestedQuality != null && sameQuality(stream.quality, requestedQuality)
+            (requestedVoice == null || usable.none { it.voice.equals(requestedVoice, true) }) && requestedQuality != null && sameQuality(stream.quality, requestedQuality)
         } ?: usable.firstOrNull { stream ->
             requestedVoice != null && stream.voice.equals(requestedVoice, ignoreCase = true)
         }

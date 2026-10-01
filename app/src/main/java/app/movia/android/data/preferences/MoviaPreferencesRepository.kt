@@ -36,9 +36,23 @@ data class PlaybackPreferences(
     val wifiOnlyDownloads: Boolean = true,
 )
 
+data class ReleaseNotificationPreferences(
+    val pendingKeys: Set<String> = emptySet(),
+    val unreadKeys: Set<String> = emptySet(),
+    val dismissedKeys: Set<String> = emptySet(),
+)
+
 data class TitlePlaybackPreferences(
     val audio: String? = null,
     val quality: String? = null,
+)
+
+data class HomeRecommendationSnapshot(
+    val generatedAtMs: Long = 0L,
+    val history: List<String> = emptyList(),
+    val favorites: Set<String> = emptySet(),
+    val recommendationIds: List<String> = emptyList(),
+    val reason: String = "Для вас",
 )
 
 class MoviaPreferencesRepository(
@@ -54,8 +68,16 @@ class MoviaPreferencesRepository(
         val highContrast = booleanPreferencesKey("accessibility_high_contrast")
         val persistentSeekButtons = booleanPreferencesKey("accessibility_persistent_seek_buttons")
         val notificationsEnabled = booleanPreferencesKey("notifications_enabled")
+        val releaseNotificationPendingKeys = stringSetPreferencesKey("release_notification_pending_keys")
+        val releaseNotificationUnreadKeys = stringSetPreferencesKey("release_notification_unread_keys")
+        val releaseNotificationDismissedKeys = stringSetPreferencesKey("release_notification_dismissed_keys")
         val titleAudioOverrides = stringSetPreferencesKey("title_audio_overrides")
         val titleQualityOverrides = stringSetPreferencesKey("title_quality_overrides")
+        val homeRecommendationGeneratedAt = longPreferencesKey("home_recommendation_generated_at_ms")
+        val homeRecommendationHistory = stringPreferencesKey("home_recommendation_history")
+        val homeRecommendationFavorites = stringSetPreferencesKey("home_recommendation_favorites")
+        val homeRecommendationIds = stringPreferencesKey("home_recommendation_ids")
+        val homeRecommendationReason = stringPreferencesKey("home_recommendation_reason")
 
         // Legacy keys: read only during the one-time Room migration.
         val legacyFavorites = stringSetPreferencesKey("library_favorites")
@@ -75,7 +97,7 @@ class MoviaPreferencesRepository(
 
     val appPreferences: Flow<AppPreferences> = safeData.map { prefs ->
         AppPreferences(
-            themeMode = prefs[Keys.themeMode] ?: "DARK",
+            themeMode = "DARK",
             highContrast = prefs[Keys.highContrast] ?: false,
             persistentSeekButtons = prefs[Keys.persistentSeekButtons] ?: false,
             notificationsEnabled = prefs[Keys.notificationsEnabled] ?: true,
@@ -92,6 +114,14 @@ class MoviaPreferencesRepository(
         )
     }
 
+    val releaseNotificationPreferences: Flow<ReleaseNotificationPreferences> = safeData.map { prefs ->
+        ReleaseNotificationPreferences(
+            pendingKeys = prefs[Keys.releaseNotificationPendingKeys].orEmpty(),
+            unreadKeys = prefs[Keys.releaseNotificationUnreadKeys].orEmpty(),
+            dismissedKeys = prefs[Keys.releaseNotificationDismissedKeys].orEmpty(),
+        )
+    }
+
     fun titlePlaybackPreferences(title: String): Flow<TitlePlaybackPreferences> = safeData.map { prefs ->
         TitlePlaybackPreferences(
             audio = findOverride(prefs[Keys.titleAudioOverrides].orEmpty(), title),
@@ -99,7 +129,37 @@ class MoviaPreferencesRepository(
         )
     }
 
+    suspend fun readHomeRecommendationSnapshot(): HomeRecommendationSnapshot? {
+        val prefs = safeData.first()
+        val generatedAtMs = prefs[Keys.homeRecommendationGeneratedAt] ?: 0L
+        if (generatedAtMs <= 0L) return null
+        return HomeRecommendationSnapshot(
+            generatedAtMs = generatedAtMs,
+            history = prefs[Keys.homeRecommendationHistory]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty(),
+            favorites = prefs[Keys.homeRecommendationFavorites].orEmpty(),
+            recommendationIds = prefs[Keys.homeRecommendationIds]
+                ?.split(LIST_SEPARATOR)
+                ?.filter { it.isNotBlank() }
+                .orEmpty(),
+            reason = prefs[Keys.homeRecommendationReason] ?: "Для вас",
+        )
+    }
+
+    suspend fun saveHomeRecommendationSnapshot(snapshot: HomeRecommendationSnapshot) {
+        context.moviaDataStore.edit { prefs ->
+            prefs[Keys.homeRecommendationGeneratedAt] = snapshot.generatedAtMs
+            prefs[Keys.homeRecommendationHistory] = snapshot.history.joinToString(LIST_SEPARATOR)
+            prefs[Keys.homeRecommendationFavorites] = snapshot.favorites
+            prefs[Keys.homeRecommendationIds] = snapshot.recommendationIds.joinToString(LIST_SEPARATOR)
+            prefs[Keys.homeRecommendationReason] = snapshot.reason
+        }
+    }
+
     suspend fun setThemeMode(value: String) {
+        require(value == "DARK") { "Movia supports the DARK theme" }
         context.moviaDataStore.edit { it[Keys.themeMode] = value }
     }
 
@@ -113,6 +173,51 @@ class MoviaPreferencesRepository(
 
     suspend fun setNotificationsEnabled(value: Boolean) {
         context.moviaDataStore.edit { it[Keys.notificationsEnabled] = value }
+    }
+
+    suspend fun addReleaseNotifications(keys: Set<String>) {
+        if (keys.isEmpty()) return
+        context.moviaDataStore.edit { prefs ->
+            val dismissed = prefs[Keys.releaseNotificationDismissedKeys].orEmpty()
+            val eligible = keys - dismissed
+            val pending = prefs[Keys.releaseNotificationPendingKeys].orEmpty()
+            val newlyAvailable = eligible - pending
+            prefs[Keys.releaseNotificationPendingKeys] = pending + eligible
+            prefs[Keys.releaseNotificationUnreadKeys] =
+                prefs[Keys.releaseNotificationUnreadKeys].orEmpty() + newlyAvailable
+        }
+    }
+
+    suspend fun markReleaseNotificationsRead(keys: Set<String>) {
+        if (keys.isEmpty()) return
+        context.moviaDataStore.edit { prefs ->
+            prefs[Keys.releaseNotificationUnreadKeys] =
+                prefs[Keys.releaseNotificationUnreadKeys].orEmpty() - keys
+        }
+    }
+
+    suspend fun dismissReleaseNotification(key: String) {
+        if (key.isBlank()) return
+        context.moviaDataStore.edit { prefs ->
+            prefs[Keys.releaseNotificationPendingKeys] =
+                prefs[Keys.releaseNotificationPendingKeys].orEmpty() - key
+            prefs[Keys.releaseNotificationUnreadKeys] =
+                prefs[Keys.releaseNotificationUnreadKeys].orEmpty() - key
+            prefs[Keys.releaseNotificationDismissedKeys] =
+                prefs[Keys.releaseNotificationDismissedKeys].orEmpty() + key
+        }
+    }
+
+    suspend fun resetReleaseNotification(key: String) {
+        if (key.isBlank()) return
+        context.moviaDataStore.edit { prefs ->
+            prefs[Keys.releaseNotificationPendingKeys] =
+                prefs[Keys.releaseNotificationPendingKeys].orEmpty() - key
+            prefs[Keys.releaseNotificationUnreadKeys] =
+                prefs[Keys.releaseNotificationUnreadKeys].orEmpty() - key
+            prefs[Keys.releaseNotificationDismissedKeys] =
+                prefs[Keys.releaseNotificationDismissedKeys].orEmpty() - key
+        }
     }
 
     suspend fun setAudio(value: String) {

@@ -42,6 +42,21 @@ data class CatalogFilter(
         ).count { it }
 }
 
+internal fun catalogLanguageKey(value: String): String = when(value.trim().lowercase().substringBefore('-')) {
+    "ru", "rus", "русский", "русские", "russian" -> "ru"
+    "en", "eng", "english", "английский", "английские" -> "en"
+    else -> value.trim().lowercase()
+}
+internal fun catalogResolutionKey(value: String): String {
+    val low=value.trim().lowercase()
+    return when(low) {
+        "4k", "uhd", "2160", "2160p" -> "2160p"
+        "hd", "720" -> "720p"
+        "fhd", "fullhd", "1080" -> "1080p"
+        else -> low
+    }
+}
+
 fun filterCatalog(
     items: List<MediaContent>,
     filter: CatalogFilter,
@@ -57,19 +72,19 @@ fun filterCatalog(
         (filter.yearFrom == null || item.year >= filter.yearFrom) &&
             (filter.yearTo == null || item.year <= filter.yearTo)
     val resolutionMatches = filter.resolution == null ||
-        item.quality.equals(filter.resolution, ignoreCase = true)
+        (catalogResolutionKey(item.quality) == catalogResolutionKey(filter.resolution) || item.streams.any { catalogResolutionKey(it.quality) == catalogResolutionKey(filter.resolution) })
 
     (filter.type == null || item.type == filter.type) &&
         genreMatches &&
         yearMatches &&
         (filter.minRating == null || item.rating >= filter.minRating) &&
         resolutionMatches &&
-        (filter.country == null || item.country == filter.country) &&
+        (filter.country == null || item.country.split(",").map(String::trim).any { it.equals(filter.country, ignoreCase = true) }) &&
         durationMatches &&
-        (!filter.newOnly || item.isNew) &&
-        (filter.maxAgeRating == null || item.ageRating <= filter.maxAgeRating) &&
-        (filter.audioLanguage == null || filter.audioLanguage in item.audioLanguages) &&
-        (filter.subtitleLanguage == null || filter.subtitleLanguage in item.subtitleLanguages)
+        (!filter.newOnly || item.year in (java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)-1)..java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)) &&
+        (filter.maxAgeRating == null || (item.ageRating != null && item.ageRating <= filter.maxAgeRating)) &&
+        (filter.audioLanguage == null || item.audioLanguages.any { catalogLanguageKey(it) == catalogLanguageKey(filter.audioLanguage) }) &&
+        (filter.subtitleLanguage == null || item.subtitleLanguages.any { catalogLanguageKey(it) == catalogLanguageKey(filter.subtitleLanguage) })
 }
 
 private val contentTypeOrder = mapOf(

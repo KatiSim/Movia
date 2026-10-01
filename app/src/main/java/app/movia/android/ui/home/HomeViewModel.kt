@@ -1,11 +1,15 @@
 package app.movia.android.ui.home
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.data.catalog.HomeFeedSnapshot
 import app.movia.android.data.catalog.RecommendationEngine
 import app.movia.android.data.catalog.RecommendationResult
+import app.movia.android.data.preferences.HomeRecommendationSnapshot
+import app.movia.android.data.preferences.MoviaPreferencesRepository
 import app.movia.android.domain.model.ContentType
 import app.movia.android.domain.model.MediaContent
 import kotlinx.coroutines.CancellationException
@@ -18,38 +22,50 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val RECOMMENDATION_REFRESH_MS = 24L * 60L * 60L * 1000L
+private const val RECOMMENDATION_LOG_TAG = "HomeRecommendations"
+
 data class HomeUiState(
     val feed: HomeFeedSnapshot = HomeFeedSnapshot(),
     val recommendation: RecommendationResult = RecommendationResult("Подбираем для вас", emptyList()),
+    val recommendationHistory: List<String> = emptyList(),
+    val recommendationGeneratedAtMs: Long = 0L,
     val animationSeries: List<MediaContent> = emptyList(),
     val isRecommending: Boolean = false,
 )
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val mutableUiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = mutableUiState.asStateFlow()
 
+    private val preferencesRepository = MoviaPreferencesRepository(application.applicationContext)
     private var recommendationJob: Job? = null
-    private var lastRecommendationKey: Pair<List<String>, Set<String>>? = null
     private var animationFallbackJob: Job? = null
     private var animationFallbackKey: List<String>? = null
+
+    private var cadenceLoaded = false
+    private var signalsReceived = false
+    private var latestHistory: List<String> = emptyList()
+    private var latestFavorites: Set<String> = emptySet()
+    private var activeRecommendationSnapshot: HomeRecommendationSnapshot? = null
+    private var appliedRecommendationIds: List<String> = emptyList()
 
     init {
         viewModelScope.launch {
             DemoCatalogRepository.homeFeed.collect { feed ->
-                mutableUiState.update { state ->
-                    val noPreferenceSignals = lastRecommendationKey?.let { (history, favorites) ->
-                        history.isEmpty() && favorites.isEmpty()
-                    } == true
-                    val localRecommendation = if (noPreferenceSignals) {
-                        RecommendationResult(
-                            "Популярное для старта",
-                            (feed.forYou + feed.popular + feed.newReleases).distinctBy { it.id }.take(20),
-                        )
-                    } else state.recommendation
-                    state.copy(feed = feed, recommendation = localRecommendation)
+                mutableUiState.update { state -> state.copy(feed = feed) }
+                if (cadenceLoaded) {
+                    restoreFreshSnapshot()
+                    maybeUpdateRecommendations()
                 }
             }
+        }
+        viewModelScope.launch {
+            activeRecommendationSnapshot = preferencesRepository.readHomeRecommendationSnapshot()
+            cadenceLoaded = true
+            Log.d(RECOMMENDATION_LOG_TAG, "cadence loaded snapshot=" + (activeRecommendationSnapshot != null))
+            restoreFreshSnapshot()
+            maybeUpdateRecommendations()
         }
     }
 
@@ -103,35 +119,136 @@ class HomeViewModel : ViewModel() {
     }
 
     fun updateRecommendations(history: List<String>, favorites: Set<String>) {
-        val key = history to favorites
-        if (key == lastRecommendationKey) return
-        if (history.isEmpty() && favorites.isEmpty()) {
-            recommendationJob?.cancel()
-            lastRecommendationKey = key
-            val feed = mutableUiState.value.feed
-            val local = (feed.forYou + feed.popular + feed.newReleases).distinctBy { it.id }.take(20)
-            mutableUiState.update {
-                it.copy(
-                    recommendation = RecommendationResult("Популярное для старта", local),
-                    isRecommending = false,
+        latestHistory = history.take(5)
+        latestFavorites = favorites.take(20).toSet()
+        signalsReceived = true
+        Log.d(RECOMMENDATION_LOG_TAG, "signals history=" + latestHistory.size + " favorites=" + latestFavorites.size + " cadenceLoaded=" + cadenceLoaded)
+        maybeUpdateRecommendations()
+    }
+
+    private fun restoreFreshSnapshot() {
+        val snapshot = activeRecommendationSnapshot ?: return
+        if (!isFresh(snapshot, System.currentTimeMillis())) return
+        val restored = snapshot.recommendationIds
+            .mapNotNull(DemoCatalogRepository::findById)
+            .distinctBy { it.id }
+        if (restored.isEmpty()) return
+        appliedRecommendationIds = restored.map { it.id }
+        mutableUiState.update {
+            it.copy(
+                recommendation = RecommendationResult(snapshot.reason, restored),
+                recommendationHistory = snapshot.history,
+                recommendationGeneratedAtMs = snapshot.generatedAtMs,
+                isRecommending = false,
+            )
+        }
+    }
+
+    private fun maybeUpdateRecommendations() {
+        if (!cadenceLoaded || !signalsReceived) {
+            Log.d(RECOMMENDATION_LOG_TAG, "skip cadenceLoaded=" + cadenceLoaded + " signalsReceived=" + signalsReceived)
+            return
+        }
+        val now = System.currentTimeMillis()
+        val stored = activeRecommendationSnapshot
+        if (stored != null && isFresh(stored, now)) {
+            Log.d(RECOMMENDATION_LOG_TAG, "reuse fresh snapshot ageMs=" + (now - stored.generatedAtMs) + " ids=" + stored.recommendationIds.size)
+            if (appliedRecommendationIds.isEmpty()) {
+                val restored = stored.recommendationIds
+                    .mapNotNull(DemoCatalogRepository::findById)
+                    .distinctBy { it.id }
+                if (restored.isNotEmpty()) {
+                    appliedRecommendationIds = restored.map { it.id }
+                    mutableUiState.update {
+                        it.copy(
+                            recommendation = RecommendationResult(stored.reason, restored),
+                            recommendationHistory = stored.history,
+                            recommendationGeneratedAtMs = stored.generatedAtMs,
+                            isRecommending = false,
+                        )
+                    }
+                    return
+                }
+                computeRecommendation(
+                    basisHistory = stored.history,
+                    basisFavorites = stored.favorites,
+                    generatedAtMs = stored.generatedAtMs,
                 )
             }
             return
         }
-        lastRecommendationKey = key
-        recommendationJob?.cancel()
+
+        Log.d(RECOMMENDATION_LOG_TAG, "refresh recommendation window")
+        computeRecommendation(
+            basisHistory = latestHistory,
+            basisFavorites = latestFavorites,
+            generatedAtMs = now,
+        )
+    }
+
+    private fun computeRecommendation(
+        basisHistory: List<String>,
+        basisFavorites: Set<String>,
+        generatedAtMs: Long,
+    ) {
+        if (recommendationJob?.isActive == true) return
         recommendationJob = viewModelScope.launch {
+            Log.d(RECOMMENDATION_LOG_TAG, "compute start history=" + basisHistory.size + " favorites=" + basisFavorites.size)
             mutableUiState.update { it.copy(isRecommending = true) }
-            val result = withContext(Dispatchers.IO) {
+            val remoteResult = withContext(Dispatchers.IO) {
                 try {
-                    RecommendationEngine.recommend(history, favorites = favorites, limit = 20)
+                    RecommendationEngine.recommend(
+                        history = basisHistory,
+                        favorites = basisFavorites,
+                        limit = 20,
+                    )
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (_: Exception) {
                     RecommendationResult("Рекомендации временно недоступны", emptyList())
                 }
             }
-            mutableUiState.update { it.copy(recommendation = result, isRecommending = false) }
+            val result = if (remoteResult.items.isNotEmpty()) {
+                remoteResult
+            } else {
+                val feed = mutableUiState.value.feed
+                val local = (feed.forYou + feed.popular + feed.newReleases)
+                    .distinctBy { it.id }
+                    .take(20)
+                if (local.isNotEmpty()) RecommendationResult("Для вас", local) else remoteResult
+            }
+
+            if (result.items.isEmpty()) {
+                Log.w(RECOMMENDATION_LOG_TAG, "compute produced no items")
+                mutableUiState.update { it.copy(isRecommending = false) }
+                return@launch
+            }
+
+            val snapshot = HomeRecommendationSnapshot(
+                generatedAtMs = generatedAtMs,
+                history = basisHistory,
+                favorites = basisFavorites,
+                recommendationIds = result.items.map { it.id },
+                reason = result.reason,
+            )
+            Log.d(RECOMMENDATION_LOG_TAG, "persist snapshot ids=" + snapshot.recommendationIds.size + " generatedAt=" + snapshot.generatedAtMs)
+            preferencesRepository.saveHomeRecommendationSnapshot(snapshot)
+            Log.d(RECOMMENDATION_LOG_TAG, "persist complete")
+            activeRecommendationSnapshot = snapshot
+            appliedRecommendationIds = snapshot.recommendationIds
+            mutableUiState.update {
+                it.copy(
+                    recommendation = result,
+                    recommendationHistory = basisHistory,
+                    recommendationGeneratedAtMs = generatedAtMs,
+                    isRecommending = false,
+                )
+            }
         }
+    }
+
+    private fun isFresh(snapshot: HomeRecommendationSnapshot, nowMs: Long): Boolean {
+        val ageMs = nowMs - snapshot.generatedAtMs
+        return ageMs >= 0L && ageMs < RECOMMENDATION_REFRESH_MS
     }
 }

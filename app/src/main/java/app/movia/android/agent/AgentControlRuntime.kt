@@ -112,7 +112,7 @@ object AgentControlRuntime {
             Log.i("MoviaAgent", "runtime start")
             val applicationContext = context.applicationContext
             appContext = applicationContext
-            DemoCatalogRepository.init(applicationContext)
+            // MoviaApplication owns repository initialization for both UI and headless process starts.
             val events = AgentEventBus(1000)
             val state = AgentStateRepository(applicationContext, events)
             val prefs = MoviaPreferencesRepository(applicationContext)
@@ -154,6 +154,7 @@ object AgentControlRuntime {
                 state.updateSetting("accessibility.highContrast", value.highContrast)
                 state.updateSetting("player.showSeekButtons", value.persistentSeekButtons)
                 state.updateSetting("notifications.enabled", value.notificationsEnabled)
+                state.markReady("appearance")
             }
         }
         scope?.launch {
@@ -163,13 +164,14 @@ object AgentControlRuntime {
                 state.updateSetting("player.subtitlesEnabled", value.subtitlesEnabled)
                 state.updateSetting("player.autoNext", value.autoNextEnabled)
                 state.updateSetting("downloads.wifiOnly", value.wifiOnlyDownloads)
+                state.markReady("playbackPreferences")
             }
         }
-        scope?.launch { library.favorites.collect { state.updateLibrary(favorites = it) } }
+        scope?.launch { library.favorites.collect { state.updateLibrary(favorites = it); state.markReady("favorites") } }
         // Legacy Watch Later records migrate into favorites; the public JSON field stays empty for old clients.
-        scope?.launch { library.history.collect { state.updateLibrary(history = it) } }
-        scope?.launch { library.downloads.collect { state.updateLibrary(downloads = it) } }
-        scope?.launch { library.recentSearches.collect { state.updateLibrary(recentSearches = it) } }
+        scope?.launch { library.history.collect { state.updateLibrary(history = it); state.markReady("history") } }
+        scope?.launch { library.downloads.collect { state.updateLibrary(downloads = it); state.markReady("downloads") } }
+        scope?.launch { library.recentSearches.collect { state.updateLibrary(recentSearches = it); state.markReady("recentSearches") } }
     }
 
     fun replaceBridgeToken(token: String): Boolean {
@@ -336,6 +338,15 @@ object AgentControlRuntime {
             put("activeQuality", current?.activeQuality)
             put("activeVoice", current?.activeVoice)
             put("fallbackReason", current?.fallbackReason)
+            put("videoTracks", JSONArray().apply { session?.choices?.value?.video.orEmpty().forEach {
+                put(JSONObject().put("id", it.id).put("quality", it.label).put("height", it.height).put("selected", it.selected))
+            } })
+            put("audioTracks", JSONArray().apply { session?.choices?.value?.audio.orEmpty().forEach {
+                put(JSONObject().put("id", it.id).put("voice", it.label).put("language", it.language).put("selected", it.selected))
+            } })
+            put("probeFrames", session?.probeFrames ?: 0L)
+            put("readyLatencyMs", session?.readyLatencyMs ?: JSONObject.NULL)
+            put("firstFrameLatencyMs", session?.firstFrameLatencyMs ?: JSONObject.NULL)
             put("qualities", JSONArray().apply {
                 val iterator = qualities.keys()
                 while (iterator.hasNext()) {
@@ -362,6 +373,7 @@ object AgentControlRuntime {
         var actualPlaybackStateCode = Player.STATE_IDLE
         var actualIsPlaying = false
         var actualPlayWhenReady = false
+        var actualPlaybackSpeed = 1f
         var playbackSuppressionReason = 0
         var playerErrorCode: String? = null
         var playerErrorCause: String? = null
@@ -394,6 +406,7 @@ object AgentControlRuntime {
                 }
                 actualIsPlaying = player.isPlaying
                 actualPlayWhenReady = player.playWhenReady
+                actualPlaybackSpeed = player.playbackParameters.speed
                 playbackSuppressionReason = player.playbackSuppressionReason
                 playerErrorCode = player.playerError?.errorCodeName
                 playerErrorCause = player.playerError?.cause?.javaClass?.simpleName
@@ -413,6 +426,7 @@ object AgentControlRuntime {
 
         return JSONObject().apply {
             put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION)
+            put("legacyEngine", app.movia.android.domain.legacy.LegacyPlaybackResolver.diagnostics())
             put("snapshot", stateRepository?.snapshotJson() ?: JSONObject())
             put("media3", JSONObject().apply {
                 put("playbackState", actualPlaybackState)
@@ -434,6 +448,7 @@ object AgentControlRuntime {
                 put("currentPositionMs", currentPositionMs)
                 put("selectedAudioLabel", selectedAudioLabel)
                 put("selectedAudioLanguage", selectedAudioLanguage)
+                put("speed", actualPlaybackSpeed.toDouble())
             })
             put("streamSelection", JSONObject().apply {
                 val selection = state?.activeStreamSelection
@@ -505,6 +520,18 @@ object AgentControlRuntime {
         latestSelectionOperationId == token.operationId && selectionGeneration == token.generation
     }
 
+    private fun stopSelectionOperations() {
+        val stopped = synchronized(selectionLock) {
+            selectionGeneration += 1L
+            val previous = latestSelectionOperationId?.let { operationStore.get(it) }
+            latestSelectionOperationId = null
+            if (previous?.status == AgentOperationStatus.ACCEPTED || previous?.status == AgentOperationStatus.RUNNING) {
+                operationStore.fail(previous!!.operationId, "SELECTION_STOPPED", "Stopped by player.stop")
+            } else null
+        }
+        stopped?.let { publishOperation("OPERATION_FAILED", it) }
+    }
+
     private fun markSelectionRunning(token: SelectionOperationToken): AgentOperation? = synchronized(selectionLock) {
         if (latestSelectionOperationId != token.operationId || selectionGeneration != token.generation) return@synchronized null
         val current = operationStore.get(token.operationId)
@@ -569,7 +596,7 @@ object AgentControlRuntime {
         )
     }
 
-    private fun dispatch(request: JSONObject): JSONObject {
+    internal fun dispatch(request: JSONObject): JSONObject {
         val action = request.optString("action").trim()
         val requestId = request.optString("requestId").takeIf { it.isNotBlank() }
             ?: "agent-" + UUID.randomUUID()
@@ -581,6 +608,16 @@ object AgentControlRuntime {
             ?: return error("UNKNOWN_ACTION", "Unknown action: $action", false)
                 .put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION)
                 .put("requestId", requestId)
+        try {
+            require(!request.has("arguments") || request.optJSONObject("arguments") != null) { "arguments: expected object" }
+            AgentSchemaValidator.validate(args, definition.schema)
+            if (action == "catalog.query" && args.has("yearFrom") && args.has("yearTo")) {
+                require(args.getInt("yearFrom") <= args.getInt("yearTo")) { "arguments.yearFrom: greater than yearTo" }
+            }
+        } catch (invalid: IllegalArgumentException) {
+            return error("INVALID_ARGUMENT", invalid.message ?: "Invalid arguments", false)
+                .put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION).put("requestId", requestId)
+        }
         if (definition.requiresUi && stateRepository?.actionsJson()?.toJsonList()?.firstOrNull { it.optString("id") == action }?.optBoolean("enabled") != true) {
             return error("UI_NOT_ATTACHED", "This action requires a visible attached UI", true, mapOf("action" to action))
                 .put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION)
@@ -589,7 +626,8 @@ object AgentControlRuntime {
 
         events.publish("COMMAND_RECEIVED", requestId, mapOf("action" to action))
         val result = runCatching { dispatchAction(action, args, requestId) }.getOrElse {
-            error("COMMAND_FAILED", it.message ?: "Action failed", true)
+            val invalid = it is IllegalArgumentException
+            error(if (invalid) "INVALID_ARGUMENT" else "COMMAND_FAILED", it.message ?: "Action failed", !invalid)
         }
         when (result.optString("status")) {
             "failed" -> events.publish("COMMAND_FAILED", requestId, mapOf("action" to action, "code" to result.optString("code")))
@@ -641,12 +679,12 @@ object AgentControlRuntime {
             }
             "player.play" -> {
                 requireSession(session)
-                runOnMain { session!!.player.play() }
+                runOnMain { session!!.playPlayback() }
                 completed(action, "playing" to true)
             }
             "player.pause" -> {
                 requireSession(session)
-                runOnMain { session!!.player.pause() }
+                runOnMain { session!!.pausePlayback() }
                 persistCurrentProgress(session!!)
                 completed(action, "playing" to false)
             }
@@ -656,8 +694,16 @@ object AgentControlRuntime {
                 completed(action)
             }
             "player.stop" -> {
-                requireSession(session)
-                runOnMain { session!!.stopAndClear() }
+                // Stop also cancels an accepted lookup before it starts playing.
+                // Await completion instead of reporting the two-second dispatch
+                // timeout while the queued stop still mutates playback afterwards.
+                val stop = {
+                    stopSelectionOperations()
+                    MoviaPlaybackRegistry.current?.stopAndClear()
+                    Unit
+                }
+                if (Looper.myLooper() == Looper.getMainLooper()) stop()
+                else runBlocking { withContext(Dispatchers.Main) { stop() } }
                 completed(action)
             }
             "player.retry" -> {
@@ -678,11 +724,22 @@ object AgentControlRuntime {
                 runOnMain { session!!.seekTo((session.player.currentPosition + seconds * 1000L).coerceAtLeast(0L)) }
                 completed(action, "seconds" to seconds)
             }
+            "player.setSpeed" -> {
+                requireSession(session)
+                val speed = args.getDouble("speed").toFloat()
+                val accepted = runOnMain { session!!.setPlaybackSpeed(speed) }
+                completed(action, "speed" to speed)
+            }
             "player.getStreams" -> {
                 requireSession(session)
                 completed(action, "streams" to streamsJson())
             }
             "player.selectStream" -> selectStream(args, requestId)
+            "player.probeSurface" -> {
+                val context = appContext ?: return error("BRIDGE_NOT_STARTED", "Bridge is unavailable")
+                runBlocking { withContext(Dispatchers.Main) { MoviaPlaybackRegistry.obtain(context).setFrameProbe(args.getBoolean("enabled")) } }
+                completed(action, "enabled" to args.getBoolean("enabled"))
+            }
             "player.selectQuality" -> selectQuality(args, requestId)
             "player.selectVoice" -> selectVoice(args, requestId)
             "player.nextEpisode" -> startAdjacentEpisode(+1, requestId)
@@ -780,22 +837,9 @@ object AgentControlRuntime {
         val query = args.optString("query").trim()
 
         val result = runBlocking(Dispatchers.IO) {
-            val catalogPage = DemoCatalogRepository.getCatalogPage(
-                limit = 10_000,
-                offset = 0,
-                sort = CatalogSort.POPULAR,
-                category = null,
-                filter = null,
-                query = null,
-            )
-            val totalAvailable = catalogPage.total.coerceAtLeast(0)
-            val all = catalogPage.items
-            val searched = if (query.isBlank()) all else searchCatalogLocally(all, query, limit = all.size)
-            val categoryFiltered = if (category == null) searched else searched.filter { it.category == category }
-            val filtered = filterCatalog(categoryFiltered, filter)
-            val sorted = sortCatalog(filtered, sort)
-            val page = if (offset >= sorted.size) emptyList() else sorted.drop(offset).take(limit)
-            Triple(page, sorted.size, totalAvailable)
+            val page = DemoCatalogRepository.getCatalogPage(limit, offset, sort, category, filter, query.takeIf { it.isNotBlank() })
+            val catalogTotal = DemoCatalogRepository.getCatalogPage(1, 0, CatalogSort.RATING, null, null, null).total
+            Triple(page.items, page.total, catalogTotal)
         }
         return completed(
             "catalog.query",
@@ -866,6 +910,7 @@ object AgentControlRuntime {
             "quality" to args.optString("quality").takeIf { it.isNotBlank() },
             "voice" to args.optString("voice").takeIf { it.isNotBlank() },
             "streamId" to args.optString("streamId").takeIf { it.isNotBlank() },
+            "recordHistory" to args.optBoolean("recordHistory", true),
             "resume" to if (args.has("resume")) args.optBoolean("resume") else true,
             "persist" to if (args.has("persist")) {
                 args.optBoolean("persist")
@@ -881,6 +926,7 @@ object AgentControlRuntime {
         operationScope.launch(Dispatchers.IO) {
             markSelectionRunning(started.token)?.let { publishOperation("OPERATION_RUNNING", it) } ?: return@launch
             try {
+                val recordHistory = requested["recordHistory"] == true
                 val context = appContext ?: throw IllegalStateException("Application context unavailable")
                 val prefs = preferences ?: throw IllegalStateException("Preferences unavailable")
                 val library = libraryRepository ?: throw IllegalStateException("Library unavailable")
@@ -901,6 +947,11 @@ object AgentControlRuntime {
                     null
                 } else if (!mediaId.isNullOrBlank()) {
                     DemoCatalogRepository.findFullById(mediaId)
+                } else if (!requestedTitle.isNullOrBlank()) {
+                    // Title-only agent actions must resolve the canonical content ID before playback.
+                    // Otherwise the fallback title becomes a fake mediaId and every discovered
+                    // candidate is rejected by identity validation (for example "Breaking Bad" vs "159").
+                    DemoCatalogRepository.findFullByTitle(requestedTitle)
                 } else {
                     null
                 }
@@ -965,6 +1016,7 @@ object AgentControlRuntime {
                         preferredStreamId = streamId,
                         candidateStreams = knownStreams.map { it.url },
                         candidateStreamOptions = knownStreams,
+                        recordHistory = recordHistory,
                     )
                 }
                 val playbackSession = session ?: throw IllegalStateException("Playback session unavailable")
@@ -977,7 +1029,7 @@ object AgentControlRuntime {
                     )?.let { publishOperation("OPERATION_FAILED", it) }
                     return@launch
                 }
-                library.addHistory(MediaRef(content.id, season, episode), displayTitle)
+                if (requested["recordHistory"] == true) library.addHistory(MediaRef(content.id, season, episode), displayTitle)
 
                 if (!streamId.isNullOrBlank()) {
                     val deadline = System.currentTimeMillis() + 20_000L
@@ -1134,7 +1186,7 @@ object AgentControlRuntime {
     private fun persistCurrentProgress(session: PlaybackSession) {
         val library = libraryRepository ?: return
         val state = session.state.value
-        if (!state.hasMedia || state.currentPositionMs < 0L || state.totalDurationMs <= 0L) return
+        if (!session.recordHistory || !state.hasMedia || state.currentPositionMs < 0L || state.totalDurationMs <= 0L) return
         runBlocking(Dispatchers.IO) {
             library.saveProgress(
                 MediaRef(state.mediaId, state.seasonNumber, state.episodeNumber),
@@ -1160,38 +1212,21 @@ object AgentControlRuntime {
     }
 
     private fun selectQuality(args: JSONObject, requestId: String): JSONObject {
-        val session = MoviaPlaybackRegistry.current
-        requireSession(session)
-        val playbackSession = session ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
-        val quality = args.optString("quality").trim()
-        require(quality.isNotBlank()) { "quality is required" }
-        val expectedMediaId = playbackSession.state.value.mediaId
-        val current = playbackSession.state.value.activeStreamSelection
-        val preferredVoice = preferredVoiceForQuality(current)
-        val candidate = playbackSession.streamOptions.value.firstOrNull {
-            it.quality.equals(quality, ignoreCase = true) &&
-                (preferredVoice == null || it.voice.equals(preferredVoice, ignoreCase = true))
-        } ?: playbackSession.streamOptions.value.firstOrNull { it.quality.equals(quality, ignoreCase = true) }
-            ?: return error("QUALITY_NOT_FOUND", "Quality is not available", true)
-        val persist = if (args.has("persist")) args.optBoolean("persist") else true
-        return startStreamSwitchOperation("player.selectQuality", playbackSession, expectedMediaId, candidate, requestId, persist)
+        val session = MoviaPlaybackRegistry.current ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
+        val quality = args.getString("quality").trim()
+        val accepted = runBlocking { withContext(Dispatchers.Main) { session.selectVideoQuality(quality) } }
+        if (!accepted) return error("QUALITY_NOT_FOUND", "Quality is unavailable for the active voice", true)
+        if (args.optBoolean("persist", true)) persistVariant(session.activeTitle.orEmpty(), quality, null)
+        return completed("player.selectQuality", "requestedQuality" to quality, "streams" to streamsJson())
     }
 
     private fun selectVoice(args: JSONObject, requestId: String): JSONObject {
-        val session = MoviaPlaybackRegistry.current
-        requireSession(session)
-        val playbackSession = session ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
-        val voice = args.optString("voice").trim()
-        require(voice.isNotBlank()) { "voice is required" }
-        val expectedMediaId = playbackSession.state.value.mediaId
-        val current = playbackSession.state.value.activeStreamSelection
-        val preferredQuality = preferredQualityForVoice(current)
-        val candidate = playbackSession.streamOptions.value.firstOrNull {
-            it.voice.equals(voice, ignoreCase = true) &&
-                (preferredQuality == null || it.quality.equals(preferredQuality, ignoreCase = true))
-            } ?: return error("VOICE_NOT_FOUND", "Voice is not available for current quality", true)
-        val persist = if (args.has("persist")) args.optBoolean("persist") else true
-        return startStreamSwitchOperation("player.selectVoice", playbackSession, expectedMediaId, candidate, requestId, persist)
+        val session = MoviaPlaybackRegistry.current ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
+        val voice = args.getString("voice").trim()
+        val accepted = runBlocking { withContext(Dispatchers.Main) { session.selectVoice(voice) } }
+        if (!accepted) return error("VOICE_NOT_FOUND", "Voice is unavailable", true)
+        if (args.optBoolean("persist", true)) persistVariant(session.activeTitle.orEmpty(), null, voice)
+        return completed("player.selectVoice", "requestedVoice" to voice, "streams" to streamsJson())
     }
 
     private fun startStreamSwitchOperation(
@@ -1437,6 +1472,7 @@ object AgentControlRuntime {
             "title" to title,
             "state" to status.state?.name,
             "progressPercent" to status.progressPercent,
+            "errorCode" to status.errorCode,
             "localFile" to (mediaRef?.let { DownloadScheduler.localFile(context, it, title) }
                 ?: DownloadScheduler.localFile(context, title, mediaId))?.absolutePath,
         )
@@ -1469,6 +1505,7 @@ object AgentControlRuntime {
         val context = appContext ?: return error("BRIDGE_NOT_STARTED", "Application context unavailable")
         val library = libraryRepository ?: return error("BRIDGE_NOT_STARTED", "Library unavailable")
         val deleted = DownloadScheduler.deleteAll(context)
+        if (!deleted) return error("DOWNLOAD_IN_USE", "An offline download is currently playing")
         runBlocking(Dispatchers.IO) { library.clearDownloads() }
         return completed("downloads.deleteAll", "filesDeleted" to deleted)
     }
@@ -1478,11 +1515,15 @@ object AgentControlRuntime {
         require(key.isNotBlank()) { "key is required" }
         require(args.has("value")) { "value is required" }
         val prefs = preferences ?: return error("BRIDGE_NOT_STARTED", "Preferences unavailable")
+        val booleanKeys = setOf("accessibility.highContrast","player.showSeekButtons","notifications.enabled","player.subtitlesEnabled","player.autoNext","downloads.wifiOnly")
+        val stringKeys = setOf("appearance.themeMode","player.audio","player.quality")
+        val value = args.get("value")
+        require((key in booleanKeys && value is Boolean) || (key in stringKeys && value is String)) { "Setting value has an invalid type or key" }
         runBlocking(Dispatchers.IO) {
             when (key) {
                 "appearance.themeMode" -> {
                     val value = args.optString("value").uppercase()
-                    require(value in setOf("DARK", "LIGHT", "SYSTEM")) { "Invalid theme mode" }
+                    require(value == "DARK") { "Invalid theme mode" }
                     prefs.setThemeMode(value)
                 }
                 "accessibility.highContrast" -> prefs.setHighContrast(args.optBoolean("value"))
@@ -1547,7 +1588,7 @@ object AgentControlRuntime {
         put("synopsis", item.synopsis)
         put("director", item.director)
         put("durationMinutes", item.durationMinutes)
-        put("ageRating", item.ageRating)
+        put("ageRating", item.ageRating ?: JSONObject.NULL)
         put("country", item.country)
         put("quality", item.quality)
         put("isNew", item.isNew)

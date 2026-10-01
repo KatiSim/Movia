@@ -16,6 +16,7 @@ import app.movia.android.domain.model.StreamSubtitle
 import app.movia.android.data.database.CachedMediaEntity
 import app.movia.android.data.database.MoviaDatabase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CompletableDeferred
@@ -77,6 +78,11 @@ interface CatalogRepository {
     suspend fun search(query: String, limit: Int = 20): List<MediaContent>
     suspend fun searchFts(query: String, limit: Int = 30): List<MediaContent>
     suspend fun searchPeople(query: String, limit: Int = 20): List<Person>
+    suspend fun getPersonProjects(
+        name: String,
+        creditScope: String = "all",
+        limit: Int = 200,
+    ): PersonProjectsBundle = PersonProjectsBundle()
     fun findByTitle(title: String): MediaContent?
     fun findById(id: String): MediaContent?
     suspend fun getDetailsBundleByTitle(title: String): MediaDetailsBundle? = findFullByTitle(title)?.let {
@@ -99,6 +105,11 @@ data class MediaDetailsBundle(
     val movie: MediaContent,
     val similar: List<MediaContent> = emptyList(),
     val sequelsAndPrequels: List<MediaContent> = emptyList(),
+)
+
+data class PersonProjectsBundle(
+    val person: Person? = null,
+    val projects: List<MediaContent> = emptyList(),
 )
 
 data class HomeFeedSnapshot(
@@ -146,7 +157,7 @@ private data class CatalogHttpResponse(
 
 object DemoCatalogRepository : CatalogRepository {
     private const val TAG = "HttpCatalogRepo"
-    private const val BASE_URL = "http://127.0.0.1:8888"
+    private val BASE_URL: String get() = app.movia.android.domain.backend.MoviaBackend.apiOrigin
     private const val HOME_REFRESH_MS = 5 * 60 * 1000L
     private const val MEDIA_CACHE_TTL_MS = 30L * 24 * 60 * 60 * 1000
 
@@ -406,6 +417,9 @@ object DemoCatalogRepository : CatalogRepository {
     private suspend fun <T> runSafe(block: suspend () -> T): T = withContext(Dispatchers.IO) {
         try {
             block()
+        } catch (e: CancellationException) {
+            // Structured-concurrency cancellation is expected control flow, not a repository failure.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Repository error", e)
             throw e
@@ -433,7 +447,12 @@ object DemoCatalogRepository : CatalogRepository {
         params.append("&sort=${sort.name}")
         category?.let { params.append("&category=${it.name}") }
         filter?.let { f ->
-            if (f.genres.isNotEmpty()) params.append("&genre=${URLEncoder.encode(f.genres.first(), "UTF-8")}")
+            f.genres.sorted().forEach { params.append("&genre=${URLEncoder.encode(it, "UTF-8")}") }
+            f.resolution?.let { params.append("&resolution=${URLEncoder.encode(it, "UTF-8")}") }
+            params.append("&durationMode=${f.durationMode}&newOnly=${f.newOnly}")
+            f.maxAgeRating?.let { params.append("&maxAgeRating=$it") }
+            f.audioLanguage?.let { params.append("&audioLanguage=${URLEncoder.encode(it, "UTF-8")}") }
+            f.subtitleLanguage?.let { params.append("&subtitleLanguage=${URLEncoder.encode(it, "UTF-8")}") }
             f.yearFrom?.let { params.append("&yearFrom=$it") }
             f.yearTo?.let { params.append("&yearTo=$it") }
             f.minRating?.let { params.append("&minRating=$it") }
@@ -551,7 +570,7 @@ object DemoCatalogRepository : CatalogRepository {
     override suspend fun getDetailsBundleByTitle(title: String): MediaDetailsBundle? = runSafe {
         val cachedMovie = findByTitle(title)
         cachedMovie?.let { detailsCache.get(it.id)?.let { bundle -> return@runSafe bundle } }
-        val encoded = URLEncoder.encode(title.trim(), "UTF-8")
+        val encoded = URLEncoder.encode(title.trim(), "UTF-8").replace("+", "%20")
         loadDetailsBundle("/api/movie/$encoded")
             ?: cachedMovie?.let { MediaDetailsBundle(movie = it) }
     }
@@ -698,6 +717,44 @@ object DemoCatalogRepository : CatalogRepository {
 
     override suspend fun searchPeople(query: String, limit: Int): List<Person> =
         searchDetailed(query, limit, discover = true).people
+
+    override suspend fun getPersonProjects(
+        name: String,
+        creditScope: String,
+        limit: Int,
+    ): PersonProjectsBundle = runSafe {
+        val cleanName = name.trim()
+        if (cleanName.isBlank()) return@runSafe PersonProjectsBundle()
+        val encodedName = URLEncoder.encode(cleanName, "UTF-8")
+        val encodedScope = URLEncoder.encode(creditScope.trim().ifBlank { "all" }, "UTF-8")
+        val safeLimit = limit.coerceIn(1, 300)
+        val body = httpGet(
+            "/api/person?name=$encodedName&limit=$safeLimit&credit_scope=$encodedScope",
+        ) ?: return@runSafe PersonProjectsBundle()
+
+        val json = JSONObject(body)
+        val personJson = json.optJSONObject("person")
+        val person = personJson?.let {
+            Person(
+                name = it.optString("name").takeIf(String::isNotBlank) ?: cleanName,
+                photoUrl = it.optString("photo_url")
+                    .takeIf(String::isNotBlank)
+                    ?: it.optString("photoUrl").takeIf(String::isNotBlank),
+                role = it.optString("known_for_department").takeIf(String::isNotBlank),
+            )
+        }
+        val projects = parseMediaList(json.optJSONArray("projects"))
+            .sortedWith(
+                compareByDescending<MediaContent> { it.year }
+                    .thenByDescending { it.premiereDate.orEmpty() }
+                    .thenBy { it.title },
+            )
+        projects.forEach(::cacheItem)
+        if (projects.isNotEmpty()) {
+            mutableHomeFeed.update { it.copy(catalog = cachedCatalogItems()) }
+        }
+        PersonProjectsBundle(person = person, projects = projects)
+    }
 
     /**
      * Fast cache-only lookup. UI composition and player surface attachment must
@@ -962,12 +1019,12 @@ object DemoCatalogRepository : CatalogRepository {
             else -> false
         }
         val popularity = obj.optInt("popularity", 0).coerceAtLeast(0)
-        val ageRating = sequenceOf(
+        val ageRating = if (obj.optString("ageRatingSource").isNotBlank() || obj.optString("age_rating_source").isNotBlank()) sequenceOf(
             obj.optString("ageRating"),
             obj.optString("age_rating"),
             obj.optString("pg"),
-        ).map { raw -> raw.filter(Char::isDigit).toIntOrNull() ?: 0 }
-            .firstOrNull { it in 1..21 } ?: 0
+        ).mapNotNull { raw -> raw.filter(Char::isDigit).toIntOrNull() }
+            .firstOrNull { it in 0..30 } else null
         
         val synopsis = (obj.optString("description").takeIf { it.isNotBlank() } 
             ?: obj.optString("synopsis")).takeIf { it.isNotBlank() } ?: ""
@@ -1238,6 +1295,8 @@ object DemoCatalogRepository : CatalogRepository {
             isNew = isNew,
             popularity = popularity,
             ageRating = ageRating,
+            audioLanguages = obj.optJSONArray("audioLanguages")?.let { array -> (0 until array.length()).map { array.optString(it) }.filter { it.isNotBlank() }.toSet() } ?: emptySet(),
+            subtitleLanguages = obj.optJSONArray("subtitleLanguages")?.let { array -> (0 until array.length()).map { array.optString(it) }.filter { it.isNotBlank() }.toSet() } ?: emptySet(),
             synopsis = synopsis,
             originalTitle = originalTitle,
             director = director,

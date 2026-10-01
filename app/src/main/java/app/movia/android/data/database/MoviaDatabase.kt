@@ -13,13 +13,14 @@ import app.movia.android.domain.model.MediaRef
     entities = [
         FavoriteEntity::class,
         WatchLaterEntity::class,
+        WaitingReleaseEntity::class,
         HistoryEntity::class,
         RecentSearchEntity::class,
         PlaybackProgressEntity::class,
         DownloadEntity::class,
         CachedMediaEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class MoviaDatabase : RoomDatabase() {
@@ -119,6 +120,15 @@ abstract class MoviaDatabase : RoomDatabase() {
             }
         }
 
+        internal val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS waiting_release (mediaKey TEXT NOT NULL, title TEXT NOT NULL, addedAt INTEGER NOT NULL, contentId TEXT, PRIMARY KEY(mediaKey))",
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_waiting_release_contentId ON waiting_release(contentId)")
+            }
+        }
+
         private fun migrateIdentityTable(
             db: SupportSQLiteDatabase,
             table: String,
@@ -155,6 +165,7 @@ abstract class MoviaDatabase : RoomDatabase() {
                 .addMigrations(MIGRATION_1_2)
                 .addMigrations(MIGRATION_2_3)
                 .addMigrations(MIGRATION_3_4)
+                .addMigrations(MIGRATION_4_5)
                 .build()
                 .also { instance = it }
         }

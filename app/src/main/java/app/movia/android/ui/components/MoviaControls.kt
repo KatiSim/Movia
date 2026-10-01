@@ -22,7 +22,9 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -38,10 +43,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.movia.android.ui.theme.MoviaAccent
 import app.movia.android.ui.theme.MoviaAccentPressed
 import app.movia.android.ui.theme.MoviaBorderSubtle
+import app.movia.android.ui.theme.MoviaBrandAmber
 import app.movia.android.ui.theme.MoviaMinimumTouch
 import app.movia.android.ui.theme.MoviaOnBrandAmber
 import app.movia.android.ui.theme.MoviaDisabledContent
@@ -62,15 +69,25 @@ fun MoviaPrimaryActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = Icons.Rounded.PlayArrow,
+    leadingIconSize: Dp = 30.8.dp,
     supportingText: String? = null,
+    animatePlayback: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val motion = rememberMoviaPlaybackActionMotion(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 220L, onClick)
 
     Button(
-        onClick = onClick,
+        onClick = if (animatePlayback) animatedOnClick else onClick,
         interactionSource = interactionSource,
-        modifier = modifier.heightIn(min = 56.dp),
+        modifier = modifier
+            .heightIn(min = 56.dp)
+            .graphicsLayer {
+                scaleX = if (animatePlayback) motion.surfaceScale else 1f
+                scaleY = if (animatePlayback) motion.surfaceScale else 1f
+            },
         shape = RoundedCornerShape(MoviaRadius.control),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (pressed) MoviaAccentPressed else MoviaAccent,
@@ -91,7 +108,7 @@ fun MoviaPrimaryActionButton(
                 Icon(
                     imageVector = it,
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(leadingIconSize),
                 )
             }
             Column(horizontalAlignment = Alignment.Start) {
@@ -150,6 +167,34 @@ fun MoviaSecondaryAction(
 }
 
 @Composable
+fun MoviaTapIconButton(
+    icon: ImageVector,
+    contentDescription: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current,
+    enabled: Boolean = true,
+    actionDelayMs: Long = 0L,
+) {
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val tapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, actionDelayMs, onClick)
+    IconButton(
+        onClick = animatedOnClick,
+        enabled = enabled,
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = lerp(tint, MoviaBrandAmber, tapAlpha.coerceIn(0f, 1f)),
+            modifier = iconModifier,
+        )
+    }
+}
+
+@Composable
 fun MoviaIconAction(
     icon: ImageVector,
     contentDescription: String,
@@ -157,12 +202,21 @@ fun MoviaIconAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val tapAlpha = rememberMoviaIconTapAlpha(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 0L, onClick)
     Surface(
-        onClick = onClick,
+        onClick = animatedOnClick,
         modifier = modifier.size(MoviaMinimumTouch),
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface,
-        contentColor = if (selected) MoviaAccent else MaterialTheme.colorScheme.onSurface,
+        contentColor = if (selected) MoviaAccent else {
+            lerp(
+                MaterialTheme.colorScheme.onSurface,
+                MoviaBrandAmber,
+                tapAlpha.coerceIn(0f, 1f),
+            )
+        },
         border = BorderStroke(1.dp, MoviaBorderSubtle),
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -217,6 +271,7 @@ fun MoviaStateMessage(
                 label = actionLabel,
                 onClick = onAction,
                 leadingIcon = null,
+                animatePlayback = false,
             )
         }
     }
@@ -231,15 +286,24 @@ fun MoviaSpotlightActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val largeFont = androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.2f
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
+    val actionTrigger = rememberMoviaActionTriggerState()
+    val motion = rememberMoviaPlaybackActionMotion(actionTrigger)
+    val animatedOnClick = rememberMoviaAnimatedAction(actionTrigger, 220L, onClick)
     val shape = RoundedCornerShape(MoviaRadius.control)
 
     Surface(
-        onClick = onClick,
+        onClick = animatedOnClick,
         interactionSource = interactionSource,
         modifier = modifier
-            .size(width = 203.28.dp, height = 58.08.dp)
+            .then(if (largeFont) Modifier.fillMaxWidth() else Modifier.size(width = 203.28.dp, height = 58.08.dp))
+            .height(58.08.dp)
+            .graphicsLayer {
+                scaleX = motion.surfaceScale
+                scaleY = motion.surfaceScale
+            }
             .semantics(mergeDescendants = true) {
                 role = Role.Button
                 this.contentDescription = contentDescription
@@ -261,15 +325,15 @@ fun MoviaSpotlightActionButton(
                         color = if (pressed) MoviaAccentPressed else MoviaAccent,
                         shape = shape,
                     )
-                    .padding(horizontal = 21.78.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.1.dp, Alignment.CenterHorizontally),
+                    .padding(horizontal = if (largeFont) 12.dp else 21.78.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (largeFont) 8.dp else 12.1.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Rounded.PlayArrow,
                     contentDescription = null,
                     tint = MoviaOnBrandAmber,
-                    modifier = Modifier.size(33.88.dp),
+                    modifier = Modifier.size(37.268.dp),
                 )
                 Text(
                     text = label,

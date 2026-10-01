@@ -57,10 +57,11 @@ fun MediaContentCard(
     val ratingLabel = moviaRatingLabel(item.imdbRating ?: item.rating)
     val displayTitle = moviaDisplayTitle(item.title)
     val resolvedTitleLineHeight = if (titleFontSize <= 14.sp) 18.sp else 22.sp
+    val coverFeedback = rememberMoviaMediaCoverFeedback(onClick)
 
     Column(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable(onClick = coverFeedback.onClick)
             .testTag("media_card")
             .semantics(mergeDescendants = true) {
                 contentDescription = listOfNotNull(
@@ -69,15 +70,16 @@ fun MediaContentCard(
                     metadataFacts.takeIf { it.isNotBlank() },
                 ).joinToString(". ")
             },
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
         horizontalAlignment = Alignment.Start,
     ) {
-        Box(
+        MoviaMediaCoverFrame(
+            feedback = coverFeedback,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .clip(posterShape)
-                .border(1.dp, posterBorder, posterShape),
+                .aspectRatio(2f / 3f),
+            shape = posterShape,
+            borderColor = posterBorder,
         ) {
             MoviaArtwork(
                 url = item.posterUrl,
@@ -85,18 +87,18 @@ fun MediaContentCard(
                 contentDescription = null,
                 placeholderStyle = MediaArtworkPlaceholderStyle.POSTER,
             )
-
         }
 
-        Text(
+        MoviaFadeOverflowText(
             text = displayTitle,
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = titleFontSize,
-            lineHeight = resolvedTitleLineHeight,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = titleFontSize,
+                lineHeight = resolvedTitleLineHeight,
+                fontWeight = FontWeight.SemiBold,
+            ),
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
         )
 
         if (ratingLabel != null || metadataFacts.isNotBlank()) {

@@ -129,6 +129,7 @@ class CatalogViewModel : ViewModel() {
                                 category = request.category,
                                 filter = request.filter,
                                 recommendedIds = request.recommendedIds,
+                                query = request.query,
                             ),
                             restored = active.restored,
                             onProgress = { progress ->
@@ -200,50 +201,22 @@ class CatalogViewModel : ViewModel() {
         searchJob?.cancel()
         loadedRequestKey = request.requestKey
 
+        mutableUiState.value = CatalogUiState(requestKey = request.requestKey, isLoading = true)
         if (!request.query.isNullOrBlank()) {
             pagingRequest.value = null
-            mutableUiState.value = CatalogUiState(requestKey = request.requestKey, isLoading = true)
             searchJob = viewModelScope.launch {
-                try {
-                    delay(300L)
-                    val result = withContext(Dispatchers.IO) {
-                        DemoCatalogRepository.searchDetailed(request.query, limit = 60, discover = false)
-                    }
-                    val errorMessage = if (result.status in setOf(
-                            SearchStatus.OK,
-                            SearchStatus.NO_RESULTS,
-                            SearchStatus.EMPTY_QUERY,
-                        )
-                    ) null else "Не удалось выполнить поиск. Проверьте подключение и повторите запрос."
-                    mutableUiState.value = CatalogUiState(
-                        requestKey = request.requestKey,
-                        searchResults = result.items,
-                        totalCount = result.total,
-                        isLoading = false,
-                        hasMore = false,
-                        errorMessage = errorMessage,
-                    )
-                } catch (cancelled: CancellationException) {
-                    throw cancelled
-                } catch (_: Exception) {
-                    mutableUiState.update {
-                        it.copy(
-                            requestKey = request.requestKey,
-                            isLoading = false,
-                            errorMessage = "Не удалось выполнить поиск. Проверьте подключение и повторите запрос.",
-                        )
-                    }
+                delay(300L)
+                if (currentRequest?.requestKey == request.requestKey) {
+                    pagingRequest.value = ActivePagingRequest(request, generation = ++pagingGeneration)
                 }
             }
-            return
+        } else {
+            pagingRequest.value = ActivePagingRequest(request, generation = ++pagingGeneration)
         }
-
-        mutableUiState.value = CatalogUiState(requestKey = request.requestKey)
-        pagingRequest.value = ActivePagingRequest(request, generation = ++pagingGeneration)
     }
 
     fun refreshCatalog() {
-        currentRequest?.takeIf { it.query.isNullOrBlank() }?.let { request ->
+        currentRequest?.let { request ->
             mutableUiState.value = CatalogUiState(requestKey = request.requestKey)
             pagingRequest.value = ActivePagingRequest(request, generation = ++pagingGeneration)
         }

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "providers": [
+    {
+      "id": 1,
+      "name": "filmix",
+      "base": "https://filmix.ac",
+      "aliases": [
+        "https://filmix.ac"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "encyclopedia",
+      "base": "https://zonafilm.ru",
+      "aliases": []
+    },
+    {
+      "id": 16,
+      "name": "zombie",
+      "base": "https://zombie-film.com",
+      "aliases": []
+    },
+    {
+      "id": 17,
+      "name": "octopus",
+      "base": "https://007.ultradox.lol",
+      "aliases": [
+        "https://001.ultradox.vip",
+        "https://ultadox.space"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "hdrezka",
+      "base": "http://hdrezka-fly.net",
+      "aliases": [
+        "https://rezka.si",
+        "https://rezka.fi",
+        "https://rezka.ag",
+        "https://hdrezka.ag",
+        "https://rezka-ua.org"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "eneyida(ua)",
+      "base": "https://eneyida.tv",
+      "aliases": [
+        "https://eneyida.tv"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "zetflix",
+      "base": "https://go.zet-flix.online",
+      "aliases": [
+        "https://go.zet-flix.online"
+      ]
+    },
+    {
+      "id": 29,
+      "name": "seasonvar",
+      "base": "https://seasonvar.one",
+      "aliases": [
+        "https://seasonvar.one"
+      ]
+    },
+    {
+      "id": 31,
+      "name": "anilibria(v1)",
+      "base": "https://www.anilibria.tv",
+      "aliases": [
+        "https://www.anilibria.tv"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "anilibria(v3)",
+      "base": "https://anilibria.tv",
+      "aliases": [
+        "https://anilibria.tv"
+      ]
+    }
+  ],
+  "properties": {
+    "rezka_s": "https://rezka.ag"
+  }
+}

@@ -10,17 +10,15 @@ android {
     namespace = "app.movia.android"
     compileSdk = 35
 
-    lint {
-        // This lifecycle detector crashes against the project's Kotlin 2.1 UAST APIs.
-        disable += "NullSafeMutableLiveData"
-    }
-
     defaultConfig {
         applicationId = "app.movia.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 307
+        versionCode = 316
         versionName = "0.0.1"
+        val apiOrigin = providers.gradleProperty("moviaApiBaseUrl").orElse("http://127.0.0.1:8888").get()
+        require(apiOrigin.matches(Regex("[A-Za-z0-9.:/\\-]+"))) { "Movia API origin contains unsupported characters" }
+        buildConfigField("String", "MOVIA_API_BASE_URL", "\"$apiOrigin\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
@@ -69,6 +67,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 
@@ -107,6 +106,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("dev.chrisbanes.haze:haze:1.2.2")
     implementation("androidx.media3:media3-exoplayer:1.9.3")
+    implementation("androidx.media3:media3-datasource-okhttp:1.9.3")
+    implementation("androidx.media3:media3-database:1.9.3")
     implementation("androidx.media3:media3-exoplayer-hls:1.9.3")
     implementation("androidx.media3:media3-exoplayer-dash:1.9.3")
     implementation("androidx.media3:media3-ui:1.9.3")
@@ -117,6 +118,9 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.5.1")
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
+    // Room migration bundles require the 1.8.1 serializer interface. The test
+    // APK inherits runtime constraints from this application classpath.
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     kapt("androidx.room:room-compiler:2.8.4")
 
     debugImplementation("androidx.compose.ui:ui-tooling")

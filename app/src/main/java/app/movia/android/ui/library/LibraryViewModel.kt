@@ -10,12 +10,15 @@ import app.movia.android.data.preferences.MoviaPreferencesRepository
 import app.movia.android.domain.model.PlaybackProgress
 import app.movia.android.domain.model.LibraryMediaRecord
 import app.movia.android.domain.model.MediaContent
+import app.movia.android.ui.components.MediaReleaseState
+import app.movia.android.ui.components.moviaMediaReleaseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,6 +27,8 @@ import kotlinx.coroutines.withContext
 data class LibraryUiState(
     val favorites: Set<String> = emptySet(),
     val favoriteRecords: List<LibraryMediaRecord> = emptyList(),
+    val waitingRelease: Set<String> = emptySet(),
+    val waitingReleaseRecords: List<LibraryMediaRecord> = emptyList(),
     val downloads: Set<String> = emptySet(),
     val downloadRecords: List<LibraryMediaRecord> = emptyList(),
     val history: List<String> = emptyList(),
@@ -36,12 +41,14 @@ data class LibraryUiState(
 
 private data class LibraryCoreState(
     val favorites: Set<String>,
+    val waitingRelease: Set<String>,
     val downloads: Set<String>,
     val history: List<String>,
 )
 
 private data class LibraryRecordState(
     val favorites: List<LibraryMediaRecord>,
+    val waitingRelease: List<LibraryMediaRecord>,
     val downloads: List<LibraryMediaRecord>,
     val history: List<LibraryMediaRecord>,
 )
@@ -63,18 +70,20 @@ class LibraryViewModel(application: Application) : AndroidViewModel(application)
 
     private val coreState = combine(
         repository.favorites,
+        repository.waitingRelease,
         repository.downloads,
         repository.history,
-    ) { favorites, downloads, history ->
-        LibraryCoreState(favorites, downloads, history)
+    ) { favorites, waitingRelease, downloads, history ->
+        LibraryCoreState(favorites, waitingRelease, downloads, history)
     }
 
     private val recordState = combine(
         repository.favoriteRecords,
+        repository.waitingReleaseRecords,
         repository.downloadRecords,
         repository.historyRecords,
-    ) { favorites, downloads, history ->
-        LibraryRecordState(favorites, downloads, history)
+    ) { favorites, waitingRelease, downloads, history ->
+        LibraryRecordState(favorites, waitingRelease, downloads, history)
     }
 
     private val progressState = combine(
@@ -136,6 +145,8 @@ class LibraryViewModel(application: Application) : AndroidViewModel(application)
         LibraryUiState(
             favorites = core.favorites,
             favoriteRecords = records.favorites,
+            waitingRelease = core.waitingRelease,
+            waitingReleaseRecords = records.waitingRelease,
             downloads = core.downloads,
             downloadRecords = records.downloads,
             history = core.history,
@@ -162,6 +173,23 @@ class LibraryViewModel(application: Application) : AndroidViewModel(application)
             // Canonical-ID backfill must see the persisted media cache, not depend on a visited tab.
             DemoCatalogRepository.awaitLocalCacheReady()
             repository.backfillCanonicalContentIds()
+
+            // Older builds could save future releases as favorites. The Library UI already
+            // presented them under «Жду выхода»; normalize storage so release notifications
+            // can track the same items after a future cold start.
+            repository.favoriteRecords.first().forEach { record ->
+                val cached = record.contentId?.let(DemoCatalogRepository::findById)
+                    ?: DemoCatalogRepository.findByTitle(record.title)
+                val item = cached ?: withContext(Dispatchers.IO) {
+                    record.contentId?.takeIf { it.isNotBlank() }
+                        ?.let { DemoCatalogRepository.findFullById(it) }
+                        ?: DemoCatalogRepository.findFullByTitle(record.title)
+                }
+                if (item != null && moviaMediaReleaseState(item) == MediaReleaseState.UPCOMING) {
+                    repository.setFavorite(record.contentId.orEmpty(), record.title, false)
+                    repository.setWaitingRelease(record.contentId.orEmpty(), record.title, true)
+                }
+            }
         }
     }
     private fun latestUnfinishedProgress(state: LibraryProgressState): PlaybackProgress? =

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import app.movia.android.data.preferences.PlaybackPreferences
 import app.movia.android.domain.model.LibraryMediaRecord
 import app.movia.android.domain.model.MediaRef
+import app.movia.android.ui.components.MoviaTapIconButton
 import app.movia.android.ui.theme.MoviaBorderSubtle
 import app.movia.android.ui.theme.MoviaBrandAmber
 
@@ -50,6 +51,22 @@ fun DownloadsSettingsScreen(
     onDeleteAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val diskBytes by androidx.compose.runtime.produceState(0L, downloads.size) {
+        value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            java.io.File(context.filesDir,"offline").walkTopDown().filter { it.isFile }.sumOf { it.length() }
+        }
+    }
+    var confirmDeleteAll by rememberSaveable { mutableStateOf(false) }
+    if (confirmDeleteAll) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { confirmDeleteAll = false },
+            title = { Text("Удалить все загрузки?") },
+            text = { Text("Будет удалено загрузок: ${downloads.size} · ${diskBytes / 1_048_576L} МБ. Для просмотра без сети их понадобится скачать заново.") },
+            confirmButton = { TextButton(onClick = { confirmDeleteAll = false; onDeleteAll() }) { Text("Удалить") } },
+            dismissButton = { TextButton(onClick = { confirmDeleteAll = false }) { Text("Отмена") } },
+        )
+    }
     BackHandler(onBack = onBack)
     SettingsPage(title = "Загрузки и память", onBack = onBack, modifier = modifier) {
         item {
@@ -77,7 +94,7 @@ fun DownloadsSettingsScreen(
                     modifier = Modifier.weight(1f),
                 )
                 if (downloads.isNotEmpty()) {
-                    TextButton(onClick = onDeleteAll) {
+                    TextButton(onClick = { confirmDeleteAll = true }) {
                         Text("Удалить всё", color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -145,16 +162,13 @@ private fun DownloadedTitleRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            IconButton(
+            MoviaTapIconButton(
+                icon = Icons.Outlined.DeleteOutline,
+                contentDescription = "Удалить " + title,
                 onClick = onDelete,
                 modifier = Modifier.size(48.dp),
-            ) {
-                Icon(
-                    Icons.Outlined.DeleteOutline,
-                    contentDescription = "Удалить " + title,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

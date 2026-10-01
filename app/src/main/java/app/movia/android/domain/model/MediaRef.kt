@@ -26,8 +26,8 @@ data class MediaRef(
         }
 
     companion object {
-        private val seasonEpisodePattern = Regex(".* · S(\\d+)E(\\d+)(?: · Эпизод \\d+)?$")
-        private val legacyEpisodePattern = Regex(".* · E(\\d+) · Эпизод \\d+$")
+        private val seasonEpisodePattern = Regex(".* · S(\\d+)E(\\d+)(?: · (?:Эпизод|Episode) \\d+)?$", RegexOption.IGNORE_CASE)
+        private val legacyEpisodePattern = Regex(".* · E(\\d+) · (?:Эпизод|Episode) \\d+$", RegexOption.IGNORE_CASE)
         private val storageSuffixPattern = Regex(":s(\\d+):e(\\d+)")
 
         /** Returns null for title values that older callers used as a substitute for a content ID. */
@@ -40,18 +40,21 @@ data class MediaRef(
 
             val seasonEpisode = seasonEpisodePattern.matchEntire(title)
             if (seasonEpisode != null) {
+                val season = seasonEpisode.groupValues[1].toIntOrNull()?.takeIf { it > 0 } ?: return null
+                val episode = seasonEpisode.groupValues[2].toIntOrNull()?.takeIf { it > 0 } ?: return null
                 return MediaRef(
                     contentId = id,
-                    season = seasonEpisode.groupValues[1].toIntOrNull(),
-                    episode = seasonEpisode.groupValues[2].toIntOrNull(),
+                    season = season,
+                    episode = episode,
                 )
             }
 
             val legacyEpisode = legacyEpisodePattern.matchEntire(title)
             if (legacyEpisode != null) {
+                val episode = legacyEpisode.groupValues[1].toIntOrNull()?.takeIf { it > 0 } ?: return null
                 return MediaRef(
                     contentId = id,
-                    episode = legacyEpisode.groupValues[1].toIntOrNull(),
+                    episode = episode,
                 )
             }
             return MediaRef(contentId = id)

@@ -41,15 +41,15 @@ object MoviaRadius {
  * Semantic type scale. Compose still uses the platform/system font.
  */
 object MoviaType {
-    val displayLarge = 34.sp
-    val titleLarge = 28.sp
-    val titleMedium = 22.sp
-    val bodyLarge = 18.sp
-    val bodyMedium = 16.sp
-    val bodySmall = 14.sp
-    val labelLarge = 15.sp
-    val labelMedium = 13.sp
-    val caption = 12.sp
+    val displayLarge = 24.sp
+    val titleLarge = 22.sp
+    val titleMedium = 18.sp
+    val bodyLarge = 16.sp
+    val bodyMedium = 14.sp
+    val bodySmall = 12.sp
+    val labelLarge = 14.sp
+    val labelMedium = 12.sp
+    val caption = 11.sp
 
     // Compatibility aliases.
     val hero = displayLarge
