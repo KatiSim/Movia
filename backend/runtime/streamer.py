@@ -1,0 +1,4924 @@
+from contextlib import closing
+from movia_paths import DATA_DIR
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+import re
+import time
+import json
+import math
+import random
+import signal
+import threading
+import sqlite3
+import hashlib
+import urllib.parse
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional, List, Tuple
+import catalog_api
+import live_catalog_sync
+from catalog_schema_v2 import get_revision as get_catalog_revision, normalize_ru_text
+from playback_availability_index import (
+    DISCOVERY_RESOLVER,
+    MEDIA_EPISODE,
+    MEDIA_MOVIE,
+    MEDIA_SERIES,
+    PlaybackAvailabilityService,
+)
+from playback_resolver_shadow_audit import audit_streams as audit_source_truth_streams
+from playback_candidate_policy import audit_candidate_policy, select_candidate_policy
+from stream_validation import (
+    bind_stream_identity,
+    canonical_stream_locator,
+    is_valid_magnet,
+    sanitize_streams,
+    stable_stream_id,
+    stream_variant_key,
+)
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+    def __init__(self, *args, **kwargs):
+        self.request_slots = threading.BoundedSemaphore(32)
+        super().__init__(*args, **kwargs)
+    def process_request(self, request, client_address):
+        if not self.request_slots.acquire(blocking=False):
+            try:
+                request.sendall(b'HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n')
+            finally:
+                self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.request_slots.release()
+            raise
+    def process_request_thread(self, request, client_address):
+        try:
+            request.settimeout(15.0)
+            super().process_request_thread(request, client_address)
+        finally:
+            self.request_slots.release()
+
+    allow_reuse_address = True
+
+CLOUD_MODE = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+P2P_ENABLED = (
+    not CLOUD_MODE
+    and os.environ.get("MOVIA_P2P_ENABLED", "1") != "0"
+)
+CATALOG_SYNC_ENABLED = os.environ.get(
+    "MOVIA_CATALOG_SYNC_ENABLED",
+    "0" if CLOUD_MODE else "1",
+) == "1"
+PLAYBACK_AVAILABILITY_INDEX_ENABLED = os.environ.get(
+    "MOVIA_PLAYBACK_AVAILABILITY_INDEX_ENABLED", "1"
+) != "0"
+PLAYBACK_AVAILABILITY_SHADOW_MODE = os.environ.get(
+    "MOVIA_PLAYBACK_AVAILABILITY_SHADOW_MODE", "1"
+) != "0"
+# Step 1 never lets the resolver select from the new index. This switch is
+# intentionally off until Manifest Verification and the resolver redesign.
+PLAYBACK_AVAILABILITY_READ_PATH = os.environ.get(
+    "MOVIA_PLAYBACK_AVAILABILITY_READ_PATH", "0"
+) == "1"
+HOST = os.environ.get("MOVIA_HOST", "127.0.0.1").strip() or "127.0.0.1"
+try:
+    PORT = int(os.environ.get("MOVIA_PORT", "8888"))
+except (TypeError, ValueError):
+    PORT = 8888
+
+def _validated_torrserver_base_url(raw: Any) -> str:
+    """Accept only an origin-only loopback HTTP sidecar URL."""
+    value = str(raw or "").strip().rstrip("/")
+    if not value:
+        return ""
+    try:
+        parsed = urllib.parse.urlsplit(value)
+    except Exception:
+        return ""
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1"}:
+        return ""
+    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+        return ""
+    if parsed.path not in {"", "/"}:
+        return ""
+    try:
+        port = parsed.port
+    except ValueError:
+        return ""
+    if port is None or not (1 <= port <= 65535):
+        return ""
+    return value
+
+TORRSERVER_URL = _validated_torrserver_base_url(
+    os.environ.get("MOVIA_TORRSERVER_URL", "")
+)
+TORRSERVER_DISCOVERY_SECONDS = 2.25
+TORRSERVER_RPC_TIMEOUT_SECONDS = 0.75
+TORRSERVER_HEAD_PREBUFFER_BYTES = 1024 * 1024
+TORRSERVER_HEAD_PREBUFFER_TIMEOUT_SECONDS = 4.0
+# Keep this checkout self-contained. A release worker can copy the directory
+# as a unit without an accidental read/write through an old live absolute path.
+DIR = DATA_DIR
+
+TEST_STREAM_PATTERNS = [
+    "devstreaming-cdn.apple.com",
+    "storage.googleapis.com",
+    "bipbop",
+    "bigbuckbunny",
+    "exoplayer-test-media"
+]
+
+def is_test_stream_url(url: Optional[str]) -> bool:
+    if not url:
+        return False
+    low = url.lower()
+    return any(p in low for p in TEST_STREAM_PATTERNS)
+
+
+def cloud_exposable_streams(streams: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """In cloud mode expose provider/CDN URLs only, never P2P/local proxy locators."""
+    if not CLOUD_MODE:
+        return list(streams or [])
+    result: List[Dict[str, Any]] = []
+    for raw in streams or []:
+        if not isinstance(raw, dict):
+            continue
+        url = str(raw.get("url") or "").strip()
+        try:
+            parsed = urllib.parse.urlparse(url)
+        except Exception:
+            continue
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            continue
+        host = parsed.hostname.strip().lower()
+        if host in {"localhost", "0.0.0.0"} or host.endswith(".localhost"):
+            continue
+        try:
+            ip = ipaddress.ip_address(host)
+        except ValueError:
+            ip = None
+        if ip is not None and (
+            ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
+        ):
+            continue
+        result.append(dict(raw))
+    return result
+
+
+def enrich_stream_identity(
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    """Attach a deterministic release identity to every resolver result."""
+    result: List[Dict[str, Any]] = []
+    used_ids = set()
+    for raw in streams:
+        stream = dict(raw)
+        url = str(stream.get("url") or "").strip()
+        match = re.search(r"(?:^|[?&])xt=urn:btih:([^&\s]+)", url, re.IGNORECASE)
+        info_hash = str(
+            stream.get("info_hash") or stream.get("infoHash") or ""
+        ).strip() or (match.group(1).lower() if match else "")
+        resolved_season = stream.get("season")
+        resolved_episode = stream.get("episode")
+        stream["season"] = season if resolved_season is None else resolved_season
+        stream["episode"] = episode if resolved_episode is None else resolved_episode
+        if info_hash:
+            stream["info_hash"] = info_hash
+        existing_id = str(
+            stream.get("stream_id") or stream.get("streamId") or ""
+        ).strip()
+        if existing_id and existing_id not in used_ids:
+            stream["stream_id"] = existing_id
+            used_ids.add(existing_id)
+        else:
+            # Magnet tracker lists and display names are mutable. Use the
+            # stable content locator while retaining voice and quality in the
+            # identity so distinct variants never share a stream ID.
+            identity = "|".join(
+                str(stream.get(key) or "").strip().lower()
+                for key in (
+                    "source", "provider_item_id", "info_hash",
+                    "file_index", "file_path", "season", "episode",
+                    "quality", "voice",
+                )
+            ) + "|" + canonical_stream_locator(url)
+            candidate_id = stable_stream_id(stream, url)
+            if candidate_id in used_ids:
+                candidate_id = "stream:" + hashlib.sha256(
+                    (identity + "|" + str(len(result))).encode("utf-8")
+                ).hexdigest()[:24]
+            stream["stream_id"] = candidate_id
+            used_ids.add(candidate_id)
+        result.append(stream)
+    return result
+import ipaddress
+import socket
+from urllib.parse import urlparse
+
+# Allowed public CDN and balancer domains for proxying
+ALLOWED_PROXY_DOMAINS = {
+    "hdrezka.ag", "rezka.ag", "voidboost.net", "voidboost.cc",
+    "kodik.info", "kodik.biz", "kodik.cc",
+    "collaps.org", "api.collaps.org",
+    "alloha.tv", "alloha.app",
+    "archive.org", "yts.mx", "yts.am", "yts.lt",
+    "apibay.org", "thepiratebay.org"
+}
+
+def is_safe_proxy_url(url: str) -> bool:
+    """
+    Validates that the URL targets a public server from the allowed whitelist
+    and is not a private, loopback, link-local, or reserved IP (SSRF guard).
+    """
+    if not url or not isinstance(url, str):
+        return False
+    if is_test_stream_url(url):
+        return False
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+
+        # 1. Check if hostname is an IP address
+        try:
+            ip = ipaddress.ip_address(hostname)
+            if ip.is_private or ip.is_loopback or ip.is_reserved or ip.is_link_local:
+                return False
+        except ValueError:
+            # 2. Hostname is a domain name -> resolve DNS and check resolved IP addresses
+            try:
+                resolved_ips = socket.getaddrinfo(hostname, None)
+                for res in resolved_ips:
+                    ip = ipaddress.ip_address(res[4][0])
+                    if ip.is_private or ip.is_loopback or ip.is_reserved or ip.is_link_local:
+                        return False
+            except (socket.gaierror, Exception):
+                return False
+
+        # 3. Check if hostname matches allowed domain whitelist
+        low_host = hostname.lower()
+        base_domain = ".".join(low_host.split(".")[-2:]) if "." in low_host else low_host
+        return any(low_host == d or low_host.endswith("." + d) for d in ALLOWED_PROXY_DOMAINS) or \
+               base_domain in ALLOWED_PROXY_DOMAINS
+
+    except Exception:
+        return False
+
+PID_FILE = DIR / ".streamer.pid"
+CACHE_DIR = DIR / "stream_cache"
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_DB_PATH = CACHE_DIR / "streams_cache.db"
+PLAYBACK_AVAILABILITY_DB_PATH = CACHE_DIR / "playback_availability_v1.db"
+PLAYBACK_SOURCE_TRUTH_INDEX = (
+    PlaybackAvailabilityService(PLAYBACK_AVAILABILITY_DB_PATH)
+    if PLAYBACK_AVAILABILITY_INDEX_ENABLED
+    else None
+)
+_PLAYBACK_AVAILABILITY_METRICS_LOCK = threading.Lock()
+_PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL = 0
+_PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL = 0
+
+def _availability_media_kind(
+    movie_obj: Dict[str, Any],
+    season: Optional[int],
+    episode: Optional[int],
+) -> str:
+    if season is not None and episode is not None and season > 0 and episode > 0:
+        return MEDIA_EPISODE
+    media_type = str(
+        movie_obj.get("mediaType")
+        or movie_obj.get("media_type")
+        or ("tv" if movie_obj.get("type") == "series" else "movie")
+    ).strip().casefold()
+    return MEDIA_SERIES if media_type in {"tv", "series", "show"} else MEDIA_MOVIE
+
+def _record_playback_availability_now(
+    movie_obj: Dict[str, Any],
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+    resolution_status: str,
+    resolution_error: Optional[str],
+) -> None:
+    global _PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL
+    index = PLAYBACK_SOURCE_TRUTH_INDEX
+    if index is None or not PLAYBACK_AVAILABILITY_SHADOW_MODE:
+        return
+    media_id = movie_obj.get("id")
+    if media_id is None:
+        return
+    kind = _availability_media_kind(movie_obj, season, episode)
+    try:
+        if streams:
+            index.record_discovery(
+                media_id,
+                streams,
+                kind=kind,
+                season=season if kind == MEDIA_EPISODE else None,
+                episode=episode if kind == MEDIA_EPISODE else None,
+                discovery_method=DISCOVERY_RESOLVER,
+            )
+        elif resolution_status == "NO_RESULTS":
+            index.set_no_source(
+                media_id,
+                kind=kind,
+                season=season if kind == MEDIA_EPISODE else None,
+                episode=episode if kind == MEDIA_EPISODE else None,
+            )
+        elif resolution_error:
+            index.record_discovery(
+                media_id,
+                [],
+                kind=kind,
+                season=season if kind == MEDIA_EPISODE else None,
+                episode=episode if kind == MEDIA_EPISODE else None,
+                discovery_method=DISCOVERY_RESOLVER,
+                failure_code=resolution_error,
+            )
+    except Exception as exc:
+        with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
+            _PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL += 1
+        # Never log a locator/token from an availability failure.
+        print(f"[DEBUG] Playback availability shadow write error: {type(exc).__name__}")
+
+def _source_truth_quality(value: Any) -> str:
+    text = str(value or "").strip().casefold().replace(" ", "")
+    if not text or text in {"auto", "any", "unknown", "n/a", "неуказано", "неуказано"}:
+        return ""
+    if "2160" in text or "4k" in text or "uhd" in text:
+        return "2160p"
+    if "1440" in text or "2k" in text:
+        return "1440p"
+    match = re.search(r"(?<!\d)(1080|720|576|540|534|480|360|306|270|266|240|144)(?!\d)", text)
+    return f"{match.group(1)}p" if match else text
+
+
+def _source_truth_allowed_audio_languages(tracks: List[Any]) -> List[str]:
+    values = set()
+    for track in tracks or []:
+        if not isinstance(track, dict):
+            continue
+        raw = str(track.get("language") or track.get("lang") or "").strip().casefold()
+        if raw.startswith("ru"):
+            values.add("ru")
+        elif raw.startswith(("uk", "ua")):
+            values.add("uk")
+    return sorted(values, key=lambda value: (0 if value == "ru" else 1, value))
+
+
+def _annotate_streams_with_source_truth(
+    movie_obj: Dict[str, Any],
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    """Add verified Source Truth facts without changing legacy resolver fields/order."""
+    global _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL
+    result = [dict(item) for item in streams if isinstance(item, dict)]
+    index = PLAYBACK_SOURCE_TRUTH_INDEX
+    if index is None or not result:
+        return result
+    media_id = movie_obj.get("id")
+    if media_id is None:
+        return result
+    kind = _availability_media_kind(movie_obj, season, episode)
+    try:
+        state = index.get(
+            media_id,
+            kind=kind,
+            season=season if kind == MEDIA_EPISODE else None,
+            episode=episode if kind == MEDIA_EPISODE else None,
+            include_sources=True,
+            include_locator=False,
+        )
+    except Exception as exc:
+        with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
+            _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL += 1
+        print(f"[DEBUG] Playback source-truth overlay read error: {type(exc).__name__}")
+        return result
+    if not isinstance(state, dict):
+        return result
+
+    source_ids_by_fingerprint: Dict[Tuple[str, str], str] = {}
+    verified_by_fingerprint: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    for source in state.get("sources") or []:
+        if not isinstance(source, dict):
+            continue
+        locator_hash = str(source.get("locatorHash") or "").strip().lower()
+        provider = str(source.get("provider") or "").strip().casefold()
+        if not locator_hash:
+            continue
+        source_id = str(source.get("sourceId") or "").strip()
+        if source_id:
+            source_ids_by_fingerprint[(provider, locator_hash)] = source_id
+        # A stable ID permits native feedback; it is not proof of playback.
+        if source.get("verificationStatus") != "VERIFIED":
+            continue
+        qualities = [str(value).strip() for value in (source.get("actualQualities") or []) if str(value).strip()]
+        actual_quality = str(source.get("actualQuality") or "").strip()
+        if actual_quality and actual_quality not in qualities:
+            qualities.append(actual_quality)
+        audio_tracks = [dict(track) for track in (source.get("actualAudioTracks") or []) if isinstance(track, dict)]
+        facts = {
+            "sourceId": source.get("sourceId"),
+            "verificationStatus": "VERIFIED",
+            "verificationMethod": source.get("verificationMethod"),
+            "sourceType": source.get("type"),
+            "manifestType": source.get("manifestType"),
+            "actualQuality": source.get("actualQuality"),
+            "actualQualities": qualities,
+            "actualAudioTracks": audio_tracks,
+            "allowedAudioLanguages": _source_truth_allowed_audio_languages(audio_tracks),
+            "expiresAt": source.get("expiresAt"),
+        }
+        verified_by_fingerprint[(provider, locator_hash)] = facts
+
+    for item in result:
+        locator = str(item.get("url") or item.get("playback_url") or "").strip()
+        if not locator:
+            continue
+        provider = str(item.get("provider") or item.get("source") or "").strip().casefold()
+        locator_hash = hashlib.sha256(locator.encode("utf-8")).hexdigest()
+        source_id = source_ids_by_fingerprint.get((provider, locator_hash))
+        if source_id:
+            item["sourceId"] = source_id
+        facts = verified_by_fingerprint.get((provider, locator_hash))
+        if facts is None:
+            continue
+        overlay = dict(facts)
+        provider_audio_index = item.get("audio_track_index", item.get("audioTrackIndex"))
+        try:
+            provider_audio_index = int(provider_audio_index) if provider_audio_index is not None else None
+        except (TypeError, ValueError):
+            provider_audio_index = None
+        actual_audio_tracks = overlay.get("actualAudioTracks") or []
+        if (
+            provider_audio_index is not None
+            and provider_audio_index >= 0
+            and provider_audio_index < len(actual_audio_tracks)
+            and isinstance(actual_audio_tracks[provider_audio_index], dict)
+        ):
+            overlay["providerAudioTrackIndex"] = provider_audio_index
+            overlay["mappedAudioTrack"] = dict(actual_audio_tracks[provider_audio_index])
+            overlay["audioTrackMapping"] = "PROVIDER_INDEX_TO_MANIFEST_ORDER"
+        actual_qualities = {
+            _source_truth_quality(value)
+            for value in overlay.get("actualQualities") or []
+            if _source_truth_quality(value)
+        }
+        provider_quality = _source_truth_quality(item.get("quality"))
+        overlay["qualityClaimConsistent"] = (
+            None if not provider_quality or not actual_qualities else provider_quality in actual_qualities
+        )
+        item["sourceTruth"] = overlay
+    return result
+
+
+def _apply_source_truth_read_order(streams: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Conservatively correct the legacy top candidate when Source Truth proves a safer Auto choice.
+
+    This is intentionally ordering-only: it never drops legacy candidates and never resolves
+    providers. With the read path disabled it is an exact no-op.
+    """
+    rows = [dict(row) for row in streams if isinstance(row, dict)]
+    if not PLAYBACK_AVAILABILITY_READ_PATH or len(rows) < 2:
+        return rows
+    audit = audit_candidate_policy(rows, requested_quality="Auto", requested_audio="Auto")
+    ordinal = audit.get("shadowTopOrdinal")
+    if audit.get("decision") != "AVAILABLE" or not isinstance(ordinal, int) or ordinal <= 0 or ordinal >= len(rows):
+        return rows
+    selected = rows.pop(ordinal)
+    rows.insert(0, selected)
+    return rows
+
+
+def _schedule_playback_availability_shadow(
+    movie_obj: Dict[str, Any],
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+    resolution_status: str,
+    resolution_error: Optional[str],
+) -> None:
+    if PLAYBACK_SOURCE_TRUTH_INDEX is None or not PLAYBACK_AVAILABILITY_SHADOW_MODE:
+        return
+    movie_snapshot = dict(movie_obj)
+    stream_snapshot = [dict(item) for item in streams if isinstance(item, dict)]
+    threading.Thread(
+        target=_record_playback_availability_now,
+        args=(
+            movie_snapshot, stream_snapshot, season, episode,
+            str(resolution_status or ""), resolution_error,
+        ),
+        daemon=True,
+        name=f"movia-availability-{movie_obj.get('id')}",
+    ).start()
+
+# A short in-process cache avoids reopening SQLite for repeated playback
+# requests while the persistent cache remains the cross-process source of truth.
+_STREAM_MEMORY_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
+_STREAM_MEMORY_CACHE_LOCK = threading.Lock()
+_RESOLVE_LOCKS: Dict[str, threading.Lock] = {}
+_RESOLVE_LOCKS_LOCK = threading.Lock()
+_STREAM_REVALIDATION_INFLIGHT: set[str] = set()
+_STREAM_REVALIDATION_LOCK = threading.Lock()
+_ZONA_ENRICHMENT_INFLIGHT: set[str] = set()
+_ZONA_ENRICHMENT_LOCK = threading.Lock()
+STREAM_CACHE_VERSION = "v6"
+STREAM_MEMORY_CACHE_MAX_SECONDS = 30.0
+# Playback metadata may survive a transient provider outage. This is URL/track
+# metadata only; Movia never stores the full media as an offline library.
+STREAM_STALE_DIRECT_MAX_SECONDS = 6 * 60 * 60
+# Explicitly signed HLS URLs may remain valid much longer than their catalog
+# write time. Keep only bounded metadata history; the URL's own Unix expiry is
+# still authoritative and must remain beyond the safety grace.
+STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS = 30 * 24 * 60 * 60
+STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS = 30
+
+DIRECT_STREAM_REFRESH_SECONDS = 5 * 60
+
+
+def _timestamp_seconds(value: Any) -> Optional[float]:
+    """Parse SQLite/ISO timestamps as UTC without probing a media URL."""
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        try:
+            parsed = datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.timestamp()
+
+
+def _direct_stream_expiry_seconds(stream: Dict[str, Any]) -> Optional[float]:
+    """Return an explicit signed-URL expiry when the provider exposes one.
+
+    Some CDN manifests remain valid far longer than the catalog write time.
+    Re-resolving those URLs every five minutes adds provider latency without
+    improving playback. Unknown/unsigned URLs still use the catalog timestamp.
+    """
+    raw_url = str(stream.get("url") or stream.get("playback_url") or "").strip()
+    if not raw_url.lower().startswith(("http://", "https://")):
+        return None
+    try:
+        query = urllib.parse.parse_qs(urllib.parse.urlsplit(raw_url).query)
+    except Exception:
+        return None
+    for key in ("expires", "expire", "exp", "t"):
+        raw = (query.get(key) or [None])[0]
+        if raw is None:
+            continue
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            continue
+        # Accept only plausible Unix timestamps, never relative/opaque tokens.
+        if value >= 1_000_000_000:
+            return value
+    return None
+
+
+def catalog_streams_have_direct_http(streams: List[Dict[str, Any]]) -> bool:
+    return any(
+        isinstance(stream, dict)
+        and str(stream.get("url") or stream.get("playback_url") or "")
+        .strip()
+        .lower()
+        .startswith(("http://", "https://"))
+        for stream in streams
+    )
+
+
+def catalog_streams_force_live_refresh(
+    streams: List[Dict[str, Any]],
+    *,
+    refresh_requested: bool,
+) -> bool:
+    """Bypass the resolver cache when a card only has persisted P2P.
+
+    Persisted magnets are a valid fallback, but they must not hide a direct
+    provider that became available later. A direct candidate can keep the fast
+    path; a torrent-only snapshot gets one bounded live provider refresh.
+    """
+    return bool(
+        refresh_requested
+        or (bool(streams) and not catalog_streams_have_direct_http(streams))
+    )
+
+
+def catalog_streams_need_provider_resolve(
+    streams: List[Dict[str, Any]],
+    *,
+    refresh_requested: bool,
+    persisted_needs_refresh: bool,
+    persisted_needs_variant_resolve: bool,
+    persisted_out_of_scope: bool,
+) -> bool:
+    """Return True when catalog candidates need bounded online rediscovery.
+
+    A persisted magnet remains a fallback, not a freshness signal. Torrent-only
+    rows are refreshed so newly available direct HLS/HTTP can replace them and
+    start inside the READY budget.
+    """
+    return bool(
+        refresh_requested
+        or not streams
+        or not catalog_streams_have_direct_http(streams)
+        or persisted_needs_refresh
+        or persisted_needs_variant_resolve
+        or persisted_out_of_scope
+    )
+
+
+def catalog_streams_need_refresh(
+    movie: Dict[str, Any],
+    streams: List[Dict[str, Any]],
+    *,
+    now: Optional[float] = None,
+) -> bool:
+    """Refresh only time-sensitive HTTP candidates, never magnets.
+
+    Zona/CDN URLs can expire while the metadata card remains valid.  The
+    catalog timestamp is the freshness contract; no HEAD request or playback
+    attempt is made here.  A missing timestamp is treated conservatively as
+    stale so old rows are refreshed once and then receive a timestamp.
+    """
+    if not streams:
+        return True
+
+    has_direct = catalog_streams_have_direct_http(streams)
+    if not has_direct:
+        return False
+
+    updated_at = movie.get("link_updated_at") or movie.get("linkUpdatedAt")
+    updated_seconds = _timestamp_seconds(updated_at)
+    if updated_seconds is None:
+        return True
+
+    current_seconds = time.time() if now is None else float(now)
+
+    # Prefer an explicit signed-URL lifetime when available. One healthy direct
+    # candidate is enough to start playback immediately; a failed locator still
+    # falls through to the existing runtime refresh/failover path.
+    explicit_expiries = [
+        expiry
+        for stream in streams
+        if isinstance(stream, dict)
+        for expiry in [_direct_stream_expiry_seconds(stream)]
+        if expiry is not None
+    ]
+    if explicit_expiries and max(explicit_expiries) > current_seconds + 60.0:
+        return False
+
+    return current_seconds - updated_seconds >= DIRECT_STREAM_REFRESH_SECONDS
+
+ARIA2_RPC_URL = "http://127.0.0.1:6800/jsonrpc"
+ARIA2_RPC_TOKEN = "token:movia_secret"
+_TORRENT_GIDS: Dict[str, str] = {}
+# Only GIDs created by this streamer process may be automatically removed on request timeout.
+# Rediscovered aria2 tasks can be shared with later requests and must survive a client failure.
+_TORRENT_OWNED_GIDS: set[str] = set()
+# Fresh magnet GIDs are metadata parents until aria2 exposes followedBy.
+# Tracking them avoids the expensive/incorrect getFiles(metadata-parent) probe.
+_TORRENT_METADATA_GIDS: set[str] = set()
+_TORRENT_GIDS_LOCK = threading.Lock()
+_TORRENT_REUSABLE_STATUSES = {"active", "waiting", "paused"}
+_TORRENT_STATUS_PRIORITY = {
+    "active": 2,
+    "waiting": 1,
+    "paused": 1,
+}
+_TORRENT_STATUS_KEYS = ["gid", "status", "completedLength", "infoHash", "followedBy", "following"]
+_TORRENT_MEDIA_SUFFIXES = {".mp4", ".mkv", ".avi", ".ts", ".m4v", ".webm"}
+_TORRENT_PLAYBACK_LEASE_FILENAME = ".movia-playback-lease"
+TORRENT_COLD_START_SECONDS = 4.0
+TORRENT_METADATA_RPC_TIMEOUT_SECONDS = 0.75
+TORRENT_DISCOVERY_SLEEP_SECONDS = 0.15
+TORRENT_RANGE_WAIT_SECONDS = 3.5
+TORRENT_ADJACENT_PREWARM_LIMIT = 3
+
+def _touch_torrent_playback_lease(task_dir: Path) -> None:
+    """Mark an exact torrent cache entry as recently used by playback."""
+    try:
+        task_dir.mkdir(parents=True, exist_ok=True)
+        lease = task_dir / _TORRENT_PLAYBACK_LEASE_FILENAME
+        lease.touch(exist_ok=True)
+    except OSError:
+        # Lease failure must not turn an otherwise playable stream into a hard
+        # error; the pruner remains fail-closed on its own safety probes.
+        pass
+
+
+def _torrent_path_is_media(raw_path: Any) -> bool:
+    try:
+        path = urllib.parse.urlsplit(str(raw_path or "")).path
+    except Exception:
+        path = str(raw_path or "")
+    return Path(path).suffix.lower() in _TORRENT_MEDIA_SUFFIXES
+
+
+def _torrent_files_have_media(files: Any) -> Optional[bool]:
+    if not isinstance(files, list) or not files:
+        return None
+    for item in files:
+        if not isinstance(item, dict) or not _torrent_path_is_media(item.get("path")):
+            continue
+        try:
+            if int(item.get("length") or 0) > 0:
+                return True
+        except (TypeError, ValueError):
+            continue
+    return False
+
+
+def _torrent_file_by_index(
+    files: Any,
+    file_index: Optional[int],
+) -> Optional[Dict[str, Any]]:
+    """Return the exact playable torrent file addressed by a Lampa/TorrServer index."""
+    if file_index is None or not isinstance(files, list):
+        return None
+    wanted = str(file_index)
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("index")) != wanted:
+            continue
+        if _torrent_path_is_media(item.get("path")):
+            return item
+        return None
+    return None
+
+
+def _torrent_media_profile(gid: str, timeout: float = 3.0) -> Optional[bool]:
+    try:
+        files = aria2_rpc("aria2.getFiles", [gid], timeout=timeout) or []
+    except Exception:
+        return None
+    return _torrent_files_have_media(files)
+
+
+def aria2_rpc(method: str, params: List[Any], timeout: float = 3.0) -> Any:
+    payload = json.dumps({
+        "jsonrpc": "2.0",
+        "id": "movia",
+        "method": method,
+        "params": [ARIA2_RPC_TOKEN, *params],
+    }).encode("utf-8")
+    req = urllib.request.Request(ARIA2_RPC_URL, data=payload, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    if data.get("error"):
+        raise RuntimeError(str(data["error"]))
+    return data.get("result")
+
+
+def _normalize_torrent_info_hash(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def _torrent_task_from_status(
+    raw_task: Any,
+    expected_info_hash: str,
+    fallback_status: Optional[str] = None,
+    assume_info_hash: bool = False,
+) -> Optional[Dict[str, Any]]:
+    if not isinstance(raw_task, dict):
+        return None
+
+    gid = str(raw_task.get("gid") or "").strip()
+    status = str(raw_task.get("status") or fallback_status or "").strip().lower()
+    if not gid or status not in _TORRENT_REUSABLE_STATUSES:
+        return None
+
+    raw_info_hash = (
+        raw_task.get("infoHash")
+        or raw_task.get("info_hash")
+        or raw_task.get("infohash")
+    )
+    task_info_hash = _normalize_torrent_info_hash(raw_info_hash)
+    if task_info_hash:
+        if task_info_hash != expected_info_hash:
+            return None
+    elif not assume_info_hash:
+        # A task without an infoHash cannot be safely matched to this magnet.
+        return None
+
+    try:
+        completed_length = max(0, int(raw_task.get("completedLength") or 0))
+    except (TypeError, ValueError):
+        completed_length = 0
+
+    followed_by = [
+        str(value).strip()
+        for value in (raw_task.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    following = str(raw_task.get("following") or "").strip()
+
+    return {
+        "gid": gid,
+        "status": status,
+        "completedLength": completed_length,
+        "infoHash": expected_info_hash,
+        "followedBy": followed_by,
+        "following": following,
+    }
+
+
+def _discover_torrent_tasks(info_hash: str) -> Dict[str, Dict[str, Any]]:
+    """Find reusable aria2 BitTorrent tasks, including after a process restart."""
+    candidates: Dict[str, Dict[str, Any]] = {}
+    for method, params, fallback_status in (
+        ("aria2.tellActive", [_TORRENT_STATUS_KEYS], "active"),
+        ("aria2.tellWaiting", [0, 1000, _TORRENT_STATUS_KEYS], "waiting"),
+    ):
+        try:
+            tasks = aria2_rpc(method, params, timeout=1.5) or []
+        except Exception:
+            continue
+        if not isinstance(tasks, list):
+            continue
+        for raw_task in tasks:
+            task = _torrent_task_from_status(
+                raw_task,
+                info_hash,
+                fallback_status=fallback_status,
+            )
+            if task:
+                candidates[task["gid"]] = task
+    for task in candidates.values():
+        gid = str(task.get("gid") or "")
+        if task.get("followedBy") or gid in _TORRENT_METADATA_GIDS:
+            task["has_media_files"] = False
+            if gid:
+                _TORRENT_METADATA_GIDS.add(gid)
+        elif task.get("following"):
+            # aria2's materialized magnet child points back to its metadata parent.
+            # Do not spend startup budget probing its file list during discovery;
+            # /stream will fetch getFiles only for the chosen child.
+            task["has_media_files"] = True
+        else:
+            task["has_media_files"] = _torrent_media_profile(
+                gid, timeout=TORRENT_METADATA_RPC_TIMEOUT_SECONDS
+            )
+    return candidates
+
+
+def _torrent_task_sort_key(task: Dict[str, Any]) -> tuple[int, int, int, str]:
+    """Prefer materialized media tasks, then active/progress, with stable ties."""
+    media_profile = task.get("has_media_files")
+    media_rank = 0 if media_profile is True else 1 if media_profile is None else 2
+    return (
+        media_rank,
+        -_TORRENT_STATUS_PRIORITY.get(str(task.get("status") or "").lower(), -1),
+        -int(task.get("completedLength") or 0),
+        str(task.get("gid") or ""),
+    )
+
+
+def _mapped_torrent_task(
+    info_hash: str,
+    gid: str,
+    rpc_timeout: float = 1.5,
+) -> Optional[Dict[str, Any]]:
+    try:
+        status = aria2_rpc(
+            "aria2.tellStatus",
+            [gid, _TORRENT_STATUS_KEYS],
+            timeout=max(0.1, float(rpc_timeout)),
+        ) or {}
+    except Exception:
+        return None
+    if not isinstance(status, dict):
+        return None
+    status = dict(status)
+    status.setdefault("gid", gid)
+    # The in-memory key already associates this GID with the requested hash;
+    # only use that association when aria2 omits the hash from its response.
+    task = _torrent_task_from_status(
+        status,
+        info_hash,
+        assume_info_hash=True,
+    )
+    if task is not None:
+        if task.get("followedBy") or gid in _TORRENT_METADATA_GIDS:
+            task["has_media_files"] = False
+            _TORRENT_METADATA_GIDS.add(gid)
+        elif task.get("following"):
+            task["has_media_files"] = True
+        else:
+            task["has_media_files"] = _torrent_media_profile(
+                gid,
+                timeout=max(0.1, float(rpc_timeout)),
+            )
+    return task
+
+
+
+def _adopt_materialized_torrent_gid(
+    info_hash: str,
+    parent_gid: str,
+    child_gid: str,
+) -> str:
+    """Atomically move a logical torrent session from metadata parent to media child."""
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    child_gid = str(child_gid or "").strip()
+    parent_gid = str(parent_gid or "").strip()
+    if not child_gid:
+        return parent_gid
+    with _TORRENT_GIDS_LOCK:
+        _TORRENT_GIDS[normalized_info_hash] = child_gid
+        if info_hash != normalized_info_hash:
+            _TORRENT_GIDS.pop(info_hash, None)
+        if parent_gid in _TORRENT_OWNED_GIDS:
+            _TORRENT_OWNED_GIDS.discard(parent_gid)
+            _TORRENT_OWNED_GIDS.add(child_gid)
+        _TORRENT_METADATA_GIDS.add(parent_gid)
+        _TORRENT_METADATA_GIDS.discard(child_gid)
+    return child_gid
+
+
+def _torrent_playback_files(
+    info_hash: str,
+    gid: str,
+    rpc_timeout: float = TORRENT_METADATA_RPC_TIMEOUT_SECONDS,
+) -> tuple[str, List[Dict[str, Any]], bool]:
+    """Resolve a logical magnet GID to playable files without probing metadata parents.
+
+    Returns ``(resolved_gid, files, metadata_pending)``. Fresh magnet tasks are
+    metadata parents, so the only valid cold path is tellStatus(parent) ->
+    followedBy -> tellStatus(child) -> getFiles(child).
+    """
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    gid = str(gid or "").strip()
+    if not gid:
+        return gid, [], False
+    timeout = max(0.1, float(rpc_timeout))
+    status = aria2_rpc(
+        "aria2.tellStatus",
+        [gid, _TORRENT_STATUS_KEYS],
+        timeout=timeout,
+    ) or {}
+    if not isinstance(status, dict):
+        return gid, [], False
+
+    followed_by = [
+        str(value).strip()
+        for value in (status.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    is_metadata_parent = gid in _TORRENT_METADATA_GIDS or bool(followed_by)
+    if is_metadata_parent:
+        _TORRENT_METADATA_GIDS.add(gid)
+        if not followed_by:
+            return gid, [], True
+        for child_gid in followed_by:
+            child_status = aria2_rpc(
+                "aria2.tellStatus",
+                [child_gid, _TORRENT_STATUS_KEYS],
+                timeout=timeout,
+            ) or {}
+            if not isinstance(child_status, dict):
+                continue
+            child_hash = _normalize_torrent_info_hash(child_status.get("infoHash"))
+            if child_hash and child_hash != normalized_info_hash:
+                continue
+            files = aria2_rpc("aria2.getFiles", [child_gid], timeout=timeout) or []
+            if _torrent_files_have_media(files) is not True:
+                continue
+            adopted = _adopt_materialized_torrent_gid(
+                normalized_info_hash, gid, child_gid
+            )
+            return adopted, files, False
+        return gid, [], True
+
+    # A materialized child (``following`` set) or a reusable direct torrent GID
+    # can be inspected normally. Metadata parents never reach this branch while
+    # they are owned/mapped by the current process.
+    files = aria2_rpc("aria2.getFiles", [gid], timeout=timeout) or []
+    return gid, files, False
+
+
+def _followed_torrent_media_gid(
+    info_hash: str,
+    parent_gid: str,
+    rpc_timeout: float = 1.5,
+) -> Optional[str]:
+    """Return aria2's materialized media child for a magnet metadata task.
+
+    ``aria2.addUri(magnet)`` with ``follow-torrent=mem`` first creates a
+    metadata task.  When metadata is ready aria2 exposes the real BitTorrent
+    download through ``followedBy``.  Removing/re-adding the parent before that
+    transition prevents materialization and leaves Media3 buffering forever.
+    """
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    parent_gid = str(parent_gid or "").strip()
+    if not parent_gid:
+        return None
+    try:
+        parent = aria2_rpc(
+            "aria2.tellStatus",
+            [parent_gid, _TORRENT_STATUS_KEYS],
+            timeout=max(0.1, float(rpc_timeout)),
+        ) or {}
+    except Exception:
+        return None
+    if not isinstance(parent, dict):
+        return None
+
+    child_gids = [
+        str(value).strip()
+        for value in (parent.get("followedBy") or [])
+        if str(value or "").strip()
+    ]
+    for child_gid in child_gids:
+        try:
+            child_status = aria2_rpc(
+                "aria2.tellStatus",
+                [child_gid, _TORRENT_STATUS_KEYS],
+                timeout=max(0.1, float(rpc_timeout)),
+            ) or {}
+        except Exception:
+            continue
+        if not isinstance(child_status, dict):
+            continue
+        child_hash = _normalize_torrent_info_hash(child_status.get("infoHash"))
+        if child_hash and child_hash != normalized_info_hash:
+            continue
+        if _torrent_media_profile(child_gid, timeout=max(0.1, float(rpc_timeout))) is not True:
+            continue
+        return _adopt_materialized_torrent_gid(
+            normalized_info_hash,
+            parent_gid,
+            child_gid,
+        )
+    return None
+
+
+def _force_remove_duplicate_torrent_tasks(
+    candidates: List[Dict[str, Any]],
+    canonical_gid: str,
+) -> None:
+    for task in sorted(candidates, key=lambda item: str(item.get("gid") or "")):
+        gid = str(task.get("gid") or "")
+        if not gid or gid == canonical_gid:
+            continue
+        try:
+            # forceRemove removes the aria2 task but leaves downloaded files in place.
+            aria2_rpc("aria2.forceRemove", [gid], timeout=1.5)
+            _TORRENT_OWNED_GIDS.discard(gid)
+        except Exception:
+            pass
+
+
+def _magnet_tracker_option(magnet: str) -> str:
+    """Return a comma-separated aria2 bt-tracker option from magnet tr params."""
+    try:
+        query = urllib.parse.urlsplit(str(magnet or "")).query
+        trackers = []
+        seen = set()
+        for key, value in urllib.parse.parse_qsl(query, keep_blank_values=True):
+            if str(key or "").casefold() != "tr":
+                continue
+            tracker = str(value or "").strip()
+            if not tracker or tracker in seen:
+                continue
+            seen.add(tracker)
+            trackers.append(tracker)
+            if len(trackers) >= 32:
+                break
+        return ",".join(trackers)
+    except Exception:
+        return ""
+
+
+def _refresh_torrent_trackers(gid: str, magnet: str) -> None:
+    tracker_option = _magnet_tracker_option(magnet)
+    if not gid or not tracker_option:
+        return
+    try:
+        aria2_rpc(
+            "aria2.changeOption",
+            [str(gid), {"bt-tracker": tracker_option}],
+            timeout=1.5,
+        )
+    except Exception:
+        # Tracker refresh is additive resilience; failure must not invalidate
+        # an otherwise reusable task.
+        pass
+
+
+def _prewarm_torrent_metadata_candidate(stream: Dict[str, Any]) -> Optional[str]:
+    """Start/reuse magnet metadata only; any materialized media child stays paused."""
+    raw_magnet = str(stream.get("url") or "").strip()
+    sanitized_magnet = sanitize_magnet_uri(raw_magnet)
+    if not sanitized_magnet:
+        return None
+    info_hash = _normalize_torrent_info_hash(
+        stream.get("info_hash") or stream.get("infoHash")
+    )
+    if not info_hash:
+        match = re.search(r"(?i)btih:([a-f0-9]{40})", sanitized_magnet)
+        info_hash = _normalize_torrent_info_hash(match.group(1) if match else "")
+    if not info_hash:
+        return None
+
+    task_dir = DIR / "torrent_cache" / info_hash
+    task_dir.mkdir(parents=True, exist_ok=True)
+    _touch_torrent_playback_lease(task_dir)
+    with _TORRENT_GIDS_LOCK:
+        candidates = _discover_torrent_tasks(info_hash)
+        if candidates:
+            task = min(candidates.values(), key=_torrent_task_sort_key)
+            gid = str(task.get("gid") or "").strip()
+            if not gid:
+                return None
+            _TORRENT_GIDS[info_hash] = gid
+            if task.get("has_media_files") is False:
+                _TORRENT_METADATA_GIDS.add(gid)
+            _refresh_torrent_trackers(gid, sanitized_magnet)
+            # Only resume a prewarm-created metadata parent. Old playback tasks
+            # may not have pause-metadata enabled, so resuming those here could
+            # accidentally start media bytes in the background.
+            if str(task.get("status") or "").lower() == "paused":
+                try:
+                    options = aria2_rpc("aria2.getOption", [gid], timeout=1.0) or {}
+                except Exception:
+                    options = {}
+                if str(options.get("pause-metadata") or "").lower() == "true":
+                    _resume_torrent_for_range(gid)
+            return gid
+
+        options = {
+            "dir": str(task_dir),
+            "follow-torrent": "mem",
+            "pause-metadata": "true",
+            "file-allocation": "none",
+            "seed-time": "0",
+        }
+        tracker_option = _magnet_tracker_option(sanitized_magnet)
+        if tracker_option:
+            options["bt-tracker"] = tracker_option
+        gid = aria2_rpc("aria2.addUri", [[sanitized_magnet], options], timeout=2.0)
+        if not gid:
+            return None
+        gid = str(gid)
+        _TORRENT_GIDS[info_hash] = gid
+        _TORRENT_OWNED_GIDS.add(gid)
+        _TORRENT_METADATA_GIDS.add(gid)
+        return gid
+
+
+def _next_episode_from_catalog_counts(
+    movie_obj: Dict[str, Any],
+    season: Optional[int],
+    episode: Optional[int],
+) -> Optional[tuple[int, int]]:
+    if not season or not episode or season < 1 or episode < 1:
+        return None
+    raw_counts = movie_obj.get("season_episode_counts") or movie_obj.get("seasonEpisodeCounts") or []
+    if not isinstance(raw_counts, list):
+        return None
+    counts: List[int] = []
+    for value in raw_counts:
+        try:
+            counts.append(max(0, int(value or 0)))
+        except (TypeError, ValueError):
+            counts.append(0)
+    if season > len(counts) or counts[season - 1] <= 0:
+        return None
+    if episode < counts[season - 1]:
+        return season, episode + 1
+    for next_season in range(season + 1, len(counts) + 1):
+        if counts[next_season - 1] > 0:
+            return next_season, 1
+    return None
+
+
+def _prewarm_resolved_torrent_streams(streams: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Prewarm bounded P2P metadata from already-resolved playback candidates."""
+    if CLOUD_MODE or not P2P_ENABLED:
+        return {"status": "P2P_DISABLED", "started": 0}
+    direct = [
+        item for item in streams
+        if str(item.get("url") or "").lower().startswith(("http://", "https://"))
+        and not str(item.get("url") or "").startswith(("http://127.0.0.1:", "http://localhost:"))
+    ]
+    if direct:
+        return {"status": "DIRECT_AVAILABLE", "started": 0}
+    ranked_magnets = [
+        stream for stream in rank_playback_streams(streams)
+        if str(stream.get("url") or "").lower().startswith("magnet:")
+    ]
+    started = 0
+    if _torrserver_enabled():
+        for stream in ranked_magnets[:TORRENT_ADJACENT_PREWARM_LIMIT]:
+            magnet = sanitize_magnet_uri(str(stream.get("url") or ""))
+            if magnet and _torrserver_add_magnet(magnet):
+                started += 1
+        if started:
+            return {"status": "PREWARMING_TORRSERVER", "started": started}
+
+    for stream in ranked_magnets:
+        if started >= TORRENT_ADJACENT_PREWARM_LIMIT:
+            break
+        try:
+            if _prewarm_torrent_metadata_candidate(stream):
+                started += 1
+        except Exception as exc:
+            print(f"[DEBUG] Torrent metadata prewarm error: {exc}")
+    return {"status": "PREWARMING" if started else "NO_P2P", "started": started}
+
+
+def _torrserver_prebuffer_exact_head(
+    stream: Dict[str, Any],
+    season: int,
+    episode: int,
+) -> int:
+    """Read at most one bounded head range for the exact episode file.
+
+    The request is intentionally small and background-only. It primes the same
+    TorrServer piece window Media3 will consume next; it never walks the full file.
+    """
+    if not _torrserver_enabled():
+        return 0
+    magnet = sanitize_magnet_uri(str(stream.get("url") or ""))
+    raw_hash = stream.get("info_hash") or stream.get("infoHash")
+    if not raw_hash:
+        match = re.search(r"xt=urn:btih:([a-zA-Z0-9]+)", magnet, re.IGNORECASE)
+        raw_hash = match.group(1) if match else ""
+    info_hash = _normalize_torrent_info_hash(raw_hash)
+    if not magnet or not re.fullmatch(r"[0-9a-f]{40}", info_hash):
+        return 0
+    play_url = _torrserver_prepare_episode_stream(
+        info_hash, magnet, season, episode,
+        timeout_sec=TORRSERVER_DISCOVERY_SECONDS,
+    )
+    if not play_url:
+        return 0
+    end = TORRSERVER_HEAD_PREBUFFER_BYTES - 1
+    request = urllib.request.Request(
+        play_url,
+        headers={
+            "Range": f"bytes=0-{end}",
+            "Accept": "*/*",
+            "Connection": "close",
+        },
+        method="GET",
+    )
+    total = 0
+    try:
+        with urllib.request.urlopen(
+            request, timeout=TORRSERVER_HEAD_PREBUFFER_TIMEOUT_SECONDS
+        ) as response:
+            while total < TORRSERVER_HEAD_PREBUFFER_BYTES:
+                chunk = response.read(min(64 * 1024, TORRSERVER_HEAD_PREBUFFER_BYTES - total))
+                if not chunk:
+                    break
+                total += len(chunk)
+    except Exception:
+        return total
+    return total
+
+
+def _prewarm_exact_resolved_streams(
+    streams: List[Dict[str, Any]],
+    season: int,
+    episode: int,
+) -> Dict[str, Any]:
+    result = _prewarm_resolved_torrent_streams(streams)
+    if result.get("status") == "DIRECT_AVAILABLE" or not _torrserver_enabled():
+        return result
+    ranked = [
+        item for item in rank_playback_streams(streams)
+        if str(item.get("url") or "").lower().startswith("magnet:")
+    ]
+    if ranked:
+        prebuffered = _torrserver_prebuffer_exact_head(ranked[0], season, episode)
+        result = dict(result)
+        result["headPrebufferBytes"] = prebuffered
+    return result
+
+
+def _schedule_exact_torrent_prewarm(
+    movie_id: Any,
+    season: Optional[int],
+    episode: Optional[int],
+    streams: List[Dict[str, Any]],
+) -> None:
+    """Give local P2P metadata a head start without delaying the stream API."""
+    if CLOUD_MODE or not P2P_ENABLED or season is None or episode is None or not streams:
+        return
+    snapshot = [dict(item) for item in streams if isinstance(item, dict)]
+    if not snapshot:
+        return
+    threading.Thread(
+        target=_prewarm_exact_resolved_streams,
+        args=(snapshot, season, episode),
+        daemon=True,
+        name=f"movia-exact-prewarm-{movie_id}-s{season}e{episode}",
+    ).start()
+
+
+def _prewarm_exact_episode_torrents(
+    movie_obj: Dict[str, Any],
+    season: int,
+    episode: int,
+) -> Dict[str, Any]:
+    """Resolve one exact adjacent episode and prewarm only bounded P2P metadata."""
+    if CLOUD_MODE or not P2P_ENABLED:
+        return {"status": "P2P_DISABLED", "started": 0}
+    card_identity = {
+        "id": movie_obj.get("id"),
+        "title": movie_obj.get("title"),
+        "original_title": movie_obj.get("original_title"),
+        "year": movie_obj.get("year"),
+        "media_type": movie_obj.get("mediaType") or (
+            "tv" if movie_obj.get("type") == "series" else "movie"
+        ),
+    }
+    try:
+        streams = resolve_on_demand_streams(
+            title=movie_obj.get("title", ""),
+            year=int(movie_obj.get("year") or 0),
+            category="series",
+            season=season,
+            episode=episode,
+            force_refresh=False,
+            original_title=movie_obj.get("original_title"),
+            catalog_media_id=movie_obj.get("id"),
+            media_type=card_identity["media_type"],
+            require_catalog_identity=True,
+        )
+    except Exception as exc:
+        print(f"[DEBUG] Adjacent prewarm resolve error: {exc}")
+        return {"status": "RESOLUTION_ERROR", "started": 0}
+    streams = filter_streams_for_episode(streams, season, episode)
+    if not streams:
+        return {"status": "NO_RESULTS", "started": 0}
+    try:
+        persist_resolved_streams_to_catalog(movie_obj.get("id"), streams)
+    except Exception:
+        pass
+    return _prewarm_exact_resolved_streams(streams, season, episode)
+
+
+def _catalog_playback_movie(movie_id: Any) -> Optional[Dict[str, Any]]:
+    """Use a local-only card for playback; never trigger Details enrichment."""
+    return catalog_api.get_movie_playback_card(str(movie_id))
+
+
+def _prewarm_next_episode_for_movie_id(
+    movie_id: Any,
+    season: Optional[int],
+    episode: Optional[int],
+) -> Dict[str, Any]:
+    """Use the local playback card and prewarm the exact adjacent P2P file."""
+    try:
+        movie_obj = _catalog_playback_movie(movie_id)
+    except Exception as exc:
+        print(f"[DEBUG] Adjacent prewarm catalog lookup error: {exc}")
+        return {"status": "CATALOG_ERROR", "started": 0}
+    if not isinstance(movie_obj, dict):
+        return {"status": "MOVIE_NOT_FOUND", "started": 0}
+    target = _next_episode_from_catalog_counts(movie_obj, season, episode)
+    if not target:
+        return {"status": "NO_NEXT_EPISODE", "started": 0}
+    return _prewarm_exact_episode_torrents(movie_obj, target[0], target[1])
+
+
+def _torrserver_enabled() -> bool:
+    return bool(TORRSERVER_URL) and P2P_ENABLED and not CLOUD_MODE
+
+
+def _torrserver_post(payload: Dict[str, Any], timeout: float = TORRSERVER_RPC_TIMEOUT_SECONDS) -> Dict[str, Any]:
+    if not _torrserver_enabled():
+        raise RuntimeError("torrserver_disabled")
+    body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    request = urllib.request.Request(
+        f"{TORRSERVER_URL}/torrents",
+        data=body,
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=max(0.1, float(timeout))) as response:
+        raw = response.read().decode("utf-8", "replace")
+    parsed = json.loads(raw) if raw else {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _torrserver_exact_episode_file_id(
+    torrent_info: Dict[str, Any],
+    season: Optional[int],
+    episode: Optional[int],
+) -> Optional[str]:
+    if season is None or episode is None:
+        return None
+    files = torrent_info.get("file_stats") or torrent_info.get("files") or []
+    if not isinstance(files, list):
+        return None
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        if not episode_path_matches(item.get("path") or item.get("name"), season, episode):
+            continue
+        file_id = item.get("id")
+        if file_id is None:
+            continue
+        return str(file_id)
+    return None
+
+
+def _torrserver_add_magnet(magnet: str) -> bool:
+    try:
+        result = _torrserver_post(
+            {"action": "add", "link": magnet, "save_to_db": False},
+            timeout=TORRSERVER_RPC_TIMEOUT_SECONDS,
+        )
+        return bool(result.get("hash") or result.get("stat") is not None)
+    except Exception:
+        return False
+
+
+def _torrserver_prepare_episode_stream(
+    info_hash: str,
+    magnet: str,
+    season: Optional[int],
+    episode: Optional[int],
+    timeout_sec: float = TORRSERVER_DISCOVERY_SECONDS,
+) -> Optional[str]:
+    """Return a local TorrServer exact-episode URL, otherwise fail closed to aria2.
+
+    TorrServer file ids are engine-local and are not interchangeable with aria2
+    torrent indexes. Exact S/E identity is therefore resolved from file paths.
+    """
+    if not _torrserver_enabled() or season is None or episode is None:
+        return None
+    normalized_hash = _normalize_torrent_info_hash(info_hash)
+    if not re.fullmatch(r"[0-9a-f]{40}", normalized_hash):
+        return None
+    deadline = time.monotonic() + max(0.1, float(timeout_sec))
+    torrent_info: Dict[str, Any] = {}
+    try:
+        torrent_info = _torrserver_post(
+            {"action": "get", "hash": normalized_hash},
+            timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.1, deadline - time.monotonic())),
+        )
+    except Exception:
+        pass
+    file_id = _torrserver_exact_episode_file_id(torrent_info, season, episode)
+    if file_id is None:
+        if not _torrserver_add_magnet(magnet):
+            return None
+        while time.monotonic() < deadline:
+            remaining = deadline - time.monotonic()
+            try:
+                torrent_info = _torrserver_post(
+                    {"action": "get", "hash": normalized_hash},
+                    timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.1, remaining)),
+                )
+            except Exception:
+                torrent_info = {}
+            file_id = _torrserver_exact_episode_file_id(torrent_info, season, episode)
+            if file_id is not None:
+                break
+            time.sleep(min(TORRENT_DISCOVERY_SLEEP_SECONDS, max(0.0, deadline - time.monotonic())))
+    if file_id is None:
+        return None
+    return f"{TORRSERVER_URL}/play/{normalized_hash}/{urllib.parse.quote(file_id, safe='')}"
+
+
+def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> str:
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    with _TORRENT_GIDS_LOCK:
+        candidates = _discover_torrent_tasks(normalized_info_hash)
+
+        existing = _TORRENT_GIDS.get(normalized_info_hash)
+        if not existing and info_hash != normalized_info_hash:
+            # Tolerate an entry created by an older caller that did not normalize
+            # the hash, while storing the selected GID under the canonical key.
+            existing = _TORRENT_GIDS.get(info_hash)
+        if existing:
+            existing = str(existing)
+            if existing not in candidates:
+                mapped = _mapped_torrent_task(normalized_info_hash, existing)
+                if mapped:
+                    candidates[existing] = mapped
+                else:
+                    _TORRENT_GIDS.pop(normalized_info_hash, None)
+                    if info_hash != normalized_info_hash:
+                        _TORRENT_GIDS.pop(info_hash, None)
+
+        usable_candidates = [
+            task for task in candidates.values()
+            if task.get("has_media_files") is not False
+        ]
+        if usable_candidates:
+            canonical_task = min(usable_candidates, key=_torrent_task_sort_key)
+            canonical_gid = str(canonical_task["gid"])
+            # Keep metadata-only tasks intact; they may belong to another request
+            # and are not a usable playback task. Only deduplicate candidates that
+            # can represent actual media or whose profile is temporarily unknown.
+            _force_remove_duplicate_torrent_tasks(
+                usable_candidates,
+                canonical_gid,
+            )
+            _TORRENT_GIDS[normalized_info_hash] = canonical_gid
+            if info_hash != normalized_info_hash:
+                _TORRENT_GIDS.pop(info_hash, None)
+            _refresh_torrent_trackers(canonical_gid, magnet)
+            return canonical_gid
+
+        metadata_candidates = [
+            task for task in candidates.values()
+            if task.get("has_media_files") is False
+        ]
+        if metadata_candidates:
+            # A magnet metadata task is a valid *pending* logical session.
+            # Reuse it and let /stream adopt aria2's followedBy media child.
+            pending = min(metadata_candidates, key=_torrent_task_sort_key)
+            pending_gid = str(pending["gid"])
+            _TORRENT_GIDS[normalized_info_hash] = pending_gid
+            _TORRENT_METADATA_GIDS.add(pending_gid)
+            if info_hash != normalized_info_hash:
+                _TORRENT_GIDS.pop(info_hash, None)
+            _refresh_torrent_trackers(pending_gid, magnet)
+            if str(pending.get("status") or "").strip().lower() == "paused":
+                # A previous cold-start timeout intentionally keeps the metadata
+                # task for reuse. Resume it before waiting for followedBy; otherwise
+                # a paused metadata parent can never materialize its media child.
+                _resume_torrent_for_range(pending_gid)
+            return pending_gid
+
+        # No reusable or pending task exists. Start one bounded magnet metadata
+        # download; /stream will adopt its followedBy media child when ready.
+        add_options = {
+            "dir": str(task_dir),
+            "follow-torrent": "mem",
+            # aria2 RPC option: fetch magnet metadata, but pause the media child
+            # created from that metadata. Movia unpauses only after exact
+            # episode/file selection and piece prioritization.
+            "pause-metadata": "true",
+            "bt-prioritize-piece": "head=20M,tail=10M",
+            "file-allocation": "none",
+            "seed-time": "0",
+        }
+        tracker_option = _magnet_tracker_option(magnet)
+        if tracker_option:
+            add_options["bt-tracker"] = tracker_option
+        gid = aria2_rpc("aria2.addUri", [[magnet], add_options], timeout=4.0)
+        if not gid:
+            raise RuntimeError("aria2.addUri returned no gid")
+        gid = str(gid)
+        _TORRENT_GIDS[normalized_info_hash] = gid
+        _TORRENT_OWNED_GIDS.add(gid)
+        _TORRENT_METADATA_GIDS.add(gid)
+        return gid
+
+def release_torrent_gid(info_hash: str, gid: Optional[str], remove_task: bool = False) -> None:
+    normalized_info_hash = _normalize_torrent_info_hash(info_hash)
+    with _TORRENT_GIDS_LOCK:
+        if _TORRENT_GIDS.get(normalized_info_hash) == gid:
+            _TORRENT_GIDS.pop(normalized_info_hash, None)
+        if info_hash != normalized_info_hash and _TORRENT_GIDS.get(info_hash) == gid:
+            _TORRENT_GIDS.pop(info_hash, None)
+    if remove_task and gid and gid in _TORRENT_OWNED_GIDS:
+        try:
+            aria2_rpc("aria2.forceRemove", [gid], timeout=1.5)
+        except Exception:
+            pass
+        finally:
+            _TORRENT_OWNED_GIDS.discard(gid)
+            _TORRENT_METADATA_GIDS.discard(gid)
+
+
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0"
+]
+
+def get_random_user_agent() -> str:
+    return random.choice(USER_AGENTS)
+
+def init_cache_db():
+    conn = sqlite3.connect(str(CACHE_DB_PATH))
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS streams_cache (cache_key TEXT PRIMARY KEY, streams_json TEXT NOT NULL, expires_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);")
+    conn.commit()
+    conn.close()
+
+init_cache_db()
+
+def get_cached_streams(cache_key: str) -> Optional[List[Dict[str, Any]]]:
+    now_mono = time.monotonic()
+    with _STREAM_MEMORY_CACHE_LOCK:
+        memory_entry = _STREAM_MEMORY_CACHE.get(cache_key)
+        if memory_entry and memory_entry[0] > now_mono:
+            return [dict(stream) for stream in memory_entry[1]]
+        if memory_entry:
+            _STREAM_MEMORY_CACHE.pop(cache_key, None)
+
+    try:
+        with closing(sqlite3.connect(str(CACHE_DB_PATH))) as conn, conn:
+            cur = conn.cursor()
+            now = int(time.time())
+            cur.execute(
+                "SELECT streams_json, expires_at FROM streams_cache "
+                "WHERE cache_key = ? AND expires_at > ? LIMIT 1;",
+                (cache_key, now),
+            )
+            row = cur.fetchone()
+        if row and row[0]:
+            cached = sanitize_streams(json.loads(row[0]), require_source=True)
+            if cached:
+                remaining = max(1.0, float(row[1]) - time.time())
+                with _STREAM_MEMORY_CACHE_LOCK:
+                    _STREAM_MEMORY_CACHE[cache_key] = (
+                        time.monotonic() + min(remaining, STREAM_MEMORY_CACHE_MAX_SECONDS),
+                        [dict(stream) for stream in cached],
+                    )
+                return cached
+    except Exception:
+        pass
+    return None
+
+def _stream_cache_suffix(
+    identity_key: str,
+    normalized_title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> str:
+    return (
+        f"_{identity_key}_{normalized_title}_{int(year or 0)}_{category}_"
+        f"s{season}_e{episode}"
+    )
+
+
+def _stream_cache_key(
+    identity_key: str,
+    normalized_title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> str:
+    # Do not include the global catalog revision. A metadata update for an
+    # unrelated title must not invalidate playback metadata for this content.
+    return STREAM_CACHE_VERSION + _stream_cache_suffix(
+        identity_key, normalized_title, year, category, season, episode
+    )
+
+
+def get_recent_stale_direct_streams(
+    cache_suffix: str,
+    *,
+    max_age_seconds: int = STREAM_STALE_DIRECT_MAX_SECONDS,
+) -> List[Dict[str, Any]]:
+    """Return recent direct URL metadata across old catalog revisions.
+
+    Expired cache TTL means "revalidate", not "destroy last-known-good". During
+    a provider outage, the most recent structurally valid direct URL can still
+    be attempted. Explicitly expired signed URLs are never returned.
+    """
+    now = int(time.time())
+    unsigned_max_age = max(1, int(max_age_seconds))
+    scan_max_age = max(unsigned_max_age, STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS)
+    try:
+        with closing(sqlite3.connect(str(CACHE_DB_PATH))) as conn, conn:
+            rows = conn.execute(
+                "SELECT cache_key, streams_json, updated_at FROM streams_cache "
+                "WHERE updated_at >= ? ORDER BY updated_at DESC LIMIT 256",
+                (now - scan_max_age,),
+            ).fetchall()
+    except Exception:
+        return []
+
+    for cache_key, raw_json, _updated_at in rows:
+        if not str(cache_key or "").endswith(cache_suffix):
+            continue
+        try:
+            cached = sanitize_streams(json.loads(raw_json), require_source=True)
+        except Exception:
+            continue
+        row_age = max(0, now - int(_updated_at or 0))
+        direct: List[Dict[str, Any]] = []
+        for stream in cached:
+            raw_url = str(stream.get("url") or stream.get("playback_url") or "").strip()
+            if not raw_url.lower().startswith(("http://", "https://")):
+                continue
+            expiry = _direct_stream_expiry_seconds(stream)
+            if expiry is None:
+                if row_age > unsigned_max_age:
+                    continue
+            else:
+                if row_age > STREAM_STALE_SIGNED_DIRECT_MAX_SECONDS:
+                    continue
+                if expiry <= now + STREAM_STALE_DIRECT_EXPIRY_GRACE_SECONDS:
+                    continue
+            direct.append(dict(stream))
+        if direct:
+            return direct
+    return []
+
+
+def set_cached_streams(
+    cache_key: str,
+    streams: List[Dict[str, Any]],
+    ttl_hours: int = 48,
+    ttl_seconds: Optional[int] = None,
+):
+    try:
+        clean_streams = sanitize_streams(streams, require_source=True)
+        if not clean_streams:
+            return
+        with closing(sqlite3.connect(str(CACHE_DB_PATH))) as conn, conn:
+            cur = conn.cursor()
+            now = int(time.time())
+            effective_ttl = int(ttl_seconds) if ttl_seconds is not None else int(ttl_hours * 3600)
+            expires_at = now + max(1, effective_ttl)
+            cur.execute(
+                "INSERT OR REPLACE INTO streams_cache "
+                "(cache_key, streams_json, expires_at, updated_at) VALUES (?, ?, ?, ?);",
+                (cache_key, json.dumps(clean_streams, ensure_ascii=False), expires_at, now),
+            )
+            conn.commit()
+        with _STREAM_MEMORY_CACHE_LOCK:
+            _STREAM_MEMORY_CACHE[cache_key] = (
+                time.monotonic() + min(max(1.0, float(effective_ttl)), STREAM_MEMORY_CACHE_MAX_SECONDS),
+                [dict(stream) for stream in clean_streams],
+            )
+    except Exception:
+        pass
+
+
+def _resolve_lock_for(cache_key: str) -> threading.Lock:
+    """Return a stable per-title lock so concurrent misses share one lookup."""
+    with _RESOLVE_LOCKS_LOCK:
+        return _RESOLVE_LOCKS.setdefault(cache_key, threading.Lock())
+
+def sanitize_magnet_uri(raw_uri: str) -> Optional[str]:
+    if not raw_uri or not isinstance(raw_uri, str):
+        return None
+    raw_uri = raw_uri.strip()
+    if not raw_uri.startswith("magnet:?"):
+        return None
+    if not is_valid_magnet(raw_uri):
+        return None
+    bad_chars = ['\n', '\r', '\t', '`', '$', ';', '|', '<', '>', '"']
+    sanitized = raw_uri
+    for c in bad_chars:
+        sanitized = sanitized.replace(c, '')
+    try:
+        from torrent_resolver import enrich_magnet_with_trackers
+        sanitized = enrich_magnet_with_trackers(sanitized)
+    except Exception:
+        pass
+    return sanitized
+
+DOH_CACHE: Dict[str, str] = {}
+DOH_PROVIDERS = [
+    ("https://cloudflare-dns.com/dns-query", {"Accept": "application/dns-json"}),
+    ("https://1.1.1.1/dns-query", {"Accept": "application/dns-json"}),
+    ("https://dns.google/resolve", {"Accept": "application/json"}),
+]
+
+def doh_resolve_host(hostname: str) -> Optional[str]:
+    if not hostname:
+        return None
+    if hostname in DOH_CACHE:
+        return DOH_CACHE[hostname]
+    
+    # Do not resolve IP addresses
+    try:
+        ipaddress.ip_address(hostname)
+        return hostname
+    except ValueError:
+        pass
+
+    for provider_url, headers in DOH_PROVIDERS:
+        try:
+            doh_url = f"{provider_url}?name={urllib.parse.quote(hostname)}&type=A"
+            req_headers = dict(headers)
+            req_headers["User-Agent"] = get_random_user_agent()
+            req = urllib.request.Request(doh_url, headers=req_headers)
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    answers = data.get("Answer", [])
+                    for ans in answers:
+                        if ans.get("type") == 1 and ans.get("data"):
+                            resolved_ip = ans.get("data")
+                            DOH_CACHE[hostname] = resolved_ip
+                            return resolved_ip
+        except Exception:
+            continue
+    return None
+
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+    def __init__(self, *args, **kwargs):
+        self.request_slots = threading.BoundedSemaphore(32)
+        super().__init__(*args, **kwargs)
+    def process_request(self, request, client_address):
+        if not self.request_slots.acquire(blocking=False):
+            try:
+                request.sendall(b'HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n')
+            finally:
+                self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.request_slots.release()
+            raise
+    def process_request_thread(self, request, client_address):
+        try:
+            request.settimeout(15.0)
+            super().process_request_thread(request, client_address)
+        finally:
+            self.request_slots.release()
+
+
+def has_playable_container_head(path: Path) -> bool:
+    """Return True only after the sparse torrent file has a recognizable media header.
+
+    aria2 creates files at their final logical size before the first pieces are
+    downloaded. Checking st_size alone therefore exposes zero-filled sparse data
+    to Media3 and causes container sniff failures.
+    """
+    try:
+        if not path.exists() or not path.is_file():
+            return False
+        suffix = path.suffix.lower()
+        with path.open("rb") as fh:
+            head = fh.read(64 * 1024)
+        if len(head) < 16:
+            return False
+        if suffix in {".mp4", ".m4v"}:
+            # ISO-BMFF: first box normally contains the ftyp brand.
+            return b"ftyp" in head[:64]
+        if suffix == ".mkv":
+            return head.startswith(b"\x1a\x45\xdf\xa3")
+        if suffix == ".avi":
+            return head.startswith(b"RIFF") and head[8:12] == b"AVI "
+        if suffix in {".ts", ".m2ts"}:
+            # MPEG-TS sync byte (m2ts may carry a 4-byte timestamp prefix).
+            return head[0] == 0x47 or (len(head) > 4 and head[4] == 0x47)
+        return any(head)
+    except Exception:
+        return False
+
+
+def _aria2_piece_is_complete(bitfield_hex: str, piece_index: int) -> bool:
+    try:
+        raw = bytes.fromhex(bitfield_hex or "")
+        byte_index = piece_index // 8
+        if byte_index < 0 or byte_index >= len(raw):
+            return False
+        mask = 1 << (7 - (piece_index % 8))
+        return (raw[byte_index] & mask) != 0
+    except Exception:
+        return False
+
+
+def _torrent_file_layout(status: Dict[str, Any], file_path: Path) -> tuple[int, int]:
+    """Return (global torrent byte offset, file length) for a selected file."""
+    target = os.path.realpath(str(file_path))
+    offset = 0
+    for item in sorted(status.get("files") or [], key=lambda x: int(x.get("index") or 0)):
+        length = int(item.get("length") or 0)
+        current = os.path.realpath(str(item.get("path") or ""))
+        if current == target:
+            return offset, length
+        offset += length
+    return 0, int(file_path.stat().st_size if file_path.exists() else 0)
+
+
+def _torrent_range_ready(gid: Optional[str], file_path: Path, start: int, length: int) -> bool:
+    if not gid:
+        return True
+    try:
+        status = aria2_rpc(
+            "aria2.tellStatus",
+            [gid, ["status", "pieceLength", "numPieces", "bitfield", "files"]],
+            timeout=2.0,
+        ) or {}
+        if status.get("status") == "complete":
+            return True
+        piece_length = int(status.get("pieceLength") or 0)
+        bitfield = str(status.get("bitfield") or "")
+        if piece_length <= 0 or not bitfield:
+            return False
+        file_offset, file_length = _torrent_file_layout(status, file_path)
+        if file_length <= 0:
+            return False
+        local_start = max(0, min(int(start), file_length - 1))
+        local_end = max(local_start, min(file_length - 1, local_start + max(1, int(length)) - 1))
+        first_piece = (file_offset + local_start) // piece_length
+        last_piece = (file_offset + local_end) // piece_length
+        return all(_aria2_piece_is_complete(bitfield, i) for i in range(first_piece, last_piece + 1))
+    except Exception:
+        return False
+
+
+def _resume_torrent_for_range(gid: Optional[str]) -> None:
+    if not gid:
+        return
+    try:
+        aria2_rpc("aria2.unpause", [gid], timeout=0.75)
+    except Exception:
+        # Active tasks reject unpause; that is already the desired state.
+        pass
+
+
+def _pause_torrent_after_range(gid: Optional[str]) -> None:
+    if not gid:
+        return
+    try:
+        aria2_rpc("aria2.forcePause", [gid], timeout=0.75)
+    except Exception:
+        # Completed/removed tasks cannot be paused and require no background work.
+        pass
+
+
+def _prioritize_torrent_head(gid: Optional[str], head_bytes: int = 8 * 1024 * 1024) -> None:
+    """Configure the selected media head *before* resuming the torrent child.
+
+    aria2.changeOption restarts active downloads for most options, including
+    bt-prioritize-piece.  Magnet prewarm deliberately leaves the materialized
+    media child paused, so configure its piece priority first and unpause once.
+    This avoids throwing away freshly established startup state on the hot path.
+    """
+    if not gid:
+        return
+    try:
+        aria2_rpc(
+            "aria2.changeOption",
+            [gid, {"bt-prioritize-piece": f"head={max(1, int(head_bytes))},tail=8M"}],
+            timeout=0.75,
+        )
+    except Exception:
+        # Reprioritization is an optimization; the bounded polling loop remains authoritative.
+        pass
+    _resume_torrent_for_range(gid)
+
+
+def _prioritize_and_wait_torrent_range(
+    gid: Optional[str],
+    file_path: Path,
+    start: int,
+    length: int,
+    timeout_sec: float = TORRENT_RANGE_WAIT_SECONDS,
+) -> bool:
+    if not gid:
+        return True
+    if _torrent_range_ready(gid, file_path, start, length):
+        return True
+    try:
+        # Configure the restart-causing piece-priority option while the bounded
+        # playback task is still paused whenever possible, then resume once.
+        # aria2 cannot prioritize an arbitrary piece directly, so expanding the
+        # selected file's head priority covers the requested forward window.
+        try:
+            priority_head = max(8 * 1024 * 1024, int(start) + int(length) + 8 * 1024 * 1024)
+            aria2_rpc(
+                "aria2.changeOption",
+                [gid, {"bt-prioritize-piece": f"head={priority_head},tail=8M"}],
+                timeout=0.75,
+            )
+        except Exception:
+            pass
+        _resume_torrent_for_range(gid)
+        deadline = time.monotonic() + max(0.25, timeout_sec)
+        while time.monotonic() < deadline:
+            if _torrent_range_ready(gid, file_path, start, length):
+                return True
+            time.sleep(0.15)
+        return False
+    finally:
+        _pause_torrent_after_range(gid)
+
+
+VIDEO_SUFFIXES = {".mp4", ".mkv", ".avi", ".ts", ".m4v", ".webm"}
+
+
+def is_physically_complete_file(path: Path) -> bool:
+    """True only when a regular file has real allocated blocks for its full logical size.
+
+    aria2 creates sparse files at final logical size before their pieces exist, so
+    st_size alone is not evidence that the media is complete. POSIX st_blocks is
+    counted in 512-byte units and lets us reject those sparse placeholders.
+    """
+    try:
+        stat = path.stat()
+        if not path.is_file() or stat.st_size <= 0:
+            return False
+        allocated_bytes = int(getattr(stat, "st_blocks", 0) or 0) * 512
+        return allocated_bytes >= int(stat.st_size)
+    except OSError:
+        return False
+
+
+def episode_path_matches(path: Any, season: Optional[int], episode: Optional[int]) -> bool:
+    if season is None or episode is None:
+        return False
+    try:
+        season_i = int(season)
+        episode_i = int(episode)
+    except (TypeError, ValueError):
+        return False
+    if season_i < 0 or episode_i < 0:
+        return False
+    name = str(path or "").lower()
+    # Require both the season and episode tokens.
+    patterns = [
+        rf"s0*{season_i}[._\s-]*e0*{episode_i}(?![0-9])",
+        rf"\b0*{season_i}x0*{episode_i}(?![0-9])",
+        rf"сезон\s*0*{season_i}[^0-9]*серия\s*0*{episode_i}(?![0-9])",
+    ]
+    return any(re.search(pat, name, re.IGNORECASE) is not None for pat in patterns)
+
+
+def find_completed_cached_video(
+    task_dir: Path,
+    season: Optional[int] = None,
+    episode: Optional[int] = None,
+    file_index: Optional[int] = None,
+) -> Optional[Path]:
+    # The cache path does not retain aria2/TorrServer file indexes. When the
+    # caller supplies one, re-read torrent metadata instead of guessing from
+    # the largest cached video.
+    if file_index is not None:
+        return None
+    candidates: List[Path] = []
+    try:
+        for path in task_dir.rglob("*"):
+            if (
+                path.is_file()
+                and path.suffix.lower() in VIDEO_SUFFIXES
+                and is_physically_complete_file(path)
+                and has_playable_container_head(path)
+            ):
+                candidates.append(path)
+    except OSError:
+        return None
+
+    if season is not None and episode is not None:
+        matches = [p for p in candidates if episode_path_matches(p, season, episode)]
+        if not matches:
+            return None
+        # A release should normally contain one exact episode. Deterministic
+        # ordering makes duplicate encodes stable without ever selecting another episode.
+        return max(matches, key=lambda p: (p.stat().st_size, str(p)))
+
+    if not candidates:
+        return None
+    # Movie torrents may contain samples/extras. Prefer the largest complete video.
+    return max(candidates, key=lambda p: (p.stat().st_size, str(p)))
+
+
+def infer_stream_mime(url: str, header_type: str = "") -> str:
+    clean_url = url.split("?")[0].lower()
+    if header_type and "text/html" not in header_type and "text/plain" not in header_type and "octet-stream" not in header_type:
+        return header_type
+    if clean_url.endswith(".m3u8"):
+        return "application/vnd.apple.mpegurl"
+    elif clean_url.endswith(".mp4") or clean_url.endswith(".m4v"):
+        return "video/mp4"
+    elif clean_url.endswith(".ts"):
+        return "video/mp2t"
+    elif clean_url.endswith(".webm"):
+        return "video/webm"
+    elif clean_url.endswith(".mkv"):
+        return "video/x-matroska"
+    elif clean_url.endswith(".avi"):
+        return "video/x-msvideo"
+    elif clean_url.endswith(".mpd"):
+        return "application/dash+xml"
+    return header_type or "video/mp4"
+
+
+_RUSSIAN_VOICE_HINTS = (
+    "дубляж", "lostfilm", "hdrezka", "red head sound", "кубик", "кураж",
+    "alexfilm", "newstudio", "flarrow", "jaskier", "tvshows", "le-vitation",
+    "пифагор", "сыендук", "кравец", "2x2", "2х2", "профессиональный", "мво",
+    "двухголосый", "дво", "авторский", "одноголосый", "чистый звук",
+)
+
+
+def _quality_rank(value: Any) -> int:
+    """Prefer higher declared quality without rewriting provider metadata."""
+    low = str(value or "").strip().lower()
+    if any(token in low for token in ("2160", "4k", "uhd")):
+        return 0
+    if "1440" in low:
+        return 1
+    if any(token in low for token in ("1080", "fullhd", "fhd")):
+        return 2
+    if "720" in low or low in {"hd", "hd 720"}:
+        return 3
+    if "480" in low or "sd" in low:
+        return 4
+    if not low or low == "не указано":
+        return 6
+    if any(token in low for token in ("cam", "telesync", "ts")):
+        return 7
+    return 5
+
+
+def _voice_rank(value: Any) -> int:
+    """Rank language class, never a provider/translator brand."""
+    low = str(value or "").strip().casefold()
+    if any(token in low for token in ("original", "оригинал", "english", "англ")):
+        return 2
+    if not low or low == "не указано":
+        return 1
+    if any(token in low for token in ("рус", "russian", "ru-")):
+        return 0
+    return 1
+
+
+def _stream_local_ready_video(stream: Dict[str, Any]) -> bool:
+    """Return true only when this exact P2P variant already has a complete local video.
+
+    Local readiness is runtime health/startup evidence, not a transport preference.
+    Direct streams are unaffected; a cold torrent still competes on the ordinary
+    health/latency/peer criteria.
+    """
+    url = str(stream.get("url") or "").strip()
+    transport = str(stream.get("transport") or "").strip().casefold()
+    if not (url.casefold().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
+        return False
+    info_hash = str(stream.get("info_hash") or stream.get("infoHash") or "").strip().lower()
+    if not info_hash:
+        match = re.search(r"(?:^|[?&])xt=urn:btih:([^&\s]+)", url, re.IGNORECASE)
+        info_hash = match.group(1).lower() if match else ""
+    if not info_hash:
+        return False
+    season = _stream_part_number(stream, "season")
+    episode = _stream_part_number(stream, "episode")
+    task_dir = DIR / "torrent_cache" / info_hash
+    if not task_dir.exists():
+        return False
+    try:
+        return find_completed_cached_video(
+            task_dir,
+            season=season,
+            episode=episode,
+            file_index=_stream_part_number(stream, "file_index"),
+        ) is not None
+    except Exception:
+        return False
+
+
+def _playback_stream_sort_key(
+    stream: Dict[str, Any],
+    *,
+    requested_voice: Optional[str] = None,
+    requested_quality: Optional[str] = None,
+    failed_stream_ids: Optional[set[str]] = None,
+) -> tuple:
+    failed_stream_ids = failed_stream_ids or set()
+    stream_id = str(stream.get("stream_id") or stream.get("streamId") or "").strip()
+    normalized_requested_voice = str(requested_voice or "").strip().casefold()
+    normalized_requested_quality = str(requested_quality or "").strip().casefold()
+    voice = str(stream.get("voice") or stream.get("translation") or "").strip()
+    quality = str(stream.get("quality") or "").strip()
+    try:
+        seeders = max(0, int(stream.get("seeders") or 0))
+    except (TypeError, ValueError):
+        seeders = 0
+    raw_startup_latency = stream.get("startup_latency_ms")
+    try:
+        startup_latency = (
+            max(0.0, float(raw_startup_latency))
+            if raw_startup_latency is not None and str(raw_startup_latency).strip() != ""
+            else float("inf")
+        )
+    except (TypeError, ValueError):
+        startup_latency = float("inf")
+    local_ready = _stream_local_ready_video(stream)
+    try:
+        health = float(stream.get("health_score"))
+    except (TypeError, ValueError):
+        health = 0.5
+    health = min(max(health, 0.0), 1.0)
+    try:
+        recent_failure_count = max(0, int(stream.get("recent_failure_count") or 0))
+    except (TypeError, ValueError):
+        recent_failure_count = 0
+    transport = str(stream.get("transport") or "").strip().casefold()
+    url = str(stream.get("url") or "").strip().casefold()
+    is_p2p = transport in {"torrent", "p2p", "torrent_p2p", "magnet"} or url.startswith("magnet:")
+
+    # Transport type is not a provider preference. A healthy seeded swarm and a
+    # healthy direct/CDN stream compete on requested variant + measured health.
+    # Only an unseeded P2P candidate receives a transport-specific penalty.
+    p2p_no_peers_penalty = 1 if (is_p2p and seeders <= 0) else 0
+
+    requested_voice_penalty = 0 if (
+        normalized_requested_voice
+        and normalized_requested_voice not in {"auto", "any"}
+        and voice.casefold() == normalized_requested_voice
+    ) else (1 if normalized_requested_voice not in {"", "auto", "any"} else 0)
+    requested_quality_penalty = 0 if (
+        normalized_requested_quality
+        and normalized_requested_quality not in {"auto", "any"}
+        and (
+            quality.casefold() == normalized_requested_quality
+            or _quality_rank(quality) == _quality_rank(requested_quality)
+        )
+    ) else (1 if normalized_requested_quality not in {"", "auto", "any"} else 0)
+    if local_ready:
+        # Complete local bytes are direct evidence of both health and zero
+        # network startup for this exact logical episode/variant.
+        health = 1.0
+        startup_latency = 0.0
+
+    return (
+        1 if stream_id in failed_stream_ids or stream.get("problematic") else 0,
+        1 if stream.get("unavailable_quality") else 0,
+        requested_voice_penalty,
+        requested_quality_penalty,
+        _voice_rank(voice),
+        round((1.0 - health) * 10.0, 3),
+        recent_failure_count,
+        (1_000_000_000.0 if startup_latency == float("inf") else round(startup_latency / 1000.0, 3)),
+        p2p_no_peers_penalty,
+        -seeders,
+        _quality_rank(quality),
+        str(stream.get("source") or "").strip().casefold(),
+        voice.casefold(),
+        quality.casefold(),
+        repr(stream_variant_key(stream)),
+    )
+
+
+def _annotate_runtime_stream_health(stream: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize stream-level playback evidence without importing discovery health.
+
+    Provider discovery reliability controls whether new network lookups are made.
+    It must never downgrade a previously confirmed HLS/CDN stream merely because
+    the provider search API is temporarily unavailable. Fresh provider responses
+    already carry their aggregate reliability at the resolver boundary.
+    """
+    candidate = dict(stream)
+    # Temporary Block-4 builds wrote discovery health into playback fields.
+    # Scrub that coupling while preserving the resolved URL itself.
+    legacy_discovery = candidate.pop("provider_reliability", None)
+    if legacy_discovery is not None:
+        try:
+            legacy_value = float(legacy_discovery)
+            current_health = candidate.get("health_score")
+            if current_health is not None and abs(float(current_health) - legacy_value) < 1e-9:
+                candidate.pop("health_score", None)
+        except (TypeError, ValueError):
+            pass
+        candidate["recent_failure_count"] = 0
+    try:
+        candidate["recent_failure_count"] = max(
+            0, int(candidate.get("recent_failure_count") or 0)
+        )
+    except (TypeError, ValueError):
+        candidate["recent_failure_count"] = 0
+    if _stream_local_ready_video(candidate):
+        candidate["local_ready"] = True
+        candidate["health_score"] = 1.0
+        candidate["startup_latency_ms"] = 0
+    return candidate
+
+
+def rank_playback_streams(
+    streams: List[Dict[str, Any]],
+    *,
+    requested_voice: Optional[str] = None,
+    requested_quality: Optional[str] = None,
+    failed_stream_ids: Optional[set[str]] = None,
+) -> List[Dict[str, Any]]:
+    """Rank stream-level playback evidence while retaining every real variant.
+
+    Discovery circuits are intentionally excluded here: a provider API outage is
+    not evidence that an already-resolved CDN/HLS URL is unplayable.
+    """
+    annotated = [
+        _annotate_runtime_stream_health(stream)
+        for stream in streams
+        if isinstance(stream, dict)
+    ]
+    return sorted(
+        annotated,
+        key=lambda stream: _playback_stream_sort_key(
+            stream,
+            requested_voice=requested_voice,
+            requested_quality=requested_quality,
+            failed_stream_ids=failed_stream_ids,
+        ),
+    )
+
+def _stream_part_number(stream: Dict[str, Any], key: str) -> Optional[int]:
+    value = stream.get(key)
+    if value is None or str(value).strip() == "":
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _torrent_declared_seasons(stream: Dict[str, Any]) -> Optional[set[int]]:
+    """Return explicitly advertised seasons from torrent metadata/name.
+
+    ``None`` means the torrent name does not make a reliable season claim, so it
+    remains eligible as a generic fallback. A non-empty set is authoritative
+    enough to reject a request outside that advertised coverage before aria2 is
+    started.
+    """
+    url = str(stream.get("url") or "").strip()
+    transport = str(stream.get("transport") or "").strip().casefold()
+    if not (url.lower().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
+        return None
+
+    text = _torrent_release_identity_text(stream)
+    if not text:
+        return None
+
+    seasons: set[int] = set()
+    declared = False
+
+    # Common release forms: [S01-04], S01-S04, S05, S05E06.
+    for match in re.finditer(r"(?i)\bS0*(\d{1,2})\s*[-–—]\s*S?0*(\d{1,2})(?!\d)", text):
+        declared = True
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= end <= 99:
+            seasons.update(range(start, end + 1))
+    for match in re.finditer(r"(?i)\bS0*(\d{1,2})(?!\d)", text):
+        declared = True
+        value = int(match.group(1))
+        if 0 < value <= 99:
+            seasons.add(value)
+
+    # Russian release labels occasionally use "Сезоны 1-4" / "Сезон 5".
+    for match in re.finditer(r"(?i)\bсезон(?:ы|а|ов)?\s*0*(\d{1,2})\s*[-–—]\s*0*(\d{1,2})(?!\d)", text):
+        declared = True
+        start, end = int(match.group(1)), int(match.group(2))
+        if 0 < start <= end <= 99:
+            seasons.update(range(start, end + 1))
+    for match in re.finditer(r"(?i)\bсезон\s*0*(\d{1,2})(?!\d)", text):
+        declared = True
+        value = int(match.group(1))
+        if 0 < value <= 99:
+            seasons.add(value)
+
+    return seasons if declared and seasons else None
+
+
+def _torrent_release_identity_text(stream: Dict[str, Any]) -> str:
+    texts = [
+        str(stream.get("name") or ""),
+        str(stream.get("title") or ""),
+        str(stream.get("release_name") or stream.get("releaseName") or ""),
+    ]
+    url = str(stream.get("url") or "").strip()
+    if url.lower().startswith("magnet:"):
+        try:
+            texts.extend(
+                str(value)
+                for value in urllib.parse.parse_qs(
+                    urllib.parse.urlsplit(url).query
+                ).get("dn", [])
+            )
+        except Exception:
+            pass
+    return " ".join(value for value in texts if value).strip()
+
+
+def _retarget_reusable_multiseason_torrent_packs(
+    streams: List[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    """Retarget stale per-episode annotations on an explicit multi-season pack.
+
+    Provider resolution historically persisted the same season pack after each
+    episode request, attaching that request's S/E to the shared magnet. Reusing
+    it for another season is safe only when the release explicitly advertises a
+    multi-season range and does not advertise one exact SxxEyy. The torrent
+    gateway still validates the requested episode against exact file paths.
+    """
+    if season is None or episode is None:
+        return [dict(item) for item in streams if isinstance(item, dict)]
+    target_season = int(season)
+    target_episode = int(episode)
+    result: List[Dict[str, Any]] = []
+    for raw in streams:
+        if not isinstance(raw, dict):
+            continue
+        item = dict(raw)
+        url = str(item.get("url") or "").strip()
+        if not url.lower().startswith("magnet:"):
+            result.append(item)
+            continue
+        declared = _torrent_declared_seasons(item)
+        release_text = _torrent_release_identity_text(item)
+        explicit_episode = bool(re.search(
+            r"(?i)\bS0*\d{1,2}\s*E0*\d{1,3}\b", release_text
+        ))
+        if (
+            declared is None
+            or len(declared) < 2
+            or target_season not in declared
+            or explicit_episode
+        ):
+            result.append(item)
+            continue
+        if (
+            _stream_part_number(item, "season") != target_season
+            or _stream_part_number(item, "episode") != target_episode
+        ):
+            item["season"] = target_season
+            item["episode"] = target_episode
+            for key in (
+                "file_index", "fileIndex", "file_path", "filePath",
+                "local_path", "localPath", "local_ready", "localReady",
+            ):
+                item.pop(key, None)
+        result.append(item)
+    return result
+
+
+def filter_streams_for_episode(
+    streams: List[Dict[str, Any]],
+    season: Optional[int] = None,
+    episode: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Keep only streams compatible with the requested episode.
+
+    Explicitly tagged streams from another season/episode are never returned.
+    Untagged streams are retained only as a last-resort generic series/torrent
+    package; the torrent playback layer still selects the requested file.
+    """
+    clean = sanitize_streams(streams, require_source=True)
+    if season is None and episode is None:
+        return clean
+
+    compatible: List[Dict[str, Any]] = []
+    generic: List[Dict[str, Any]] = []
+    for stream in clean:
+        stream_season = _stream_part_number(stream, "season")
+        stream_episode = _stream_part_number(stream, "episode")
+        if season is not None and stream_season is not None and stream_season != int(season):
+            continue
+        if episode is not None and stream_episode is not None and stream_episode != int(episode):
+            continue
+        if season is not None and stream_season is None and stream_episode is None:
+            declared_seasons = _torrent_declared_seasons(stream)
+            if declared_seasons is not None and int(season) not in declared_seasons:
+                continue
+        compatible.append(stream)
+        if stream_season is None and stream_episode is None:
+            generic.append(stream)
+
+    exact = [
+        stream for stream in compatible
+        if (season is None or _stream_part_number(stream, "season") == int(season))
+        and (episode is None or _stream_part_number(stream, "episode") == int(episode))
+    ]
+    return exact or generic
+
+
+def _resolve_torrent_provider(
+    title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    if not P2P_ENABLED:
+        return []
+    try:
+        from torrent_resolver import resolve_torrents_for_query
+        return resolve_torrents_for_query(
+            title=title,
+            year=year,
+            category=category,
+            season=season,
+            episode=episode,
+        ) or []
+    except Exception as exc:
+        print(f"Torrent resolve error: {exc}")
+        return []
+
+
+def _resolve_balancer_provider(
+    title: str,
+    tmdb_id: int,
+    year: int,
+    season: Optional[int],
+    episode: Optional[int],
+    expected_titles: Optional[List[str]] = None,
+    media_type: Optional[str] = None,
+    force_refresh: bool = False,
+) -> List[Dict[str, Any]]:
+    try:
+        from balancer_integration import query_open_balancer_stream
+        # Torrent discovery is already running independently, so do not invoke
+        # the balancer's legacy recursive torrent fallback here.
+        return query_open_balancer_stream(
+            title=title,
+            tmdb_id=tmdb_id,
+            year=year,
+            season=season,
+            episode=episode,
+            allow_torrent_fallback=False,
+            expected_titles=expected_titles,
+            media_type=media_type,
+            # Playback discovery must stay inside the READY budget. The legacy
+            # protected Zona title lookup is retained for background enrichment,
+            # but its live getVideoSources route can block/fail independently and
+            # must not sit on the user-critical on-demand path.
+            allow_zona_content_lookup=False,
+            force_refresh=force_refresh,
+        ) or []
+    except Exception as exc:
+        print(f"[DEBUG] Balancer query error: {exc}")
+        return []
+
+def _schedule_zona_playback_enrichment(
+    *,
+    cache_key: str,
+    title: str,
+    year: int,
+    season: Optional[int],
+    episode: Optional[int],
+    expected_titles: List[str],
+    media_type: str,
+    catalog_media_id: Any,
+) -> bool:
+    """Warm exact Zona streams off the user-critical playback path.
+
+    The protected legacy lookup can take much longer than the READY budget.
+    It therefore never blocks the current request: one deduplicated daemon
+    worker resolves the exact catalog identity and persists only validated
+    streams for a later retry/cache hit.
+    """
+    if catalog_media_id is None or not str(catalog_media_id).strip().isdigit():
+        return False
+    with _ZONA_ENRICHMENT_LOCK:
+        if cache_key in _ZONA_ENRICHMENT_INFLIGHT:
+            return False
+        _ZONA_ENRICHMENT_INFLIGHT.add(cache_key)
+
+    def worker() -> None:
+        try:
+            from balancer_integration import query_zona_api
+            discovered = query_zona_api(
+                title=title,
+                year=year,
+                season=season,
+                episode=episode,
+                allow_torrent_fallback=False,
+                expected_titles=expected_titles,
+                media_type=media_type,
+                allow_zona_content_lookup=True,
+                force_refresh=False,
+            ) or []
+            scoped = _scope_streams_to_catalog_card(
+                discovered,
+                {
+                    "id": int(catalog_media_id),
+                    "title": title,
+                    "original_title": next((v for v in expected_titles if v != title), None),
+                    "year": year,
+                    "media_type": media_type,
+                    "category": "tv_series" if media_type == "tv" else "movies",
+                },
+                season,
+                episode,
+            )
+            scoped = rank_playback_streams(cloud_exposable_streams(
+                filter_streams_for_episode(
+                    enrich_stream_identity(scoped, season, episode), season, episode
+                )
+            ))
+            if scoped:
+                set_cached_streams(cache_key, scoped, ttl_seconds=5 * 60)
+                persist_resolved_streams_to_catalog(catalog_media_id, scoped)
+                print(f"[INFO] Zona background enrichment cached {len(scoped)} stream(s) for {title!r}")
+        except Exception as exc:
+            print(f"[DEBUG] Zona background enrichment error: {type(exc).__name__}: {exc}")
+        finally:
+            with _ZONA_ENRICHMENT_LOCK:
+                _ZONA_ENRICHMENT_INFLIGHT.discard(cache_key)
+
+    threading.Thread(
+        target=worker, daemon=True, name=f"movia-zona-enrich-{catalog_media_id}"
+    ).start()
+    return True
+
+
+def _current_catalog_revision() -> int:
+    """Read the catalog revision without changing the working database."""
+    db_file = DIR / "catalog.db"
+    if not db_file.exists():
+        return 1
+    conn = None
+    try:
+        conn = sqlite3.connect(str(db_file), timeout=2.0)
+        return max(1, int(get_catalog_revision(conn)))
+    except Exception:
+        return 1
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+def _requested_catalog_media_type(
+    category: str,
+    season: Optional[int],
+    media_type: Optional[str] = None,
+) -> str:
+    raw = str(media_type or category or "").strip().casefold()
+    if season is not None or raw in {
+        "tv", "series", "serial", "tv_series", "limited_series",
+        "dramas_asian", "anime",
+    }:
+        return "tv"
+    return "movie"
+
+
+def _catalog_identity_for_request(
+    title: str,
+    year: int,
+    category: str,
+    season: Optional[int],
+    *,
+    original_title: Optional[str] = None,
+    catalog_media_id: Any = None,
+    media_type: Optional[str] = None,
+) -> Tuple[str, Optional[Dict[str, Any]]]:
+    """Resolve one existing catalog card, without a prefix/title fallback.
+
+    The resolver is intentionally allowed to have a non-strict seam for old
+    unit callers that inject provider functions. HTTP playback routes pass
+    ``require_catalog_identity=True`` and therefore cannot use that seam.
+    """
+    expected_titles = {
+        normalize_ru_text(value)
+        for value in (title, original_title)
+        if normalize_ru_text(value)
+    }
+    expected_kind = _requested_catalog_media_type(category, season, media_type)
+    requested_year = int(year or 0)
+    db_file = DIR / "catalog.db"
+    if not db_file.exists() or not expected_titles:
+        return "UNMATCHED", None
+
+    conn = None
+    try:
+        conn = sqlite3.connect(str(db_file))
+        conn.row_factory = sqlite3.Row
+        if catalog_media_id is not None and str(catalog_media_id).strip():
+            clean_id = str(catalog_media_id).strip()
+            if not clean_id.isdigit():
+                return "IDENTITY_MISMATCH", None
+            rows = conn.execute(
+                "SELECT * FROM movies WHERE id=? LIMIT 1", (int(clean_id),)
+            ).fetchall()
+        else:
+            # Exact SQL candidates keep this lookup bounded even on the large
+            # catalog. Python then applies the punctuation/ё normalizer; this
+            # is never a LIKE/prefix or first-result fallback.
+            raw_titles = [str(value).strip() for value in (title, original_title) if str(value or "").strip()]
+            title_clauses = []
+            title_params: List[Any] = []
+            for raw_title in raw_titles:
+                title_clauses.extend(["title=? COLLATE NOCASE", "original_title=? COLLATE NOCASE"])
+                title_params.extend([raw_title, raw_title])
+            where = ["media_type=?"]
+            params: List[Any] = [expected_kind]
+            if requested_year > 0:
+                where.append("year=?")
+                params.append(requested_year)
+            if title_clauses:
+                where.append("(" + " OR ".join(title_clauses) + ")")
+                params.extend(title_params)
+            rows = conn.execute(
+                "SELECT * FROM movies WHERE " + " AND ".join(where),
+                tuple(params),
+            ).fetchall()
+    except Exception as exc:
+        print(f"[DEBUG] SQLite catalog identity lookup error: {exc}")
+        return "UNMATCHED", None
+    finally:
+        if conn is not None:
+            conn.close()
+
+    matches: List[Dict[str, Any]] = []
+    for raw_row in rows:
+        row = dict(raw_row)
+        row_kind = _requested_catalog_media_type(
+            str(row.get("category") or ""),
+            None,
+            row.get("media_type"),
+        )
+        if row_kind != expected_kind:
+            continue
+        row_title_values = {
+            normalize_ru_text(row.get("title")),
+            normalize_ru_text(row.get("original_title")),
+        }
+        if not expected_titles.intersection(value for value in row_title_values if value):
+            continue
+        row_year = int(row.get("year") or 0)
+        if requested_year > 0 and row_year != requested_year:
+            continue
+        matches.append(row)
+
+    if catalog_media_id is not None and str(catalog_media_id).strip():
+        return ("OK", matches[0]) if len(matches) == 1 else ("IDENTITY_MISMATCH", None)
+    if len(matches) == 1:
+        return "OK", matches[0]
+    if len(matches) > 1:
+        return "AMBIGUOUS", None
+    return "UNMATCHED", None
+
+
+def _scope_streams_to_catalog_card(
+    streams: Any,
+    identity: Optional[Dict[str, Any]],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    clean = sanitize_streams(streams, require_source=True)
+    if not identity:
+        return clean
+    clean = _retarget_reusable_multiseason_torrent_packs(clean, season, episode)
+    try:
+        from database import filter_streams_for_content
+
+        content = dict(identity)
+        if season is not None:
+            content["season"] = season
+        if episode is not None:
+            content["episode"] = episode
+        clean = filter_streams_for_content(clean, content)
+    except Exception as exc:
+        print(f"[DEBUG] Catalog stream identity filter error: {exc}")
+        return []
+    return bind_stream_identity(
+        clean,
+        catalog_media_id=identity.get("id"),
+        title=identity.get("title"),
+        original_title=identity.get("original_title"),
+        year=identity.get("year"),
+        media_type=identity.get("media_type"),
+        season=season,
+        episode=episode,
+    )
+
+
+def resolve_on_demand_streams(
+    title: str,
+    year: int = 2024,
+    category: str = "movies",
+    season: Optional[int] = None,
+    episode: Optional[int] = None,
+    tmdb_id: int = 0,
+    force_refresh: bool = False,
+    original_title: Optional[str] = None,
+    catalog_media_id: Any = None,
+    media_type: Optional[str] = None,
+    require_catalog_identity: bool = False,
+    _allow_stale_fast_path: bool = True,
+) -> List[Dict[str, Any]]:
+    clean_title = str(title or "").strip()
+    clean_category = str(category or "movies").strip().lower()
+    normalized_title = normalize_ru_text(clean_title) or clean_title.casefold()
+    identity_status, catalog_identity = _catalog_identity_for_request(
+        clean_title,
+        year,
+        clean_category,
+        season,
+        original_title=original_title,
+        catalog_media_id=catalog_media_id,
+        media_type=media_type,
+    )
+    if catalog_media_id is not None and str(catalog_media_id).strip() and identity_status != "OK":
+        print(f"[IDENTITY] rejected catalog_media_id={catalog_media_id} status={identity_status}")
+        return []
+    if require_catalog_identity and identity_status != "OK":
+        print(f"[IDENTITY] rejected title={clean_title!r} year={year} status={identity_status}")
+        return []
+    if identity_status == "AMBIGUOUS":
+        print(f"[IDENTITY] rejected ambiguous title={clean_title!r} year={year}")
+        return []
+
+    canonical_id = catalog_identity.get("id") if catalog_identity else None
+    canonical_title = catalog_identity.get("title") if catalog_identity else clean_title
+    canonical_original_title = (
+        catalog_identity.get("original_title") if catalog_identity else original_title
+    )
+    canonical_year = int(catalog_identity.get("year") or year or 0) if catalog_identity else year
+    canonical_media_type = (
+        str(catalog_identity.get("media_type") or "").strip().casefold()
+        if catalog_identity else _requested_catalog_media_type(clean_category, season, media_type)
+    )
+    identity_key = str(canonical_id or "unbound")
+    cache_suffix = _stream_cache_suffix(
+        identity_key, normalized_title, canonical_year, clean_category, season, episode
+    )
+    cache_key = _stream_cache_key(
+        identity_key, normalized_title, canonical_year, clean_category, season, episode
+    )
+    if not force_refresh:
+        cached = get_cached_streams(cache_key)
+        if cached:
+            scoped = _scope_streams_to_catalog_card(cached, catalog_identity, season, episode)
+            cached_playable = rank_playback_streams(cloud_exposable_streams(
+                filter_streams_for_episode(scoped, season, episode)
+            ))
+            if cached_playable:
+                return cached_playable
+
+    resolve_lock = _resolve_lock_for(cache_key)
+    resolve_lock.acquire()
+    try:
+        if not force_refresh:
+            cached = get_cached_streams(cache_key)
+            if cached:
+                scoped = _scope_streams_to_catalog_card(cached, catalog_identity, season, episode)
+                cached_playable = rank_playback_streams(cloud_exposable_streams(
+                    filter_streams_for_episode(scoped, season, episode)
+                ))
+                if cached_playable:
+                    return cached_playable
+
+        stale_direct_streams = get_recent_stale_direct_streams(cache_suffix)
+        if force_refresh and stale_direct_streams and _allow_stale_fast_path:
+            # True stale-while-revalidate: do not spend the user's READY budget
+            # waiting for a provider that may be degraded. Return last-known-good
+            # direct metadata immediately and refresh this exact content in one
+            # deduplicated background worker. Full media bytes are never cached here.
+            should_start_revalidation = False
+            with _STREAM_REVALIDATION_LOCK:
+                if cache_key not in _STREAM_REVALIDATION_INFLIGHT:
+                    _STREAM_REVALIDATION_INFLIGHT.add(cache_key)
+                    should_start_revalidation = True
+
+            if should_start_revalidation:
+                def revalidate_worker() -> None:
+                    try:
+                        refreshed = resolve_on_demand_streams(
+                            title=clean_title,
+                            year=canonical_year,
+                            category=clean_category,
+                            season=season,
+                            episode=episode,
+                            tmdb_id=tmdb_id,
+                            force_refresh=True,
+                            original_title=canonical_original_title,
+                            catalog_media_id=canonical_id or catalog_media_id,
+                            media_type=canonical_media_type,
+                            require_catalog_identity=require_catalog_identity,
+                            _allow_stale_fast_path=False,
+                        )
+                        if refreshed and (canonical_id or catalog_media_id) is not None:
+                            persist_resolved_streams_to_catalog(
+                                canonical_id or catalog_media_id, refreshed
+                            )
+                    except Exception as exc:
+                        print(
+                            f"[DEBUG] Background stream revalidation error: "
+                            f"{type(exc).__name__}: {exc}"
+                        )
+                    finally:
+                        with _STREAM_REVALIDATION_LOCK:
+                            _STREAM_REVALIDATION_INFLIGHT.discard(cache_key)
+
+                threading.Thread(
+                    target=revalidate_worker,
+                    name=f"movia-stream-revalidate-{identity_key}",
+                    daemon=True,
+                ).start()
+
+            scoped_stale = _scope_streams_to_catalog_card(
+                stale_direct_streams, catalog_identity, season, episode
+            )
+            scoped_stale = filter_streams_for_episode(scoped_stale, season, episode)
+            if scoped_stale:
+                print(
+                    f"[INFO] Serving {len(scoped_stale)} stale direct stream(s) "
+                    f"immediately while revalidating {clean_title!r}"
+                )
+                return rank_playback_streams(cloud_exposable_streams(scoped_stale))
+
+        effective_tmdb_id = tmdb_id
+        if effective_tmdb_id == 0 and catalog_identity:
+            try:
+                effective_tmdb_id = int(catalog_identity.get("tmdb_id") or 0)
+            except (TypeError, ValueError):
+                effective_tmdb_id = 0
+        if effective_tmdb_id == 0 and not catalog_identity:
+            try:
+                db_file = DIR / "catalog.db"
+                if db_file.exists():
+                    with closing(sqlite3.connect(str(db_file))) as conn, conn:
+                        row = conn.execute(
+                            "SELECT tmdb_id FROM movies WHERE id=? LIMIT 1",
+                            (int(catalog_media_id),),
+                        ).fetchone() if catalog_media_id is not None else None
+                    if row and row[0]:
+                        effective_tmdb_id = int(row[0])
+            except Exception as exc:
+                print(f"[DEBUG] SQLite tmdb_id lookup error: {exc}")
+
+        # Independent provider branches run together; the union is required to
+        # expose all real voice/quality variants.
+        pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="movia-resolve")
+        try:
+            torrent_future = pool.submit(
+                _resolve_torrent_provider,
+                clean_title, year, clean_category, season, episode,
+            )
+            expected_titles = list(dict.fromkeys(
+                value for value in (clean_title, str(original_title or "").strip())
+                if value
+            ))
+            balancer_future = pool.submit(
+                _resolve_balancer_provider,
+                canonical_title,
+                effective_tmdb_id,
+                canonical_year,
+                season,
+                episode,
+                list(dict.fromkeys(value for value in (
+                    canonical_title, canonical_original_title
+                ) if value)),
+                canonical_media_type,
+                force_refresh,
+            )
+            try:
+                direct_streams = balancer_future.result(timeout=4.0)
+            except Exception as exc:
+                print(f"[DEBUG] Balancer query error or timeout: {exc}")
+                direct_streams = []
+            if not direct_streams and stale_direct_streams:
+                direct_streams = [dict(stream) for stream in stale_direct_streams]
+                print(
+                    f"[INFO] Using {len(direct_streams)} stale direct stream(s) "
+                    f"while provider revalidation is unavailable for {clean_title!r}"
+                )
+            try:
+                torrent_timeout = 0.5 if direct_streams else 3.5
+                torrent_streams = torrent_future.result(timeout=torrent_timeout)
+            except Exception as exc:
+                print(f"Torrent resolve error or timeout: {exc}")
+                torrent_streams = []
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
+
+        if not direct_streams and catalog_identity:
+            _schedule_zona_playback_enrichment(
+                cache_key=cache_key,
+                title=canonical_title,
+                year=canonical_year,
+                season=season,
+                episode=episode,
+                expected_titles=list(dict.fromkeys(value for value in (
+                    canonical_title, canonical_original_title
+                ) if value)),
+                media_type=canonical_media_type,
+                catalog_media_id=canonical_id,
+            )
+
+        candidates = []
+        for candidate in list(direct_streams or []) + list(torrent_streams or []):
+            if not isinstance(candidate, dict):
+                continue
+            candidate = dict(candidate)
+            if candidate.get("season") is None:
+                candidate["season"] = season
+            if candidate.get("episode") is None:
+                candidate["episode"] = episode
+            candidates.append(candidate)
+        streams = enrich_stream_identity(
+            _scope_streams_to_catalog_card(
+                sanitize_streams(candidates, require_source=True),
+                catalog_identity,
+                season,
+                episode,
+            ),
+            season,
+            episode,
+        )
+        streams = filter_streams_for_episode(streams, season, episode)
+        streams = rank_playback_streams(cloud_exposable_streams(streams))
+
+        has_direct_http = any(
+            str(s.get("url", "")).lower().startswith(("http://", "https://"))
+            for s in streams
+        )
+        cache_ttl_seconds = 5 * 60 if has_direct_http else 48 * 60 * 60
+        set_cached_streams(cache_key, streams, ttl_seconds=cache_ttl_seconds)
+        return streams
+    finally:
+        resolve_lock.release()
+
+
+def persist_resolved_streams_to_catalog(content_id: Any, streams: List[Dict[str, Any]]) -> bool:
+    """Persist only validated on-demand sources for an existing catalog row.
+
+    Stream discovery is allowed to be lazy, but a successful discovery must not
+    disappear after the request. The local numeric catalog ID is the identity;
+    title text is deliberately not used for the write target.
+    """
+    clean_id = str(content_id or "").strip()
+    if not clean_id.isdigit():
+        return False
+    clean_streams = sanitize_streams(streams, require_source=True)
+    if not clean_streams:
+        return False
+    try:
+        from database import save_content
+
+        primary = clean_streams[0]
+        return bool(save_content({
+            "id": int(clean_id),
+            "playback_url": primary.get("url", ""),
+            "voice": primary.get("voice", ""),
+            "quality": primary.get("quality", ""),
+            "seeders": primary.get("seeders", 0),
+            "streams": clean_streams,
+            "link_verified": 1,
+            "replace_direct_variants": True,
+        }))
+    except Exception as exc:
+        print(f"[DEBUG] Persist resolved streams error: {exc}")
+        return False
+
+def parse_single_http_byte_range(range_header: str, total_size: int) -> Optional[tuple[int, int]]:
+    """Parse one RFC 7233 byte range: start-end, start-, or -suffix."""
+    if total_size <= 0 or not range_header:
+        return None
+    value = range_header.strip()
+    if not value.lower().startswith("bytes="):
+        return None
+    spec = value[6:].strip()
+    if not spec or "," in spec or "-" not in spec:
+        return None
+    left, right = spec.split("-", 1)
+    try:
+        if left:
+            start = int(left)
+            if start < 0 or start >= total_size:
+                return None
+            end = int(right) if right else total_size - 1
+            if end < start:
+                return None
+            return start, min(end, total_size - 1)
+        # Suffix range: bytes=-N means the final N bytes.
+        suffix = int(right)
+        if suffix <= 0:
+            return None
+        suffix = min(suffix, total_size)
+        return total_size - suffix, total_size - 1
+    except (TypeError, ValueError):
+        return None
+
+
+MEDIA3_SUCCESS_MAX_BODY_BYTES = 64 * 1024
+_MEDIA3_SUCCESS_ALLOWED_KEYS = {
+    "sourceId",
+    "actualQuality",
+    "actualQualities",
+    "actualAudioTracks",
+    "startupLatencyMs",
+}
+
+
+def _is_loopback_client_address(client_address: Any) -> bool:
+    try:
+        host = client_address[0] if isinstance(client_address, (tuple, list)) else client_address
+        return ipaddress.ip_address(str(host).split("%", 1)[0]).is_loopback
+    except (ValueError, TypeError, IndexError):
+        return False
+
+
+def _bounded_media3_text(value: Any, limit: int) -> str:
+    return str(value or "").strip()[: max(0, int(limit))]
+
+
+def _sanitize_media3_success_payload(payload: Any) -> Dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError("json_object_required")
+    unknown = sorted(set(payload) - _MEDIA3_SUCCESS_ALLOWED_KEYS)
+    if unknown:
+        raise ValueError("unsupported_fields")
+    source_id = _bounded_media3_text(payload.get("sourceId"), 128)
+    if not source_id or not source_id.startswith("src:"):
+        raise ValueError("source_id_required")
+
+    clean: Dict[str, Any] = {"sourceId": source_id}
+    if "actualQuality" in payload:
+        value = _bounded_media3_text(payload.get("actualQuality"), 32)
+        clean["actualQuality"] = value or None
+    if "actualQualities" in payload:
+        raw = payload.get("actualQualities")
+        if not isinstance(raw, list) or len(raw) > 32:
+            raise ValueError("invalid_actual_qualities")
+        qualities: List[str] = []
+        for item in raw:
+            value = _bounded_media3_text(item, 32)
+            if value and value not in qualities:
+                qualities.append(value)
+        clean["actualQualities"] = qualities
+    if "actualAudioTracks" in payload:
+        raw_tracks = payload.get("actualAudioTracks")
+        if not isinstance(raw_tracks, list) or len(raw_tracks) > 64:
+            raise ValueError("invalid_actual_audio_tracks")
+        tracks: List[Dict[str, Any]] = []
+        for item in raw_tracks:
+            if not isinstance(item, dict):
+                raise ValueError("invalid_actual_audio_tracks")
+            # Media3 Format calls this field label; the manifest contract uses
+            # name. Normalize the explicit alias without weakening validation.
+            unknown_track = set(item) - {"name", "label", "language", "groupId", "default", "autoselect"}
+            if unknown_track:
+                raise ValueError("invalid_actual_audio_tracks")
+            if "name" in item and "label" in item and item["name"] != item["label"]:
+                raise ValueError("conflicting_audio_track_name")
+            for key in ("name", "label", "language", "groupId"):
+                if key in item and item[key] is not None and not isinstance(item[key], str):
+                    raise ValueError("invalid_actual_audio_tracks")
+            for key in ("default", "autoselect"):
+                if key in item and not isinstance(item[key], bool):
+                    raise ValueError("invalid_actual_audio_tracks")
+            track = {
+                "name": _bounded_media3_text(item.get("name", item.get("label")), 128),
+                "language": _bounded_media3_text(item.get("language"), 32),
+                "groupId": _bounded_media3_text(item.get("groupId"), 128),
+                "default": bool(item.get("default", False)),
+                "autoselect": bool(item.get("autoselect", False)),
+            }
+            tracks.append(track)
+        clean["actualAudioTracks"] = tracks
+    if "startupLatencyMs" in payload:
+        try:
+            latency = float(payload.get("startupLatencyMs"))
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("invalid_startup_latency") from exc
+        if not math.isfinite(latency) or latency < 0 or latency > 120_000:
+            raise ValueError("invalid_startup_latency")
+        clean["startupLatencyMs"] = latency
+    if len(clean) == 1:
+        raise ValueError("media3_facts_required")
+    return clean
+
+
+
+LEGACY_ENGINE_SHA256 = "637705386744f29445223fded2ad2df6aeb72295cfc9ce327609e7f0c7a72a00"
+_LEGACY_PROVIDER_NAMES = {"filmix", "zona.mobi", "encyclopedia", "zombie", "octopus", "hdrezka", "eneyida(ua)", "zetflix", "seasonvar", "anilibria(v1)", "anilibria(v3)", "kinodb"}
+
+
+def _sanitize_legacy_media3_payload(payload):
+    if not isinstance(payload, dict) or set(payload) - {"engineSha256", "mediaId", "kind", "season", "episode", "candidate", "observation"}:
+        raise ValueError("invalid_legacy_feedback")
+    if payload.get("engineSha256") != LEGACY_ENGINE_SHA256:
+        raise ValueError("unrecognized_engine")
+    media_id = payload.get("mediaId")
+    if not isinstance(media_id, str) or not re.fullmatch(r"[0-9]{1,20}", media_id):
+        raise ValueError("invalid_media_id")
+    kind = payload.get("kind")
+    season, episode = payload.get("season"), payload.get("episode")
+    if kind == "EPISODE":
+        if any(isinstance(n, bool) or not isinstance(n, int) or not 1 <= n <= 9999 for n in (season, episode)):
+            raise ValueError("invalid_episode_identity")
+    elif kind != "MOVIE" or season is not None or episode is not None:
+        raise ValueError("invalid_media_identity")
+    raw = payload.get("candidate")
+    allowed = {"provider", "providerItemId", "url", "voice", "quality", "transport"}
+    if not isinstance(raw, dict) or set(raw) - allowed or raw.get("provider") not in _LEGACY_PROVIDER_NAMES:
+        raise ValueError("invalid_legacy_candidate")
+    if any(not isinstance(raw.get(k), str) for k in allowed):
+        raise ValueError("invalid_legacy_candidate")
+    if not re.fullmatch(r"[0-9a-f]{32}", raw["providerItemId"]):
+        raise ValueError("invalid_provider_item_id")
+    if len(raw["voice"]) > 256 or len(raw["quality"]) > 32 or len(raw["url"]) > 16384:
+        raise ValueError("oversized_legacy_candidate")
+    if any(ord(c) < 32 for c in raw["url"]):
+        raise ValueError("invalid_locator")
+    from playback_availability import _safe_public_http_url
+    from stream_validation import is_valid_magnet
+    if not (is_valid_magnet(raw["url"]) or _safe_public_http_url(raw["url"], resolve_dns=False)):
+        raise ValueError("invalid_locator")
+    if raw["transport"] not in {"direct", "hls", "dash", "torrent_p2p"}:
+        raise ValueError("invalid_transport")
+    observation = payload.get("observation")
+    if not isinstance(observation, dict) or "sourceId" in observation:
+        raise ValueError("invalid_observation")
+    facts = _sanitize_media3_success_payload(dict(observation, sourceId="src:legacy-frame"))
+    facts.pop("sourceId")
+    return {"mediaId": media_id, "kind": kind, "season": season, "episode": episode,
+            "candidate": dict(raw), "observation": facts}
+
+
+def _record_legacy_media3_success(index, payload):
+    facts = payload["observation"]
+    result = index.verify_candidate(payload["mediaId"], payload["candidate"], kind=payload["kind"],
+        season=payload["season"], episode=payload["episode"], discovery_method="PROVIDER_SEARCH",
+        verification_method="MEDIA3_SUCCESS", success=True, startup_latency_ms=facts.get("startupLatencyMs"),
+        actual_quality=facts.get("actualQuality"), actual_qualities=facts.get("actualQualities"),
+        actual_audio_tracks=facts.get("actualAudioTracks"))
+    source = next((row for row in result.get("sources", []) if row["provider"] == payload["candidate"]["provider"] and
+        row["locatorHash"] == hashlib.sha256(payload["candidate"]["url"].encode()).hexdigest()), None)
+    if source is None:
+        raise ValueError("missing_native_source")
+    return dict(result, sourceId=source["sourceId"])
+
+
+def _authorized_native_feedback(authorization):
+    if not re.fullmatch(r"Bearer [0-9a-fA-F]{64}", authorization):
+        return False
+    try:
+        request = urllib.request.Request("http://127.0.0.1:8899/agent/v1/health", headers={"Authorization": authorization})
+        with urllib.request.urlopen(request, timeout=2) as response:
+            payload = json.loads(response.read(4096))
+            return response.status == 200 and payload.get("package") == "app.movia.android" and payload.get("authenticated") is True
+    except Exception:
+        return False
+
+
+class StreamRequestHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Range, Content-Type, Referer, Origin")
+        self.end_headers()
+
+    def do_HEAD(self):
+        try:
+            self.handle_request(send_body=False)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def do_POST(self):
+        try:
+            self._handle_post_internal()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def _send_json(self, status_code: int, payload: Dict[str, Any]) -> None:
+        body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        self.send_response(int(status_code))
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _handle_post_internal(self) -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        legacy_feedback = parsed.path == "/internal/playback-availability/legacy-media3-success"
+        if not legacy_feedback and parsed.path != "/internal/playback-availability/media3-success":
+            self._send_json(404, {"error": "not_found"})
+            return
+        if not _is_loopback_client_address(self.client_address):
+            self._send_json(403, {"error": "loopback_required"})
+            return
+        # A loopback address alone is not authorization: any installed app can
+        # connect to this port. Reuse Movia's app-private bearer capability.
+        authorization = str(self.headers.get("Authorization") or "")
+        if not _authorized_native_feedback(authorization):
+            self._send_json(401, {"error": "native_capability_required"})
+            return
+        index = PLAYBACK_SOURCE_TRUTH_INDEX
+        if index is None:
+            self._send_json(503, {"error": "availability_index_disabled"})
+            return
+        try:
+            length = int(self.headers.get("Content-Length") or "0")
+        except ValueError:
+            self._send_json(400, {"error": "invalid_content_length"})
+            return
+        if length <= 0:
+            self._send_json(400, {"error": "json_body_required"})
+            return
+        if length > MEDIA3_SUCCESS_MAX_BODY_BYTES:
+            self._send_json(413, {"error": "payload_too_large"})
+            return
+        content_type = str(self.headers.get("Content-Type") or "").split(";", 1)[0].strip().casefold()
+        if content_type != "application/json":
+            self._send_json(415, {"error": "application_json_required"})
+            return
+        try:
+            raw = self.rfile.read(length)
+            if len(raw) != length:
+                raise ValueError("incomplete_body")
+            payload = json.loads(raw.decode("utf-8"))
+            if legacy_feedback:
+                legacy = _sanitize_legacy_media3_payload(payload)
+                result = _record_legacy_media3_success(index, legacy)
+                clean = {"sourceId": result["sourceId"]}
+            else:
+                clean = _sanitize_media3_success_payload(payload)
+                result = index.record_playback_success(
+                    clean["sourceId"],
+                    startup_latency_ms=clean.get("startupLatencyMs"),
+                    actual_quality=clean.get("actualQuality") if "actualQuality" in clean else None,
+                    actual_qualities=clean.get("actualQualities") if "actualQualities" in clean else None,
+                    actual_audio_tracks=clean.get("actualAudioTracks") if "actualAudioTracks" in clean else None,
+                )
+        except KeyError:
+            self._send_json(404, {"error": "unknown_source_id"})
+            return
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            self._send_json(400, {"error": "invalid_media3_observation"})
+            return
+        except Exception as exc:
+            global _PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL
+            with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
+                _PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL += 1
+            print(f"[DEBUG] Media3 Source Truth feedback error: {type(exc).__name__}")
+            self._send_json(500, {"error": "media3_feedback_error"})
+            return
+        self._send_json(200, {
+            "ok": True,
+            "sourceId": clean["sourceId"],
+            "mediaKey": result.get("mediaKey") if isinstance(result, dict) else None,
+            "status": result.get("status") if isinstance(result, dict) else None,
+            "verificationMethod": "MEDIA3_SUCCESS",
+            "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+        })
+
+    def do_GET(self):
+        try:
+            self.handle_request(send_body=True)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def handle_request(self, send_body=True):
+        try:
+            self._handle_request_internal(send_body=send_body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def _handle_request_internal(self, send_body=True):
+        gid = None
+        raw_path = self.path
+        try:
+            decoded_path = raw_path.encode('iso-8859-1').decode('utf-8')
+        except Exception:
+            decoded_path = raw_path
+        parsed = urllib.parse.urlparse(decoded_path)
+        params = urllib.parse.parse_qs(parsed.query, keep_blank_values=True)
+        if parsed.path in {"/api/search", "/api/movie/search", "/api/person"}:
+            try:
+                raw_limit = params.get("limit", ["200" if parsed.path == "/api/person" else "20"])
+                if len(raw_limit) != 1 or not raw_limit[0].isdecimal() or not 1 <= int(raw_limit[0]) <= (200 if parsed.path == "/api/person" else 100):
+                    raise ValueError("limit: invalid integer or range")
+            except ValueError as invalid:
+                self._send_json(400, {"status": "failed", "code": "INVALID_ARGUMENT", "message": str(invalid)})
+                return
+
+        if parsed.path in {
+            "/playback/availability",
+            "/internal/playback-availability/stats",
+            "/internal/playback-availability/readiness",
+            "/internal/playback-availability/resolver-audit",
+            "/internal/playback-availability/policy-audit",
+            "/internal/playback-availability/policy-select",
+            "/internal/playback-availability/compare",
+            "/internal/playback-availability/select",
+        }:
+            global _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL
+            index = PLAYBACK_SOURCE_TRUTH_INDEX
+            if index is None:
+                payload = {"error": "availability_index_disabled"}
+                status_code = 503
+            else:
+                try:
+                    if parsed.path == "/internal/playback-availability/stats":
+                        with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
+                            write_errors = _PLAYBACK_AVAILABILITY_WRITE_ERRORS_TOTAL
+                            read_errors = _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL
+                        payload = index.stats()
+                        payload.update({
+                            "shadowMode": PLAYBACK_AVAILABILITY_SHADOW_MODE,
+                            "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                            "writeErrorsTotal": write_errors,
+                            "readErrorsTotal": read_errors,
+                        })
+                        status_code = 200
+                    elif parsed.path == "/internal/playback-availability/readiness":
+                        payload = index.readiness()
+                        payload.update({
+                            "shadowMode": PLAYBACK_AVAILABILITY_SHADOW_MODE,
+                            "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                        })
+                        status_code = 200
+                    else:
+                        media_id = str(params.get("mediaId", [""])[0] or "").strip()
+                        season_raw = params.get("season", [None])[0]
+                        episode_raw = params.get("episode", [None])[0]
+                        season = int(season_raw) if season_raw and str(season_raw).isdigit() else None
+                        episode = int(episode_raw) if episode_raw and str(episode_raw).isdigit() else None
+                        if not media_id:
+                            payload = {"error": "media_id_required"}
+                            status_code = 400
+                        else:
+                            kind_raw = str(params.get("kind", [""])[0] or "").strip().upper()
+                            if season is not None and episode is not None:
+                                kind = MEDIA_EPISODE
+                            elif kind_raw in {MEDIA_MOVIE, MEDIA_SERIES}:
+                                kind = kind_raw
+                            else:
+                                card = _catalog_playback_movie(media_id)
+                                kind = _availability_media_kind(card or {}, None, None)
+                            if parsed.path == "/internal/playback-availability/resolver-audit":
+                                card = _catalog_playback_movie(media_id)
+                                if not isinstance(card, dict):
+                                    payload = {"error": "movie_not_found"}
+                                    status_code = 404
+                                else:
+                                    # This audit path is deliberately offline. The card
+                                    # was already loaded by exact mediaId, so do not invoke
+                                    # the lazy database identity helper or any provider path.
+                                    stored = (
+                                        card.get("streams", [])
+                                        if isinstance(card.get("streams"), list) else []
+                                    )
+                                    candidates = rank_playback_streams(
+                                        filter_streams_for_episode(stored, season, episode)
+                                    )
+                                    annotated = _annotate_streams_with_source_truth(
+                                        card, candidates, season, episode
+                                    )
+                                    payload = audit_source_truth_streams(annotated)
+                                    payload.update({
+                                        "mediaId": str(media_id),
+                                        "mediaKey": (
+                                            f"series:{media_id}:s{season:03d}:e{episode:04d}"
+                                            if season is not None and episode is not None
+                                            else f"series:{media_id}" if kind == MEDIA_SERIES
+                                            else f"movie:{media_id}"
+                                        ),
+                                        "candidateCount": len(candidates),
+                                        "dryRun": True,
+                                        "providerResolvePerformed": False,
+                                        "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                                    })
+                                    status_code = 200
+                            elif parsed.path == "/internal/playback-availability/policy-audit":
+                                card = _catalog_playback_movie(media_id)
+                                if not isinstance(card, dict):
+                                    payload = {"error": "movie_not_found"}
+                                    status_code = 404
+                                else:
+                                    requested_quality = str(
+                                        params.get("quality", ["Auto"])[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    requested_audio = str(
+                                        params.get("audio", params.get("voice", ["Auto"]))[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    stored = (
+                                        card.get("streams", [])
+                                        if isinstance(card.get("streams"), list) else []
+                                    )
+                                    candidates = rank_playback_streams(
+                                        filter_streams_for_episode(stored, season, episode)
+                                    )
+                                    annotated = _annotate_streams_with_source_truth(
+                                        card, candidates, season, episode
+                                    )
+                                    payload = audit_candidate_policy(
+                                        annotated,
+                                        requested_quality=requested_quality,
+                                        requested_audio=requested_audio,
+                                    )
+                                    payload.update({
+                                        "mediaId": str(media_id),
+                                        "mediaKey": (
+                                            f"series:{media_id}:s{season:03d}:e{episode:04d}"
+                                            if season is not None and episode is not None
+                                            else f"series:{media_id}" if kind == MEDIA_SERIES
+                                            else f"movie:{media_id}"
+                                        ),
+                                        "dryRun": True,
+                                        "providerResolvePerformed": False,
+                                        "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                                    })
+                                    status_code = 200
+                            elif parsed.path == "/internal/playback-availability/policy-select":
+                                card = _catalog_playback_movie(media_id)
+                                if not isinstance(card, dict):
+                                    payload = {"error": "movie_not_found"}
+                                    status_code = 404
+                                else:
+                                    requested_quality = str(
+                                        params.get("quality", ["Auto"])[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    requested_audio = str(
+                                        params.get("audio", params.get("voice", ["Auto"]))[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    stored = (
+                                        card.get("streams", [])
+                                        if isinstance(card.get("streams"), list) else []
+                                    )
+                                    candidates = rank_playback_streams(
+                                        filter_streams_for_episode(stored, season, episode)
+                                    )
+                                    annotated = _annotate_streams_with_source_truth(
+                                        card, candidates, season, episode
+                                    )
+                                    payload = select_candidate_policy(
+                                        annotated,
+                                        requested_quality=requested_quality,
+                                        requested_audio=requested_audio,
+                                    )
+                                    payload.update({
+                                        "mediaId": str(media_id),
+                                        "mediaKey": (
+                                            f"series:{media_id}:s{season:03d}:e{episode:04d}"
+                                            if season is not None and episode is not None
+                                            else f"series:{media_id}" if kind == MEDIA_SERIES
+                                            else f"movie:{media_id}"
+                                        ),
+                                        "dryRun": True,
+                                        "providerResolvePerformed": False,
+                                        "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                                    })
+                                    status_code = 200
+                            elif parsed.path == "/internal/playback-availability/compare":
+                                card = _catalog_playback_movie(media_id)
+                                if not isinstance(card, dict):
+                                    payload = {"error": "movie_not_found"}
+                                    status_code = 404
+                                else:
+                                    requested_quality = str(
+                                        params.get("quality", ["Auto"])[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    requested_audio = str(
+                                        params.get("audio", params.get("voice", ["Auto"]))[0] or "Auto"
+                                    ).strip() or "Auto"
+                                    stored = (
+                                        card.get("streams", [])
+                                        if isinstance(card.get("streams"), list) else []
+                                    )
+                                    candidates = rank_playback_streams(
+                                        filter_streams_for_episode(stored, season, episode)
+                                    )
+                                    annotated = _annotate_streams_with_source_truth(
+                                        card, candidates, season, episode
+                                    )
+                                    strict = index.select_verified_source(
+                                        media_id,
+                                        kind=kind,
+                                        season=season if kind == MEDIA_EPISODE else None,
+                                        episode=episode if kind == MEDIA_EPISODE else None,
+                                        requested_quality=requested_quality,
+                                        requested_audio=requested_audio,
+                                        include_locator=False,
+                                    )
+                                    strict_source = strict.get("source") if isinstance(strict, dict) else None
+                                    strict_source = dict(strict_source) if isinstance(strict_source, dict) else None
+                                    if strict_source is not None:
+                                        strict_source.pop("locator", None)
+                                        strict_source.pop("locatorHash", None)
+                                    legacy_top = annotated[0] if annotated else None
+                                    legacy_truth = (legacy_top or {}).get("sourceTruth")
+                                    legacy_source_id = (
+                                        str(legacy_truth.get("sourceId") or "").strip()
+                                        if isinstance(legacy_truth, dict) else ""
+                                    )
+                                    strict_source_id = (
+                                        str((strict_source or {}).get("sourceId") or "").strip()
+                                    )
+                                    candidate_source_ids = {
+                                        str(truth.get("sourceId") or "").strip()
+                                        for item in annotated
+                                        for truth in [item.get("sourceTruth")]
+                                        if isinstance(truth, dict) and str(truth.get("sourceId") or "").strip()
+                                    }
+                                    legacy_summary = None
+                                    if isinstance(legacy_top, dict):
+                                        legacy_summary = {
+                                            "streamId": legacy_top.get("stream_id") or legacy_top.get("streamId"),
+                                            "provider": legacy_top.get("provider") or legacy_top.get("source"),
+                                            "quality": legacy_top.get("quality"),
+                                            "voice": legacy_top.get("voice") or legacy_top.get("translation"),
+                                            "sourceId": legacy_source_id or None,
+                                            "verifiedBySourceTruth": bool(legacy_source_id),
+                                            "audioTrackMapping": (
+                                                legacy_truth.get("audioTrackMapping")
+                                                if isinstance(legacy_truth, dict) else None
+                                            ),
+                                            "mappedAudioTrack": (
+                                                legacy_truth.get("mappedAudioTrack")
+                                                if isinstance(legacy_truth, dict) else None
+                                            ),
+                                        }
+                                    payload = {
+                                        "mediaId": str(media_id),
+                                        "mediaKey": (
+                                            f"series:{media_id}:s{season:03d}:e{episode:04d}"
+                                            if season is not None and episode is not None
+                                            else f"series:{media_id}" if kind == MEDIA_SERIES
+                                            else f"movie:{media_id}"
+                                        ),
+                                        "requestedQuality": requested_quality,
+                                        "requestedAudio": requested_audio,
+                                        "legacyCandidateCount": len(annotated),
+                                        "legacyTop": legacy_summary,
+                                        "strictStatus": strict.get("status") if isinstance(strict, dict) else None,
+                                        "strictErrorCode": strict.get("errorCode") if isinstance(strict, dict) else None,
+                                        "strictSource": strict_source,
+                                        "samePhysicalSource": bool(
+                                            legacy_source_id and strict_source_id and legacy_source_id == strict_source_id
+                                        ),
+                                        "strictSourceInLegacyCandidates": bool(
+                                            strict_source_id and strict_source_id in candidate_source_ids
+                                        ),
+                                        "dryRun": True,
+                                        "providerResolvePerformed": False,
+                                        "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                                    }
+                                    status_code = 200
+                            elif parsed.path == "/internal/playback-availability/select":
+                                requested_quality = str(
+                                    params.get("quality", ["Auto"])[0] or "Auto"
+                                ).strip() or "Auto"
+                                requested_audio = str(
+                                    params.get("audio", params.get("voice", ["Auto"]))[0] or "Auto"
+                                ).strip() or "Auto"
+                                payload = index.select_verified_source(
+                                    media_id,
+                                    kind=kind,
+                                    season=season if kind == MEDIA_EPISODE else None,
+                                    episode=episode if kind == MEDIA_EPISODE else None,
+                                    requested_quality=requested_quality,
+                                    requested_audio=requested_audio,
+                                    include_locator=False,
+                                )
+                                payload.update({
+                                    "dryRun": True,
+                                    "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
+                                })
+                                source = payload.get("source")
+                                if isinstance(source, dict):
+                                    source.pop("locator", None)
+                                    source.pop("locatorHash", None)
+                                status_code = 200
+                            else:
+                                payload = index.get(
+                                    media_id,
+                                    kind=kind,
+                                    season=season if kind == MEDIA_EPISODE else None,
+                                    episode=episode if kind == MEDIA_EPISODE else None,
+                                    include_sources=True,
+                                    include_locator=False,
+                                )
+                                if isinstance(payload, dict):
+                                    # Public diagnostics do not need the physical
+                                    # locator or its stable fingerprint. Keep both
+                                    # confined to the local Source Truth store.
+                                    for source in payload.get("sources") or []:
+                                        if isinstance(source, dict):
+                                            source.pop("locator", None)
+                                            source.pop("locatorHash", None)
+                                if payload is None:
+                                    payload = {"error": "availability_not_indexed"}
+                                    status_code = 404
+                                else:
+                                    status_code = 200
+                except Exception as exc:
+                    with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
+                        _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL += 1
+                    print(f"[DEBUG] Playback availability read error: {type(exc).__name__}")
+                    payload = {"error": "availability_read_error"}
+                    status_code = 500
+            self.send_response(status_code)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                health_payload = {
+                    "status": "ok",
+                    "service": "movia-cloud-control-plane" if CLOUD_MODE else "movia-p2p-streamer-on-demand",
+                    "host": HOST,
+                    "port": PORT,
+                    "cloudMode": CLOUD_MODE,
+                    "p2pEnabled": P2P_ENABLED,
+                    "security": "cloud-direct-only" if CLOUD_MODE else "isolated-localhost",
+                }
+                self.wfile.write(json.dumps(health_payload, separators=(",", ":")).encode("utf-8"))
+            return
+
+        if parsed.path == "/diagnostics":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                with _TORRENT_GIDS_LOCK:
+                    active_gids = dict(_TORRENT_GIDS)
+                    owned_gids = list(_TORRENT_OWNED_GIDS)
+                torrent_cache_dir = DIR / "torrent_cache"
+                cache_entries_count = 0
+                cache_bytes = 0
+                if torrent_cache_dir.exists():
+                    try:
+                        for entry in torrent_cache_dir.iterdir():
+                            cache_entries_count += 1
+                            if entry.is_file():
+                                cache_bytes += entry.stat().st_size
+                            elif entry.is_dir():
+                                for root, _, files in os.walk(entry):
+                                    for f in files:
+                                        try:
+                                            cache_bytes += (Path(root) / f).stat().st_size
+                                        except OSError:
+                                            pass
+                    except Exception:
+                        pass
+                diag_payload = {
+                    "status": "ok",
+                    "service": "movia-p2p-streamer-on-demand",
+                    "port": PORT,
+                    "catalog_revision": _current_catalog_revision(),
+                    "active_torrent_sessions": len(active_gids),
+                    "torrent_sessions": active_gids,
+                    "owned_gids": owned_gids,
+                    "torrent_cache": {
+                        "entries_count": cache_entries_count,
+                        "total_bytes": cache_bytes,
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                self.wfile.write(json.dumps(diag_payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if CLOUD_MODE and parsed.path.startswith("/stream"):
+            self.send_response(404)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(b'{"error":"media_proxy_disabled","status":"DIRECT_ONLY"}')
+            return
+
+        if parsed.path == "/stream/test":
+            test_data = b"0" * (1024 * 1024 * 10) # 10 MB test stream buffer
+            total_len = len(test_data)
+            start = 0
+            end = total_len - 1
+            is_range = False
+            if "Range" in self.headers:
+                parsed_range = parse_single_http_byte_range(self.headers["Range"], total_len)
+                if parsed_range is None:
+                    self.send_response(416)
+                    self.send_header("Content-Range", f"bytes */{total_len}")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    return
+                start, end = parsed_range
+                is_range = True
+
+            if start >= total_len:
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{total_len}")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                return
+
+            if end >= total_len:
+                end = total_len - 1
+
+            chunk_len = end - start + 1
+            status_code = 206 if is_range else 200
+            self.send_response(status_code)
+            self.send_header("Content-Type", "video/mp4")
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Content-Length", str(chunk_len))
+            if is_range:
+                self.send_header("Content-Range", f"bytes {start}-{end}/{total_len}")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(test_data[start:end+1])
+            return
+
+        if parsed.path == "/api/catalog/sync-status":
+            payload = live_catalog_sync.status()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/home":
+            payload = catalog_api.get_home_payload()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/catalog":
+            from catalog_query_contract import parse_catalog_query, InvalidCatalogArgument
+            try:
+                query_arguments = parse_catalog_query(params)
+            except InvalidCatalogArgument as exc:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                if send_body:
+                    self.wfile.write(json.dumps({"status": "failed", "code": "INVALID_ARGUMENT", "message": str(exc)}).encode("utf-8"))
+                return
+            payload = catalog_api.get_catalog_paged(**query_arguments)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/movie/search":
+            query_text = params.get("query", [""])[0] or params.get("q", [""])[0]
+            limit = int(params.get("limit", [20])[0])
+            discover = params.get("discover", ["1"])[0].strip().lower() in {
+                "1", "true", "yes", "on"
+            }
+            payload = catalog_api.search_catalog(
+                query_text, limit=limit, discover=discover
+            )
+            movies = payload.get("movies", [])
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(movies, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/search":
+            query_text = params.get("query", [""])[0] or params.get("q", [""])[0]
+            limit = int(params.get("limit", [20])[0])
+            discover = params.get("discover", ["1"])[0].strip().lower() in {
+                "1", "true", "yes", "on"
+            }
+            payload = catalog_api.search_catalog(
+                query_text, limit=limit, discover=discover
+            )
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+
+        if parsed.path == "/api/person":
+            person_name = params.get("name", [""])[0].strip()
+            if not person_name:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                if send_body:
+                    self.wfile.write(b'{"error":"missing_name"}')
+                return
+            limit = int(params.get("limit", [200])[0])
+            credit_scope = params.get("credit_scope", ["all"])[0].strip()
+            payload = catalog_api.get_person_projects(
+                person_name, limit=limit, credit_scope=credit_scope
+            )
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/genres":
+            genres = catalog_api.get_all_genres()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(json.dumps(genres, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/api/clear_cache":
+            # Destructive cache maintenance is CLI-only. A browser, prefetcher
+            # or an unauthenticated local app must never delete playback data.
+            self.send_response(405)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            if send_body:
+                self.wfile.write(b'{"status":"failed","code":"METHOD_NOT_ALLOWED","message":"Cache maintenance requires the authorized CLI"}')
+            return
+
+        if parsed.path.startswith("/api/movie/"):
+            parts = [p for p in parsed.path.split("/") if p]
+            if len(parts) >= 3 and parts[2] != "search":
+                movie_id = urllib.parse.unquote(parts[2])
+                is_stream_request = len(parts) >= 4 and parts[3] == "stream"
+                is_prewarm_next_request = len(parts) >= 4 and parts[3] == "prewarm-next"
+                is_sequels_request = len(parts) >= 4 and parts[3] in ["sequels", "franchise"]
+
+                if is_prewarm_next_request:
+                    season_raw = params.get("season", [None])[0]
+                    episode_raw = params.get("episode", [None])[0]
+                    season = int(season_raw) if season_raw and str(season_raw).isdigit() else None
+                    episode = int(episode_raw) if episode_raw and str(episode_raw).isdigit() else None
+                    if season is None or episode is None:
+                        self.send_response(400)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        if send_body:
+                            self.wfile.write(b'{"error":"invalid_episode"}')
+                        return
+                    threading.Thread(
+                        target=_prewarm_next_episode_for_movie_id,
+                        args=(movie_id, season, episode),
+                        daemon=True,
+                        name=f"movia-prewarm-{movie_id}-from-s{season}e{episode}",
+                    ).start()
+                    self.send_response(202)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps({
+                            "status": "ACCEPTED",
+                            "fromSeason": season,
+                            "fromEpisode": episode,
+                        }, ensure_ascii=False).encode("utf-8"))
+                    return
+
+                # Exact playback uses the persisted local card only. Full Details
+                # may trigger metadata/TV-structure enrichment and recommendations,
+                # which must not consume the 10s playback READY budget.
+                details = None
+                if is_stream_request:
+                    movie_obj = _catalog_playback_movie(movie_id)
+                else:
+                    details = catalog_api.get_movie_details(movie_id)
+                    movie_obj = (details or {}).get("movie") if isinstance(details, dict) else None
+                if movie_obj:
+                    if is_sequels_request:
+                        sequels_list = details.get("sequels", [])
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        if send_body:
+                            self.wfile.write(json.dumps(sequels_list, ensure_ascii=False).encode("utf-8"))
+                        return
+                    elif not is_stream_request:
+                        response_details = details
+                        if isinstance(details, dict) and isinstance(movie_obj, dict):
+                            response_details = dict(details)
+                            response_movie = dict(movie_obj)
+                            if _availability_media_kind(movie_obj, None, None) == MEDIA_MOVIE:
+                                _record_playback_availability_now(
+                                    movie_obj,
+                                    movie_obj.get("streams", []) if isinstance(movie_obj.get("streams"), list) else [],
+                                    None, None, "RESULTS", None,
+                                )
+                            response_movie["streams"] = _apply_source_truth_read_order(
+                                _annotate_streams_with_source_truth(
+                                    movie_obj,
+                                    movie_obj.get("streams", []) if isinstance(movie_obj.get("streams"), list) else [],
+                                    None,
+                                    None,
+                                )
+                            )
+                            response_details["movie"] = response_movie
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        if send_body:
+                            self.wfile.write(json.dumps(response_details, ensure_ascii=False).encode("utf-8"))
+                        return
+                    else:
+                        # Catalog streams are structurally validated first,
+                        # then scoped to the requested episode. A stream explicitly
+                        # tagged for another episode is never exposed here.
+                        season_raw = params.get("season", [None])[0]
+                        episode_raw = params.get("episode", [None])[0]
+                        season = int(season_raw) if season_raw and str(season_raw).isdigit() else None
+                        episode = int(episode_raw) if episode_raw and str(episode_raw).isdigit() else None
+                        card_identity = {
+                            "id": movie_obj.get("id"),
+                            "title": movie_obj.get("title"),
+                            "original_title": movie_obj.get("original_title"),
+                            "year": movie_obj.get("year"),
+                            "media_type": movie_obj.get("mediaType") or (
+                                "tv" if movie_obj.get("type") == "series" else "movie"
+                            ),
+                        }
+                        stored_streams = _scope_streams_to_catalog_card(
+                            movie_obj.get("streams", []),
+                            card_identity,
+                            season,
+                            episode,
+                        )
+                        streams_list = rank_playback_streams(cloud_exposable_streams(
+                            filter_streams_for_episode(stored_streams, season, episode)
+                        ))
+                        refresh_requested = params.get("refresh", ["0"])[0].lower() in {"1", "true", "yes"}
+                        persisted_needs_refresh = catalog_streams_need_refresh(
+                            movie_obj,
+                            streams_list,
+                        )
+                        persisted_needs_variant_resolve = any(
+                            not (s.get("stream_id") or s.get("streamId"))
+                            for s in streams_list
+                        )
+                        persisted_out_of_scope = bool(stored_streams) and not streams_list
+                        should_resolve = catalog_streams_need_provider_resolve(
+                            streams_list,
+                            refresh_requested=refresh_requested,
+                            persisted_needs_refresh=persisted_needs_refresh,
+                            persisted_needs_variant_resolve=persisted_needs_variant_resolve,
+                            persisted_out_of_scope=persisted_out_of_scope,
+                        )
+                        force_live_refresh = catalog_streams_force_live_refresh(
+                            streams_list,
+                            refresh_requested=refresh_requested,
+                        )
+                        resolution_status = "RESULTS" if streams_list else "NO_RESULTS"
+                        resolution_error = None
+                        if should_resolve:
+                            try:
+                                category = "series" if season is not None else ("series" if movie_obj.get("type") == "series" else "movies")
+                                live_streams = resolve_on_demand_streams(
+                                    title=movie_obj.get("title", ""),
+                                    year=int(movie_obj.get("year") or 0),
+                                    category=category,
+                                    season=season,
+                                    episode=episode,
+                                    force_refresh=force_live_refresh,
+                                    original_title=movie_obj.get("original_title"),
+                                    catalog_media_id=movie_obj.get("id"),
+                                    media_type=card_identity["media_type"],
+                                    require_catalog_identity=True,
+                                )
+                                live_streams = filter_streams_for_episode(
+                                    live_streams, season, episode
+                                )
+                                if live_streams:
+                                    streams_list = live_streams
+                                    persist_resolved_streams_to_catalog(
+                                        movie_obj.get("id"), live_streams
+                                    )
+                            except Exception as e:
+                                print(f"[DEBUG] On-demand stream resolve error: {e}")
+                                resolution_error = "RESOLUTION_ERROR"
+                                if not streams_list:
+                                    streams_list = []
+                                    resolution_status = "ERROR"
+                                else:
+                                    resolution_status = "RESULTS"
+
+                        if streams_list:
+                            streams_list = rank_playback_streams(streams_list)
+                            resolution_status = "RESULTS"
+                            _schedule_exact_torrent_prewarm(
+                                movie_obj.get("id"), season, episode, streams_list
+                            )
+                        elif resolution_status != "ERROR":
+                            resolution_status = "NO_RESULTS"
+
+                        # Bind exact movie/episode IDs before sending candidates.
+                        # An asynchronous write can race the first decoded frame.
+                        _record_playback_availability_now(
+                            movie_obj,
+                            streams_list,
+                            season,
+                            episode,
+                            resolution_status,
+                            resolution_error,
+                        )
+
+                        response_streams = _apply_source_truth_read_order(
+                            _annotate_streams_with_source_truth(
+                                movie_obj, streams_list, season, episode
+                            )
+                        )
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        if send_body:
+                            resp_payload = {
+                                "id": movie_obj.get("id"),
+                                "title": movie_obj.get("title"),
+                                "year": movie_obj.get("year"),
+                                "playback_url": response_streams[0]["url"] if response_streams else "",
+                                "top_stream": response_streams[0] if response_streams else None,
+                                "streams": response_streams,
+                                "status": resolution_status,
+                                "errorCode": resolution_error,
+                            }
+                            self.wfile.write(json.dumps(resp_payload, ensure_ascii=False).encode("utf-8"))
+                        return
+                else:
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(b"{\"error\":\"movie_not_found\"}")
+                    return
+
+        if parsed.path == "/resolve":
+            title = params.get("title", [""])[0]
+            year_param = params.get("year", ["0"])[0]
+            year = int(year_param) if year_param and year_param.isdigit() else 0
+            category = params.get("category", ["movies"])[0]
+            tmdb_id = int(params.get("tmdb_id", ["0"])[0] or 0)
+            season_raw = params.get("season", [None])[0]
+            episode_raw = params.get("episode", [None])[0]
+            season = int(season_raw) if season_raw and season_raw.isdigit() else None
+            episode = int(episode_raw) if episode_raw and episode_raw.isdigit() else None
+
+            if not title:
+                self.send_response(400)
+                self.end_headers()
+                if send_body:
+                    self.wfile.write(b"{\"error\":\"missing title\"}")
+                return
+            
+            print(f"[DEBUG] Resolving title={title}, year={year}")
+            refresh_requested = params.get("refresh", ["0"])[0].lower() in {"1", "true", "yes"}
+            resolve_status = "RESULTS"
+            resolve_error = None
+            identity_status, identity = _catalog_identity_for_request(
+                title,
+                year,
+                category,
+                season,
+            )
+            if identity_status != "OK" or not identity:
+                streams = []
+                resolve_status = identity_status if identity_status in {"AMBIGUOUS", "UNMATCHED"} else "NO_RESULTS"
+                resolve_error = "EXACT_CATALOG_IDENTITY_REQUIRED"
+            else:
+                try:
+                    streams = resolve_on_demand_streams(
+                        title=identity.get("title") or title,
+                        year=int(identity.get("year") or year or 0),
+                        category=category,
+                        season=season,
+                        episode=episode,
+                        tmdb_id=tmdb_id,
+                        force_refresh=refresh_requested,
+                        original_title=identity.get("original_title"),
+                        catalog_media_id=identity.get("id"),
+                        media_type=identity.get("media_type"),
+                        require_catalog_identity=True,
+                    )
+                except Exception as exc:
+                    streams = []
+                    resolve_status = "ERROR"
+                    resolve_error = "RESOLUTION_ERROR"
+                    print(f"[DEBUG] On-demand resolve error: {exc}")
+            if not streams and resolve_status != "ERROR":
+                resolve_status = "NO_RESULTS"
+            print(f"[DEBUG] Total streams found: {len(streams)}")
+            for s in streams:
+                print(f"[DEBUG] Stream: {s.get('source')} | {str(s.get('url', ''))[:80]}")
+            
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            if send_body:
+                resp_payload = {
+                    "title": title,
+                    "year": year,
+                    "season": season,
+                    "episode": episode,
+                    "top_stream": streams[0] if streams else None,
+                    "streams": streams,
+                    "status": resolve_status,
+                    "errorCode": resolve_error,
+                }
+                self.wfile.write(json.dumps(resp_payload, ensure_ascii=False).encode("utf-8"))
+            return
+
+        if parsed.path == "/stream":
+            raw_magnet = params.get("magnet", [None])[0]
+            raw_url = params.get("url", [None])[0]
+
+            # 1. P2P Torrent stream via aria2 RPC
+            if raw_magnet and raw_magnet.startswith("magnet:"):
+                sanitized_magnet = sanitize_magnet_uri(raw_magnet)
+                if not sanitized_magnet:
+                    self.send_response(400)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(b'{"error":"invalid_magnet_btih"}')
+                    return
+
+                # Extract info_hash for directory isolation
+                hash_match = re.search(r"xt=urn:btih:([a-zA-Z0-9]+)", sanitized_magnet, re.IGNORECASE)
+                info_hash = hash_match.group(1).lower() if hash_match else hashlib.md5(sanitized_magnet.encode()).hexdigest()[:20]
+                
+                requested_season_raw = params.get("season", [None])[0]
+                requested_episode_raw = params.get("episode", [None])[0]
+                requested_file_index_raw = params.get(
+                    "file_index",
+                    params.get("fileIndex", [None]),
+                )[0]
+                requested_season = int(requested_season_raw) if str(requested_season_raw or "").isdigit() else None
+                requested_episode = int(requested_episode_raw) if str(requested_episode_raw or "").isdigit() else None
+                requested_file_index = (
+                    int(requested_file_index_raw)
+                    if str(requested_file_index_raw or "").isdigit()
+                    else None
+                )
+
+                # Purpose-built local torrent streaming sidecar. It resolves the
+                # exact episode by filename and redirects Media3 directly to the
+                # localhost stream. If unavailable/slow, retain the established
+                # aria2 path below as a bounded fallback.
+                torrserver_stream_url = _torrserver_prepare_episode_stream(
+                    info_hash,
+                    sanitized_magnet,
+                    requested_season,
+                    requested_episode,
+                )
+                if torrserver_stream_url:
+                    self.send_response(302)
+                    self.send_header("Location", torrserver_stream_url)
+                    self.send_header("Cache-Control", "no-store")
+                    self.send_header("X-Movia-P2P-Engine", "torrserver")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    return
+
+                torrent_cache_dir = DIR / "torrent_cache"
+                task_dir = torrent_cache_dir / info_hash
+                try:
+                    task_dir.mkdir(parents=True, exist_ok=True)
+                    _touch_torrent_playback_lease(task_dir)
+                except OSError as exc:
+                    print(f"[DEBUG] Torrent cache storage error: {exc}")
+                    status_code = 507 if getattr(exc, "errno", None) == 28 else 503
+                    self.send_response(status_code)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps({
+                            "error": "storage_unavailable",
+                            "status": "ERROR",
+                        }, ensure_ascii=False).encode("utf-8"))
+                    return
+                gid = None
+                # A fully allocated requested episode is authoritative even when a stale
+                # .aria2 control file remains in this task directory. Sparse placeholders
+                # are deliberately rejected by find_completed_cached_video().
+                completed_cached_video = find_completed_cached_video(
+                    task_dir,
+                    season=requested_season,
+                    episode=requested_episode,
+                    file_index=requested_file_index,
+                )
+
+                if completed_cached_video is not None:
+                    print(f"[DEBUG] Reusing completed torrent cache: {completed_cached_video}")
+                else:
+                    try:
+                        gid = get_or_create_torrent_gid(info_hash, sanitized_magnet, task_dir)
+                        print(f"[DEBUG] aria2 torrent GID: {gid} in {task_dir}")
+                    except Exception as e:
+                        print(f"[DEBUG] aria2 RPC error: {e}")
+
+                # Wait for video file to appear inside task_dir / begin downloading
+                file_path = completed_cached_video
+                target_file_path = completed_cached_video
+                file_total_length = 0
+                file_selected = completed_cached_video is not None
+                episode_selection_failed = False
+                file_index_selection_failed = False
+                head_priority_started = completed_cached_video is not None
+
+                cold_start_deadline = time.monotonic() + TORRENT_COLD_START_SECONDS
+                for loop_i in range(64):
+                    if time.monotonic() >= cold_start_deadline:
+                        break
+                    # Check aria2 getFiles to auto-select target episode if multi-file.
+                    # A magnet initially exposes only a metadata task. Do not remove
+                    # it: aria2 later links the materialized torrent through followedBy.
+                    if gid and not file_selected:
+                        try:
+                            remaining_cold = max(0.1, cold_start_deadline - time.monotonic())
+                            previous_gid = gid
+                            gid, torrent_files, metadata_pending = _torrent_playback_files(
+                                info_hash,
+                                gid,
+                                rpc_timeout=min(
+                                    TORRENT_METADATA_RPC_TIMEOUT_SECONDS,
+                                    max(0.1, remaining_cold / 3.0),
+                                ),
+                            )
+                            if gid != previous_gid:
+                                print(
+                                    f"[DEBUG] Torrent metadata GID {previous_gid} -> "
+                                    f"media GID {gid}"
+                                )
+                                target_file_path = None
+                                file_selected = False
+                                head_priority_started = False
+                            if metadata_pending:
+                                # Metadata is still in flight. Reuse this task instead
+                                # of spawning another magnet and give aria2 time to emit
+                                # followedBy before the next bounded poll.
+                                time.sleep(min(
+                                    TORRENT_DISCOVERY_SLEEP_SECONDS,
+                                    max(0.0, cold_start_deadline - time.monotonic()),
+                                ))
+                                continue
+                            if requested_file_index is None and len(torrent_files) == 1:
+                                only_file = torrent_files[0]
+                                only_path = str(only_file.get("path") or "")
+                                if _torrent_path_is_media(only_path):
+                                    target_file_path = Path(only_path)
+                                    file_selected = True
+
+                            if requested_file_index is not None:
+                                selected_file = _torrent_file_by_index(
+                                    torrent_files,
+                                    requested_file_index,
+                                )
+                                if selected_file is None:
+                                    file_index_selection_failed = True
+                                    print(
+                                        f"[DEBUG] Requested torrent file index "
+                                        f"{requested_file_index} is absent or not a video"
+                                    )
+                                else:
+                                    best_idx = str(selected_file.get("index"))
+                                    target_file_path = Path(
+                                        str(selected_file.get("path") or "")
+                                    )
+                                    if len(torrent_files) > 1:
+                                        aria2_rpc(
+                                            "aria2.changeOption",
+                                            [gid, {"select-file": best_idx}],
+                                            timeout=2.0,
+                                        )
+                                    file_selected = True
+                            elif len(torrent_files) > 1:
+                                # Target the exact requested episode. A season pack
+                                # without an SxxEyy match is not a playable answer:
+                                # selecting its largest file would play the wrong
+                                # episode and violates the card identity contract.
+                                req_s = requested_season
+                                req_e = requested_episode
+                                best_idx = None
+                                best_len = 0
+                                for tf in torrent_files:
+                                    p = tf.get("path", "").lower()
+                                    l = int(tf.get("length", 0))
+                                    tf_index = str(tf.get("index") or "")
+                                    if p.endswith((".mp4", ".mkv", ".avi", ".ts", ".m4v")):
+                                        if req_s is not None and req_e is not None and episode_path_matches(p, req_s, req_e):
+                                            best_idx = tf_index
+                                            best_len = l
+                                            target_file_path = Path(tf.get("path", ""))
+                                            break
+
+                                if not best_idx and req_s is not None and req_e is not None:
+                                    episode_selection_failed = True
+                                    print(
+                                        f"[DEBUG] Requested episode S{req_s:02d}E{req_e:02d} "
+                                        "is absent from torrent metadata"
+                                    )
+                                elif not best_idx:
+                                    # Movie torrents may contain samples/extras;
+                                    # largest-file selection is allowed only when
+                                    # no exact series episode was requested.
+                                    for tf in torrent_files:
+                                        p = tf.get("path", "").lower()
+                                        l = int(tf.get("length", 0))
+                                        if p.endswith((".mp4", ".mkv", ".avi", ".ts", ".m4v")) and l > best_len:
+                                            best_len = l
+                                            best_idx = str(tf.get("index") or "")
+                                            target_file_path = Path(tf.get("path", ""))
+                                
+                                if best_idx:
+                                    aria2_rpc("aria2.changeOption", [gid, {"select-file": str(best_idx)}], timeout=2.0)
+                                    file_selected = True
+                                    print(f"[DEBUG] Multi-file season pack: focused download on file #{best_idx} ({best_len / (1024*1024):.1f} MB)")
+                        except Exception as e:
+                            print(f"[DEBUG] Episode file selection error: {e}")
+
+                    # Only expose a file after actual bytes exist. For season packs,
+                    # wait specifically for the requested episode rather than the
+                    # first zero-length placeholder created by aria2.
+                    if file_index_selection_failed or episode_selection_failed:
+                        break
+
+                    if target_file_path is not None:
+                        if gid and not head_priority_started:
+                            _prioritize_torrent_head(gid)
+                            head_priority_started = True
+                        if (
+                            (
+                                requested_file_index is not None
+                                or requested_season is None
+                                or requested_episode is None
+                                or episode_path_matches(target_file_path, requested_season, requested_episode)
+                            )
+                            and has_playable_container_head(target_file_path)
+                        ):
+                            file_path = target_file_path
+                            break
+                    else:
+                        for root, dirs, files in os.walk(str(task_dir)):
+                            for f in files:
+                                if (
+                                    f.lower().endswith((".mp4", ".mkv", ".avi", ".ts", ".m4v"))
+                                    and not f.endswith(".aria2")
+                                    and (requested_season is None or requested_episode is None or
+                                         episode_path_matches(f, requested_season, requested_episode))
+                                ):
+                                    candidate_path = Path(root) / f
+                                    if has_playable_container_head(candidate_path):
+                                        file_path = candidate_path
+                                        break
+                            if file_path and has_playable_container_head(file_path):
+                                break
+                        if file_path and has_playable_container_head(file_path):
+                            break
+
+                    # Do not silently switch to a different torrent here. The Android
+                    # client already owns ordered mirror failover and preserves voice/quality intent.
+                    time.sleep(min(
+                        TORRENT_DISCOVERY_SLEEP_SECONDS,
+                        max(0.0, cold_start_deadline - time.monotonic()),
+                    ))
+
+                if gid:
+                    _pause_torrent_after_range(gid)
+
+                if file_index_selection_failed:
+                    release_torrent_gid(info_hash, gid, remove_task=True)
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps({
+                            "error": "requested_file_index_not_found",
+                            "file_index": requested_file_index,
+                        }, ensure_ascii=False).encode("utf-8"))
+                    return
+
+                if episode_selection_failed:
+                    release_torrent_gid(info_hash, gid, remove_task=True)
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps({
+                            "error": "requested_episode_not_found",
+                            "season": requested_season,
+                            "episode": requested_episode,
+                        }, ensure_ascii=False).encode("utf-8"))
+                    return
+
+                if not file_path or not has_playable_container_head(file_path):
+                    # A cold-start timeout is not evidence that the torrent is
+                    # invalid. Keep the paused aria2 task reusable so an immediate
+                    # retry can reuse metadata/pieces already acquired. Exact
+                    # episode/file-index mismatches above remain terminal and are
+                    # removed. The short playback lease + cache pruner bounds this
+                    # transient state.
+                    release_torrent_gid(info_hash, gid, remove_task=False)
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(b'{"error":"torrent_stream_buffering_timeout"}')
+                    return
+
+                # Default to raw/original container. On-the-fly MP4 remuxing only if explicitly requested.
+                requested_format = params.get("format", [""])[0].lower()
+                if requested_format == "mp4" and not str(file_path).lower().endswith((".mp4", ".m4v")):
+                    try:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "video/mp4")
+                        self.send_header("Accept-Ranges", "none")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+
+                        if send_body:
+                            cmd = [
+                                "ffmpeg",
+                                "-i", str(file_path),
+                                "-c:v", "copy",
+                                "-c:a", "aac",
+                                "-movflags", "frag_keyframe+empty_moov+default_base_moof",
+                                "-f", "mp4",
+                                "pipe:1"
+                            ]
+                            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=64 * 1024)
+                            try:
+                                while True:
+                                    chunk = proc.stdout.read(64 * 1024)
+                                    if not chunk:
+                                        if proc.poll() is not None:
+                                            break
+                                        time.sleep(0.1)
+                                        continue
+                                    self.wfile.write(chunk)
+                                    self.wfile.flush()
+                            except (BrokenPipeError, ConnectionResetError):
+                                pass
+                            finally:
+                                try:
+                                    proc.kill()
+                                except Exception:
+                                    pass
+                        return
+                    except Exception as e:
+                        print(f"[DEBUG] ffmpeg remux error: {e}")
+
+                try:
+                    _touch_torrent_playback_lease(task_dir)
+                    # Determine true total length of video file from aria2 metadata
+                    total_file_len = file_path.stat().st_size
+                    try:
+                        for tf in (aria2_rpc("aria2.getFiles", [gid], timeout=1.5) or []):
+                            if tf.get("path") == str(file_path):
+                                total_file_len = int(tf.get("length", total_file_len))
+                                break
+                    except Exception:
+                        pass
+
+                    curr_disk_size = file_path.stat().st_size
+                    # aria2 reports the logical file length even while its sparse
+                    # file is still incomplete. Never invent a minimum length:
+                    # Content-Length and Content-Range must describe this file exactly.
+                    file_size = max(total_file_len, curr_disk_size)
+                    if file_size <= 0:
+                        raise ValueError("empty_stream_file")
+
+                    start = 0
+                    end = file_size - 1
+                    is_range = False
+
+                    if "Range" in self.headers:
+                        parsed_range = parse_single_http_byte_range(self.headers["Range"], file_size)
+                        if parsed_range is None:
+                            self.send_response(416)
+                            self.send_header("Content-Range", f"bytes */{file_size}")
+                            self.send_header("Access-Control-Allow-Origin", "*")
+                            self.end_headers()
+                            return
+                        start, end = parsed_range
+                        is_range = True
+                        print(f"[DEBUG] HTTP Range {self.headers['Range']} -> {start}-{end}/{file_size} file={file_path.name}")
+
+                    # 1. Reject invalid ranges beyond total file size
+                    if start >= file_size:
+                        self.send_response(416)
+                        self.send_header("Content-Range", f"bytes */{file_size}")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        return
+
+                    # Sparse aria2 files have their final logical st_size immediately,
+                    # so stat() cannot tell whether the requested bytes are downloaded.
+                    # Consult aria2's piece bitfield before exposing a Range response.
+                    probe_len = min(2 * 1024 * 1024, max(1, end - start + 1))
+                    if gid and not _prioritize_and_wait_torrent_range(gid, file_path, start, probe_len, timeout_sec=TORRENT_RANGE_WAIT_SECONDS):
+                        print(f"[DEBUG] Range waiting timeout: start={start} len={probe_len} file={file_path.name}")
+                        self.send_response(503)
+                        self.send_header("Retry-After", "1")
+                        self.send_header("Content-Type", "application/json; charset=utf-8")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        if send_body:
+                            self.wfile.write(b'{"error":"torrent_range_not_ready"}')
+                        return
+
+                    # Adjust end if exceeding total size
+                    if end >= file_size:
+                        end = file_size - 1
+
+                    content_length = end - start + 1
+
+                    # For short requests, wait for the complete requested range
+                    # before sending headers. For larger requests, only the initial
+                    # probe is gated here; each subsequent chunk is gated below.
+                    if gid and content_length <= 16 * 1024 * 1024:
+                        if not _prioritize_and_wait_torrent_range(
+                            gid, file_path, start, content_length, timeout_sec=TORRENT_RANGE_WAIT_SECONDS
+                        ):
+                            print(
+                                f"[DEBUG] Range not ready before headers: "
+                                f"start={start} len={content_length} file={file_path.name}"
+                            )
+                            self.send_response(503)
+                            self.send_header("Retry-After", "1")
+                            self.send_header("Content-Type", "application/json; charset=utf-8")
+                            self.send_header("Access-Control-Allow-Origin", "*")
+                            self.end_headers()
+                            if send_body:
+                                self.wfile.write(b'{"error":"torrent_range_not_ready"}')
+                            return
+
+                    status_code = 206 if is_range else 200
+                    ct = infer_stream_mime(str(file_path))
+
+                    self.send_response(status_code)
+                    self.send_header("Content-Type", ct)
+                    self.send_header("Accept-Ranges", "bytes")
+                    self.send_header("Content-Length", str(content_length))
+                    if is_range:
+                        self.send_header("Content-Range", f"bytes {start}-{end}/{file_size}")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+
+                    if send_body:
+                        with open(str(file_path), "rb") as f:
+                            f.seek(start)
+                            remaining = content_length
+                            current_offset = start
+                            chunk_size = 1024 * 1024
+                            while remaining > 0:
+                                wanted = min(chunk_size, remaining)
+                                if gid and not _prioritize_and_wait_torrent_range(
+                                    gid, file_path, current_offset, wanted, timeout_sec=TORRENT_RANGE_WAIT_SECONDS
+                                ):
+                                    raise TimeoutError(
+                                        "torrent_range_not_ready at byte=" +
+                                        str(current_offset)
+                                    )
+                                chunk = f.read(wanted)
+                                if not chunk:
+                                    raise EOFError(
+                                        "short_range_eof at byte=" + str(current_offset)
+                                    )
+                                if len(chunk) > wanted:
+                                    chunk = chunk[:wanted]
+                                self.wfile.write(chunk)
+                                self.wfile.flush()
+                                remaining -= len(chunk)
+                                current_offset += len(chunk)
+                    return
+                except (BrokenPipeError, ConnectionResetError):
+                    return
+                except Exception as e:
+                    print(f"[DEBUG] Error streaming file {file_path}: {e}")
+                    return
+
+            # 2. Direct HTTP/HTTPS proxying
+            target_stream_url = raw_url
+            if not target_stream_url or not is_safe_proxy_url(target_stream_url):
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                if send_body:
+                    self.wfile.write(b'{"error":"stream_not_found_or_unsafe"}')
+                return
+
+            try:
+                req = urllib.request.Request(target_stream_url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Referer": "https://kodik.info/",
+                    "Origin": "https://kodik.info",
+                    "Accept": "*/*"
+                })
+                range_requested = "Range" in self.headers
+                if range_requested:
+                    req.add_header("Range", self.headers["Range"])
+
+                with urllib.request.urlopen(req, timeout=10.0) as response:
+                    raw_ct = response.headers.get("Content-Type", "").lower()
+                    status_code = response.status
+
+                    # A Range request must remain a Range response. Forwarding
+                    # an upstream 200 for a requested offset causes wrong bytes
+                    # to be decoded after seek.
+                    if range_requested and status_code != 206:
+                        raise ValueError(
+                            "upstream_range_not_honored status=" + str(status_code)
+                        )
+                    if range_requested and not response.headers.get("Content-Length"):
+                        raise ValueError("upstream_range_without_content_length")
+
+                    # If upstream returned HTML (blocking/captcha page), abort and return 502
+                    if "text/html" in raw_ct or status_code >= 400:
+                        raise ValueError(f"Upstream returned HTML ({raw_ct}) or error status ({status_code})")
+
+                    resolved_ct = infer_stream_mime(target_stream_url, raw_ct)
+                    self.send_response(status_code)
+                    for header, value in response.headers.items():
+                        hl = header.lower()
+                        if hl == "content-type":
+                            self.send_header("Content-Type", resolved_ct)
+                        elif hl in ["content-length", "content-range", "accept-ranges", "last-modified", "etag"]:
+                            self.send_header(header, value)
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Accept-Ranges", "bytes")
+                    self.end_headers()
+
+                    if send_body:
+                        # Initial 2MB sequential piece buffering for instant ExoPlayer playback
+                        initial_buffer_target = 2 * 1024 * 1024
+                        buffered_data = bytearray()
+                        while len(buffered_data) < initial_buffer_target:
+                            chunk = response.read(128 * 1024)
+                            if not chunk:
+                                break
+                            buffered_data.extend(chunk)
+
+                        if buffered_data:
+                            self.wfile.write(buffered_data)
+                            try:
+                                self.wfile.flush()
+                            except Exception:
+                                pass
+
+                        # Continuous streaming of subsequent chunks
+                        while True:
+                            chunk = response.read(128 * 1024)
+                            if not chunk:
+                                break
+                            self.wfile.write(chunk)
+                            try:
+                                self.wfile.flush()
+                            except Exception:
+                                pass
+            except Exception as e:
+                self.send_response(502)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                if send_body:
+                    err_payload = json.dumps({"error": "upstream_proxy_failed", "detail": str(e)}, ensure_ascii=False).encode("utf-8")
+                    self.wfile.write(err_payload)
+                return
+
+        self.send_response(404)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        if send_body:
+            self.wfile.write(b'{"error":"not_found"}')
+
+_CACHE_PRUNER_START_LOCK = threading.Lock()
+_CACHE_PRUNER_STARTED = False
+
+
+def start_background_cache_pruner(interval_seconds: float = 60.0) -> None:
+    """Continuously enforce transient P2P cache bounds off the request path."""
+    if not P2P_ENABLED:
+        return
+    global _CACHE_PRUNER_STARTED
+    with _CACHE_PRUNER_START_LOCK:
+        if _CACHE_PRUNER_STARTED:
+            return
+        _CACHE_PRUNER_STARTED = True
+
+    interval = max(30.0, float(interval_seconds))
+
+    def worker() -> None:
+        while True:
+            try:
+                import cache_pruner
+                cache_pruner.main()
+            except Exception as exc:
+                print(f"[DEBUG] Torrent cache prune error: {type(exc).__name__}: {exc}")
+            time.sleep(interval)
+
+    threading.Thread(
+        target=worker,
+        name="movia-cache-pruner",
+        daemon=True,
+    ).start()
+
+
+def is_streamer_running() -> bool:
+    try:
+        req = urllib.request.Request(f"http://127.0.0.1:{PORT}/health")
+        with urllib.request.urlopen(req, timeout=1) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+def run_server():
+    if CATALOG_SYNC_ENABLED:
+        live_catalog_sync.start_background_sync(interval_seconds=300)
+    start_background_cache_pruner(interval_seconds=60)
+    try:
+        print("⚡ Pre-warming catalog home cache...")
+        catalog_api.get_home_payload(force_refresh=True)
+        print("✅ Home cache pre-warmed successfully (<20ms response ready).")
+    except Exception as e:
+        print(f"⚠️ Cache pre-warm warning: {e}")
+
+    server = ThreadedHTTPServer((HOST, PORT), StreamRequestHandler)
+    print(f"🛡️ Movia Secure Streamer & On-Demand Gateway запущен на http://{HOST}:{PORT} (PID: {os.getpid()})")
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
+
+    def shutdown_handler(signum, frame):
+        print("Stopping streamer server...")
+        try:
+            if PID_FILE.exists():
+                PID_FILE.unlink()
+        except OSError:
+            pass
+        sys.exit(0)
+
+    if hasattr(signal, "SIGHUP"):
+        signal.signal(signal.SIGHUP, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+    signal.signal(signal.SIGINT, shutdown_handler)
+
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
+        if PID_FILE.exists():
+            try:
+                PID_FILE.unlink()
+            except OSError:
+                pass
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--check":
+        if is_streamer_running():
+            print("RUNNING")
+            sys.exit(0)
+        else:
+            print("STOPPED")
+            sys.exit(1)
+    run_server()

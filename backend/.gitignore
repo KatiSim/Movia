@@ -1,0 +1,11 @@
+.env
+data/
+*.db*
+*.sqlite*
+*.gz
+*.pem
+*.key
+**/__pycache__/
+runtime/logs/
+runtime/stream_cache/
+runtime/torrent_cache/

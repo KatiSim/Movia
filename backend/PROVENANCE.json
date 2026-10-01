@@ -1,0 +1,179 @@
+{
+  "independentRuntime": true,
+  "externalLegacyApplicationsRequired": false,
+  "modules": [
+    {
+      "module": "archive_source",
+      "importedSourceSha256": "f4ebbeb15429843a55b14ab975b15e1d2247665765b509bd41db770dce61ec3b",
+      "ownedRuntimeSha256": "f4ebbeb15429843a55b14ab975b15e1d2247665765b509bd41db770dce61ec3b"
+    },
+    {
+      "module": "background_network_budget",
+      "importedSourceSha256": "52c2bea7dc51864c381502ab8d9377e2313a2c13666a6517e96e4e5ad8f1fcc4",
+      "ownedRuntimeSha256": "52c2bea7dc51864c381502ab8d9377e2313a2c13666a6517e96e4e5ad8f1fcc4"
+    },
+    {
+      "module": "balancer_integration",
+      "importedSourceSha256": "0deebdf23700c27993854e9eb9ff2fadd9a5428ed6ff9e4f9938762cf3b09b33",
+      "ownedRuntimeSha256": "aa548bbc525432bc050381d1cc2cca4057cdee31dc65bf9e5c7bf577c1509709"
+    },
+    {
+      "module": "cache_pruner",
+      "importedSourceSha256": "fd0fc9bcef1440d3b242f333ccd91e4bb9c20fbb68c962205789ac8f23b08ea4",
+      "ownedRuntimeSha256": "1e032638526d777db4935611b317cbdd8563b951b11ec34bdb6d056d802a1027"
+    },
+    {
+      "module": "catalog_api",
+      "importedSourceSha256": "134b4a5051c297fa1c06e2a4985ad2554733e7d142b7a882680d10e214f20aea",
+      "ownedRuntimeSha256": "c04eeacaf1ae34cf60c1c1d636d424fca401f992fee56d47f3b8306f88487862"
+    },
+    {
+      "module": "catalog_localization",
+      "importedSourceSha256": "cc84d7729b0315fb621899f0f0468cf407bc7a614e15583071cb31eacb32ddc5",
+      "ownedRuntimeSha256": "cc84d7729b0315fb621899f0f0468cf407bc7a614e15583071cb31eacb32ddc5"
+    },
+    {
+      "module": "catalog_query_contract",
+      "importedSourceSha256": "ceb18800ffd12f1692d74a5d6d8775ae4208b37afc35fcfe75f1a0365bc4dd23",
+      "ownedRuntimeSha256": "ceb18800ffd12f1692d74a5d6d8775ae4208b37afc35fcfe75f1a0365bc4dd23"
+    },
+    {
+      "module": "catalog_schema_v2",
+      "importedSourceSha256": "7245a5d3e4b5ad9552e3dfd8eed090626544abe80712bcd9b3031d2f8646ba95",
+      "ownedRuntimeSha256": "7245a5d3e4b5ad9552e3dfd8eed090626544abe80712bcd9b3031d2f8646ba95"
+    },
+    {
+      "module": "catalog_sql",
+      "importedSourceSha256": "37034422091938709bc9f4d11a756a5b5e95d673eee1d12fdcadb7c83023b5eb",
+      "ownedRuntimeSha256": "37034422091938709bc9f4d11a756a5b5e95d673eee1d12fdcadb7c83023b5eb"
+    },
+    {
+      "module": "collaps_provider",
+      "importedSourceSha256": "e6339d59c189dfd97923eae830550faac33d5ac73cc0d3a6cf8e71220083bb76",
+      "ownedRuntimeSha256": "e9c5b1f60e139ab905540ed5923d9a9e87cd875c5e57ab9f0ac2fab14ad2c40d"
+    },
+    {
+      "module": "content_filler",
+      "importedSourceSha256": "419d1bb3423f743712e8371d955162d9a40b7e79817c09bb63fa737646055d99",
+      "ownedRuntimeSha256": "fa8d144f83bec5b9508b98302962a41a8ef76b608a9794a5a959a3077d443304"
+    },
+    {
+      "module": "database",
+      "importedSourceSha256": "b1c7d33d4f7743c350ca9cf66e03014aa024cb06bcc0a8d8914498300e9a4545",
+      "ownedRuntimeSha256": "dd1dad9efdc83839b48f87da949a663a47275e284114b7ab76a33716ddab354f"
+    },
+    {
+      "module": "lampa_compat",
+      "importedSourceSha256": "78ede959cdda10e60a715ca4283fac303344c41fa825c5e6c0590ab5f3307771",
+      "ownedRuntimeSha256": "78ede959cdda10e60a715ca4283fac303344c41fa825c5e6c0590ab5f3307771"
+    },
+    {
+      "module": "live_catalog_sync",
+      "importedSourceSha256": "636d71f7187e0c6f666c2e185ff9cf777e50b5b9ea36dd34ca396404c1e55e50",
+      "ownedRuntimeSha256": "f687d26377cb0c36e4c30ea646ec37ca72c23d7514d1e99e13ee2bfaa1e1c317"
+    },
+    {
+      "module": "metadata_quality",
+      "importedSourceSha256": "cf64a6625d26d3d8f3620b909aa851bbc204339ee0ffddfc96a441001821cec0",
+      "ownedRuntimeSha256": "cf64a6625d26d3d8f3620b909aa851bbc204339ee0ffddfc96a441001821cec0"
+    },
+    {
+      "module": "metadata_repair",
+      "importedSourceSha256": "9a4248d591e759c3c593e19f26ed168c486a477b18fbebe8789e9d8050d2a959",
+      "ownedRuntimeSha256": "d85e62c7e5ed8d95289a352ffbee6c940a9a8556560fea2092988077ec2b1c32"
+    },
+    {
+      "module": "playback_availability",
+      "importedSourceSha256": "005d9e3da7cf7d25489b305d64396bd02c02258943197bcbcb2af20bb2ae2933",
+      "ownedRuntimeSha256": "29f55f9dc6826257a90140e283a2e78c55e5d2074de3fcecc2ff301fffd9b179"
+    },
+    {
+      "module": "playback_availability_index",
+      "importedSourceSha256": "2e6da4925fac92879a8f745b32a527e0b14b33c1682e1e4586e5346d68b7a47d",
+      "ownedRuntimeSha256": "2e6da4925fac92879a8f745b32a527e0b14b33c1682e1e4586e5346d68b7a47d"
+    },
+    {
+      "module": "playback_candidate_policy",
+      "importedSourceSha256": "170b0d61055b996ca968bb0305512e6d86c48845c9ae5529f85671eafdd23c9d",
+      "ownedRuntimeSha256": "170b0d61055b996ca968bb0305512e6d86c48845c9ae5529f85671eafdd23c9d"
+    },
+    {
+      "module": "playback_resolver_shadow_audit",
+      "importedSourceSha256": "3342a52623990288904d49a8746f07decc704b0da2ae03e164ec0d258b4a2579",
+      "ownedRuntimeSha256": "3342a52623990288904d49a8746f07decc704b0da2ae03e164ec0d258b4a2579"
+    },
+    {
+      "module": "provider_reliability",
+      "importedSourceSha256": "d70b2a5b5e3468d21dfb5892870991d57738181fda1469c7e46044545a6c6683",
+      "ownedRuntimeSha256": "b346720c0f0aa085fb5d694187f9a52e77a3e7354fae84f65420026542554f44"
+    },
+    {
+      "module": "search_service",
+      "importedSourceSha256": "061a8a70be1dc822481892ff39b5b484dd15c868b8489739d091d86ac0c9981f",
+      "ownedRuntimeSha256": "061a8a70be1dc822481892ff39b5b484dd15c868b8489739d091d86ac0c9981f"
+    },
+    {
+      "module": "stream_validation",
+      "importedSourceSha256": "3c866a1fcff943113005f8ee2980fd95d450b6ded428e9fb7d35a810349f5eac",
+      "ownedRuntimeSha256": "3c866a1fcff943113005f8ee2980fd95d450b6ded428e9fb7d35a810349f5eac"
+    },
+    {
+      "module": "streamer",
+      "importedSourceSha256": "3810090eba9750e2a3d89cc881d5013744bebbd41ce785d718bbb562538f677f",
+      "ownedRuntimeSha256": "7c0f89936c0f6e154a0ee9f44b70549afcf452d207b8f5826e58496792a6da20"
+    },
+    {
+      "module": "tmdb_client",
+      "importedSourceSha256": "0fd2ad0ab76de4b01cf65d39ffd7dca022628d24ab99654330c51cd970dcc970",
+      "ownedRuntimeSha256": "6dfe9e72b6e2aebb6b5701328f5ebd52fc7dd2844e133207b07f7f1ae59a4059"
+    },
+    {
+      "module": "torrent_resolver",
+      "importedSourceSha256": "2ff5cdc929e4785a713f5f2f97f3dcdbb0052ace681dd0db646b556f9f6965ae",
+      "ownedRuntimeSha256": "decbbd09cc4a4b530b712fa21869a4bd47bfc87576468745d0b2bcf0037f95ff"
+    },
+    {
+      "module": "zona_contract",
+      "importedSourceSha256": "953f014637e2b55ef0b967ed5f83ec4e099900db8a2031f8d4479690faa54e76",
+      "ownedRuntimeSha256": "2fce2003fe51a22a2ccc2ce8a6a02f4931c06192757ec472c711104ffec6180c"
+    },
+    {
+      "module": "zona_legacy_adapters",
+      "importedSourceSha256": "573dc72c6ec6663dda7ab4d1e23a8ba6fb35c9fd7d7d29af1072718254e2aa99",
+      "ownedRuntimeSha256": "573dc72c6ec6663dda7ab4d1e23a8ba6fb35c9fd7d7d29af1072718254e2aa99"
+    },
+    {
+      "module": "zona_playback_architecture",
+      "importedSourceSha256": "9ee18300d1a396b1e343f2f4da922b5a973dc332508cc5839229730507cbd789",
+      "ownedRuntimeSha256": "9ee18300d1a396b1e343f2f4da922b5a973dc332508cc5839229730507cbd789"
+    }
+  ],
+  "deploymentStatus": "PREPARED_NOT_DEPLOYED",
+  "databaseIncluded": false,
+  "credentialsIncluded": false,
+  "ownedZonaClientProfile": {
+    "path": "runtime/zona-client-profile.json",
+    "sha256": "bfe2c4961d650caee6535f81c5159bd4c6d62a1c8eee5b8486978ee608d7e74f",
+    "bytes": 3224,
+    "referenceArtifactSha256": "53974460c6ebb4e4dde18a78d954d79dd9931155d4de32faefe243033427a9a2",
+    "referenceArtifactBytes": 22000839,
+    "containsApplicationCode": false,
+    "externalApkRequiredAtRuntime": false
+  },
+  "providerCoverage": {
+    "zonaRegistry": 52,
+    "zonaImplemented": 18,
+    "zonaRemaining": 34,
+    "lazyRegistry": 34,
+    "lazyActive": 12,
+    "allProvidersPlaybackVerified": false
+  },
+  "externalProviderServicesRequired": true,
+  "verification": {
+    "ownedRuntimeUnitTests": 123,
+    "unitTestFailures": 0,
+    "postgresqlHostedRestoreVerified": false,
+    "dockerBuildVerified": false,
+    "externalDeploymentVerified": false
+  }
+}

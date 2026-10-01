@@ -1,0 +1,10 @@
+**/.env
+**/*.db*
+**/*.sqlite*
+**/logs
+**/stream_cache
+**/torrent_cache
+**/__pycache__
+tests
+**/*.pem
+**/*.key
