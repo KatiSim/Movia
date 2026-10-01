@@ -24,7 +24,7 @@ def export_database(database, sink):
         ordinary = {row[1] for row in conn.execute("PRAGMA table_list")
                     if row[0] == "main" and row[2] == "table" and not row[1].startswith("sqlite_")}
         with gzip.GzipFile(fileobj=sink, mode="wb", compresslevel=5, mtime=0) as compressed:
-            emit(compressed, {"format": "movia-catalog-v1"})
+            emit(compressed, {"format": "movia-catalog-v2"})
             tables = conn.execute("SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
             for name, sql in tables:
                 if name not in ordinary: continue
@@ -32,16 +32,24 @@ def export_database(database, sink):
                 emit(compressed, {"table": name, "sql": sql, "columns": columns})
                 for row in conn.execute("SELECT * FROM " + identifier(name)):
                     emit(compressed, {"row": [{"blob": base64.b64encode(v).decode()} if isinstance(v, bytes) else v for v in row]})
+            # Explicit restored IDs only advance SQLite's counter to the last
+            # surviving row. Preserve its high-water mark after deletions too,
+            # so a later new film cannot reuse a retired favorite/history ID.
+            has_sequence = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'").fetchone()
+            sequences = list(conn.execute("SELECT name,seq FROM sqlite_sequence ORDER BY name")) if has_sequence else []
+            emit(compressed, {"sequences": sequences})
             emit(compressed, {"end": True})
     return len(ordinary)
 
 def restore_database(source, target):
     temporary = target.with_name(target.name + ".restore-" + uuid.uuid4().hex)
     table, sql, finished, total = None, None, False, 0
+    auto_tables, sequences_seen = set(), False
     try:
         with closing(sqlite3.connect(temporary)) as conn, gzip.GzipFile(fileobj=source, mode="rb") as compressed:
             conn.execute("PRAGMA journal_mode=DELETE")
-            if json.loads(compressed.readline(MAX_LINE + 1)) != {"format": "movia-catalog-v1"}:
+            header = json.loads(compressed.readline(MAX_LINE + 1))
+            if header not in ({"format": "movia-catalog-v1"}, {"format": "movia-catalog-v2"}):
                 raise ValueError("invalid_snapshot_format")
             while True:
                 line = compressed.readline(MAX_LINE + 1)
@@ -56,6 +64,7 @@ def restore_database(source, target):
                     if not isinstance(definition, str) or not definition.upper().lstrip().startswith("CREATE TABLE "):
                         raise ValueError("invalid_table_definition")
                     conn.execute(definition)
+                    if "AUTOINCREMENT" in definition.upper(): auto_tables.add(table)
                     columns = value["columns"]
                     if not isinstance(columns, list) or not 1 <= len(columns) <= 512:
                         raise ValueError("invalid_columns")
@@ -65,7 +74,27 @@ def restore_database(source, target):
                     if not isinstance(row, list) or len(row) != len(columns): raise ValueError("invalid_row")
                     row = [base64.b64decode(v["blob"], validate=True) if isinstance(v, dict) and set(v) == {"blob"} else v for v in row]
                     conn.execute(sql, row)
+                elif set(value) == {"sequences"}:
+                    sequences = value["sequences"]
+                    if sequences_seen or not isinstance(sequences, list) or len(sequences) > len(auto_tables):
+                        raise ValueError("invalid_snapshot_sequences")
+                    names = set()
+                    for entry in sequences:
+                        if not isinstance(entry, list) or len(entry) != 2:
+                            raise ValueError("invalid_snapshot_sequence")
+                        name, sequence = entry
+                        if name not in auto_tables or name in names or type(sequence) is not int or not 0 <= sequence <= 2**63-1:
+                            raise ValueError("invalid_snapshot_sequence")
+                        names.add(name)
+                        previous = conn.execute("SELECT seq FROM sqlite_sequence WHERE name=?", (name,)).fetchone()
+                        if previous and sequence < previous[0]: raise ValueError("snapshot_sequence_reuses_ids")
+                        if previous: conn.execute("UPDATE sqlite_sequence SET seq=? WHERE name=?", (sequence, name))
+                        else: conn.execute("INSERT INTO sqlite_sequence(name,seq) VALUES (?,?)", (name, sequence))
+                    sequences_seen = True
+                    table, sql = None, None
                 elif value == {"end": True}:
+                    if header["format"] == "movia-catalog-v2" and not sequences_seen:
+                        raise ValueError("snapshot_sequences_missing")
                     finished = True
                     if compressed.read(1): raise ValueError("trailing_snapshot_data")
                     break

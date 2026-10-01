@@ -594,7 +594,7 @@ def discover_query(query: str, limit: int = 20) -> Dict[str, Any]:
     errors: List[str] = []
     try:
         with _DB_WRITE_LOCK:
-            with _catalog_connect(DB_PATH) as conn:
+            with closing(_catalog_connect(DB_PATH)) as conn, conn:
                 conn.execute("PRAGMA busy_timeout=20000")
                 for item in candidates:
                     try:
@@ -738,7 +738,7 @@ def sync_once(pages: int = DEFAULT_SYNC_PAGES) -> Dict[str, Any]:
                         if tid:
                             seen[(media_type, tid)] = item
 
-        with _catalog_connect(DB_PATH) as conn:
+        with closing(_catalog_connect(DB_PATH)) as conn, conn:
             deep_index_row = conn.execute(
                 "SELECT value FROM catalog_meta WHERE key='deep_feed_index'"
             ).fetchone()

@@ -40,5 +40,25 @@ class SnapshotCodecTests(unittest.TestCase):
     def test_fts_shadow_data_is_rebuilt_instead_of_being_copied(self):
         with closing(sqlite3.connect(self.source)) as db, db:db.execute('CREATE VIRTUAL TABLE search USING fts5(title)');db.execute('INSERT INTO search VALUES (?)',('title',))
         raw=gzip.decompress(self.export());self.assertNotIn(b'CREATE VIRTUAL TABLE',raw);self.assertNotIn(b'search_data',raw)
+    def test_deleted_ids_are_not_reused_after_restoring_empty_or_nonempty_tables(self):
+        with closing(sqlite3.connect(self.source)) as db, db:
+            db.execute('CREATE TABLE allocated(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT)')
+            db.execute('CREATE TABLE retired(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT)')
+            db.execute('INSERT INTO allocated VALUES (1,?)', ('Keep',))
+            db.execute('INSERT INTO allocated VALUES (99,?)', ('Deleted',))
+            db.execute('INSERT INTO retired VALUES (199,?)', ('Deleted',))
+            db.execute('DELETE FROM allocated WHERE id=99');db.execute('DELETE FROM retired')
+        restore_database(io.BytesIO(self.export()),self.target)
+        with closing(sqlite3.connect(self.target)) as db, db:
+            self.assertEqual(100,db.execute('INSERT INTO allocated(title) VALUES (?)',('New',)).lastrowid)
+            self.assertEqual(200,db.execute('INSERT INTO retired(title) VALUES (?)',('New',)).lastrowid)
+    def test_invalid_sequence_cannot_replace_previous_catalog(self):
+        records=[json.loads(row) for row in gzip.decompress(self.export()).splitlines()]
+        for record in records:
+            if 'sequences' in record:record['sequences']=[['movies',0]]
+        bad=gzip.compress(b'\n'.join(json.dumps(row).encode() for row in records)+b'\n')
+        self.target.write_bytes(b'previous-data')
+        with self.assertRaises(ValueError):restore_database(io.BytesIO(bad),self.target)
+        self.assertEqual(b'previous-data',self.target.read_bytes())
 
 if __name__ == '__main__':unittest.main()

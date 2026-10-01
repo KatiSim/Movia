@@ -70,7 +70,7 @@
     {
       "module": "live_catalog_sync",
       "importedSourceSha256": "636d71f7187e0c6f666c2e185ff9cf777e50b5b9ea36dd34ca396404c1e55e50",
-      "ownedRuntimeSha256": "f687d26377cb0c36e4c30ea646ec37ca72c23d7514d1e99e13ee2bfaa1e1c317"
+      "ownedRuntimeSha256": "a38d4414246fb8bc2a7c7c8c48314038cba27c5b23f166d756b0e7bcd6315b4a"
     },
     {
       "module": "metadata_quality",
@@ -170,10 +170,20 @@
   },
   "externalProviderServicesRequired": true,
   "verification": {
-    "ownedRuntimeUnitTests": 123,
+    "ownedRuntimeUnitTests": 126,
     "unitTestFailures": 0,
     "postgresqlHostedRestoreVerified": false,
     "dockerBuildVerified": false,
-    "externalDeploymentVerified": false
+    "externalDeploymentVerified": false,
+    "resourceWarningsInLastRun": 0
+  },
+  "snapshotFormat": "movia-catalog-v2",
+  "fullCatalogSnapshotVerified": {
+    "movieCount": 96736,
+    "idsPreserved": true,
+    "idCountersPreserved": true,
+    "restoredBytes": 428126208,
+    "postgresTested": false,
+    "dockerTested": false
   }
 }

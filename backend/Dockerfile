@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt && useradd --uid 10001 --crea
 COPY --chown=movia:movia runtime/ ./runtime/
 USER movia
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=120s \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=600s \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=3)"
 CMD ["python", "runtime/cloud_main.py"]
