@@ -188,6 +188,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "delete",
+      "expectedAudioLabel": "eng5",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 591,
+      "observed": {
+        "mediaId": "8645",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 5561,
+        "frames": 13055,
+        "quality": "270p",
+        "voice": "delete",
+        "streamFingerprint": "bd08f1196ad197f54c83",
+        "locatorFingerprint": "a5d150a659060d096d48",
+        "selectedAudioLabel": "eng5",
+        "selectedAudioLanguage": "en",
+        "selectedAudio": [
+          [
+            "track:1:6:0",
+            "eng5",
+            "en"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:27:45.208933+00:00",
