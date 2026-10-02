@@ -1,0 +1,29 @@
+{
+  "mediaId": "172",
+  "title": "Твоё имя",
+  "year": 2016,
+  "build": 323,
+  "checkedAt": "2026-10-02T15:42:48.612430+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 14038,
+    "observed": {
+      "mediaId": "172",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 290,
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "frames": 4164,
+      "voice": "Дубляж",
+      "streamFingerprint": "e00504b1f88998a0e271",
+      "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+    },
+    "commandToReadyMs": 14251
+  }
+}
