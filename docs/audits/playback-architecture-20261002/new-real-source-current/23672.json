@@ -1,0 +1,36 @@
+{
+  "mediaId": "23672",
+  "title": "Притворство и коварство",
+  "year": 2004,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:57.478322+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "dc59280978d39f3a907e",
+      "decoded": true,
+      "actualHeight": 540,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "5478a7b696cd41ebc9f1",
+      "videoFrameFingerprint": "5dddb70cc18e64a15f91",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3517
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fc1b56458f91d4a79057",
+  "preparedStreamIdFingerprint": "17ccc738290ca0204a9f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
