@@ -1,0 +1,36 @@
+{
+  "mediaId": "43959",
+  "title": "Неосторожный пешеход",
+  "year": 1956,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:54:12.400305+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cfd9523de4a3425ad6e0",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "873c0a67dd4ebfdef088",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3735
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8b01097058c561beef3b",
+  "preparedStreamIdFingerprint": "28d2583fabf2213a4973",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
