@@ -1,0 +1,30 @@
+{
+  "mediaId": "40868",
+  "title": "Другой ящик",
+  "year": 1966,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:29:36.147318+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": false,
+    "ms": 16097,
+    "observed": {
+      "mediaId": "40868",
+      "state": "IDLE",
+      "switchState": "SEARCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "frames": 1054,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b"
+    },
+    "errorCategory": "REQUESTED_TRACKS_AND_NEW_FRAMES_TIMEOUT",
+    "commandToReadyMs": 16332
+  }
+}
