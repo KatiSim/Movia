@@ -3166,3 +3166,4 @@
 {"seq": 3166, "at": "2026-10-02T15:43:16.972782+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "172", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3167, "at": "2026-10-02T15:43:17.698101+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "172", "started": true, "pairs": 7, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3168, "at": "2026-10-02T15:43:18.068715+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3169, "at": "2026-10-02T15:43:20.913650+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "172", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
