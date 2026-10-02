@@ -1,0 +1,36 @@
+{
+  "mediaId": "3138",
+  "title": "The Owl and the Pussycat",
+  "year": 1939,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:15:14.019376+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a63df44e21f5de34f698",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "63ae30b0daa341fe35bc",
+      "videoFrameFingerprint": "f563460ad78b948f097b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3551
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "3d3b15913e0435fafb0b",
+  "preparedStreamIdFingerprint": "4d10494690e04fa5d183",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
