@@ -1,0 +1,36 @@
+{
+  "mediaId": "31186",
+  "title": "Back-Room Boy",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:35.022732+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fb06f17806bef8e0e083",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "816acec118d0318f4e96",
+      "videoFrameFingerprint": "9f49adef55cd47510f20",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4061
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 3,
+  "preparedSourceFingerprint": "f57434a0755cb7eb7777",
+  "preparedStreamIdFingerprint": "60d664a2ce19703a706e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
