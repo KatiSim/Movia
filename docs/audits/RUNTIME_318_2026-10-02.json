@@ -1,0 +1,246 @@
+{
+  "timestamp": "2026-10-02T09:58:23.251814+00:00",
+  "installedVersionCode": 318,
+  "androidCodeChanged": false,
+  "nativeRegression": {
+    "passed": 8,
+    "failed": 0,
+    "motionTests": 3,
+    "adaptivePlaybackTests": 5,
+    "offlineFormats": [
+      "MP4",
+      "HLS",
+      "DASH"
+    ],
+    "offlineMediaRequests": 0
+  },
+  "movieWarm": {
+    "versionCode": 318,
+    "timeline": [
+      {
+        "ms": 69.02,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SEARCHING_SOURCE",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 287.78,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 1168.54,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 1
+      },
+      {
+        "ms": 1389.45,
+        "playbackState": "READY",
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "frames": 1
+      },
+      {
+        "ms": 1625.58,
+        "playbackState": "READY",
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "frames": 6
+      }
+    ],
+    "preserved": true
+  },
+  "movieAfterAppColdLaunch": {
+    "versionCode": 318,
+    "timeline": [
+      {
+        "ms": 98.23,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "IDLE",
+        "switchState": "IDLE",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 315.25,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 1427.88,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 1
+      },
+      {
+        "ms": 1880.08,
+        "playbackState": "READY",
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "frames": 3
+      }
+    ],
+    "preserved": true
+  },
+  "episodeWarm": {
+    "versionCode": 318,
+    "timeline": [
+      {
+        "ms": 23.29,
+        "playbackState": "IDLE",
+        "domainPlaybackState": "IDLE",
+        "switchState": "IDLE",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 672.49,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 0,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 0
+      },
+      {
+        "ms": 1342.75,
+        "playbackState": "BUFFERING",
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "frames": 1
+      },
+      {
+        "ms": 1784.96,
+        "playbackState": "READY",
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "frames": 2
+      },
+      {
+        "ms": 2007.44,
+        "playbackState": "READY",
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playerErrorCode": null,
+        "videoHeight": 720,
+        "source": null,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "frames": 7
+      }
+    ],
+    "preserved": true
+  },
+  "measurement": "media.play command to READY, playing, expected identity, and at least three newly decoded frames; network/server caches retained",
+  "coldUi": {
+    "versionCode": 318,
+    "screen": "Shower virtual display",
+    "launchMs": 123,
+    "displayId": 17,
+    "package": "app.movia.android",
+    "binderReady": true,
+    "uiStatus": "PASS",
+    "screenshotBytes": 800713,
+    "launchStatus": "PASS",
+    "sessionClosed": true,
+    "launchMsMeaning": "Shower command acknowledgement only, not application ready latency"
+  },
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true,
+  "counts": {
+    "favorites": 9,
+    "watchLater": 0,
+    "history": 3,
+    "downloads": 0,
+    "recentSearches": 0
+  },
+  "processLogs": [
+    {
+      "pid": "14516",
+      "bytes": 236933,
+      "fatalExceptions": 0
+    }
+  ],
+  "slowRunEvidence": {
+    "build": 318,
+    "movieMs": 14713.95,
+    "episodeMs": 16906.06,
+    "MoviaPlayerLog": "Both slow runs include Stall watchdog fired after 10000ms"
+  },
+  "diagnosis": {
+    "confirmed": "Slow runs spend ten seconds buffering a selected candidate before fallback; current usable source can start in under two seconds.",
+    "codeReview": "mergeDiscovered normally retains an active candidate unless it failed or explicit preferred voice/quality arrived. A newly discovered ready fallback therefore waits for watchdog when the initial candidate is stalled.",
+    "nextFix": "Evaluate a bounded startup-only handover to a ready, identity-matching candidate; preserve requested quality/voice, pause, position and prevent mid-playback unsolicited switches.",
+    "fixImplemented": false
+  },
+  "openRequirement": "Stable startup within five seconds across uncached and unavailable-source runs remains unproven."
+}
