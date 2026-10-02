@@ -1,0 +1,36 @@
+{
+  "mediaId": "31009",
+  "title": "Золотые цепи",
+  "year": 1991,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:45:40.291416+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "964e55a9730ba77ca202",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "482a2e1f1fe3f9a693fa",
+      "videoFrameFingerprint": "b61a6de8a357ff282e1c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8679
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c9f97976a75880fadb04",
+  "preparedStreamIdFingerprint": "e5d7867b3715f34008f7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
