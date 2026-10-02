@@ -286,5 +286,87 @@
     360,
     720
   ],
-  "advertisedCompatiblePairs": 10
+  "advertisedCompatiblePairs": 10,
+  "profiles": [
+    {
+      "profileFingerprint": "dbbd0e7c37ae4ba541a1",
+      "advertisedCompatiblePairs": 10,
+      "testedPairs": 10,
+      "passedPairs": 10,
+      "manifestVoices": [
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus1",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "eng2",
+          "language": "en",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "ukr3",
+          "language": "uk",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "eng4",
+          "language": "en",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "rus1",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "eng2",
+          "language": "en",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "ukr3",
+          "language": "uk",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "eng4",
+          "language": "en",
+          "role": "",
+          "group": "failover-audio-0"
+        }
+      ],
+      "manifestQualities": [
+        360,
+        720
+      ],
+      "allPreparedPairsTested": true,
+      "allPreparedPairsPassed": true
+    }
+  ],
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "allCachedHttpProfilesTested": true,
+  "allCachedHttpProfilesPassed": true,
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2
 }
