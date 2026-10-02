@@ -1,0 +1,100 @@
+{
+  "mediaId": "6",
+  "title": "Человек-паук: Нет пути домой",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:33.700131+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 340,
+      "voice": "eng4",
+      "language": "en",
+      "sourceFingerprint": "71f06c4cd8292584d601",
+      "decoded": true,
+      "actualHeight": 340,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "810da56f37315f638477",
+      "videoFrameFingerprint": "7cbf42e74dc61463ac15",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6336
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 5,
+  "preparedSourceFingerprint": "68cc8ab6927892ecd080",
+  "preparedStreamIdFingerprint": "1efe2d218b1a122147c8",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    340,
+    680
+  ],
+  "advertisedCompatiblePairs": 10
+}
