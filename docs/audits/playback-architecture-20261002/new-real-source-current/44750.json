@@ -1,0 +1,36 @@
+{
+  "mediaId": "44750",
+  "title": "Большой Джим МакЛэйн",
+  "year": 1952,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:16.869674+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "bd1b6733a8f6124f6d6a",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "94440ee9832e72275d00",
+      "videoFrameFingerprint": "ede562fcf270f21bb280",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3393
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f05a783ad7c09aa12f44",
+  "preparedStreamIdFingerprint": "470ee16c8c2ded960382",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
