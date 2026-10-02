@@ -1,0 +1,52 @@
+{
+  "mediaId": "438601",
+  "title": "Возвращение пришельцев",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:21.208564+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "rus0",
+      "language": "ru",
+      "sourceFingerprint": "5f2b48d50e9b76c52f24",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 9,
+      "audioPcmFingerprint": "1e44d17254d71ddf3755",
+      "videoFrameFingerprint": "714f58be27d55ce8eb95",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3279
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9962f7bf463a8174e75f",
+  "preparedStreamIdFingerprint": "34e9a77a430b613b27d0",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
