@@ -43,3 +43,4 @@
 {"seq": 43, "at": "2026-10-02T10:40:44.781278+00:00", "action": "movie_result", "mediaId": "45753", "decoded": false, "voices": 0, "qualities": 0}
 {"seq": 44, "at": "2026-10-02T10:40:44.942960+00:00", "action": "player.stop", "mediaId": "54137", "arguments": {}, "accepted": true, "requestMs": 55}
 {"seq": 45, "at": "2026-10-02T10:40:45.122332+00:00", "action": "media.play", "mediaId": "54137", "arguments": {"mediaId": "54137", "title": "Габбех", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 11}
+{"seq": 46, "at": "2026-10-02T10:40:59.482165+00:00", "action": "movie_result", "mediaId": "54137", "decoded": false, "voices": 0, "qualities": 0}

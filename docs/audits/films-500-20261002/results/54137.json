@@ -1,0 +1,42 @@
+{
+  "index": 13,
+  "mediaId": "54137",
+  "title": "Габбех",
+  "year": 1996,
+  "rating": 6.6,
+  "voteCount": 62,
+  "genres": "[\"драма\",\"детектив\",\"мелодрама\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14179.79,
+    "observed": {
+      "mediaId": "54137",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 39,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b28b3d1b55ba6b17a2a9",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14365.44,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:40:59.476493+00:00"
+}
