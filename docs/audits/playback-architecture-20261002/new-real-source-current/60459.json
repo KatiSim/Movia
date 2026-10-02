@@ -1,0 +1,36 @@
+{
+  "mediaId": "60459",
+  "title": "Аватар 4",
+  "year": 2029,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:19.199904+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d98c1271e11f52ae7a80",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "36a9bbb52aa71cfa3dfb",
+      "videoFrameFingerprint": "9a83dd579e66749be48b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2859
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c01e9161c33fce56b2be",
+  "preparedStreamIdFingerprint": "389bf5979ac457ad25a9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
