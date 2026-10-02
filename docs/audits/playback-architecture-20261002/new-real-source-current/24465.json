@@ -1,0 +1,36 @@
+{
+  "mediaId": "24465",
+  "title": "Мозги под шубой",
+  "year": 2001,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:01.854150+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5ec2716cef4d77f65b39",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "8754ec512fb57028dee9",
+      "videoFrameFingerprint": "9ab08a97f4d5d221e720",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3549
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "137052ef1f6660bc53bb",
+  "preparedStreamIdFingerprint": "5675e4ce86ae82cc48b8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
