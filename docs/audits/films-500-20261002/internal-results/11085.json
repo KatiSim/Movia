@@ -1,0 +1,116 @@
+{
+  "mediaId": "11085",
+  "title": "Невидимый гость",
+  "year": 2017,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 268,
+      "actualHeight": null,
+      "qualityMatches": false,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "ms": 2565,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 7,
+  "providerVoiceLabels": [
+    "AlexFilm",
+    "Original (с субтитрами)",
+    "delete",
+    "Інтер (укр)",
+    "Авторский (Одноголосый)",
+    "В одне рило (укр)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    268,
+    536
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "spa3",
+      "language": "es",
+      "group": "audio0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "spa3",
+      "language": "es",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 7,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 14,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:16.683726+00:00"
+}
