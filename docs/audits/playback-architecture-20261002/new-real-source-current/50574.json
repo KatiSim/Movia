@@ -1,0 +1,36 @@
+{
+  "mediaId": "50574",
+  "title": "Алый первоцвет",
+  "year": 1934,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:21.158085+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d33ba5276e32be22fe2d",
+      "decoded": true,
+      "actualHeight": 1072,
+      "videoFrames": 3,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "b7db4bf10d654eb53507",
+      "videoFrameFingerprint": "1aaca6c7c9fabca500ad",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3495
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "0989b972c4a0edea2117",
+  "preparedStreamIdFingerprint": "4ff70f7fe08c8e8d7beb",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
