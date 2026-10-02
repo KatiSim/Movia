@@ -264,6 +264,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "delete",
+      "expectedAudioLabel": "eng10",
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 554,
+      "observed": {
+        "mediaId": "375",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 10753,
+        "selectedAudioLabel": "eng10",
+        "selectedAudioLanguage": "en",
+        "frames": 1071,
+        "voice": "delete",
+        "streamFingerprint": "43eba0f5021768077e17",
+        "locatorFingerprint": "e49535a5f5a959d6295b"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
