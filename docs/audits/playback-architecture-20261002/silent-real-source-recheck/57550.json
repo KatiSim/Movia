@@ -1,0 +1,46 @@
+{
+  "mediaId": "57550",
+  "title": "Весенние дни",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:17:43.109360+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "35d4bfaae10d94890ff6",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "c45b70075231ac4aa1de",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3507,
+      "profileFingerprint": "352e7b821123bfae83fb",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "352e7b821123bfae83fb",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "7e2cd012c999600d9d5b",
+  "preparedStreamIdFingerprint": "e1e660779d4621127497",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
