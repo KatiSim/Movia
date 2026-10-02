@@ -15,19 +15,6 @@ from pathlib import Path
 from contextlib import closing
 from movia_paths import DATA_DIR
 
-def cached_streams(movie_id, season, episode):
-    import catalog_api, streamer
-    card = catalog_api.get_movie_playback_card(movie_id)
-    if not card:
-        return 404, {"code": "NOT_FOUND"}
-    from database import filter_streams_for_content
-    context = dict(card, season=season, episode=episode)
-    # A series-level URL never substitutes for the requested episode.
-    rows = filter_streams_for_content(card.get("streams", []), context)
-    rows = streamer.cloud_exposable_streams(rows)
-    return 200, {"streams": rows, "status": "READY" if rows else "DISCOVERY_PENDING",
-                 "mediaId": movie_id, "season": season, "episode": episode}
-
 def worker(stop):
     import live_catalog_sync
     next_metadata = 0
@@ -73,9 +60,11 @@ def main():
             raise RuntimeError("Catalog integrity check failed")
     import database, catalog_api, streamer
     from cloud_api import ReadService, handler
+    from catalog_stream_service import CatalogStreamService
     stop = threading.Event()
+    streams = CatalogStreamService(catalog_api, streamer, database.filter_streams_for_content)
     server = streamer.ThreadedHTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))),
-        handler(ReadService(catalog_api, cached_streams)))
+        handler(ReadService(catalog_api, streams)))
     if os.environ.get("MOVIA_WORKERS_ENABLED", "1") == "1":
         threading.Thread(target=worker, args=(stop,), daemon=True, name="Movia-cloud-worker").start()
     def terminate(*_):
@@ -85,7 +74,10 @@ def main():
     signal.signal(signal.SIGINT, terminate)
     print('{"service":"movia-api","status":"READY","phoneParser":false}', flush=True)
     try: server.serve_forever()
-    finally: stop.set();server.server_close()
+    finally:
+        stop.set()
+        server.server_close()
+        streams.close()
 
 if __name__ == "__main__":
     main()

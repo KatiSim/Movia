@@ -519,6 +519,9 @@ def save_content(data: Dict[str, Any]) -> bool:
     verified = 1 if explicit_verified and streams else 0
 
     with closing(get_db()) as conn, conn:
+        # Acquire the writer before reading the existing variant list. Two
+        # simultaneous provider completions must not overwrite each other.
+        conn.execute("BEGIN IMMEDIATE")
         existing_row = conn.execute(
             """
             SELECT streams, title, original_title, year, media_type, category

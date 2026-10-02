@@ -73,7 +73,7 @@ def normalize_collaps_voice(raw_voice: str) -> str:
     for pattern, normalized in VOICE_MAP.items():
         if pattern in low:
             return normalized
-    return cleaned if cleaned else "Дубляж"
+    return cleaned if cleaned else "Не указано"
 
 
 def get_imdb_id_from_db(title: str, year: int = 0, tmdb_id: int = 0) -> Optional[str]:
@@ -153,6 +153,62 @@ def _audio_display_labels(audio_names: List[Any]) -> List[str]:
     ]
 
 
+def _embedded_json(html: str, key: str):
+    match = re.search(r"(?<![\w])(?:[\"']?" + re.escape(key) + r"[\"']?)\s*:\s*", html)
+    if not match:
+        return None
+    try:
+        value, _ = json.JSONDecoder().raw_decode(html[match.end():])
+        return value
+    except (ValueError, TypeError):
+        return None
+
+
+def _positive_number(value):
+    if isinstance(value, bool):
+        return None
+    text = str(value or "").strip()
+    return int(text) if text.isdecimal() and int(text) > 0 else None
+
+
+def _collaps_rows(payload, mirror, imdb_id, season=None, episode=None):
+    if not isinstance(payload, dict):
+        return []
+    url = payload.get("hls")
+    if not isinstance(url, str):
+        return []
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            return []
+    except ValueError:
+        return []
+    audio = payload.get("audio")
+    names = audio.get("names") if isinstance(audio, dict) else None
+    names = names if isinstance(names, list) and names else None
+    if names is not None:
+        names = [name.strip() if isinstance(name, str) else "" for name in names]
+    labels = _audio_display_labels(names) if names is not None else ["Не указано"]
+    subtitles = payload.get("cc")
+    subtitles = subtitles if isinstance(subtitles, list) else []
+    rows = []
+    for index, label in enumerate(labels):
+        scope = f"_s{season}e{episode}" if season is not None else ""
+        ordinal = f"_a{index}" if names is not None else "_auto"
+        stream_id = f"collaps_{imdb_id}{scope}{ordinal}_{urllib.parse.quote(label, safe='')}"
+        row = {"stream_id": stream_id, "streamId": stream_id, "source": "Collaps",
+               "provider": "collaps", "source_type_id": 9, "voice": label,
+               "quality": "Auto", "url": url.strip(), "transport": "hls",
+               "headers": {"User-Agent": DEFAULT_HEADERS["User-Agent"], "Referer": f"{mirror}/"},
+               "subtitles": subtitles}
+        if names is not None:
+            row.update(audio_track_index=index, source_voice_label=names[index])
+        if season is not None:
+            row.update(season=season, episode=episode)
+        rows.append(row)
+    return rows
+
+
 def parse_collaps_page(
     html: str,
     mirror: str,
@@ -160,118 +216,33 @@ def parse_collaps_page(
     season: Optional[int] = None,
     episode: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    streams: List[Dict[str, Any]] = []
-
-    # Case 1: TV Series
-    idx = html.find("seasons:[")
-    if idx != -1:
-        start = idx + 8
-        depth = 0
-        end = start
-        for i, ch in enumerate(html[start:], start):
-            if ch == "[":
-                depth += 1
-            elif ch == "]":
-                depth -= 1
-                if depth == 0:
-                    end = i + 1
-                    break
-        raw_json = html[start:end]
-        try:
-            seasons_data = json.loads(raw_json)
-            target_season = season if (season is not None and season > 0) else 1
-            target_episode = episode if (episode is not None and episode > 0) else 1
-
-            matched_ep: Optional[Dict[str, Any]] = None
-            for s in seasons_data:
-                if s.get("season") == target_season:
-                    for ep in s.get("episodes", []):
-                        if str(ep.get("episode")) == str(target_episode):
-                            matched_ep = ep
-                            break
-                    if matched_ep:
-                        break
-
-            if matched_ep:
-                hls_url = matched_ep.get("hls")
-                if hls_url and str(hls_url).startswith("http"):
-                    audio_names = (matched_ep.get("audio") or {}).get("names") or ["Дубляж"]
-                    subtitles = matched_ep.get("cc") or []
-                    for audio_index, name in enumerate(_audio_display_labels(audio_names)):
-                        norm_voice = name
-                        stream_id = f"collaps_{imdb_id}_s{target_season}e{target_episode}_a{audio_index}_{urllib.parse.quote(norm_voice, safe="")}"
-                        streams.append({
-                            "stream_id": stream_id,
-                            "streamId": stream_id,
-                            "source": "Collaps",
-                            "provider": "collaps",
-                            "source_type_id": 9,
-                            "voice": norm_voice,
-                            "source_voice_label": str(audio_names[audio_index] or "").strip(),
-                            "quality": "Auto",
-                            "audio_track_index": audio_index,
-                            "url": str(hls_url).strip(),
-                            "transport": "hls",
-                            "headers": {
-                                "User-Agent": DEFAULT_HEADERS["User-Agent"],
-                                "Referer": f"{mirror}/",
-                            },
-                            "season": target_season,
-                            "episode": target_episode,
-                            "subtitles": subtitles,
-                        })
-                    return streams
-        except Exception as exc:
-            logger.debug("Collaps seasons parse error: %s", exc)
-
-    # Case 2: Movie
-    m_hls = re.search(r"hls:\s*[\"\'](https?://[^\"\']+)[\"\']", html)
-    if not m_hls:
+    # JSONDecoder respects brackets/quotes inside studio and subtitle names.
+    series_marker = re.search(r"(?<![\w])(?:[\"']?seasons[\"']?)\s*:", html)
+    if series_marker:
+        wanted_season, wanted_episode = _positive_number(season), _positive_number(episode)
+        if wanted_season is None or wanted_episode is None:
+            return []
+        seasons = _embedded_json(html, "seasons")
+        if not isinstance(seasons, list):
+            return []
+        for item in seasons:
+            if not isinstance(item, dict) or _positive_number(item.get("season")) != wanted_season:
+                continue
+            episodes = item.get("episodes")
+            if not isinstance(episodes, list):
+                continue
+            for item_episode in episodes:
+                if isinstance(item_episode, dict) and _positive_number(item_episode.get("episode")) == wanted_episode:
+                    return _collaps_rows(item_episode, mirror, imdb_id, wanted_season, wanted_episode)
+        # Never relabel an unrelated episode or nested movie URL as the requested one.
         return []
-
-    hls_url = m_hls.group(1).strip()
-    audio_names = ["Дубляж"]
-    m_audio = re.search(r"audio:\s*({[^}]+})", html)
-    if m_audio:
-        try:
-            adata = json.loads(m_audio.group(1))
-            names = adata.get("names", [])
-            if names:
-                audio_names = names
-        except Exception:
-            pass
-
-    subtitles = []
-    m_cc = re.search(r"cc:\s*(\[[^\]]*\])", html)
-    if m_cc:
-        try:
-            subtitles = json.loads(m_cc.group(1))
-        except Exception:
-            pass
-
-    for audio_index, name in enumerate(_audio_display_labels(audio_names)):
-        norm_voice = name
-        stream_id = f"collaps_{imdb_id}_a{audio_index}_{urllib.parse.quote(norm_voice, safe="")}"
-        streams.append({
-            "stream_id": stream_id,
-            "streamId": stream_id,
-            "source": "Collaps",
-            "provider": "collaps",
-            "source_type_id": 9,
-            "voice": norm_voice,
-            "source_voice_label": str(audio_names[audio_index] or "").strip(),
-            "quality": "Auto",
-            "audio_track_index": audio_index,
-            "url": hls_url,
-            "transport": "hls",
-            "headers": {
-                "User-Agent": DEFAULT_HEADERS["User-Agent"],
-                "Referer": f"{mirror}/",
-            },
-            "subtitles": subtitles,
-        })
-
-    return streams
+    if season is not None or episode is not None:
+        return []
+    match = re.search(r"(?<![\w])(?:[\"']?hls[\"']?)\s*:\s*[\"'](https?://[^\"']+)[\"']", html)
+    if not match:
+        return []
+    return _collaps_rows({"hls": match.group(1), "audio": _embedded_json(html, "audio"),
+                          "cc": _embedded_json(html, "cc")}, mirror, imdb_id)
 
 
 def resolve_collaps(
@@ -336,3 +307,4 @@ if __name__ == "__main__":
     print(f"Found {len(res)} streams:")
     for s in res:
         print(f"  {s.get("voice")} | {s.get("quality")} | {s.get("url")[:60]}")
+

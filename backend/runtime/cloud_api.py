@@ -58,6 +58,10 @@ def positive(query, name, default, maximum):
         raise InvalidRequest("invalid_" + name)
     return int(value)
 
+def is_stream_request(target):
+    try: return bool(re.fullmatch(r"/api/movie/(m_)?[0-9]{1,12}/stream", urlsplit(target).path))
+    except ValueError: return False
+
 class ReadService:
     def __init__(self, catalog, streams):
         self.catalog, self.streams = catalog, streams
@@ -98,6 +102,10 @@ class ReadService:
                 episode = positive(query, "episode", 1, 10000) if "episode" in query else None
                 if (season is None) != (episode is None):
                     raise InvalidRequest("exact_episode_required")
+                refresh = query.get("refresh", ["0"])[0]
+                if refresh not in {"0", "1"}: raise InvalidRequest("invalid_refresh")
+                if refresh == "1":
+                    return self.streams(movie_id, season, episode, force_refresh=True)
                 return self.streams(movie_id, season, episode)
             movie = self.catalog.get_movie_details(movie_id, enrich=False)
             return (200, movie) if movie else (404, {"code": "NOT_FOUND"})
@@ -106,11 +114,13 @@ class ReadService:
     def response(self, target):
         # Cache bounded responses, not signed media bytes; unknown routes and invalid queries never enter the cache.
         now = time.monotonic()
-        with self.lock:
-            hit = self.cache.get(target)
-            if hit and now - hit[0] < 15:
-                self.cache.move_to_end(target)
-                return hit[1:]
+        live_streams = is_stream_request(target)
+        if not live_streams:
+            with self.lock:
+                hit = self.cache.get(target)
+                if hit and now - hit[0] < 15:
+                    self.cache.move_to_end(target)
+                    return hit[1:]
         try:
             status, value = self.dispatch(target)
         except ValueError:
@@ -119,7 +129,7 @@ class ReadService:
         if len(body) > 2 * 1024 * 1024:
             return 503, b'{"code":"RESPONSE_TOO_LARGE"}', ""
         etag = '"' + hashlib.sha256(body).hexdigest() + '"'
-        if status == 200 and target != "/health":
+        if status == 200 and target != "/health" and not live_streams:
             with self.lock:
                 self.cache[target] = (now, status, body, etag)
                 while len(self.cache) > 64:
@@ -139,7 +149,7 @@ def handler(service):
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
-            self.send_header("Cache-Control", "private, max-age=15" if status in {200,304} else "no-store")
+            self.send_header("Cache-Control", "private, max-age=15" if status in {200,304} and not is_stream_request(self.path) else "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             if etag: self.send_header("ETag", etag)
             self.end_headers()

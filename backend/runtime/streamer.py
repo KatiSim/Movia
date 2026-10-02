@@ -16,6 +16,7 @@ import hashlib
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from bounded_executor import BoundedExecutor
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from pathlib import Path
@@ -532,6 +533,9 @@ def _schedule_playback_availability_shadow(
 # requests while the persistent cache remains the cross-process source of truth.
 _STREAM_MEMORY_CACHE: Dict[str, tuple[float, List[Dict[str, Any]]]] = {}
 _STREAM_MEMORY_CACHE_LOCK = threading.Lock()
+_PROVIDER_EXECUTOR = BoundedExecutor(workers=2, max_pending=2, name="movia-provider")
+_BACKGROUND_STREAM_EXECUTOR = BoundedExecutor(workers=1, max_pending=8, name="movia-refresh")
+_RESOLVE_STRIPES = tuple(threading.RLock() for _ in range(64))
 _RESOLVE_LOCKS: Dict[str, threading.Lock] = {}
 _RESOLVE_LOCKS_LOCK = threading.Lock()
 _STREAM_REVALIDATION_INFLIGHT: set[str] = set()
@@ -1660,10 +1664,7 @@ def get_cached_streams(cache_key: str) -> Optional[List[Dict[str, Any]]]:
             if cached:
                 remaining = max(1.0, float(row[1]) - time.time())
                 with _STREAM_MEMORY_CACHE_LOCK:
-                    _STREAM_MEMORY_CACHE[cache_key] = (
-                        time.monotonic() + min(remaining, STREAM_MEMORY_CACHE_MAX_SECONDS),
-                        [dict(stream) for stream in cached],
-                    )
+                    _remember_streams(cache_key, cached, min(remaining, STREAM_MEMORY_CACHE_MAX_SECONDS))
                 return cached
     except Exception:
         pass
@@ -1772,18 +1773,25 @@ def set_cached_streams(
             )
             conn.commit()
         with _STREAM_MEMORY_CACHE_LOCK:
-            _STREAM_MEMORY_CACHE[cache_key] = (
-                time.monotonic() + min(max(1.0, float(effective_ttl)), STREAM_MEMORY_CACHE_MAX_SECONDS),
-                [dict(stream) for stream in clean_streams],
-            )
+            _remember_streams(cache_key, clean_streams, min(max(1.0, float(effective_ttl)), STREAM_MEMORY_CACHE_MAX_SECONDS))
     except Exception:
         pass
 
 
+def _remember_streams(cache_key, streams, ttl):
+    """Called with the memory-cache lock held; idle keys cannot leak forever."""
+    now = time.monotonic()
+    for key in list(_STREAM_MEMORY_CACHE):
+        if _STREAM_MEMORY_CACHE[key][0] <= now: _STREAM_MEMORY_CACHE.pop(key, None)
+    _STREAM_MEMORY_CACHE.pop(cache_key, None)
+    _STREAM_MEMORY_CACHE[cache_key] = (now + ttl, [dict(stream) for stream in streams])
+    while len(_STREAM_MEMORY_CACHE) > 64:
+        _STREAM_MEMORY_CACHE.pop(next(iter(_STREAM_MEMORY_CACHE)))
+
 def _resolve_lock_for(cache_key: str) -> threading.Lock:
-    """Return a stable per-title lock so concurrent misses share one lookup."""
-    with _RESOLVE_LOCKS_LOCK:
-        return _RESOLVE_LOCKS.setdefault(cache_key, threading.Lock())
+    """Stable single-flight locking with fixed memory for any catalog size."""
+    index = int(hashlib.sha256(cache_key.encode()).hexdigest()[:8], 16) % len(_RESOLVE_STRIPES)
+    return _RESOLVE_STRIPES[index]
 
 def sanitize_magnet_uri(raw_uri: str) -> Optional[str]:
     if not raw_uri or not isinstance(raw_uri, str):
@@ -2640,9 +2648,9 @@ def _schedule_zona_playback_enrichment(
             with _ZONA_ENRICHMENT_LOCK:
                 _ZONA_ENRICHMENT_INFLIGHT.discard(cache_key)
 
-    threading.Thread(
-        target=worker, daemon=True, name=f"movia-zona-enrich-{catalog_media_id}"
-    ).start()
+    if _BACKGROUND_STREAM_EXECUTOR.submit(worker) is None:
+        with _ZONA_ENRICHMENT_LOCK: _ZONA_ENRICHMENT_INFLIGHT.discard(cache_key)
+        return False
     return True
 
 
@@ -2925,11 +2933,8 @@ def resolve_on_demand_streams(
                         with _STREAM_REVALIDATION_LOCK:
                             _STREAM_REVALIDATION_INFLIGHT.discard(cache_key)
 
-                threading.Thread(
-                    target=revalidate_worker,
-                    name=f"movia-stream-revalidate-{identity_key}",
-                    daemon=True,
-                ).start()
+                if _BACKGROUND_STREAM_EXECUTOR.submit(revalidate_worker) is None:
+                    with _STREAM_REVALIDATION_LOCK: _STREAM_REVALIDATION_INFLIGHT.discard(cache_key)
 
             scoped_stale = _scope_streams_to_catalog_card(
                 stale_direct_streams, catalog_identity, season, episode
@@ -2964,12 +2969,10 @@ def resolve_on_demand_streams(
 
         # Independent provider branches run together; the union is required to
         # expose all real voice/quality variants.
-        pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="movia-resolve")
+        pool = _PROVIDER_EXECUTOR
+        balancer_future = torrent_future = None
+        direct_consumed = torrent_consumed = False
         try:
-            torrent_future = pool.submit(
-                _resolve_torrent_provider,
-                clean_title, year, clean_category, season, episode,
-            )
             expected_titles = list(dict.fromkeys(
                 value for value in (clean_title, str(original_title or "").strip())
                 if value
@@ -2987,8 +2990,12 @@ def resolve_on_demand_streams(
                 canonical_media_type,
                 force_refresh,
             )
+            if P2P_ENABLED and not CLOUD_MODE:
+                torrent_future = pool.submit(_resolve_torrent_provider,
+                    clean_title, year, clean_category, season, episode)
             try:
-                direct_streams = balancer_future.result(timeout=4.0)
+                direct_streams = balancer_future.result(timeout=4.0) if balancer_future else []
+                direct_consumed = True
             except Exception as exc:
                 print(f"[DEBUG] Balancer query error or timeout: {exc}")
                 direct_streams = []
@@ -3000,12 +3007,17 @@ def resolve_on_demand_streams(
                 )
             try:
                 torrent_timeout = 0.5 if direct_streams else 3.5
-                torrent_streams = torrent_future.result(timeout=torrent_timeout)
+                torrent_streams = torrent_future.result(timeout=torrent_timeout) if torrent_future else []
+                torrent_consumed = True
             except Exception as exc:
                 print(f"Torrent resolve error or timeout: {exc}")
                 torrent_streams = []
         finally:
-            pool.shutdown(wait=False, cancel_futures=True)
+            # Registration occurs after saving the first result below, so an
+            # already-completed late callback cannot be overwritten by it.
+            late_futures = [future for future, consumed in
+                            ((balancer_future,direct_consumed),(torrent_future,torrent_consumed))
+                            if future is not None and not consumed]
 
         if not direct_streams and catalog_identity:
             _schedule_zona_playback_enrichment(
@@ -3050,10 +3062,30 @@ def resolve_on_demand_streams(
         )
         cache_ttl_seconds = 5 * 60 if has_direct_http else 48 * 60 * 60
         set_cached_streams(cache_key, streams, ttl_seconds=cache_ttl_seconds)
-        return streams
+        for future in late_futures:
+            future.add_done_callback(lambda done: _persist_late_provider_results(
+                done, cache_key, catalog_identity, season, episode))
+        return get_cached_streams(cache_key) or streams
     finally:
         resolve_lock.release()
 
+
+def _persist_late_provider_results(future, cache_key, identity, season, episode):
+    if not identity: return
+    lock = _resolve_lock_for(cache_key)
+    try:
+        fresh = _scope_streams_to_catalog_card(future.result(), identity, season, episode)
+        fresh = rank_playback_streams(cloud_exposable_streams(filter_streams_for_episode(fresh, season, episode)))
+        if not fresh: return
+        with lock:
+            current = get_cached_streams(cache_key) or []
+            variants = {row["stream_id"]: row for row in sanitize_streams(current, require_source=True)}
+            for row in fresh: variants[row["stream_id"]] = row
+            merged = list(variants.values())
+            set_cached_streams(cache_key, merged, ttl_seconds=300)
+            persist_resolved_streams_to_catalog(identity["id"], merged)
+    except Exception as error:
+        print(json.dumps({"task":"late-provider-result", "status":"RETRY", "error":type(error).__name__}))
 
 def persist_resolved_streams_to_catalog(content_id: Any, streams: List[Dict[str, Any]]) -> bool:
     """Persist only validated on-demand sources for an existing catalog row.
@@ -4015,7 +4047,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 if is_stream_request:
                     movie_obj = _catalog_playback_movie(movie_id)
                 else:
-                    details = catalog_api.get_movie_details(movie_id)
+                    details = catalog_api.get_movie_details(movie_id, enrich=False)
                     movie_obj = (details or {}).get("movie") if isinstance(details, dict) else None
                 if movie_obj:
                     if is_sequels_request:
@@ -4874,16 +4906,6 @@ def is_streamer_running() -> bool:
         return False
 
 def run_server():
-    if CATALOG_SYNC_ENABLED:
-        live_catalog_sync.start_background_sync(interval_seconds=300)
-    start_background_cache_pruner(interval_seconds=60)
-    try:
-        print("⚡ Pre-warming catalog home cache...")
-        catalog_api.get_home_payload(force_refresh=True)
-        print("✅ Home cache pre-warmed successfully (<20ms response ready).")
-    except Exception as e:
-        print(f"⚠️ Cache pre-warm warning: {e}")
-
     server = ThreadedHTTPServer((HOST, PORT), StreamRequestHandler)
     print(f"🛡️ Movia Secure Streamer & On-Demand Gateway запущен на http://{HOST}:{PORT} (PID: {os.getpid()})")
     with open(PID_FILE, "w") as f:
@@ -4902,6 +4924,20 @@ def run_server():
         signal.signal(signal.SIGHUP, signal.SIG_IGN)
     signal.signal(signal.SIGTERM, shutdown_handler)
     signal.signal(signal.SIGINT, shutdown_handler)
+
+    def warm_home():
+        started = time.monotonic()
+        try:
+            catalog_api.get_home_payload(force_refresh=True)
+            print(json.dumps({"task":"warm-home", "status":"READY", "ms":round((time.monotonic()-started)*1000)}))
+        except Exception as error:
+            print(json.dumps({"task":"warm-home", "status":"RETRY", "error":type(error).__name__}))
+    # Socket/health and persisted playback cards are available while the
+    # bounded home query warms; remote metadata never blocks a card read.
+    threading.Thread(target=warm_home, daemon=True, name="movia-home-warm").start()
+    if CATALOG_SYNC_ENABLED:
+        live_catalog_sync.start_background_sync(interval_seconds=300)
+    start_background_cache_pruner(interval_seconds=60)
 
     try:
         server.serve_forever()
