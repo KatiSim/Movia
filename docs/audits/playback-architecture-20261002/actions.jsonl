@@ -91,3 +91,4 @@
 {"seq": 91, "at": "2026-10-02T14:07:46.166464+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 92, "at": "2026-10-02T14:07:47.104138+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 9, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 93, "at": "2026-10-02T14:07:47.415389+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 94, "at": "2026-10-02T14:07:47.642345+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "С. Рябов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
