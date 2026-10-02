@@ -2896,3 +2896,4 @@
 {"seq": 2896, "at": "2026-10-02T15:39:59.924587+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Eng. Orig. with Commentary", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2897, "at": "2026-10-02T15:40:00.658122+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 25, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2898, "at": "2026-10-02T15:40:03.659845+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2899, "at": "2026-10-02T15:40:04.041576+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Voize", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
