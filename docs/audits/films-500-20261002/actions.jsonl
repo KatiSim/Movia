@@ -4016,3 +4016,4 @@
 {"seq": 4016, "at": "2026-10-02T11:28:48.383429+00:00", "action": "movie_result", "mediaId": "9877", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4017, "at": "2026-10-02T11:28:48.585465+00:00", "action": "player.stop", "mediaId": "322124", "arguments": {}, "accepted": true, "requestMs": 42}
 {"seq": 4018, "at": "2026-10-02T11:28:48.831391+00:00", "action": "media.play", "mediaId": "322124", "arguments": {"mediaId": "322124", "title": "Земля до начала времен", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "62057c9351b82ddc1329"}, "accepted": true, "requestMs": 12}
+{"seq": 4019, "at": "2026-10-02T11:28:51.287335+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
