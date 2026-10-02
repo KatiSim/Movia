@@ -2511,3 +2511,4 @@
 {"seq": 2511, "at": "2026-10-02T11:16:39.800627+00:00", "action": "exact_provider_resolve", "mediaId": "25465", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2512, "at": "2026-10-02T11:16:40.243772+00:00", "action": "internal_movie_result", "mediaId": "15515", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2513, "at": "2026-10-02T11:16:40.736794+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 52}
+{"seq": 2514, "at": "2026-10-02T11:16:40.958713+00:00", "action": "exact_provider_resolve", "mediaId": "45751", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
