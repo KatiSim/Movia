@@ -1,0 +1,36 @@
+{
+  "mediaId": "188543",
+  "title": "LEATHERBACK",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:46.875275+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e14ff802199c118598a4",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 2860,
+      "audioPcmFingerprint": "47eeb13a1432648c4248",
+      "videoFrameFingerprint": "c2f70c39ab6068a34fce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4023
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "48a7e502470e5c9f50b0",
+  "preparedStreamIdFingerprint": "4c3d517d3d5bca3a9520",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
