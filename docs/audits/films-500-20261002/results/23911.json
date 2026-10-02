@@ -669,6 +669,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "П.Гланц и И.Королёва",
+      "expectedAudioLabel": "rus4",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 420,
+      "observed": {
+        "mediaId": "23911",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 21436,
+        "frames": 4210,
+        "quality": "720p",
+        "voice": "П.Гланц и И.Королёва",
+        "streamFingerprint": "d659ff214ff112b8c05a",
+        "locatorFingerprint": "b340698e1edcc4d8a43a",
+        "selectedAudioLabel": "rus4",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:5:0",
+            "rus4",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:18:02.695635+00:00",
