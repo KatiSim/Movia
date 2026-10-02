@@ -1828,3 +1828,4 @@
 {"seq": 1828, "at": "2026-10-02T11:13:47.971345+00:00", "action": "internal_combined_decode", "mediaId": "405789", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1829, "at": "2026-10-02T11:13:48.187348+00:00", "action": "native_matrix321_begin", "evidenceGate": "Exact manifest voice ordinal, actual Media3 audio label, video height, then 3 subsequent frames; preserve position"}
 {"seq": 1830, "at": "2026-10-02T11:13:48.385515+00:00", "action": "preserve_audio_regression_before321", "mediaId": "169"}
+{"seq": 1831, "at": "2026-10-02T11:13:48.572259+00:00", "action": "internal_movie_result", "mediaId": "4002", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
