@@ -669,6 +669,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Е. Гранкин",
+      "expectedAudioLabel": "rus7",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 308,
+      "observed": {
+        "mediaId": "23912",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 23761,
+        "frames": 5679,
+        "quality": "720p",
+        "voice": "Е. Гранкин",
+        "streamFingerprint": "593c97f84a8992adfa8c",
+        "locatorFingerprint": "458fc51828a8316b3918",
+        "selectedAudioLabel": "rus7",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:8:0",
+            "rus7",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:19:33.989001+00:00",
