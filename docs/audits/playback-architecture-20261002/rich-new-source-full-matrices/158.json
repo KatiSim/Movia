@@ -390,5 +390,111 @@
     360,
     720
   ],
-  "advertisedCompatiblePairs": 14
+  "advertisedCompatiblePairs": 14,
+  "profiles": [
+    {
+      "profileFingerprint": "11e7312b70a19c1a3cc9",
+      "advertisedCompatiblePairs": 14,
+      "testedPairs": 14,
+      "passedPairs": 14,
+      "manifestVoices": [
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus1",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus2",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus3",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus4",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "ukr5",
+          "language": "uk",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "eng6",
+          "language": "en",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "rus1",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "rus2",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "rus3",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "rus4",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "ukr5",
+          "language": "uk",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "eng6",
+          "language": "en",
+          "role": "",
+          "group": "failover-audio-0"
+        }
+      ],
+      "manifestQualities": [
+        360,
+        720
+      ],
+      "allPreparedPairsTested": true,
+      "allPreparedPairsPassed": true
+    }
+  ],
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "allCachedHttpProfilesTested": true,
+  "allCachedHttpProfilesPassed": true,
+  "distinctManifestVoices": 7,
+  "distinctManifestQualities": 2
 }
