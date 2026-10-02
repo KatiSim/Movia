@@ -1,0 +1,36 @@
+{
+  "mediaId": "329742",
+  "title": "Best Served Cold",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:50.284360+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a7f4bca14096cdcf628e",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "7c3129079a370bcf1b53",
+      "videoFrameFingerprint": "70f10b1f1068a3ffa55d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2528
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "91843f29444c529ab49e",
+  "preparedStreamIdFingerprint": "10016e411e37a9f668dc",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
