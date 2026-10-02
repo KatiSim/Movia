@@ -484,3 +484,4 @@
 {"seq": 484, "at": "2026-10-02T14:12:11.378780+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 12, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 485, "at": "2026-10-02T14:12:11.900274+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 12, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 486, "at": "2026-10-02T14:12:12.657068+00:00", "action": "native_player.stop", "details": {"mediaId": null, "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 487, "at": "2026-10-02T14:12:13.856896+00:00", "action": "native_player.probeSurface", "details": {"mediaId": null, "arguments": {"enabled": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
