@@ -2830,3 +2830,4 @@
 {"seq": 2830, "at": "2026-10-02T11:18:37.698694+00:00", "action": "exact_provider_resolve", "mediaId": "16539", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2831, "at": "2026-10-02T11:18:37.851950+00:00", "action": "player.selectQuality", "mediaId": "23911", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 30}
 {"seq": 2832, "at": "2026-10-02T11:18:37.998090+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "requestMs": 19}
+{"seq": 2833, "at": "2026-10-02T11:18:38.592582+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
