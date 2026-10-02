@@ -1,0 +1,29 @@
+{
+  "mediaId": "51330",
+  "title": "Убийцы поневоле",
+  "year": 2024,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:39:44.417470+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 4207,
+    "observed": {
+      "mediaId": "51330",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 240,
+      "positionMs": 393,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 2529,
+      "voice": "Original",
+      "streamFingerprint": "546de4879cfc0ff3a937",
+      "locatorFingerprint": "1fd6ba5fa45accb1f4da"
+    },
+    "commandToReadyMs": 4384
+  }
+}
