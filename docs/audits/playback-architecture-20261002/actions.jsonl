@@ -3054,3 +3054,4 @@
 {"seq": 3054, "at": "2026-10-02T15:41:48.556706+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 26, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3055, "at": "2026-10-02T15:41:48.923201+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3056, "at": "2026-10-02T15:41:49.244531+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Е. Рудой", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3057, "at": "2026-10-02T15:41:49.753887+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 27, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
