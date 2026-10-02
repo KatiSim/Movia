@@ -481,3 +481,4 @@
 {"seq": 481, "at": "2026-10-02T14:12:08.697272+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 11, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 482, "at": "2026-10-02T14:12:09.499290+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 483, "at": "2026-10-02T14:12:10.373336+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "delete · дорожка 6", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 484, "at": "2026-10-02T14:12:11.378780+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 12, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
