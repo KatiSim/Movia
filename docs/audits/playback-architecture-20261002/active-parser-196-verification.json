@@ -1,0 +1,62 @@
+{
+  "backendTestsPassed": 196,
+  "activeServiceChanged": true,
+  "phoneUiInteraction": false,
+  "cardRequests": [
+    {
+      "route": "/api/movie/164/playback",
+      "ms": 387,
+      "id": "164",
+      "sourceRows": 75,
+      "cacheControl": "no-store",
+      "status": "PASS"
+    },
+    {
+      "route": "/api/movie/375/playback",
+      "ms": 76,
+      "id": "375",
+      "sourceRows": 30,
+      "cacheControl": "no-store",
+      "status": "PASS"
+    },
+    {
+      "route": "/api/movie/164/playback",
+      "ms": 345,
+      "id": "164",
+      "sourceRows": 75,
+      "cacheControl": "no-store",
+      "status": "PASS"
+    },
+    {
+      "route": "/api/movie/164",
+      "ms": 944,
+      "id": "164",
+      "sourceRows": 75,
+      "cacheControl": null,
+      "status": "PASS"
+    },
+    {
+      "route": "/api/movie/375",
+      "ms": 717,
+      "id": "375",
+      "sourceRows": 30,
+      "cacheControl": null,
+      "status": "PASS"
+    },
+    {
+      "route": "/api/movie/164/stream",
+      "ms": 277,
+      "id": "164",
+      "sourceRows": 74,
+      "cacheControl": "no-store",
+      "status": "PASS"
+    }
+  ],
+  "catalogRowsBefore": 96799,
+  "healthReadyMs": 2176,
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true,
+  "catalogRowsAfter": 96799,
+  "rootIndexPreserved": true,
+  "status": "PASS"
+}
