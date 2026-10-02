@@ -1,0 +1,50 @@
+{
+  "mediaId": "22299",
+  "title": "Сиротки бури",
+  "year": 1921,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:18:51.744350+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "51628f3b07bebe6647ee",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "45c71c9f699a84b03a0f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3393,
+      "profileFingerprint": "3a8f4a3acac5f8de6bac",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "profileChecks": [
+    {
+      "profileFingerprint": "3a8f4a3acac5f8de6bac",
+      "status": "PREPARED"
+    },
+    {
+      "profileFingerprint": "c7c298d11682f236843d",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "2390c1d2b89033a01214",
+  "preparedStreamIdFingerprint": "a1e4815fbe5f6f1f0a33",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
