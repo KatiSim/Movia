@@ -1313,3 +1313,4 @@
 {"seq": 1313, "at": "2026-10-02T11:08:33.381891+00:00", "action": "internal_combined_decode", "mediaId": "45761", "qualityHeight": 360, "voice": "default", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1314, "at": "2026-10-02T11:08:35.061296+00:00", "action": "internal_movie_result", "mediaId": "10055", "actualDecoded": true, "voices": 1, "qualities": 2, "errorCategory": null}
 {"seq": 1315, "at": "2026-10-02T11:08:35.428532+00:00", "action": "exact_provider_resolve", "mediaId": "57873", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 1316, "at": "2026-10-02T11:08:36.437060+00:00", "action": "internal_movie_result", "mediaId": "45761", "actualDecoded": true, "voices": 1, "qualities": 2, "errorCategory": null}
