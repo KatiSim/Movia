@@ -1,0 +1,36 @@
+{
+  "mediaId": "20560",
+  "title": "Изменчивые басни: Черепаха против Зайца",
+  "year": 2008,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:14.407946+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b8f1f3d799ff25aae0a5",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "143b007f6f52a111f267",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3424
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b18ec9d433d7a40752ba",
+  "preparedStreamIdFingerprint": "1bfcb848ff63cdc49104",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
