@@ -1467,3 +1467,4 @@
 {"seq": 1467, "at": "2026-10-02T14:34:45.953646+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "19036", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1468, "at": "2026-10-02T14:34:46.202099+00:00", "action": "native_player.stop", "details": {"mediaId": "264898", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1469, "at": "2026-10-02T14:34:46.505085+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "40718", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 1470, "at": "2026-10-02T14:34:46.719955+00:00", "action": "native_media.play", "details": {"mediaId": "264898", "arguments": {"mediaId": "264898", "title": "Baggo", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "41bb9dfe2c9b9dfb1b39"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
