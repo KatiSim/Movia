@@ -1,0 +1,52 @@
+{
+  "mediaId": "45143",
+  "title": "Индийская дрофа",
+  "year": 2019,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:09.349080+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "c518fe7ff5f864afcc9f",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "44dcc1fe96569fac09b2",
+      "videoFrameFingerprint": "b14fd2537e2f3446ad13",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7583
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7081ca08a1d6c255b735",
+  "preparedStreamIdFingerprint": "cb99157b76413b4e8222",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
