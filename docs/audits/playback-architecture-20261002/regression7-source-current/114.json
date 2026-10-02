@@ -228,5 +228,9 @@
     360,
     720
   ],
-  "advertisedCompatiblePairs": 32
+  "advertisedCompatiblePairs": 32,
+  "allPreparedPairsTested": false,
+  "allPreparedPairsPassed": false,
+  "distinctManifestVoices": 16,
+  "distinctManifestQualities": 2
 }
