@@ -891,6 +891,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "LeDoyen (укр)",
+      "expectedAudioLabel": "ukr10",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 239,
+      "observed": {
+        "mediaId": "23911",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 29378,
+        "frames": 4401,
+        "quality": "720p",
+        "voice": "LeDoyen (укр)",
+        "streamFingerprint": "f1e88e6084eec5844b08",
+        "locatorFingerprint": "b340698e1edcc4d8a43a",
+        "selectedAudioLabel": "ukr10",
+        "selectedAudioLanguage": "uk",
+        "selectedAudio": [
+          [
+            "track:1:11:0",
+            "ukr10",
+            "uk"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:18:02.695635+00:00",
