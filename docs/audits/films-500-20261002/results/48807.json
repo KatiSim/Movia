@@ -1,0 +1,42 @@
+{
+  "index": 5,
+  "mediaId": "48807",
+  "title": "FYRE: Величайшая вечеринка, которая не состоялась",
+  "year": 2019,
+  "rating": 6.9,
+  "voteCount": 1030,
+  "genres": "[\"документальный\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14189.53,
+    "observed": {
+      "mediaId": "48807",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "8bcc4c693ee6648e0894",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14306.43,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:39:30.963958+00:00"
+}

@@ -19,3 +19,4 @@
 {"seq": 19, "at": "2026-10-02T10:39:16.372756+00:00", "action": "movie_result", "mediaId": "1100801", "decoded": false, "voices": 0, "qualities": 0}
 {"seq": 20, "at": "2026-10-02T10:39:16.553266+00:00", "action": "player.stop", "mediaId": "48807", "arguments": {}, "accepted": true, "requestMs": 56}
 {"seq": 21, "at": "2026-10-02T10:39:16.665497+00:00", "action": "media.play", "mediaId": "48807", "arguments": {"mediaId": "48807", "title": "FYRE: Величайшая вечеринка, которая не состоялась", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 8}
+{"seq": 22, "at": "2026-10-02T10:39:30.966835+00:00", "action": "movie_result", "mediaId": "48807", "decoded": false, "voices": 0, "qualities": 0}
