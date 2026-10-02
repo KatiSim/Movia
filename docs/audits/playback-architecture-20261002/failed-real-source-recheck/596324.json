@@ -1,0 +1,16 @@
+{
+  "mediaId": "596324",
+  "title": "Volver",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:38.624294+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "profileChecks": [],
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
