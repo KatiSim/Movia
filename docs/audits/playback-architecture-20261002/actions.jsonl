@@ -2980,3 +2980,4 @@
 {"seq": 2980, "at": "2026-10-02T15:40:58.661561+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2981, "at": "2026-10-02T15:40:58.985827+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "КиноПоиск HD", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2982, "at": "2026-10-02T15:40:59.674396+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 2, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2983, "at": "2026-10-02T15:41:00.052362+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
