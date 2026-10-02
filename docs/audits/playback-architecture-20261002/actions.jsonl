@@ -1633,3 +1633,4 @@
 {"seq": 1633, "at": "2026-10-02T14:38:47.536171+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "57223", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1634, "at": "2026-10-02T14:38:48.582394+00:00", "action": "backend_full_playback_card_verification", "details": {"exitCode": 0, "activeServiceChanged": false}, "sourcePaths": []}
 {"seq": 1635, "at": "2026-10-02T14:38:50.888824+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45563", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1636, "at": "2026-10-02T14:38:51.368849+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "45563", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
