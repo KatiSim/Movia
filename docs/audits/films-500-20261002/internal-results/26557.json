@@ -1,0 +1,49 @@
+{
+  "mediaId": "26557",
+  "title": "Зелёный слоник",
+  "year": 1999,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5d745a8a4a5dcec4974b",
+      "ms": 2673,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 1,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:10:51.386701+00:00"
+}
