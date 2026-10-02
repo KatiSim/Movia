@@ -1,0 +1,72 @@
+{
+  "mediaId": "45215",
+  "title": "Шершах",
+  "year": 2021,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "710a25478e3e843c9c0e",
+      "ms": 3225,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Профессиональный (МВО)",
+    "Ю. Немахов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "hin2",
+      "language": "hi",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "hin2",
+      "language": "hi",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 6,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:50.905760+00:00"
+}
