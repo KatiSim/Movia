@@ -1,0 +1,61 @@
+{
+  "index": 21,
+  "mediaId": "21168",
+  "title": "Земля",
+  "year": 2007,
+  "rating": 7.4,
+  "voteCount": 378,
+  "genres": "[\"документальный\"]",
+  "variants": [],
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 3516.81,
+    "observed": {
+      "mediaId": "21168",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 360,
+      "positionMs": 163,
+      "frames": 56,
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "6b662927fa5d6d822307",
+      "locatorFingerprint": "fb5db6b212fd9eab26b4",
+      "selectedAudioLabel": "def0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:1",
+          "def0 · 2",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 3724.72,
+    "withinFiveSeconds": true
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Eng. Orig. with Commentary",
+      "Original (с субтитрами)",
+      "def0",
+      "def0 · 2",
+      "def1",
+      "def1 · 4",
+      "def2",
+      "def2 · 6",
+      "Авторский (Одноголосый)"
+    ],
+    "qualityLabels": [
+      "360p"
+    ],
+    "advertisedPairs": [],
+    "sourceRows": 3,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:42:36.992110+00:00"
+}
