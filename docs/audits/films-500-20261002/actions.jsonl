@@ -3857,3 +3857,4 @@
 {"seq": 3857, "at": "2026-10-02T11:27:08.119983+00:00", "action": "player.stop", "mediaId": "12265", "arguments": {}, "accepted": true, "requestMs": 42}
 {"seq": 3858, "at": "2026-10-02T11:27:08.366599+00:00", "action": "media.play", "mediaId": "12265", "arguments": {"mediaId": "12265", "title": "Тарзан. Легенда", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "75e7453590f5c4f7b842"}, "accepted": true, "requestMs": 13}
 {"seq": 3859, "at": "2026-10-02T11:27:13.946002+00:00", "action": "movie_result", "mediaId": "12265", "decoded": true, "voices": 3, "qualities": 3}
+{"seq": 3860, "at": "2026-10-02T11:27:14.273223+00:00", "action": "player.selectQuality", "mediaId": "12265", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 32}
