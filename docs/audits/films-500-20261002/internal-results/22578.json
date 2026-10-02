@@ -1,0 +1,83 @@
+{
+  "mediaId": "22578",
+  "title": "Том и Джерри: Быстрый и бешеный",
+  "year": 2005,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 406,
+      "actualHeight": 406,
+      "qualityMatches": true,
+      "voice": "Пифагор",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2799,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Авторский (Одноголосый)",
+    "Пифагор (Дубляж)",
+    "ТВ3"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    406,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "Пифагор",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ТВ3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Одноголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "Пифагор",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ТВ3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Одноголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:08:07.513524+00:00"
+}
