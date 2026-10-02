@@ -1970,3 +1970,4 @@
 {"seq": 1970, "at": "2026-10-02T11:14:23.211364+00:00", "action": "internal_movie_result", "mediaId": "20902", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 1971, "at": "2026-10-02T11:14:23.357904+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 41}
 {"seq": 1972, "at": "2026-10-02T11:14:23.447527+00:00", "action": "internal_movie_result", "mediaId": "20376", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 1973, "at": "2026-10-02T11:14:23.607509+00:00", "action": "exact_provider_resolve", "mediaId": "11090", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
