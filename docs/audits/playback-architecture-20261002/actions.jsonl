@@ -1290,3 +1290,4 @@
 {"seq": 1290, "at": "2026-10-02T14:31:49.786936+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "45232", "arguments": {"voice": "Синема УС", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1291, "at": "2026-10-02T14:31:50.693924+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45232", "started": true, "pairs": 2, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1292, "at": "2026-10-02T14:31:50.914465+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45232", "started": true, "pairs": 2, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 1293, "at": "2026-10-02T14:31:51.223283+00:00", "action": "native_player.stop", "details": {"mediaId": "57322", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
