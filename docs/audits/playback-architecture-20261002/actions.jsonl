@@ -1278,3 +1278,4 @@
 {"seq": 1278, "at": "2026-10-02T14:31:43.751237+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "404109", "started": true, "pairs": 2, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 1279, "at": "2026-10-02T14:31:44.043504+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "27336", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1280, "at": "2026-10-02T14:31:44.197824+00:00", "action": "native_player.stop", "details": {"mediaId": "45232", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1281, "at": "2026-10-02T14:31:44.476537+00:00", "action": "native_media.play", "details": {"mediaId": "45232", "arguments": {"mediaId": "45232", "title": "Внимание, опасная жена!", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "d9f3733550a5976dcdfb"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
