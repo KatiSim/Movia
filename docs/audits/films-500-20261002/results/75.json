@@ -40,6 +40,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "Ю. Сербин",
+      "expectedAudioLabel": "rus1",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 411,
+      "observed": {
+        "mediaId": "75",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 1335,
+        "frames": 4578,
+        "quality": "270p",
+        "voice": "Ю. Сербин",
+        "streamFingerprint": "220c5b3ded3c3adf47b4",
+        "locatorFingerprint": "3a0b56582f4d9faef5c7",
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:2:0",
+            "rus1",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:18:51.729029+00:00",
