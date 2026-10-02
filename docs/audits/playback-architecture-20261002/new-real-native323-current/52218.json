@@ -1,0 +1,29 @@
+{
+  "mediaId": "52218",
+  "title": "Микки Маус: Безумный самолёт",
+  "year": 1929,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:26:27.558594+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 4782,
+    "observed": {
+      "mediaId": "52218",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 360,
+      "positionMs": 127,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 301,
+      "voice": "Original",
+      "streamFingerprint": "eb568b68e9e21fd12ee2",
+      "locatorFingerprint": "6a8d1dbfd35dcf4b40be"
+    },
+    "commandToReadyMs": 4993
+  }
+}
