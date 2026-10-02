@@ -1,0 +1,42 @@
+{
+  "index": 10,
+  "mediaId": "18749",
+  "title": "Елена – свободная",
+  "year": 2010,
+  "rating": 6.7,
+  "voteCount": 184,
+  "genres": "[\"драма\",\"мелодрама\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14136.82,
+    "observed": {
+      "mediaId": "18749",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 39,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14293.25,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:40:15.438594+00:00"
+}
