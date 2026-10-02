@@ -3,7 +3,45 @@
   "title": "Дэдпул",
   "year": 2016,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 630,
+      "observed": {
+        "mediaId": "12245",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 716,
+        "frames": 493,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "68f56127b05ffa1daba2",
+        "locatorFingerprint": "615c871aa3e7cf5371c1",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:14:31.426117+00:00",
   "startup": {
     "decoded": true,
