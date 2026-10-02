@@ -1,0 +1,16 @@
+{
+  "mediaId": "51377",
+  "title": "Во все тяжкие",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:38.323611+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "profileChecks": [],
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
