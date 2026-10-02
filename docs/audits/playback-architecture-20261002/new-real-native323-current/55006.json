@@ -1,0 +1,29 @@
+{
+  "mediaId": "55006",
+  "title": "Жизнь с отцом",
+  "year": 1947,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:39:08.082126+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 5355,
+    "observed": {
+      "mediaId": "55006",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 196,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 2434,
+      "voice": "Original",
+      "streamFingerprint": "14877806d34f36553aa4",
+      "locatorFingerprint": "0d0bd9dc1daa30d0173c"
+    },
+    "commandToReadyMs": 5599
+  }
+}
