@@ -348,3 +348,4 @@
 {"seq": 348, "at": "2026-10-02T14:10:32.915901+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "44153", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 349, "at": "2026-10-02T14:10:33.329097+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 12, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 350, "at": "2026-10-02T14:10:33.808604+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 351, "at": "2026-10-02T14:10:34.156904+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "М. Яроцкий", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
