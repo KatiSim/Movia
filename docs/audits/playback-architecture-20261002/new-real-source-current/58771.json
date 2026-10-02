@@ -1,0 +1,36 @@
+{
+  "mediaId": "58771",
+  "title": "Долг",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:46.260455+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "69b0241463f50d0eadab",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "27f2d5f3e0e51057d731",
+      "videoFrameFingerprint": "7592fee006eec4014d77",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4140
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2e37d82acb66442dbc68",
+  "preparedStreamIdFingerprint": "c2f107b732d20960b8e1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
