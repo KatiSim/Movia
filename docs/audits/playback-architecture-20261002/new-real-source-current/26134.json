@@ -1,0 +1,36 @@
+{
+  "mediaId": "26134",
+  "title": "Приключения Льва в волшебной стране Оз",
+  "year": 2000,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:49:22.105491+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6a1b294b5260082f261d",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "1e610e978d7e89f1c94c",
+      "videoFrameFingerprint": "1fa31ec1e74ebe4830d3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4796
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5a9862c841ec1c5977d1",
+  "preparedStreamIdFingerprint": "d0acb8c75656dd060685",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
