@@ -1,0 +1,36 @@
+{
+  "mediaId": "56853",
+  "title": "Дональд Дак: Утка коммандос",
+  "year": 1944,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:14.018099+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "548da9857d0a834985ce",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "a181c5e8186efc8850f4",
+      "videoFrameFingerprint": "b6da84bef3defadce9bb",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3355
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ad99fbdf2f5d5cb30357",
+  "preparedStreamIdFingerprint": "c8173228fa3781379276",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
