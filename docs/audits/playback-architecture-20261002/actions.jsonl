@@ -2366,3 +2366,4 @@
 {"seq": 2366, "at": "2026-10-02T15:01:56.711049+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "57160", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 2367, "at": "2026-10-02T15:01:57.047387+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "22996", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 2368, "at": "2026-10-02T15:01:57.469632+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectQuality", "quality": "534p", "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
+{"seq": 2369, "at": "2026-10-02T15:01:57.832600+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectVoice", "quality": null, "voice": "AlphaProject", "status": "completed", "code": null}, "sourcePaths": []}
