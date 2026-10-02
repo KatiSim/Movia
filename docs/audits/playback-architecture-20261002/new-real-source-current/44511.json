@@ -1,0 +1,36 @@
+{
+  "mediaId": "44511",
+  "title": "Страх и вожделение",
+  "year": 1953,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:10.906480+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8b73b9d0f964f4d0df17",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "95b7030611f8683ac0c9",
+      "videoFrameFingerprint": "1b3983e7d831d63bdeda",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4761
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "1d4699ed35116e2f81dc",
+  "preparedStreamIdFingerprint": "3c842b4c30f987046efa",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
