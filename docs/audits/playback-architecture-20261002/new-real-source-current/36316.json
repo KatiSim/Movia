@@ -1,0 +1,36 @@
+{
+  "mediaId": "36316",
+  "title": "Гвиана: Преступление века",
+  "year": 1979,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:27.339133+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "44c617789e3d979d089f",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "1084c41bb3d935ca80a3",
+      "videoFrameFingerprint": "0cfc92ed09e407388165",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4299
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "801da654044a504e9342",
+  "preparedStreamIdFingerprint": "51f89b878d360b424b8e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
