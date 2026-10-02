@@ -2953,3 +2953,4 @@
 {"seq": 2953, "at": "2026-10-02T15:40:38.098370+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "А.Алексеев", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2954, "at": "2026-10-02T15:40:38.634292+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 44, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2955, "at": "2026-10-02T15:40:39.058664+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2956, "at": "2026-10-02T15:40:39.396345+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "В. Дохалов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
