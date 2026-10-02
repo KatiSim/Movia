@@ -103,3 +103,4 @@
 {"seq": 103, "at": "2026-10-02T14:07:51.674184+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "ТЕТ (укр)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 104, "at": "2026-10-02T14:07:52.311410+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 13, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 105, "at": "2026-10-02T14:07:52.629148+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 106, "at": "2026-10-02T14:07:52.899883+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Профессиональный (МВО) · дорожка 14", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
