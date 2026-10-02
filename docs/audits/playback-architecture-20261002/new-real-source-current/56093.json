@@ -1,0 +1,36 @@
+{
+  "mediaId": "56093",
+  "title": "Хозяева денег",
+  "year": 1996,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:59.773952+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "870b97bfcfad409b93cb",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "868bcf70fc27335996d3",
+      "videoFrameFingerprint": "c9de7649fbbecc0faa49",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5392
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "ed117c8f5e9d5e24ee5c",
+  "preparedStreamIdFingerprint": "decdbfbf103827f6b199",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
