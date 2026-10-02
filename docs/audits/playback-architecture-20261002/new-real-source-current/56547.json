@@ -1,0 +1,36 @@
+{
+  "mediaId": "56547",
+  "title": "Ангелы ада",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:17.874778+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6c31514ab7b8d1ac4935",
+      "decoded": true,
+      "actualHeight": 2160,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "c9a91a8807e4f642e5ad",
+      "videoFrameFingerprint": "8b4ce8cd5d210a788e2b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5749
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "42e0a529e8eed6975660",
+  "preparedStreamIdFingerprint": "3da049259deaa1e73234",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
