@@ -1590,3 +1590,4 @@
 {"seq": 1590, "at": "2026-10-02T11:11:49.207903+00:00", "action": "internal_movie_result", "mediaId": "38811", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 1591, "at": "2026-10-02T11:11:49.603451+00:00", "action": "exact_provider_resolve", "mediaId": "45589", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1592, "at": "2026-10-02T11:12:05.211589+00:00", "action": "internal_decoder_harness_correction", "reason": "Removed premature audio frame limit that stopped the muxer before video output; previous zero-video observations are rechecked."}
+{"seq": 1593, "at": "2026-10-02T11:12:05.437621+00:00", "action": "internal_additional_candidates_begin", "scope": "Exact owned-provider resolution, real combined video+audio decoder per movie. Does not replace native Media3 switching tests."}
