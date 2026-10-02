@@ -1,0 +1,36 @@
+{
+  "mediaId": "2088",
+  "title": "Daddy's Home",
+  "year": 2010,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:29.378109+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ddcf401b0cd668794e63",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "c73c4b3802e0b32446af",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3580
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2790fc4d05d560d8154f",
+  "preparedStreamIdFingerprint": "a9951495c18ec41ddffc",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
