@@ -1507,3 +1507,4 @@
 {"seq": 1507, "at": "2026-10-02T14:35:50.067556+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "404100", "quality": 268, "voice": "def0"}, "sourcePaths": []}
 {"seq": 1508, "at": "2026-10-02T14:35:50.872492+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "511566", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1509, "at": "2026-10-02T14:35:51.304604+00:00", "action": "native_player.stop", "details": {"mediaId": "46394", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1510, "at": "2026-10-02T14:35:51.651710+00:00", "action": "native_media.play", "details": {"mediaId": "46394", "arguments": {"mediaId": "46394", "title": "Соблюдайте тишину", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "3a4685dc3ec6fb76b12b"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
