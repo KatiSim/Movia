@@ -120,3 +120,4 @@
 {"seq": 120, "at": "2026-10-02T14:07:59.738479+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 121, "at": "2026-10-02T14:08:00.007448+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Reanimedia", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 122, "at": "2026-10-02T14:08:00.610091+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 19, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 123, "at": "2026-10-02T14:08:00.933318+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
