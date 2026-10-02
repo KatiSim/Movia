@@ -4,7 +4,34 @@
   "year": 1988,
   "build": 323,
   "checkedAt": "2026-10-02T14:10:44.888727+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "406p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "def0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 796,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 406,
+        "positionMs": 3854,
+        "selectedAudioLabel": "def0",
+        "selectedAudioLanguage": "ru",
+        "frames": 2993,
+        "voice": "Дубляж",
+        "streamFingerprint": "62057c9351b82ddc1329",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,47 @@
       "locatorFingerprint": "18ecbfb721c28071cdda"
     },
     "commandToReadyMs": 3648
-  }
+  },
+  "preparedSupportedPairs": 14,
+  "preparedQualities": [
+    406,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Дубляж",
+      "actualName": "def0",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 2",
+      "actualName": "def1",
+      "language": "ru"
+    },
+    {
+      "choice": "Ю. Живов",
+      "actualName": "def2",
+      "language": "ru"
+    },
+    {
+      "choice": "Авторский (Одноголосый)",
+      "actualName": "def3",
+      "language": "ru"
+    },
+    {
+      "choice": "C. Визгунов",
+      "actualName": "def4",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 6",
+      "actualName": "def5",
+      "language": "ru"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "def6",
+      "language": "ru"
+    }
+  ]
 }
