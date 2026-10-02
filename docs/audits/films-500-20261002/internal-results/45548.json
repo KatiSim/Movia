@@ -1,0 +1,13 @@
+{
+  "mediaId": "45548",
+  "title": "Бо Бёрнем: Дарить счастье",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:50.993014+00:00"
+}
