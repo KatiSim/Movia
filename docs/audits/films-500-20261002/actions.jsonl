@@ -2641,3 +2641,4 @@
 {"seq": 2641, "at": "2026-10-02T11:17:24.668021+00:00", "action": "player.stop", "mediaId": "248", "arguments": {}, "accepted": true, "requestMs": 82}
 {"seq": 2642, "at": "2026-10-02T11:17:24.908922+00:00", "action": "media.play", "mediaId": "248", "arguments": {"mediaId": "248", "title": "Мстители: Финал", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "34f49884b3883cd60073"}, "accepted": true, "requestMs": 12}
 {"seq": 2643, "at": "2026-10-02T11:17:25.144580+00:00", "action": "internal_movie_result", "mediaId": "154280", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2644, "at": "2026-10-02T11:17:25.743993+00:00", "action": "exact_provider_resolve", "mediaId": "26404", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
