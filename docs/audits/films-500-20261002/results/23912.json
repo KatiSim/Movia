@@ -743,6 +743,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "delete",
+      "expectedAudioLabel": "eng9",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 458,
+      "observed": {
+        "mediaId": "23912",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 26191,
+        "frames": 5738,
+        "quality": "720p",
+        "voice": "delete",
+        "streamFingerprint": "0e771826fcbcd11eb263",
+        "locatorFingerprint": "458fc51828a8316b3918",
+        "selectedAudioLabel": "eng9",
+        "selectedAudioLanguage": "en",
+        "selectedAudio": [
+          [
+            "track:1:10:0",
+            "eng9",
+            "en"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:19:33.989001+00:00",
