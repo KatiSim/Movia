@@ -1,0 +1,70 @@
+{
+  "mediaId": "584181",
+  "title": "Яблочное зёрнышко",
+  "year": 1988,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "6b906f8894c63ec0b626",
+      "ms": 3172,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Авторский (Одноголосый)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn3",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn3",
+      "language": "ja",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 3,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:05:30.271934+00:00"
+}
