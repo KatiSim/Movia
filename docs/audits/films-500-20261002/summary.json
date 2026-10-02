@@ -1,7 +1,7 @@
 {
   "phase": "starts",
   "selected": 500,
-  "attempted": 28,
+  "attempted": 29,
   "decodedStarted": 9,
   "withThreeVoiceLabels": 8,
   "withTwoQualityLabels": 8,
@@ -12,8 +12,8 @@
   "variantFailed": 2,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:17:24.921943+00:00",
-  "actionsRecorded": 2642,
+  "updatedAt": "2026-10-02T11:17:35.296992+00:00",
+  "actionsRecorded": 2652,
   "lastPublishedAction": 2630,
-  "githubSyncError": null
+  "githubSyncError": "Git push failed, exit 1"
 }

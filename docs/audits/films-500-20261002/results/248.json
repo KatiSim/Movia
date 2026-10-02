@@ -1,0 +1,38 @@
+{
+  "mediaId": "248",
+  "title": "Мстители: Финал",
+  "year": 2019,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:17:24.581624+00:00",
+  "startup": {
+    "decoded": false,
+    "ms": 10020.21,
+    "observed": {
+      "mediaId": "",
+      "state": "IDLE",
+      "switchState": "IDLE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 3383,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 10263
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "technicalTrackLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  }
+}
