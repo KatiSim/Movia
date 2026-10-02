@@ -1,0 +1,36 @@
+{
+  "mediaId": "37502",
+  "title": "Барокко",
+  "year": 1976,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:57.633950+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3218fb91cf309e3fa595",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "6837e6109964eeea9e33",
+      "videoFrameFingerprint": "6eabfbe3828073edc452",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3061
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "98357705fd019cb00d21",
+  "preparedStreamIdFingerprint": "fc3cc35fec446077beba",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
