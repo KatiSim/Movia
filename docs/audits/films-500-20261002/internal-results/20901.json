@@ -1,0 +1,13 @@
+{
+  "mediaId": "20901",
+  "title": "Человек-паук 3: Враг в отражении",
+  "year": 2007,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:17:10.072037+00:00"
+}
