@@ -2859,3 +2859,4 @@
 {"seq": 2859, "at": "2026-10-02T15:39:33.116899+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2860, "at": "2026-10-02T15:39:33.455170+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2861, "at": "2026-10-02T15:39:34.308017+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 13, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2862, "at": "2026-10-02T15:39:34.724623+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
