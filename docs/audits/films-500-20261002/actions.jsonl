@@ -3753,3 +3753,4 @@
 {"seq": 3753, "at": "2026-10-02T11:25:36.911112+00:00", "action": "player.selectVoice", "mediaId": "172", "arguments": {"voice": "Профессиональный (МВО), Двухголосый (ДВО)", "persist": false}, "accepted": true, "requestMs": 41}
 {"seq": 3754, "at": "2026-10-02T11:25:37.375012+00:00", "action": "movie_result", "mediaId": "172", "decoded": true, "voices": 10, "qualities": 3}
 {"seq": 3755, "at": "2026-10-02T11:25:37.731307+00:00", "action": "player.selectQuality", "mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 62}
+{"seq": 3756, "at": "2026-10-02T11:25:37.940746+00:00", "action": "player.selectVoice", "mediaId": "172", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "requestMs": 37}
