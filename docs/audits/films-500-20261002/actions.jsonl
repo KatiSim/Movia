@@ -3851,3 +3851,4 @@
 {"seq": 3851, "at": "2026-10-02T11:27:05.284369+00:00", "action": "player.selectVoice", "mediaId": "8611", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 47}
 {"seq": 3852, "at": "2026-10-02T11:27:06.162336+00:00", "action": "movie_result", "mediaId": "8611", "decoded": true, "voices": 4, "qualities": 4}
 {"seq": 3853, "at": "2026-10-02T11:27:06.411923+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 25}
+{"seq": 3854, "at": "2026-10-02T11:27:06.716295+00:00", "action": "player.selectVoice", "mediaId": "8611", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 52}
