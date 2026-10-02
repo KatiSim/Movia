@@ -410,6 +410,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Ю. Живов",
+      "expectedAudioLabel": "rus3",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 243,
+      "observed": {
+        "mediaId": "11095",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 12429,
+        "frames": 6373,
+        "quality": "720p",
+        "voice": "Ю. Живов",
+        "streamFingerprint": "d48bbdb2b4a48c3dde7f",
+        "locatorFingerprint": "453e60143717578acbd2",
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:4:0",
+            "rus3",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:20:38.836210+00:00",
