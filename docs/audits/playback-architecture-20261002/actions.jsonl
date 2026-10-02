@@ -2871,3 +2871,4 @@
 {"seq": 2871, "at": "2026-10-02T15:39:41.286069+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2872, "at": "2026-10-02T15:39:41.621138+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2873, "at": "2026-10-02T15:39:42.425417+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 17, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2874, "at": "2026-10-02T15:39:42.865208+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
