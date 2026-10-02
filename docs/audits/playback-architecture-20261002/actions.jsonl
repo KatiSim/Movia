@@ -2244,3 +2244,4 @@
 {"seq": 2244, "at": "2026-10-02T14:58:36.708703+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2245, "at": "2026-10-02T14:58:36.855986+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2246, "at": "2026-10-02T14:58:37.143730+00:00", "action": "native_player.stop", "details": {"mediaId": null, "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2247, "at": "2026-10-02T14:58:37.411145+00:00", "action": "native_player.probeSurface", "details": {"mediaId": null, "arguments": {"enabled": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
