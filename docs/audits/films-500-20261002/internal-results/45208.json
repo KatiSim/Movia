@@ -1,0 +1,60 @@
+{
+  "mediaId": "45208",
+  "title": "Дыхание: Да здравствует Отечество",
+  "year": 2009,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 324,
+      "actualHeight": 324,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "dbe54dba4990d9abc0a7",
+      "ms": 3043,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Авторский (Одноголосый)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    324
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:05:25.747990+00:00"
+}
