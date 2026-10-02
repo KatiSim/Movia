@@ -1,0 +1,36 @@
+{
+  "mediaId": "32588",
+  "title": "Марафон",
+  "year": 1988,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:02.903813+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4f0d63f5baaa1fc684fe",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 8,
+      "audioPcmFingerprint": "e18f5e548f38fdac23bd",
+      "videoFrameFingerprint": "4edca38519407602efce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3117
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9b5f87c57daab7e4c95b",
+  "preparedStreamIdFingerprint": "071bedd3c226c2ad0730",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
