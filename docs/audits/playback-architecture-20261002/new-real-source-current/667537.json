@@ -1,0 +1,52 @@
+{
+  "mediaId": "667537",
+  "title": "Before the Ice Melts",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:41.498563+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "e95da7ac9ea1c9e27f9e",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "23371ed548f8f6a10a0c",
+      "videoFrameFingerprint": "b130c3d82297bc30a4c6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3516
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5e8a73ed98c19ac646e9",
+  "preparedStreamIdFingerprint": "92bbf472e92bab317ef3",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    680
+  ],
+  "advertisedCompatiblePairs": 2
+}
