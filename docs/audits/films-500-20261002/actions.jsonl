@@ -703,3 +703,4 @@
 {"seq": 703, "at": "2026-10-02T10:59:46.503462+00:00", "action": "exact_provider_resolve", "mediaId": "259", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 704, "at": "2026-10-02T10:59:46.710565+00:00", "action": "exact_provider_resolve", "mediaId": "169", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 705, "at": "2026-10-02T11:00:02.174842+00:00", "action": "internal_combined_decode", "mediaId": "169", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
+{"seq": 706, "at": "2026-10-02T11:00:02.600302+00:00", "action": "internal_combined_decode", "mediaId": "259", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
