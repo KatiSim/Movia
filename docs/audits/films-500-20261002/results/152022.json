@@ -1,0 +1,133 @@
+{
+  "mediaId": "152022",
+  "title": "1+1",
+  "year": 2011,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:22:50.627242+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2833.58,
+    "observed": {
+      "mediaId": "152022",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 332,
+      "frames": 8337,
+      "quality": "720p",
+      "voice": "R5",
+      "streamFingerprint": "1be2a001ecfce5904881",
+      "locatorFingerprint": "89416fd968bce1686020",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 3404
+  },
+  "inventory": {
+    "voiceLabels": [
+      "1+1",
+      "AAA Sound",
+      "Original (с субтитрами)",
+      "Ozz",
+      "R5",
+      "fin3",
+      "Авторский (Одноголосый)",
+      "Профессиональный (МВО)",
+      "ТРК Украина"
+    ],
+    "technicalTrackLabels": [
+      "delete",
+      "fre8",
+      "rus0",
+      "rus1",
+      "rus2",
+      "ukr4",
+      "ukr5",
+      "ukr6",
+      "ukr7"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p"
+    ],
+    "advertisedPairs": [
+      [
+        "360p",
+        "1+1"
+      ],
+      [
+        "360p",
+        "AAA Sound"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "Ozz"
+      ],
+      [
+        "360p",
+        "R5"
+      ],
+      [
+        "360p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "360p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "360p",
+        "ТРК Украина"
+      ],
+      [
+        "720p",
+        "1+1"
+      ],
+      [
+        "720p",
+        "AAA Sound"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Ozz"
+      ],
+      [
+        "720p",
+        "R5"
+      ],
+      [
+        "720p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "720p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "720p",
+        "ТРК Украина"
+      ]
+    ],
+    "sourceRows": 11,
+    "inventoryComplete": false
+  }
+}
