@@ -1,0 +1,36 @@
+{
+  "mediaId": "44991",
+  "title": "Кекец",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:42.031971+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cbfa79bc4fe20786e64c",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "634b43122b97a4b8dba8",
+      "videoFrameFingerprint": "a0465e51a87ac72af670",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3851
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7bda9eab8f4d4f6357d0",
+  "preparedStreamIdFingerprint": "b8aa668ba918dd01591e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
