@@ -37,5 +37,5 @@ internal fun selectReadyHttpStartup(
     val http = DomainPlaybackResolver.cachedStartupCandidates(request, candidates).filter {
         it.transportMetadata["legacy_web_player"] != "true" && it.stableStreamId !in context.failedStreamIds
     }
-    return StreamRanker.selectBest(http, context = context)
+    return StreamRanker.selectBest(http, requestedVoice = request.requestedVoice, requestedQuality = request.requestedQuality, context = context)
 }
