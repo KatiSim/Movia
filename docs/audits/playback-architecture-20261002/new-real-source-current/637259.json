@@ -1,0 +1,52 @@
+{
+  "mediaId": "637259",
+  "title": "Late Runner",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:49.330402+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 280,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "2d6f2da8c083b527c887",
+      "decoded": true,
+      "actualHeight": 280,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "513354084a4d198afd50",
+      "videoFrameFingerprint": "9fb2c9da7bdcb4b28aa0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6961
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7babb48b3a3fb1dbc9dc",
+  "preparedStreamIdFingerprint": "e01824a1aaa274b67a1e",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    280,
+    560
+  ],
+  "advertisedCompatiblePairs": 2
+}
