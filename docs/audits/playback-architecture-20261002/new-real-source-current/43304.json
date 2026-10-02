@@ -1,0 +1,36 @@
+{
+  "mediaId": "43304",
+  "title": "Повесть о двух городах",
+  "year": 1958,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:49:35.609337+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "96effdb7492196a2d0c2",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "6316b26fc2c2c383b745",
+      "videoFrameFingerprint": "14b3391afa021d738c7d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12454
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2e559b94eb3cd81201bc",
+  "preparedStreamIdFingerprint": "dd18249a785a33fc95d7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
