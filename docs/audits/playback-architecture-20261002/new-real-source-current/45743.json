@@ -1,0 +1,36 @@
+{
+  "mediaId": "45743",
+  "title": "Рождество с Happy Tree Friends",
+  "year": 2004,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:54.361951+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e80844a94509deece0b6",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "f2a2cff4a9a00fb1c329",
+      "videoFrameFingerprint": "0eb117c6f81bac7385c4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 10525
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3e08d92744d2adf0839f",
+  "preparedStreamIdFingerprint": "8c9a2b2bdd7704be753c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
