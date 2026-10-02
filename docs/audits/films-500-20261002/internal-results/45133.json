@@ -1,0 +1,72 @@
+{
+  "mediaId": "45133",
+  "title": "Мой маленький пони: Девочки из Эквестрии - Весенние каникулы",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 414,
+      "actualHeight": 414,
+      "qualityMatches": true,
+      "voice": "SDI Media",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fe844eff517f3c4d2a92",
+      "ms": 2556,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "SDI Media",
+    "Укр. Дубльований"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    414,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "SDI Media",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Укр. Дубльований",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "SDI Media",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Укр. Дубльований",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 6,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:04:06.729494+00:00"
+}
