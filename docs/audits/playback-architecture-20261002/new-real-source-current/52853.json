@@ -1,0 +1,36 @@
+{
+  "mediaId": "52853",
+  "title": "Могучий Джо Янг",
+  "year": 1949,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:29:32.215114+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7a7231f5b8fd67b9fd76",
+      "decoded": true,
+      "actualHeight": 540,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "9138ebec968c5f149fe6",
+      "videoFrameFingerprint": "7e80e46a76e2d3a0f4ce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 10717
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ee96393883a762d91046",
+  "preparedStreamIdFingerprint": "e4fca7f15f5816e3f737",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
