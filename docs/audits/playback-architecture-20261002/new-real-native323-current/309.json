@@ -56,6 +56,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "LeDoyen (укр)",
+      "expectedAudioLabel": "ukr3",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 825,
+      "observed": {
+        "mediaId": "309",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 2651,
+        "selectedAudioLabel": "ukr3",
+        "selectedAudioLanguage": "uk",
+        "frames": 810,
+        "voice": "LeDoyen (укр)",
+        "streamFingerprint": "7ce916832d9eb7fe0262",
+        "locatorFingerprint": "0db503259ce4927f6dde"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
