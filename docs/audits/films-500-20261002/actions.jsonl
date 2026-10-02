@@ -4029,3 +4029,4 @@
 {"seq": 4029, "at": "2026-10-02T11:28:55.664614+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 33}
 {"seq": 4030, "at": "2026-10-02T11:28:55.951008+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Авторский (Одноголосый)", "persist": false}, "accepted": true, "requestMs": 32}
 {"seq": 4031, "at": "2026-10-02T11:28:56.766996+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
+{"seq": 4032, "at": "2026-10-02T11:28:57.087949+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 29}
