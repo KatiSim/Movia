@@ -1,0 +1,51 @@
+{
+  "mediaId": "44947",
+  "title": "Теперь ты на флоте",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:51.789131+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "c353bb73f3b5a0ccc0f7",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "9848de06436a8fe8dad7",
+      "videoFrameFingerprint": "044423641ad9c386ef18",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3263
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e7ae775b2c3575f3691c",
+  "preparedStreamIdFingerprint": "5b970916ba84707cd2d3",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
