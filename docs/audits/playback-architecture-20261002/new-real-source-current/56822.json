@@ -1,0 +1,36 @@
+{
+  "mediaId": "56822",
+  "title": "Вера моих отцов",
+  "year": 2005,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:07.990244+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "392ea1bb3efd1c751c60",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "004abecb342a8777f2c7",
+      "videoFrameFingerprint": "e4c979dc875eb15ccd87",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3722
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3ed28257ba5c84001a2d",
+  "preparedStreamIdFingerprint": "7b48ac9ce252b70efa18",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
