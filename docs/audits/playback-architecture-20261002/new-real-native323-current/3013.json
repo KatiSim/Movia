@@ -1,0 +1,30 @@
+{
+  "mediaId": "3013",
+  "title": "Small Fry",
+  "year": 1939,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:32:52.810670+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": false,
+    "ms": 16091,
+    "observed": {
+      "mediaId": "3013",
+      "state": "IDLE",
+      "switchState": "FAILED",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "frames": 1698,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b"
+    },
+    "errorCategory": "REQUESTED_TRACKS_AND_NEW_FRAMES_TIMEOUT",
+    "commandToReadyMs": 16284
+  }
+}
