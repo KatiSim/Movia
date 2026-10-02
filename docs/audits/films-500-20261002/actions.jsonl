@@ -4055,3 +4055,4 @@
 {"seq": 4055, "at": "2026-10-02T11:29:14.579798+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4056, "at": "2026-10-02T11:29:14.808365+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 18}
 {"seq": 4057, "at": "2026-10-02T11:29:15.027699+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО)", "persist": false}, "accepted": true, "requestMs": 38}
+{"seq": 4058, "at": "2026-10-02T11:29:23.540426+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
