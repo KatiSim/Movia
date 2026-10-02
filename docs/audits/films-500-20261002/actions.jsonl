@@ -2070,3 +2070,4 @@
 {"seq": 2070, "at": "2026-10-02T11:14:48.312821+00:00", "action": "internal_movie_result", "mediaId": "18507", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2071, "at": "2026-10-02T11:14:48.573136+00:00", "action": "player.selectVoice", "mediaId": "12245", "arguments": {"voice": "Е. Гаевский", "persist": false}, "accepted": true, "requestMs": 65}
 {"seq": 2072, "at": "2026-10-02T11:14:48.795110+00:00", "action": "exact_provider_resolve", "mediaId": "15648", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2073, "at": "2026-10-02T11:14:49.021900+00:00", "action": "internal_movie_result", "mediaId": "12238", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
