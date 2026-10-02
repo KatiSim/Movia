@@ -1,0 +1,13 @@
+{
+  "mediaId": "20095",
+  "title": "Заложница",
+  "year": 2008,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:25.959895+00:00"
+}
