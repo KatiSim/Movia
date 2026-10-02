@@ -1355,3 +1355,4 @@
 {"seq": 1355, "at": "2026-10-02T11:09:02.690250+00:00", "action": "exact_provider_resolve", "mediaId": "2396", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1356, "at": "2026-10-02T11:09:03.872044+00:00", "action": "internal_combined_decode", "mediaId": "2396", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1357, "at": "2026-10-02T11:09:04.235714+00:00", "action": "internal_movie_result", "mediaId": "10076", "actualDecoded": true, "voices": 1, "qualities": 1, "errorCategory": null}
+{"seq": 1358, "at": "2026-10-02T11:09:04.606735+00:00", "action": "exact_provider_resolve", "mediaId": "29843", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
