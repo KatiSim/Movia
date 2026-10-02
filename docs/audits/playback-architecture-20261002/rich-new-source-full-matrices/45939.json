@@ -84,6 +84,26 @@
       "ms": 3351,
       "profileFingerprint": "08f842d69c72e7f0bfca",
       "audioPresence": "DECODED"
+    },
+    {
+      "requestedHeight": 720,
+      "voice": "hin3",
+      "language": "hi",
+      "sourceFingerprint": "47f24e40d9b22df62ca7",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioExpected": true,
+      "audioDecoded": true,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "b33ffb4861eafab26dfc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3174,
+      "profileFingerprint": "08f842d69c72e7f0bfca",
+      "audioPresence": "DECODED"
     }
   ],
   "actualDecoded": true,
