@@ -3460,3 +3460,4 @@
 {"seq": 3460, "at": "2026-10-02T11:22:30.328613+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 58}
 {"seq": 3461, "at": "2026-10-02T11:22:30.694990+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "С. Рябов", "persist": false}, "accepted": true, "requestMs": 78}
 {"seq": 3462, "at": "2026-10-02T11:22:31.046571+00:00", "action": "internal_movie_result", "mediaId": "24567", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3463, "at": "2026-10-02T11:22:31.672794+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
