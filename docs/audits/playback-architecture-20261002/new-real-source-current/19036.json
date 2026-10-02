@@ -1,0 +1,36 @@
+{
+  "mediaId": "19036",
+  "title": "Oh, Mr. Porter!",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:39.884441+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3f49dd1d0edc73485470",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "d64bebfdfc0906e281a1",
+      "videoFrameFingerprint": "d4533be57945343eeabe",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4715
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "d396b4b359fe49427d51",
+  "preparedStreamIdFingerprint": "f2f5e1b5e6674c31ef0d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
