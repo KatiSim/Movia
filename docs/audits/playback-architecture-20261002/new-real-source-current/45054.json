@@ -1,0 +1,36 @@
+{
+  "mediaId": "45054",
+  "title": "Трам-пам-пам",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:20.617385+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "05d17102ab05609ce602",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "873c0a67dd4ebfdef088",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3926
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3cb56c584fea0103ee66",
+  "preparedStreamIdFingerprint": "6e5d7ee3338c6ab8d573",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
