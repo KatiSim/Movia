@@ -3005,3 +3005,4 @@
 {"seq": 3005, "at": "2026-10-02T11:19:34.234679+00:00", "action": "internal_movie_result", "mediaId": "116", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3006, "at": "2026-10-02T11:19:34.488549+00:00", "action": "media.play", "mediaId": "23912", "arguments": {"mediaId": "23912", "title": "В поисках Немо", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "8cde86726059ebd603c2"}, "accepted": true, "requestMs": 10}
 {"seq": 3007, "at": "2026-10-02T11:19:34.718003+00:00", "action": "exact_provider_resolve", "mediaId": "11088", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 3008, "at": "2026-10-02T11:19:35.675305+00:00", "action": "internal_movie_result", "mediaId": "11088", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
