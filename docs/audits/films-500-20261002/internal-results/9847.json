@@ -1,0 +1,13 @@
+{
+  "mediaId": "9847",
+  "title": "Суперсемейка 2",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:18:44.868473+00:00"
+}
