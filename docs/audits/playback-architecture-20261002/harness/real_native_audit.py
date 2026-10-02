@@ -66,8 +66,9 @@ def wait(mid,baseline,height=None,audio=None,limit=12):
         inventory,media,last=observations()
         okay=(str(media.get('mediaItemId'))==str(mid) and media.get('isPlaying') and media.get('switchState')=='READY'
             and (last.get('height') or 0)>0 and (height is None or last['height']==height)
-            and (audio is None or (last['selectedAudioLabel']==audio.get('name') and
-                 (not audio.get('language') or language(last['selectedAudioLanguage'])==language(audio['language'])))))
+            and (audio is None or ((audio.get('name') is None or last['selectedAudioLabel']==audio.get('name')) and
+                 (not audio.get('language') or language(last['selectedAudioLanguage'])==language(audio['language'])) and
+                 (not audio.get('trackId') or any(t.get('id')==audio['trackId'] and t.get('selected') for t in inventory.get('audioTracks',[]))))))
         if okay:
             if matched is None:matched=max(baseline,inventory.get('probeFrames',0))
             if inventory.get('probeFrames',0)>=matched+3:
@@ -105,7 +106,7 @@ try:
             subprocess.run(['rish','-c','am start-foreground-service -n app.movia.android/.agent.AgentAuditService'],
                 env=dict(os.environ,RISH_APPLICATION_ID='com.termux'),stdin=subprocess.DEVNULL,capture_output=True,timeout=15,check=True)
             last_lease=time.monotonic()
-        sources=json.loads(private.read_text());target=next((s for s in sources if digest(s['url'])==report.get('preparedSourceFingerprint')),None)
+        sources=json.loads(private.read_text());target=next((s for s in sources if digest(s.get('stream_id'))==report.get('preparedStreamIdFingerprint')),None)
         if target is None:continue
         logical=[];seen=set()
         for audio in report.get('manifestVoices',[]):
@@ -133,7 +134,7 @@ try:
                     choices.append((source['voice'],audio))
         if not choices:
             for track in inventory.get('audioTracks',[]):
-                choices.append((track.get('id') or track['voice'],{'name':track['voice'],'language':track.get('language')}))
+                choices.append((track.get('id') or track['voice'],{'name':None,'language':track.get('language'),'trackId':track.get('id')}))
         pairs=[];keys=set()
         for height in quality:
             for voice,audio in choices:
