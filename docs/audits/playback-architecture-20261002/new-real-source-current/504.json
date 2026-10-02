@@ -1,0 +1,15 @@
+{
+  "mediaId": "504",
+  "title": "ホリミヤ",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:16.569046+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
