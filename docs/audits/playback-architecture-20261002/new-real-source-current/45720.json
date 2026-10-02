@@ -1,0 +1,36 @@
+{
+  "mediaId": "45720",
+  "title": "Севильский кролик",
+  "year": 1950,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:37.545289+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "9fa2330af0ccca0b95da",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "6d2fbc8889758b1ff139",
+      "videoFrameFingerprint": "4edca38519407602efce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4103
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "db7d7c1d14feed50fdcd",
+  "preparedStreamIdFingerprint": "6fb9471aa1ef97017ef3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
