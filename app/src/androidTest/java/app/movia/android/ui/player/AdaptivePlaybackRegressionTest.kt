@@ -94,6 +94,29 @@ class AdaptivePlaybackRegressionTest {
             assertFalse(main { session.selectVoice("Missing studio") })
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
     }
+    @Test fun changingVoiceKeepsPreparedAdaptiveQualityAheadOfAnExactColdTorrent() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val a=StreamOption(voice="Studio A",quality="Auto",url="$base/master.m3u8",source="Movia QA",streamId="qa:adaptive:a",audioTrackIndex=0)
+        val b=a.copy(voice="Studio B",streamId="qa:adaptive:b",audioTrackIndex=1)
+        val cold=b.copy(quality="360p",streamId="qa:cold:b",url="magnet:?xt=urn:btih:0123456789012345678901234567890123456789",transport="torrent_p2p",audioTrackIndex=null,seeders=999)
+        try {
+            main { session.setFrameProbe(true);session.start("movia_qa_prepared_voice","Movia QA",candidateStreamOptions=listOf(a,b,cold),preferredVoice="Studio A",recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.player.isPlaying }
+            main { session.pausePlayback();session.seekTo(3_000L) }
+            assertTrue(main { session.selectVideoQuality("360p") })
+            assertTrue(main { session.selectVoice("Studio B") })
+            waitFor { session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==360 }
+            assertEquals("$base/master.m3u8",session.activeSourceUri)
+            assertFalse(main { session.player.playWhenReady })
+            assertTrue(kotlin.math.abs(main { session.player.currentPosition }-3_000L)<1000)
+            main { session.playPlayback() }
+            val baseline=main { session.probeFrames }
+            waitFor { session.probeFrames>baseline+2 && session.player.isPlaying }
+            assertEquals("Studio B",main { session.player.audioFormat?.label })
+            assertEquals(360,main { session.player.videoFormat?.height })
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
     @Test fun stalledStartupHandsOverBeforeWatchdogAndPreservesPauseAndPosition() {
         control("/__control?mode=online")
         val session = main { MoviaPlaybackRegistry.obtain(context) }

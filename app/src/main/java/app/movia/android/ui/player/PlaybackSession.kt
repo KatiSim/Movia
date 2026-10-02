@@ -481,7 +481,15 @@ class PlaybackSession(context: Context) {
             publishSnapshot()
             return true
         }
-        val option = StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
+        val currentChoices = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
+        val qualityAlreadySupported = requestedVideoQuality.equals("Auto", true) ||
+            currentChoices.video.any { it.height == qualityHeight(requestedVideoQuality) }
+        val preparedVoice = if (qualityAlreadySupported) streamOptions.value.firstOrNull { option ->
+            option.voice.equals(voice, true) && option.audioTrackIndex != null &&
+                canSwitchTracksInPlace(activeCandidate, StreamCandidate.fromStreamOption(
+                    option, _state.value.seasonNumber, _state.value.episodeNumber))
+        } else null
+        val option = preparedVoice ?: StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
         if (option != null && option.voice.equals(voice, true)) {
             requestedAudioTrack = null
             if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option)
@@ -774,9 +782,17 @@ class PlaybackSession(context: Context) {
             // the same provider index. If duplicate failover groups exist, the
             // primary group set is encountered first.
             val typedGroups = tracks.groups.filter { it.type == type }
-            val location = locateProviderTrackIndex(typedGroups.map { it.length }, providerTrackIndex)
-                ?: return null
-            return typedGroups[location.groupOrdinal] to location.trackIndex
+            val location = if (type == C.TRACK_TYPE_AUDIO) {
+                logicalAudioTrackLocations(typedGroups.map { group ->
+                    (0 until group.length).map { index ->
+                        val format = group.getTrackFormat(index)
+                        AudioRenditionIdentity(format.label, format.language, format.roleFlags, group.isTrackSupported(index))
+                    }
+                }).getOrNull(providerTrackIndex)
+            } else locateProviderTrackIndex(typedGroups.map { it.length }, providerTrackIndex)
+            location ?: return null
+            val group = typedGroups[location.groupOrdinal]
+            return if (group.isTrackSupported(location.trackIndex)) group to location.trackIndex else null
         }
 
         val builder = player.trackSelectionParameters.buildUpon()
@@ -1469,6 +1485,7 @@ class PlaybackSession(context: Context) {
             activeCandidate = candidate
             appliedTrackSelectionKey = null
             if (applyCandidateTrackOverrides(player.currentTracks)) {
+                applyUserTrackPreferences(player.currentTracks)
                 Log.i(
                     TAG,
                     "Applied in-place media track switch id=${candidate.stableStreamId} audioIndex=${candidate.audioTrackIndex} videoIndex=${candidate.videoTrackIndex}",

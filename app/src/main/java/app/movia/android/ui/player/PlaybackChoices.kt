@@ -31,6 +31,7 @@ internal fun qualityHeight(value: String): Int? = when {
 
 internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices {
     val audio = mutableListOf<PlaybackTrackChoice>()
+    val namedAudioIndexes = mutableMapOf<String, Int>()
     val video = mutableListOf<PlaybackTrackChoice>()
     tracks.groups.forEachIndexed { groupOrdinal, group ->
         for (index in 0 until group.length) {
@@ -47,9 +48,18 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
                     ?: language?.let { Locale.forLanguageTag(it).getDisplayLanguage(Locale("ru")) }
                         ?.replaceFirstChar { it.titlecase(Locale("ru")) }
                     ?: "Аудиодорожка ${audio.size + 1}"
-                val label = if (audio.any { it.label == name }) "$name · ${audio.size + 1}" else name
-                audio += PlaybackTrackChoice(id, label, language = language,
-                    selected = group.isTrackSelected(index), override = TrackSelectionOverride(group.mediaTrackGroup, index))
+                val knownKey = format.label?.trim()?.takeIf { it.isNotBlank() }?.let { "$it|"+language.orEmpty()+"|"+format.roleFlags }
+                val previous = knownKey?.let(namedAudioIndexes::get)
+                if (previous != null) {
+                    if (group.isTrackSelected(index) && !audio[previous].selected) audio[previous] =
+                        PlaybackTrackChoice(id, name, language = language, selected = true,
+                            override = TrackSelectionOverride(group.mediaTrackGroup, index))
+                } else {
+                    val label = if (audio.any { it.label == name }) "$name · ${audio.size + 1}" else name
+                    if (knownKey != null) namedAudioIndexes[knownKey] = audio.size
+                    audio += PlaybackTrackChoice(id, label, language = language,
+                        selected = group.isTrackSelected(index), override = TrackSelectionOverride(group.mediaTrackGroup, index))
+                }
             }
         }
     }
