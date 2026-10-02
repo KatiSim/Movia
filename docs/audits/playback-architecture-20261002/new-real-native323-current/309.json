@@ -4,7 +4,34 @@
   "year": 2026,
   "build": 323,
   "checkedAt": "2026-10-02T14:28:41.253663+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "delete · дорожка 2",
+      "expectedAudioLabel": "rus1",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 1129,
+      "observed": {
+        "mediaId": "309",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 824,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "frames": 766,
+        "voice": "delete",
+        "streamFingerprint": "83edff68ca53ac7fcfd4",
+        "locatorFingerprint": "0db503259ce4927f6dde"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,37 @@
       "locatorFingerprint": "0db503259ce4927f6dde"
     },
     "commandToReadyMs": 2008
-  }
+  },
+  "preparedSupportedPairs": 10,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "delete · дорожка 2",
+      "actualName": "rus1",
+      "language": "ru"
+    },
+    {
+      "choice": "delete · дорожка 5",
+      "actualName": "eng4",
+      "language": "en"
+    },
+    {
+      "choice": "LeDoyen (укр)",
+      "actualName": "ukr3",
+      "language": "uk"
+    },
+    {
+      "choice": "Movie Dubbing",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "eng2",
+      "language": "en"
+    }
+  ]
 }
