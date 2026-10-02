@@ -2728,3 +2728,4 @@
 {"seq": 2728, "at": "2026-10-02T11:18:01.497123+00:00", "action": "player.selectQuality", "mediaId": "46", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 7}
 {"seq": 2729, "at": "2026-10-02T11:18:01.578775+00:00", "action": "player.selectVoice", "mediaId": "46", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 12}
 {"seq": 2730, "at": "2026-10-02T11:18:02.111300+00:00", "action": "movie_result", "mediaId": "46", "decoded": true, "voices": 7, "qualities": 4}
+{"seq": 2731, "at": "2026-10-02T11:18:02.417614+00:00", "action": "movie_result", "mediaId": "46", "decoded": true, "voices": 7, "qualities": 4}
