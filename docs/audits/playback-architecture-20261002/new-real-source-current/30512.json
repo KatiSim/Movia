@@ -1,0 +1,36 @@
+{
+  "mediaId": "30512",
+  "title": "Спаси меня",
+  "year": 1992,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:09.609094+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "286ed772e6e4c631ee76",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "b870dd353f775bf28777",
+      "videoFrameFingerprint": "2a1cb760bf126c8007b6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 11053
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "be996804ee814dc1a7ae",
+  "preparedStreamIdFingerprint": "33c6cadb959351ded920",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
