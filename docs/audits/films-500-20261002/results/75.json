@@ -77,6 +77,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "HDRezka",
+      "expectedAudioLabel": "rus2",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 1593,
+      "observed": {
+        "mediaId": "75",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 2438,
+        "frames": 4604,
+        "quality": "270p",
+        "voice": "HDRezka",
+        "streamFingerprint": "3c6da0b3e5c98efe99e5",
+        "locatorFingerprint": "3a0b56582f4d9faef5c7",
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:3:0",
+            "rus2",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:18:51.729029+00:00",
