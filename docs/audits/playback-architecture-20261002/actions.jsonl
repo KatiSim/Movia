@@ -477,3 +477,4 @@
 {"seq": 477, "at": "2026-10-02T14:12:06.795403+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "45220", "decoded": true, "allPreparedPairsPassed": false, "errorCategory": null}, "sourcePaths": []}
 {"seq": 478, "at": "2026-10-02T14:12:07.210172+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 479, "at": "2026-10-02T14:12:07.526254+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "57209", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 480, "at": "2026-10-02T14:12:07.878613+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "AAA Sound", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
