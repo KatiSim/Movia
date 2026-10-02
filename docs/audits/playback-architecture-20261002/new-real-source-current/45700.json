@@ -1,0 +1,36 @@
+{
+  "mediaId": "45700",
+  "title": "Папай-моряк встречает Али-бабу и 40 разбойников",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:19.104071+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d53a07269b42ad99b5ff",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "ff10c6cd9f1ca7a00793",
+      "videoFrameFingerprint": "a7dcedf01d19c1011f58",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2960
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 4,
+  "preparedSourceFingerprint": "5d3ba65368b82f4a638c",
+  "preparedStreamIdFingerprint": "2a96770fc7a9f029cb97",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
