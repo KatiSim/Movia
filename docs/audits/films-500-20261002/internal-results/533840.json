@@ -1,0 +1,50 @@
+{
+  "mediaId": "533840",
+  "title": "Полевой цветок",
+  "year": 2023,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "default",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "87890111cd06fd95c6bb",
+      "ms": 3606,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "Синема УС"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:10:12.840230+00:00"
+}
