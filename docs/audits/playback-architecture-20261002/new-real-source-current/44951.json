@@ -1,0 +1,36 @@
+{
+  "mediaId": "44951",
+  "title": "Платеж по требованию",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:28.478620+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "0212624ada75014c838f",
+      "decoded": true,
+      "actualHeight": 320,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "c32f521fa97bafe1454b",
+      "videoFrameFingerprint": "4dcbbceba5f2002a6e22",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3338
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5b1352eb9ea7dc8c0d3a",
+  "preparedStreamIdFingerprint": "b5b29da6cb32c35c83d3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
