@@ -3141,3 +3141,4 @@
 {"seq": 3141, "at": "2026-10-02T15:42:47.483753+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3142, "at": "2026-10-02T15:42:48.103179+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 22, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3143, "at": "2026-10-02T15:42:48.358974+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 22, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 3144, "at": "2026-10-02T15:42:48.654841+00:00", "action": "native_player.stop", "details": {"mediaId": "172", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
