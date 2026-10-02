@@ -1,0 +1,36 @@
+{
+  "mediaId": "258326",
+  "title": "Horrorgirl Mixtape",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:55.238400+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4761a35f246ffb0b46aa",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "2097288c011b09a657f4",
+      "videoFrameFingerprint": "05d62bf573372c5a0a15",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3169
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "dd61aaa37752378d26a5",
+  "preparedStreamIdFingerprint": "2112bba6f8cd601fe9f4",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
