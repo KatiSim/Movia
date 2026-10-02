@@ -69,3 +69,4 @@
 {"seq": 69, "at": "2026-10-02T10:42:33.285511+00:00", "action": "media.play", "mediaId": "21168", "arguments": {"mediaId": "21168", "title": "Земля", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 16}
 {"seq": 70, "at": "2026-10-02T10:42:37.008198+00:00", "action": "movie_result", "mediaId": "21168", "decoded": true, "voices": 9, "qualities": 1}
 {"seq": 71, "at": "2026-10-02T10:42:37.186589+00:00", "action": "player.stop", "mediaId": "17616", "arguments": {}, "accepted": true, "requestMs": 90}
+{"seq": 72, "at": "2026-10-02T10:42:37.273510+00:00", "action": "media.play", "mediaId": "17616", "arguments": {"mediaId": "17616", "title": "Голодный кролик атакует", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 15}
