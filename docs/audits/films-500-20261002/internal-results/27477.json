@@ -1,0 +1,11 @@
+{
+  "mediaId": "27477",
+  "title": "Триган",
+  "year": 1998,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": false,
+  "errorCategory": "EXACT_IMDB_UNAVAILABLE",
+  "checkedAt": "2026-10-02T11:16:33.710174+00:00"
+}
