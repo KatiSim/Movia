@@ -3,7 +3,45 @@
   "title": "Тёмный рыцарь",
   "year": 2008,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 273,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 814,
+        "frames": 21,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "2b286c1600732b69e44c",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:14:00.486861+00:00",
   "startup": {
     "decoded": true,
