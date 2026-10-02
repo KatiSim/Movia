@@ -887,3 +887,4 @@
 {"seq": 887, "at": "2026-10-02T11:03:03.812061+00:00", "action": "internal_combined_decode", "mediaId": "9900", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 888, "at": "2026-10-02T11:03:03.960378+00:00", "action": "internal_combined_decode", "mediaId": "589371", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 889, "at": "2026-10-02T11:03:06.701252+00:00", "action": "internal_movie_result", "mediaId": "9900", "actualDecoded": true, "voices": 3, "qualities": 2, "errorCategory": null}
+{"seq": 890, "at": "2026-10-02T11:03:06.970059+00:00", "action": "internal_movie_result", "mediaId": "589371", "actualDecoded": true, "voices": 5, "qualities": 2, "errorCategory": null}
