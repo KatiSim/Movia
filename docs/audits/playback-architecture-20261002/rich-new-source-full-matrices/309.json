@@ -164,6 +164,26 @@
       "ms": 3762,
       "profileFingerprint": "dbbd0e7c37ae4ba541a1",
       "audioPresence": "DECODED"
+    },
+    {
+      "requestedHeight": 720,
+      "voice": "rus1",
+      "language": "ru",
+      "sourceFingerprint": "2cde641e532e7a928d52",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioExpected": true,
+      "audioDecoded": true,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "b33ffb4861eafab26dfc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3431,
+      "profileFingerprint": "dbbd0e7c37ae4ba541a1",
+      "audioPresence": "DECODED"
     }
   ],
   "actualDecoded": true,
