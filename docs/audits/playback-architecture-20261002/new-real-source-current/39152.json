@@ -1,0 +1,36 @@
+{
+  "mediaId": "39152",
+  "title": "Босоногий директор",
+  "year": 1971,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:46.542513+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "05009ef2fd9117b74b46",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 9,
+      "audioPcmFingerprint": "20b392a2a7f62e23f197",
+      "videoFrameFingerprint": "dfb697d52ac332502612",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9906
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f60d2723de12271a332d",
+  "preparedStreamIdFingerprint": "762408d0f45f8a42d85f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
