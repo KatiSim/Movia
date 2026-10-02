@@ -1111,3 +1111,4 @@
 {"seq": 1111, "at": "2026-10-02T14:28:57.253867+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "55033", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1112, "at": "2026-10-02T14:28:57.350939+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "309", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1113, "at": "2026-10-02T14:28:57.614650+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "309", "started": true, "pairs": 10, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1114, "at": "2026-10-02T14:28:57.686696+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "309", "started": true, "pairs": 10, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
