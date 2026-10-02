@@ -1,0 +1,15 @@
+{
+  "mediaId": "45127",
+  "title": "Pencil Test",
+  "year": 2013,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:18.696409+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
