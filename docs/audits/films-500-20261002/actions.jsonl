@@ -4002,3 +4002,4 @@
 {"seq": 4002, "at": "2026-10-02T11:28:34.649055+00:00", "action": "player.selectVoice", "mediaId": "9877", "arguments": {"voice": "Plan B", "persist": false}, "accepted": true, "requestMs": 22}
 {"seq": 4003, "at": "2026-10-02T11:28:35.504667+00:00", "action": "movie_result", "mediaId": "9877", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4004, "at": "2026-10-02T11:28:35.772925+00:00", "action": "player.selectQuality", "mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 26}
+{"seq": 4005, "at": "2026-10-02T11:28:36.023282+00:00", "action": "player.selectVoice", "mediaId": "9877", "arguments": {"voice": "М. Яроцкий", "persist": false}, "accepted": true, "requestMs": 20}
