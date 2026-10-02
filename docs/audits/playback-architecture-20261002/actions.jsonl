@@ -1665,3 +1665,4 @@
 {"seq": 1665, "at": "2026-10-02T14:39:10.041669+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "10132", "decoded": true, "allPreparedPairsPassed": false, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1666, "at": "2026-10-02T14:39:10.355195+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "40261", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1667, "at": "2026-10-02T14:39:13.980703+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "55006", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1668, "at": "2026-10-02T14:39:14.164360+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "55006", "arguments": {"quality": "480p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
