@@ -134,6 +134,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "delete · дорожка 2",
+      "expectedAudioLabel": "rus1",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 303,
+      "observed": {
+        "mediaId": "309",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 4238,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "frames": 851,
+        "voice": "delete · дорожка 2",
+        "streamFingerprint": "83edff68ca53ac7fcfd4",
+        "locatorFingerprint": "0db503259ce4927f6dde"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": true,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
