@@ -1,0 +1,13 @@
+{
+  "mediaId": "15516",
+  "title": "Холодное сердце",
+  "year": 2013,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:44.295514+00:00"
+}
