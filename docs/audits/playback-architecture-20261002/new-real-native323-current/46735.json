@@ -1,0 +1,30 @@
+{
+  "mediaId": "46735",
+  "title": "100% тигр",
+  "year": 2025,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:40:23.821133+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": false,
+    "ms": 10817,
+    "observed": {
+      "mediaId": "",
+      "state": "IDLE",
+      "switchState": "IDLE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "frames": 2646,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b"
+    },
+    "errorCategory": "REQUESTED_TRACKS_AND_NEW_FRAMES_TIMEOUT",
+    "commandToReadyMs": 11007
+  }
+}
