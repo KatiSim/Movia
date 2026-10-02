@@ -1,0 +1,110 @@
+{
+  "mediaId": "12237",
+  "title": "Прибытие",
+  "year": 2016,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:21:04.627320+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2346.31,
+    "observed": {
+      "mediaId": "12237",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 240,
+      "frames": 6469,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "a88e3c354dd18103055d",
+      "locatorFingerprint": "e20657f7ac3bab9ed833",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2436
+  },
+  "inventory": {
+    "voiceLabels": [
+      "LeDoyen (укр)",
+      "Original (с субтитрами)",
+      "Дубляж"
+    ],
+    "technicalTrackLabels": [
+      "def2",
+      "def3",
+      "delete",
+      "eng1",
+      "rus0",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "LeDoyen (укр)"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "LeDoyen (укр)"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "LeDoyen (укр)"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "LeDoyen (укр)"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ]
+    ],
+    "sourceRows": 26,
+    "inventoryComplete": false
+  }
+}
