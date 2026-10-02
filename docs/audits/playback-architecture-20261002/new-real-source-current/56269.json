@@ -1,0 +1,36 @@
+{
+  "mediaId": "56269",
+  "title": "Частная жизнь Генриха VIII",
+  "year": 1933,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:32.688264+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "613dd1e24ef067279baf",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1cd34969f77997656978",
+      "videoFrameFingerprint": "0a9c551eb4d1aff430e1",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4565
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5e71128bf15537e4ef06",
+  "preparedStreamIdFingerprint": "5df86bd308925b7e5b53",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
