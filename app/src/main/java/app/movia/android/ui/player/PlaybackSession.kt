@@ -658,7 +658,7 @@ class PlaybackSession(context: Context) {
                 context = requestContext(request),
             ).firstOrNull { !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic }
         }
-        return exact ?: StreamRanker.selectBest(
+        return exact ?: selectReadyHttpStartup(request, candidates, requestContext(request)) ?: StreamRanker.selectBest(
             candidates = candidates,
             requestedVoice = request.requestedVoice,
             requestedQuality = request.requestedQuality,

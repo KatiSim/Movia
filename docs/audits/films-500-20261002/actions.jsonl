@@ -696,3 +696,4 @@
 {"seq": 696, "at": "2026-10-02T10:45:04.315854+00:00", "action": "movie_result", "mediaId": "12636", "decoded": null, "voices": 0, "qualities": 0}
 {"seq": 697, "at": "2026-10-02T10:45:04.475299+00:00", "action": "player.stop", "mediaId": null, "arguments": {}, "accepted": false, "error": "<urlopen error [Errno 111] Connection refused>"}
 {"seq": 698, "at": "2026-10-02T10:45:04.671953+00:00", "action": "player.probeSurface", "mediaId": null, "arguments": {"enabled": false}, "accepted": false, "error": "<urlopen error [Errno 111] Connection refused>"}
+{"seq": 699, "at": "2026-10-02T10:54:39.453235+00:00", "action": "build320_patch", "changes": ["Debug-only foreground audit lease with no Activity or second MediaSession", "Auto startup prefers validated ready HTTP over cold torrent"], "status": "BUILD_PENDING"}

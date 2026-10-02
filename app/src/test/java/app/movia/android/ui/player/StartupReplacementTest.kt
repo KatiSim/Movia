@@ -31,4 +31,22 @@ class StartupReplacementTest {
         assertNull(selectStartupReplacement(request, old, listOf(fresh.copy(transport = "torrent_p2p"))))
         assertNull(selectStartupReplacement(request, old, listOf(fresh.copy(isProblematic = true))))
     }
+
+    @Test fun autoStartupUsesReadyHttpAheadOfColdTorrent() {
+        val torrent = old.copy(stableStreamId = "cold", transport = "torrent_p2p", quality = "1080p")
+        assertEquals(old, selectReadyHttpStartup(request, listOf(torrent, old)))
+    }
+    @Test fun fastAutoStartupDoesNotOverrideExplicitRequests() {
+        assertNull(selectReadyHttpStartup(request.copy(requestedStreamId = "same"), listOf(old)))
+        assertNull(selectReadyHttpStartup(request.copy(requestedVoice = "Studio A"), listOf(old)))
+        assertNull(selectReadyHttpStartup(request.copy(requestedQuality = "1080p"), listOf(old)))
+    }
+    @Test fun fastAutoStartupRejectsWrongIdentityAndKnownFailures() {
+        assertNull(selectReadyHttpStartup(request, listOf(old.copy(catalogMediaId = "other"))))
+        assertNull(selectReadyHttpStartup(request, listOf(old.copy(isProblematic = true))))
+        assertNull(selectReadyHttpStartup(request, listOf(old), app.movia.android.domain.playback.StreamRankingContext(failedStreamIds = setOf("same"))))
+    }
+    @Test fun onlyColdTorrentsLeaveNormalRecoveryAvailable() {
+        assertNull(selectReadyHttpStartup(request, listOf(old.copy(transport = "torrent_p2p"))))
+    }
 }

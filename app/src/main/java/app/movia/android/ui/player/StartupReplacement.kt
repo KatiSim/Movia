@@ -24,3 +24,18 @@ internal fun selectStartupReplacement(
     return StreamRanker.selectBest(
         compatible, requestedVoice = request.requestedVoice, requestedQuality = request.requestedQuality, context = context)
 }
+
+/** Auto starts need not initialize a cold torrent when a validated HTTP locator is ready. */
+internal fun selectReadyHttpStartup(
+    request: PlaybackRequest,
+    candidates: List<StreamCandidate>,
+    context: StreamRankingContext = StreamRankingContext(),
+): StreamCandidate? {
+    if (!request.requestedStreamId.isNullOrBlank() ||
+        (!request.requestedVoice.isNullOrBlank() && !request.requestedVoice.equals("Auto", true)) ||
+        (!request.requestedQuality.isNullOrBlank() && !request.requestedQuality.equals("Auto", true))) return null
+    val http = DomainPlaybackResolver.cachedStartupCandidates(request, candidates).filter {
+        it.transportMetadata["legacy_web_player"] != "true" && it.stableStreamId !in context.failedStreamIds
+    }
+    return StreamRanker.selectBest(http, context = context)
+}
