@@ -2920,3 +2920,4 @@
 {"seq": 2920, "at": "2026-10-02T11:19:06.837193+00:00", "action": "player.selectVoice", "mediaId": "75", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "requestMs": 34}
 {"seq": 2921, "at": "2026-10-02T11:19:07.069137+00:00", "action": "internal_movie_result", "mediaId": "636", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2922, "at": "2026-10-02T11:19:07.372426+00:00", "action": "exact_provider_resolve", "mediaId": "19254", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2923, "at": "2026-10-02T11:19:07.600022+00:00", "action": "movie_result", "mediaId": "75", "decoded": true, "voices": 7, "qualities": 4}
