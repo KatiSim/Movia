@@ -2930,3 +2930,4 @@
 {"seq": 2930, "at": "2026-10-02T15:40:23.063489+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 36, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2931, "at": "2026-10-02T15:40:23.440297+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2932, "at": "2026-10-02T15:40:23.806013+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "НТВ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2933, "at": "2026-10-02T15:40:24.345541+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 37, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
