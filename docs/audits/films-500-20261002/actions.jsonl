@@ -80,3 +80,4 @@
 {"seq": 80, "at": "2026-10-02T10:43:21.030957+00:00", "action": "player.stop", "mediaId": "17485", "arguments": {}, "accepted": true, "requestMs": 48}
 {"seq": 81, "at": "2026-10-02T10:43:21.292639+00:00", "action": "media.play", "mediaId": "17485", "arguments": {"mediaId": "17485", "title": "Первый мститель", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 51}
 {"seq": 82, "at": "2026-10-02T10:43:31.193122+00:00", "action": "movie_result", "mediaId": "17485", "decoded": null, "voices": 0, "qualities": 0}
+{"seq": 83, "at": "2026-10-02T10:43:31.278072+00:00", "action": "player.stop", "mediaId": "34531", "arguments": {}, "accepted": false, "error": "<urlopen error [Errno 111] Connection refused>"}
