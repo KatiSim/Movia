@@ -2916,3 +2916,4 @@
 {"seq": 2916, "at": "2026-10-02T11:19:05.888570+00:00", "action": "player.selectVoice", "mediaId": "75", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 53}
 {"seq": 2917, "at": "2026-10-02T11:19:06.060887+00:00", "action": "exact_provider_resolve", "mediaId": "636", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2918, "at": "2026-10-02T11:19:06.302886+00:00", "action": "movie_result", "mediaId": "75", "decoded": true, "voices": 7, "qualities": 4}
+{"seq": 2919, "at": "2026-10-02T11:19:06.615865+00:00", "action": "player.selectQuality", "mediaId": "75", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 33}
