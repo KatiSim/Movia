@@ -3157,3 +3157,4 @@
 {"seq": 3157, "at": "2026-10-02T11:20:33.275085+00:00", "action": "movie_result", "mediaId": "627", "decoded": true, "voices": 5, "qualities": 2}
 {"seq": 3158, "at": "2026-10-02T11:20:33.583600+00:00", "action": "player.selectQuality", "mediaId": "627", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3159, "at": "2026-10-02T11:20:33.839865+00:00", "action": "player.selectVoice", "mediaId": "627", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 33}
+{"seq": 3160, "at": "2026-10-02T11:20:34.139228+00:00", "action": "internal_movie_result", "mediaId": "34833", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}

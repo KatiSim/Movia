@@ -1,0 +1,13 @@
+{
+  "mediaId": "34833",
+  "title": "Инопланетянин",
+  "year": 1982,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:34.085457+00:00"
+}
