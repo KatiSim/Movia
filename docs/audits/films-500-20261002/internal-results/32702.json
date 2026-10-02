@@ -1,0 +1,170 @@
+{
+  "mediaId": "32702",
+  "title": "Роковое влечение",
+  "year": 1987,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2560,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 12,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Universal Russia",
+    "delete",
+    "Інтер (укр)",
+    "А. Гаврилов",
+    "В. Горчаков",
+    "Л. Володарский",
+    "Премьер Видео Фильм",
+    "Профессиональный (МВО)",
+    "Россия 1",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 12,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 24,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:06:19.605400+00:00"
+}
