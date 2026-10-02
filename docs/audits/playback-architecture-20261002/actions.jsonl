@@ -3257,3 +3257,4 @@
 {"seq": 3257, "at": "2026-10-02T15:44:16.672455+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Plan B", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3258, "at": "2026-10-02T15:44:17.168095+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 12, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3259, "at": "2026-10-02T15:44:17.520638+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3260, "at": "2026-10-02T15:44:17.853787+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "М. Яроцкий", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
