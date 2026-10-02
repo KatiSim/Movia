@@ -1,0 +1,13 @@
+{
+  "mediaId": "32051",
+  "title": "Баланс",
+  "year": 1989,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:09:42.605757+00:00"
+}
