@@ -3813,3 +3813,4 @@
 {"seq": 3813, "at": "2026-10-02T11:26:43.670643+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 26}
 {"seq": 3814, "at": "2026-10-02T11:26:43.923821+00:00", "action": "player.selectVoice", "mediaId": "7349", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 57}
 {"seq": 3815, "at": "2026-10-02T11:26:44.410357+00:00", "action": "movie_result", "mediaId": "7349", "decoded": true, "voices": 5, "qualities": 2}
+{"seq": 3816, "at": "2026-10-02T11:26:44.648053+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 25}
