@@ -1,0 +1,51 @@
+{
+  "mediaId": "511566",
+  "title": "Les Baigneuses",
+  "year": 2003,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:16.693180+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "1341ebe648dd7772bebe",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5ec38c18bb14f7f71e59",
+      "videoFrameFingerprint": "faa21551e21fbf2eeaac",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4291
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9576a37be11915240404",
+  "preparedStreamIdFingerprint": "7062c6594e14aa7ae7ba",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
