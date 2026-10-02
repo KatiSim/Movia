@@ -1,0 +1,52 @@
+{
+  "mediaId": "322692",
+  "title": "Ella solo come carne",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:30.915100+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "1709ddfaec78e6d56446",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "1f5df0ecb5829313a3df",
+      "videoFrameFingerprint": "b07ed07298bb978117e4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2958
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fe4a61c60eba8587936f",
+  "preparedStreamIdFingerprint": "5da5b90fa8c083cb0183",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
