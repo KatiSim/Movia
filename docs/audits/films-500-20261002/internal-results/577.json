@@ -1,0 +1,13 @@
+{
+  "mediaId": "577",
+  "title": "Отступники",
+  "year": 2006,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:16:34.851790+00:00"
+}
