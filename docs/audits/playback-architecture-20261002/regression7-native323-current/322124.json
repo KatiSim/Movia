@@ -186,6 +186,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "def0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 257,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 15920,
+        "selectedAudioLabel": "def0",
+        "selectedAudioLanguage": "ru",
+        "frames": 3270,
+        "voice": "Дубляж",
+        "streamFingerprint": "62057c9351b82ddc1329",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": true,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
