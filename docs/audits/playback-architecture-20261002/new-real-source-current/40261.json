@@ -1,0 +1,36 @@
+{
+  "mediaId": "40261",
+  "title": "Пруденс и пилюля",
+  "year": 1968,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:10.322433+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cb0ac248be610fba8226",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "c5ed7a8904d9cde1c32f",
+      "videoFrameFingerprint": "201f4954caa935fed016",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4151
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e36024bae1c5be3f53c7",
+  "preparedStreamIdFingerprint": "5198bd9903b092f9a734",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
