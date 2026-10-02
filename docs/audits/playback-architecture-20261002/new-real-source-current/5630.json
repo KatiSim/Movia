@@ -1,0 +1,30 @@
+{
+  "mediaId": "5630",
+  "title": "Witch Madness",
+  "year": 2000,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:36:08.982943+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "df95fa578b27683eb11b",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14032
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "f301ebf0193a24d29d16",
+  "preparedStreamIdFingerprint": "2e9bc42d850c9a0a9161",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
