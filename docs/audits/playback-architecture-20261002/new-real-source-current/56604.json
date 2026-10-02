@@ -1,0 +1,36 @@
+{
+  "mediaId": "56604",
+  "title": "История истребителя Спитфайер",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:39.764067+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c9e124955d0ba3cd012a",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "307c7a684748d979c958",
+      "videoFrameFingerprint": "0080d5a3d81f24dc65ae",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7177
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c7471de43cd69c9ecb2f",
+  "preparedStreamIdFingerprint": "29f536f53d1e91e85a92",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
