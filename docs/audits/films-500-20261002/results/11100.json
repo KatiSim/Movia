@@ -1,0 +1,131 @@
+{
+  "mediaId": "11100",
+  "title": "Сплит",
+  "year": 2017,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:23:24.066738+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2051.45,
+    "observed": {
+      "mediaId": "11100",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 214,
+      "frames": 8823,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "c276627ed467bca99a74",
+      "locatorFingerprint": "c1ef25e6e625c7805d88",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2275
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Cine++ (укр)",
+      "Original (с субтитрами)",
+      "А. Гаврилов",
+      "Д. Есарев",
+      "Дубляж",
+      "Профессиональный (МВО)",
+      "Укр. Дубльований",
+      "Ю. Сербин"
+    ],
+    "technicalTrackLabels": [
+      "eng7",
+      "rus0",
+      "rus1",
+      "rus2",
+      "rus3",
+      "rus4",
+      "ukr5",
+      "ukr6"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p"
+    ],
+    "advertisedPairs": [
+      [
+        "270p",
+        "Cine++ (укр)"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "А. Гаврилов"
+      ],
+      [
+        "270p",
+        "Д. Есарев"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "270p",
+        "Укр. Дубльований"
+      ],
+      [
+        "270p",
+        "Ю. Сербин"
+      ],
+      [
+        "540p",
+        "Cine++ (укр)"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "А. Гаврилов"
+      ],
+      [
+        "540p",
+        "Д. Есарев"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "540p",
+        "Укр. Дубльований"
+      ],
+      [
+        "540p",
+        "Ю. Сербин"
+      ]
+    ],
+    "sourceRows": 8,
+    "inventoryComplete": false
+  }
+}
