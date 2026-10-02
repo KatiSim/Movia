@@ -176,3 +176,4 @@
 {"seq": 176, "at": "2026-10-02T14:08:33.456654+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Авторский (Одноголосый) · дорожка 4", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 177, "at": "2026-10-02T14:08:34.831710+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 178, "at": "2026-10-02T14:08:35.783541+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 179, "at": "2026-10-02T14:08:36.169593+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
