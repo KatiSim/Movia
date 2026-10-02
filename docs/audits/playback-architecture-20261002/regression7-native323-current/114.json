@@ -706,6 +706,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Авторский (Одноголосый)",
+      "expectedAudioLabel": "rus11",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 212,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 23888,
+        "selectedAudioLabel": "rus11",
+        "selectedAudioLanguage": "ru",
+        "frames": 575,
+        "voice": "Авторский (Одноголосый)",
+        "streamFingerprint": "a5f057bbf8ba6a02b817",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
