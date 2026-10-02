@@ -1,0 +1,36 @@
+{
+  "mediaId": "56626",
+  "title": "Кровь на солнце",
+  "year": 1945,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:29:03.151592+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2da4db22ef8d6da29a9f",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "b9807f450d86f7cbcd29",
+      "videoFrameFingerprint": "9e0d185233bf621e3f2d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4118
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9bdd46576b94b4f2f945",
+  "preparedStreamIdFingerprint": "ce06a850ecef4b4ceb67",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
