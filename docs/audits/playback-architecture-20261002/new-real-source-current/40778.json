@@ -1,0 +1,36 @@
+{
+  "mediaId": "40778",
+  "title": "451o по Фаренгейту",
+  "year": 1966,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:00.401311+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "faa2a98d82851f83ab27",
+      "decoded": true,
+      "actualHeight": 1280,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "881b954ff0d7e7527d96",
+      "videoFrameFingerprint": "6b94e314ac98c243ac00",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2586
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4edb0d993e037c722da7",
+  "preparedStreamIdFingerprint": "ac53e11c40494a00cee2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
