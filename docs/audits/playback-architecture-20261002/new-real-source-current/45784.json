@@ -1,0 +1,52 @@
+{
+  "mediaId": "45784",
+  "title": "Серенада любви",
+  "year": 1946,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:53.397669+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "8fc790cfbf9fa663b5c0",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "4eab07e10d2e5e7db8c1",
+      "videoFrameFingerprint": "564ab10292048cbc8020",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3595
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "aa19a654ff7b72c482c9",
+  "preparedStreamIdFingerprint": "c86a339062275288bae5",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
