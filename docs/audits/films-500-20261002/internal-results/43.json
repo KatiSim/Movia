@@ -1,0 +1,222 @@
+{
+  "mediaId": "43",
+  "title": "Матрица",
+  "year": 1999,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 46,
+      "audioPcmFingerprint": "a469ff8c1786e7e1d4b4",
+      "ms": 2523,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 17,
+  "providerVoiceLabels": [
+    "C. Визгунов",
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "А. Дольский",
+    "А.Кашкин",
+    "Авторский (Одноголосый)",
+    "Д. Есарев",
+    "Дубляж",
+    "НТВ",
+    "П.Гланц и И.Королёва",
+    "Профессиональный (МВО)",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    530
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus14",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr15",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng16",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus14",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr15",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng16",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 17,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 34,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:12:25.092449+00:00"
+}
