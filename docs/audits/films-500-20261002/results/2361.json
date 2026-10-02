@@ -1,0 +1,48 @@
+{
+  "index": 19,
+  "mediaId": "2361",
+  "title": "Кровавая сотая",
+  "year": 2024,
+  "rating": 6.8,
+  "voteCount": 53,
+  "genres": "[\"военный\",\"документальный\",\"история\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14235.09,
+    "observed": {
+      "mediaId": "2361",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 53,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "8f62758bcfc463a45fea",
+      "selectedAudioLabel": "default",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "default",
+          "ru"
+        ]
+      ]
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14386.24,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:42:18.229306+00:00"
+}
