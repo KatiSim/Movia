@@ -3230,3 +3230,4 @@
 {"seq": 3230, "at": "2026-10-02T15:43:59.674252+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Хихикающий доктор", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3231, "at": "2026-10-02T15:44:00.314239+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3232, "at": "2026-10-02T15:44:00.656038+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3233, "at": "2026-10-02T15:44:00.968581+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Plan B", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
