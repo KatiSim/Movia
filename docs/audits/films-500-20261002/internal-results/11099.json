@@ -1,0 +1,13 @@
+{
+  "mediaId": "11099",
+  "title": "Джуманджи: Зов Джунглей",
+  "year": 2017,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:17:51.386675+00:00"
+}
