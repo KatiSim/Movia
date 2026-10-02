@@ -1,0 +1,52 @@
+{
+  "mediaId": "404100",
+  "title": "Kemah Terlarang: Kesurupan Massal",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:35:49.567987+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 268,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "ed886c8d693dadf51bae",
+      "decoded": true,
+      "actualHeight": 268,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "452862a6259ef566013f",
+      "videoFrameFingerprint": "4dc014df4d08b5092efc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3150
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d6578e49877c3b760ae5",
+  "preparedStreamIdFingerprint": "dde1e30d54f809081ccc",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    268,
+    536
+  ],
+  "advertisedCompatiblePairs": 2
+}
