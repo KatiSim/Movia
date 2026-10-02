@@ -1,0 +1,36 @@
+{
+  "mediaId": "40495",
+  "title": "Ребенок паука",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:04.200409+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "717c4d3ecb0d0699ae95",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "386e5ed27e7f08b54cf3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4432
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "97ba8fc396f3662ecc03",
+  "preparedStreamIdFingerprint": "22d1c80780e8f9fe028f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
