@@ -3285,3 +3285,4 @@
 {"seq": 3285, "at": "2026-10-02T15:44:34.120522+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Авторский (Одноголосый)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3286, "at": "2026-10-02T15:44:34.759056+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3287, "at": "2026-10-02T15:44:37.659381+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3288, "at": "2026-10-02T15:44:38.022172+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
