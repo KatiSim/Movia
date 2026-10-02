@@ -53,3 +53,4 @@
 {"seq": 53, "at": "2026-10-02T10:41:29.121078+00:00", "action": "player.stop", "mediaId": "12582", "arguments": {}, "accepted": true, "requestMs": 92}
 {"seq": 54, "at": "2026-10-02T10:41:29.226904+00:00", "action": "media.play", "mediaId": "12582", "arguments": {"mediaId": "12582", "title": "Я видел свет", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 22}
 {"seq": 55, "at": "2026-10-02T10:41:43.489353+00:00", "action": "movie_result", "mediaId": "12582", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 56, "at": "2026-10-02T10:41:43.768741+00:00", "action": "player.stop", "mediaId": "32857", "arguments": {}, "accepted": true, "requestMs": 78}
