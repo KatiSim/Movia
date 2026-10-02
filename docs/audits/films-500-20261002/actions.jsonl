@@ -2580,3 +2580,4 @@
 {"seq": 2580, "at": "2026-10-02T11:17:04.508073+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 35}
 {"seq": 2581, "at": "2026-10-02T11:17:04.800324+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 71}
 {"seq": 2582, "at": "2026-10-02T11:17:05.351758+00:00", "action": "internal_movie_result", "mediaId": "18393", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2583, "at": "2026-10-02T11:17:05.624759+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
