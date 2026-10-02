@@ -1,0 +1,36 @@
+{
+  "mediaId": "57158",
+  "title": "Бледнолицый",
+  "year": 1948,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:42.313463+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "0e2dc1b0267653691088",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "29f343fb8e93c6675ffd",
+      "videoFrameFingerprint": "75f91f8388ef2b72ea79",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4204
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0588a7eea63184737db7",
+  "preparedStreamIdFingerprint": "afa59f665a06f467ea7a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
