@@ -1,0 +1,42 @@
+{
+  "index": 2,
+  "mediaId": "19497",
+  "title": "Всадники апокалипсиса",
+  "year": 2009,
+  "rating": 6.0,
+  "voteCount": 646,
+  "genres": "[\"криминал\",\"драма\",\"ужасы\",\"детектив\",\"триллер\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14169.17,
+    "observed": {
+      "mediaId": "19497",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14318.57,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:38:47.150516+00:00"
+}

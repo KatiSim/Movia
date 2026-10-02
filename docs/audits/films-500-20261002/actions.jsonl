@@ -10,3 +10,4 @@
 {"seq": 10, "at": "2026-10-02T10:38:32.474499+00:00", "action": "movie_result", "mediaId": "5665", "decoded": false, "voices": 0, "qualities": 0}
 {"seq": 11, "at": "2026-10-02T10:38:32.656225+00:00", "action": "player.stop", "mediaId": "19497", "arguments": {}, "accepted": true, "requestMs": 25}
 {"seq": 12, "at": "2026-10-02T10:38:32.850052+00:00", "action": "media.play", "mediaId": "19497", "arguments": {"mediaId": "19497", "title": "Всадники апокалипсиса", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 18}
+{"seq": 13, "at": "2026-10-02T10:38:47.155458+00:00", "action": "movie_result", "mediaId": "19497", "decoded": false, "voices": 0, "qualities": 0}
