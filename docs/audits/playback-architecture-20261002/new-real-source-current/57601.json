@@ -1,0 +1,36 @@
+{
+  "mediaId": "57601",
+  "title": "Злоключения Полин",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:11.184416+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a262f76b1aeec5b623b3",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "c6eb6dd4e8013c337aa9",
+      "videoFrameFingerprint": "9802aa72b4aa80cfb461",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4949
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "eddb86cacee6ba939fed",
+  "preparedStreamIdFingerprint": "fe26469bf2b91cafab96",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
