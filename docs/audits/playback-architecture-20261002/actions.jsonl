@@ -1382,3 +1382,4 @@
 {"seq": 1382, "at": "2026-10-02T14:33:09.534041+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "3013", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1383, "at": "2026-10-02T14:33:09.716488+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "914", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1384, "at": "2026-10-02T14:33:09.938498+00:00", "action": "native_player.stop", "details": {"mediaId": "3195", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1385, "at": "2026-10-02T14:33:10.143671+00:00", "action": "native_media.play", "details": {"mediaId": "3195", "arguments": {"mediaId": "3195", "title": "Doing What's Fright", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "8095a672c3e4238ea9f6"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
