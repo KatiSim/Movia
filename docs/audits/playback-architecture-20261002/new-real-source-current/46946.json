@@ -1,0 +1,36 @@
+{
+  "mediaId": "46946",
+  "title": "Дональд Дак: Современные изобретения",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:49.089260+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c8f650ed008c750a37fe",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a3112778b6493a922222",
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3243
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b91fa4dd8e829d2e3d0e",
+  "preparedStreamIdFingerprint": "a39fd835676b77fbfe59",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
