@@ -3028,3 +3028,4 @@
 {"seq": 3028, "at": "2026-10-02T15:41:31.902299+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3029, "at": "2026-10-02T15:41:32.215114+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "КиноПоиск HD", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3030, "at": "2026-10-02T15:41:32.710492+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 18, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3031, "at": "2026-10-02T15:41:33.035881+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
