@@ -410,6 +410,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "А. Гаврилов",
+      "expectedAudioLabel": "rus2",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 195,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 12244,
+        "frames": 294,
+        "quality": "720p",
+        "voice": "А. Гаврилов",
+        "streamFingerprint": "0b401ad3718f46edec48",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:3:0",
+            "rus2",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:14:00.486861+00:00",
