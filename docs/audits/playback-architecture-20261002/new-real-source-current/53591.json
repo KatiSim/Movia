@@ -1,0 +1,36 @@
+{
+  "mediaId": "53591",
+  "title": "Джонни О'Клок",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:39.139246+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "88a5f793d312d521b1fe",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1e93d351df50c261c209",
+      "videoFrameFingerprint": "18a83ec6039d629b0c52",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4238
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a80e46bc58ddb4bc9bf7",
+  "preparedStreamIdFingerprint": "143b698ba6846d234536",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
