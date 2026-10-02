@@ -4048,3 +4048,4 @@
 {"seq": 4048, "at": "2026-10-02T11:29:11.468968+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "requestMs": 28}
 {"seq": 4049, "at": "2026-10-02T11:29:12.107427+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4050, "at": "2026-10-02T11:29:12.457255+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 24}
+{"seq": 4051, "at": "2026-10-02T11:29:12.722105+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Авторский (Одноголосый)", "persist": false}, "accepted": true, "requestMs": 33}
