@@ -1,0 +1,36 @@
+{
+  "mediaId": "7174",
+  "title": "The Running Jumping & Standing Still Film",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:36:29.445882+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "30a1853ce146b906521c",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "d22e38f84e3ee545e6f9",
+      "videoFrameFingerprint": "0ca9b0f78da2a6eb6c86",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3656
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "574d4191db48cfebece8",
+  "preparedStreamIdFingerprint": "3d9afb3337eb36dcd1c9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
