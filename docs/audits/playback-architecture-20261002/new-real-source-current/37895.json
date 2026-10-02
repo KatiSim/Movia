@@ -1,0 +1,36 @@
+{
+  "mediaId": "37895",
+  "title": "Продолжительность жизни",
+  "year": 1975,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:44.166144+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "356dfe4c88f9682c4955",
+      "decoded": true,
+      "actualHeight": 854,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "06e17a1d70f7ea3bc199",
+      "videoFrameFingerprint": "8b28d78e59076a3ebd8c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2700
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2e09aee39338d1c0242a",
+  "preparedStreamIdFingerprint": "194d8eda323bc5d6ad4c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
