@@ -1,0 +1,51 @@
+{
+  "mediaId": "45163",
+  "title": "Такие разные братья",
+  "year": 1989,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:50.293831+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "c68e659f2ac50de388b3",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "c023a8e911c2eb2f8ac7",
+      "videoFrameFingerprint": "c9e76c79aa66d530e7a7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4179
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6007687eaa4327203e63",
+  "preparedStreamIdFingerprint": "8863bc426b79cb020116",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
