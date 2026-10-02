@@ -4024,3 +4024,4 @@
 {"seq": 4024, "at": "2026-10-02T11:28:52.823731+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО)", "persist": false}, "accepted": true, "requestMs": 32}
 {"seq": 4025, "at": "2026-10-02T11:28:53.593740+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4026, "at": "2026-10-02T11:28:53.813165+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 25}
+{"seq": 4027, "at": "2026-10-02T11:28:54.097799+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "requestMs": 35}
