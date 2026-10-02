@@ -1,0 +1,29 @@
+{
+  "mediaId": "46447",
+  "title": "Поход за кофе",
+  "year": 2020,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:39:50.504104+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 3467,
+    "observed": {
+      "mediaId": "46447",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 536,
+      "positionMs": 191,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 2558,
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "37feff6985e5db444841",
+      "locatorFingerprint": "0a46bd496e145104eb31"
+    },
+    "commandToReadyMs": 3763
+  }
+}
