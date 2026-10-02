@@ -2,7 +2,38 @@
   "mediaId": "169",
   "title": "Тёмный рыцарь",
   "build": 320,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "720p",
+      "voice": "А. Гаврилов",
+      "decoded": true,
+      "qualityMatches": true,
+      "voiceReportedMatches": true,
+      "ms": 848.6,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 830,
+        "frames": 20,
+        "quality": "Auto",
+        "voice": "А. Гаврилов",
+        "streamFingerprint": "0b401ad3718f46edec48",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:2:0",
+            "rus1",
+            "ru"
+          ]
+        ]
+      }
+    }
+  ],
   "startup": {
     "decoded": true,
     "qualityMatches": true,
