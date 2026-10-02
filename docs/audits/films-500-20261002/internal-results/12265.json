@@ -1,0 +1,72 @@
+{
+  "mediaId": "12265",
+  "title": "Тарзан. Легенда",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2523,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "FocusStudio",
+    "Original (с субтитрами)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 6,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:15.662093+00:00"
+}
