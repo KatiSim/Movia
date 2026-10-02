@@ -2923,3 +2923,4 @@
 {"seq": 2923, "at": "2026-10-02T15:40:19.827213+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "СТС", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2924, "at": "2026-10-02T15:40:20.498916+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 34, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2925, "at": "2026-10-02T15:40:20.862968+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2926, "at": "2026-10-02T15:40:21.149779+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Профессиональный (МВО) · дорожка 10", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
