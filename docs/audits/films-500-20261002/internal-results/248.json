@@ -1,0 +1,93 @@
+{
+  "mediaId": "248",
+  "title": "Мстители: Финал",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2723,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "Дубляж",
+    "Укр. Дубльований"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:15.546343+00:00"
+}
