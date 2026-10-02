@@ -953,3 +953,4 @@
 {"seq": 953, "at": "2026-10-02T14:26:42.892199+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "45518", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 954, "at": "2026-10-02T14:26:44.798506+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "59837", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 955, "at": "2026-10-02T14:26:45.116952+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "59837", "arguments": {"quality": "480p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 956, "at": "2026-10-02T14:26:45.506971+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "59837", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
