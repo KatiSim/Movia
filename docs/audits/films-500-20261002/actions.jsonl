@@ -705,3 +705,4 @@
 {"seq": 705, "at": "2026-10-02T11:00:02.174842+00:00", "action": "internal_combined_decode", "mediaId": "169", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 706, "at": "2026-10-02T11:00:02.600302+00:00", "action": "internal_combined_decode", "mediaId": "259", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 707, "at": "2026-10-02T11:00:05.399003+00:00", "action": "internal_movie_result", "mediaId": "169", "actualDecoded": false, "voices": 9, "qualities": 2, "errorCategory": null}
+{"seq": 708, "at": "2026-10-02T11:00:05.676575+00:00", "action": "internal_movie_result", "mediaId": "259", "actualDecoded": false, "voices": 8, "qualities": 2, "errorCategory": null}
