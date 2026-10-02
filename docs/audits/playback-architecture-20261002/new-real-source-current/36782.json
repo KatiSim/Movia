@@ -1,0 +1,36 @@
+{
+  "mediaId": "36782",
+  "title": "Iron Fist Pillage",
+  "year": 2001,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:06.910600+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b6bd9e3a31a6b34eb007",
+      "decoded": false,
+      "actualHeight": 308,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "aa434d7e843cea8592d3",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 4225
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f531a11f8c9f46f55bfa",
+  "preparedStreamIdFingerprint": "b588c9904842e23eaa90",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
