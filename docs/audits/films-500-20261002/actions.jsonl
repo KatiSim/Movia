@@ -1964,3 +1964,4 @@
 {"seq": 1964, "at": "2026-10-02T11:14:22.187998+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 22}
 {"seq": 1965, "at": "2026-10-02T11:14:22.368988+00:00", "action": "exact_provider_resolve", "mediaId": "20376", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1966, "at": "2026-10-02T11:14:22.561317+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 44}
+{"seq": 1967, "at": "2026-10-02T11:14:22.687174+00:00", "action": "internal_movie_result", "mediaId": "35039", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
