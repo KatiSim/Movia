@@ -1,0 +1,29 @@
+{
+  "mediaId": "416425",
+  "title": "Гигант",
+  "year": 2009,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:26:34.854935+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 2194,
+    "observed": {
+      "mediaId": "416425",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 360,
+      "positionMs": 187,
+      "selectedAudioLabel": "default",
+      "selectedAudioLanguage": "ru",
+      "frames": 367,
+      "voice": "Авторский (Одноголосый)",
+      "streamFingerprint": "f5af5efe5db1b3eaa472",
+      "locatorFingerprint": "2c00248c7a47ef5fdfe1"
+    },
+    "commandToReadyMs": 2389
+  }
+}
