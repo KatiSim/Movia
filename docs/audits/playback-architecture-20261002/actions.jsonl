@@ -2358,3 +2358,4 @@
 {"seq": 2358, "at": "2026-10-02T15:01:51.367161+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "43509", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 2359, "at": "2026-10-02T15:01:51.894726+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "57160", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 2360, "at": "2026-10-02T15:01:52.523380+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.probeSurface", "quality": null, "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
+{"seq": 2361, "at": "2026-10-02T15:01:52.832317+00:00", "action": "voice_selection_trace_action", "details": {"action": "media.play", "quality": "Auto", "voice": "Auto", "status": "accepted", "code": null}, "sourcePaths": []}
