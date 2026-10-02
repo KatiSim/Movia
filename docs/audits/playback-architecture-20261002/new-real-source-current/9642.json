@@ -1,0 +1,36 @@
+{
+  "mediaId": "9642",
+  "title": "Цветок в аду",
+  "year": 1958,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:31.135058+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "baac4a549baea56cec15",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1297dac28ef712a7e6f7",
+      "videoFrameFingerprint": "b58f99a8649a125ae91a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4221
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f1e20b339fa6ae8be955",
+  "preparedStreamIdFingerprint": "fe6a3e2067badb1e12c4",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
