@@ -87,3 +87,4 @@
 {"seq": 87, "at": "2026-10-02T14:07:44.287365+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 88, "at": "2026-10-02T14:07:44.520389+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 89, "at": "2026-10-02T14:07:45.379986+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 8, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 90, "at": "2026-10-02T14:07:45.734617+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
