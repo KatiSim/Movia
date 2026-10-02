@@ -1,0 +1,36 @@
+{
+  "mediaId": "46495",
+  "title": "Танец скелетов",
+  "year": 1929,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:22.508186+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6d4ca0a8a80a865e96b5",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "08d9e991b8a661142336",
+      "videoFrameFingerprint": "e9fd74167a375c1cf24d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3268
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "edf9392608de1f94e507",
+  "preparedStreamIdFingerprint": "4805f5273ee7cc793547",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
