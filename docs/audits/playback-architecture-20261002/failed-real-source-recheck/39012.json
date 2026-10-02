@@ -42,5 +42,23 @@
   "preparedStreamIdFingerprint": "b33b96d77eb52ff77583",
   "manifestVoices": [],
   "manifestQualities": [],
-  "advertisedCompatiblePairs": 1
+  "advertisedCompatiblePairs": 1,
+  "profiles": [
+    {
+      "profileFingerprint": "50dd48afc9965eb46180",
+      "advertisedCompatiblePairs": 1,
+      "testedPairs": 1,
+      "passedPairs": 1,
+      "manifestVoices": [],
+      "manifestQualities": [],
+      "allPreparedPairsTested": true,
+      "allPreparedPairsPassed": true
+    }
+  ],
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "allCachedHttpProfilesTested": true,
+  "allCachedHttpProfilesPassed": true,
+  "distinctManifestVoices": 0,
+  "distinctManifestQualities": 0
 }
