@@ -1,0 +1,36 @@
+{
+  "mediaId": "47728",
+  "title": "KKN: Деревня танцев",
+  "year": 2022,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:18.152518+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7f0e80ebef80afd501d0",
+      "decoded": true,
+      "actualHeight": 358,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "7a96304ee8d016fbd080",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5012
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e7889d20e2072e5139e2",
+  "preparedStreamIdFingerprint": "dd6cc49d616ecd4f50f0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
