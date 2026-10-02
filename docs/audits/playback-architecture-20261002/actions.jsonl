@@ -342,3 +342,4 @@
 {"seq": 342, "at": "2026-10-02T14:10:27.048856+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 343, "at": "2026-10-02T14:10:28.091290+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Хихикающий доктор", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 344, "at": "2026-10-02T14:10:30.359263+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 11, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 345, "at": "2026-10-02T14:10:31.145493+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
