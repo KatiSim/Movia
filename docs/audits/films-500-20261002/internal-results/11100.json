@@ -1,0 +1,127 @@
+{
+  "mediaId": "11100",
+  "title": "Сплит",
+  "year": 2017,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2762,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 8,
+  "providerVoiceLabels": [
+    "Cine++ (укр)",
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "Д. Есарев",
+    "Дубляж",
+    "Профессиональный (МВО)",
+    "Укр. Дубльований",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 8,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 16,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:00.436444+00:00"
+}
