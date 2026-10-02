@@ -1,0 +1,36 @@
+{
+  "mediaId": "38816",
+  "title": "Могила вампира",
+  "year": 1972,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:28.468372+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b9a6495bb2f8db734410",
+      "decoded": true,
+      "actualHeight": 692,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "20524ef552f2b6c0325e",
+      "videoFrameFingerprint": "cec711f8a16662f28bb3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4102
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3b8a242da652a3cb0755",
+  "preparedStreamIdFingerprint": "07b9010888930a593853",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
