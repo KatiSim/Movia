@@ -368,6 +368,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Профессиональный (МВО) · дорожка 7",
+      "expectedAudioLabel": "ukr6",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 517,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 24818,
+        "selectedAudioLabel": "ukr6",
+        "selectedAudioLanguage": "uk",
+        "frames": 2787,
+        "voice": "Профессиональный (МВО) · дорожка 7",
+        "streamFingerprint": "7a7a260138ddf40e5b40",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
