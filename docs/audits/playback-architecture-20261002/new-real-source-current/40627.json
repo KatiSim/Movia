@@ -1,0 +1,36 @@
+{
+  "mediaId": "40627",
+  "title": "Они прибыли из другого пространства",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:58.485339+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "67d11871759e351714a9",
+      "decoded": true,
+      "actualHeight": 1024,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "3978ea504b654b1a5180",
+      "videoFrameFingerprint": "c7cb4dcba9e423ef3569",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4427
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "76d478df312b656aa07b",
+  "preparedStreamIdFingerprint": "c8d4db9f5d799c533952",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
