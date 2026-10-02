@@ -3059,3 +3059,4 @@
 {"seq": 3059, "at": "2026-10-02T15:41:50.315110+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Авторский (Одноголосый)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3060, "at": "2026-10-02T15:41:53.285547+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 28, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3061, "at": "2026-10-02T15:41:53.636860+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3062, "at": "2026-10-02T15:41:53.995376+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "ТЕТ (укр)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
