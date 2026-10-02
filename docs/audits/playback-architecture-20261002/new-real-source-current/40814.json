@@ -1,0 +1,36 @@
+{
+  "mediaId": "40814",
+  "title": "Дракула: Принц тьмы",
+  "year": 1966,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:02.238995+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3b15dd924758446ec124",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "bad278d5d012ab83d032",
+      "videoFrameFingerprint": "a65dd5bcc0dbcc93d5f2",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6325
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "67f689cfe941a102f99d",
+  "preparedStreamIdFingerprint": "2c4a6c33d947c4858f09",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
