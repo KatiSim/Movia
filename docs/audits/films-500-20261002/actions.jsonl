@@ -2908,3 +2908,4 @@
 {"seq": 2908, "at": "2026-10-02T11:19:03.612713+00:00", "action": "movie_result", "mediaId": "75", "decoded": true, "voices": 7, "qualities": 4}
 {"seq": 2909, "at": "2026-10-02T11:19:03.900262+00:00", "action": "player.selectQuality", "mediaId": "75", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 35}
 {"seq": 2910, "at": "2026-10-02T11:19:04.087740+00:00", "action": "internal_movie_result", "mediaId": "13390", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2911, "at": "2026-10-02T11:19:04.378967+00:00", "action": "player.selectVoice", "mediaId": "75", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 48}
