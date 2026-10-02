@@ -1,0 +1,52 @@
+{
+  "mediaId": "58768",
+  "title": "Кто убил леди Уинсли?",
+  "year": 2019,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:30.052189+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 306,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "9d893f04f44fec812ff4",
+      "decoded": true,
+      "actualHeight": 306,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "54af98898c42a16441c8",
+      "videoFrameFingerprint": "797971ab9f5089633e5d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4629
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7814c34743e5912da6f7",
+  "preparedStreamIdFingerprint": "f2c593489133b23379be",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    306,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
