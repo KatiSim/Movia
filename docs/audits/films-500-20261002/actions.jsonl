@@ -98,3 +98,4 @@
 {"seq": 98, "at": "2026-10-02T10:43:32.307316+00:00", "action": "movie_result", "mediaId": "17653", "decoded": null, "voices": 0, "qualities": 0}
 {"seq": 99, "at": "2026-10-02T10:43:32.432604+00:00", "action": "player.stop", "mediaId": "405789", "arguments": {}, "accepted": false, "error": "<urlopen error [Errno 111] Connection refused>"}
 {"seq": 100, "at": "2026-10-02T10:43:32.581112+00:00", "action": "movie_result", "mediaId": "405789", "decoded": null, "voices": 0, "qualities": 0}
+{"seq": 101, "at": "2026-10-02T10:43:32.673523+00:00", "action": "player.stop", "mediaId": "4002", "arguments": {}, "accepted": false, "error": "<urlopen error [Errno 111] Connection refused>"}
