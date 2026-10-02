@@ -1,0 +1,36 @@
+{
+  "mediaId": "43139",
+  "title": "Собаки, хотите жить вечно?",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:35:44.616214+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "82b1ce7f512c96282ea5",
+      "decoded": true,
+      "actualHeight": 528,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "b0db73b455a1279cb1a8",
+      "videoFrameFingerprint": "324bf569834f9ccf399e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3823
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7bda586bc010a79cb34e",
+  "preparedStreamIdFingerprint": "696e96c8779cba8cee2f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
