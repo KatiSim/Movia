@@ -1,0 +1,36 @@
+{
+  "mediaId": "52980",
+  "title": "Лондонский оборотень",
+  "year": 1935,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:11.314960+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2e133cca52072f3318bd",
+      "decoded": true,
+      "actualHeight": 640,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "a707ed2dad402f994a6d",
+      "videoFrameFingerprint": "97276195d82918160345",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3676
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d2f6b95227447a7b6b39",
+  "preparedStreamIdFingerprint": "11887489d314a65a5b5a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
