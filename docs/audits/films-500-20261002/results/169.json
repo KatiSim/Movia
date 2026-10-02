@@ -595,6 +595,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Укр. Дубльований",
+      "expectedAudioLabel": "ukr7",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 290,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 17147,
+        "frames": 412,
+        "quality": "720p",
+        "voice": "Укр. Дубльований",
+        "streamFingerprint": "6b17cfb036e6bb00b95c",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "ukr7",
+        "selectedAudioLanguage": "uk",
+        "selectedAudio": [
+          [
+            "track:1:8:0",
+            "ukr7",
+            "uk"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:14:00.486861+00:00",
