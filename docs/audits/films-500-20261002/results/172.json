@@ -562,6 +562,44 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Двухголосый (ДВО)",
+      "expectedAudioLabel": "rus3",
+      "studioIndependentlyVerified": false,
+      "decoded": false,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": false,
+      "ms": 8048,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 53348,
+        "frames": 11241,
+        "quality": "720p",
+        "voice": "Двухголосый (ДВО)",
+        "streamFingerprint": "3d65985080f1798264fc",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc",
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:3:0",
+            "rus2",
+            "ru"
+          ]
+        ]
+      },
+      "reason": "Requested video/audio format and three subsequent frames not reached",
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": false,
+      "locatorChanged": false,
+      "status": "FAIL"
     }
   ],
   "checkedAt": "2026-10-02T11:24:47.004815+00:00",
