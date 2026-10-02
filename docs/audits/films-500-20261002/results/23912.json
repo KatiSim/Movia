@@ -299,6 +299,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "eng8",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 394,
+      "observed": {
+        "mediaId": "23912",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 10301,
+        "frames": 5354,
+        "quality": "360p",
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "b677365933a60cda9fba",
+        "locatorFingerprint": "458fc51828a8316b3918",
+        "selectedAudioLabel": "eng8",
+        "selectedAudioLanguage": "en",
+        "selectedAudio": [
+          [
+            "track:1:9:0",
+            "eng8",
+            "en"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:19:33.989001+00:00",

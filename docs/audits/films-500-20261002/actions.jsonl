@@ -3048,3 +3048,4 @@
 {"seq": 3048, "at": "2026-10-02T11:19:52.054935+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
 {"seq": 3049, "at": "2026-10-02T11:19:52.440484+00:00", "action": "player.selectQuality", "mediaId": "23912", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 46}
 {"seq": 3050, "at": "2026-10-02T11:19:52.749884+00:00", "action": "player.selectVoice", "mediaId": "23912", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 52}
+{"seq": 3051, "at": "2026-10-02T11:19:53.380446+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
