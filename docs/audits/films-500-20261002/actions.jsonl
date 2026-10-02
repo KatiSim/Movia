@@ -3423,3 +3423,4 @@
 {"seq": 3423, "at": "2026-10-02T11:22:13.818717+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "Tycoon", "persist": false}, "accepted": true, "requestMs": 41}
 {"seq": 3424, "at": "2026-10-02T11:22:14.318318+00:00", "action": "internal_movie_result", "mediaId": "8597", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3425, "at": "2026-10-02T11:22:14.726836+00:00", "action": "exact_provider_resolve", "mediaId": "25485", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 3426, "at": "2026-10-02T11:22:15.016964+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
