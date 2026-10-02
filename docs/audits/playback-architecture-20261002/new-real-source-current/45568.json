@@ -1,0 +1,52 @@
+{
+  "mediaId": "45568",
+  "title": "Глупый сон",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:33.520060+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 346,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "fd5f660849dcd34cddfb",
+      "decoded": true,
+      "actualHeight": 346,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f2225846ac6429cf104a",
+      "videoFrameFingerprint": "c927dfc3f7e5cb37bd45",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3876
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ece8b6e21056c9b1b45f",
+  "preparedStreamIdFingerprint": "7c3c9ab919dc56f418ad",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    346,
+    690
+  ],
+  "advertisedCompatiblePairs": 2
+}
