@@ -1,0 +1,36 @@
+{
+  "mediaId": "313273",
+  "title": "Ablution",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:28.150715+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2cae596909e9f2430230",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "eecc1dbe5e0aff1ccd04",
+      "videoFrameFingerprint": "b0fbde8818f04b1c15a6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4959
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ca4e8459267e4c682bc9",
+  "preparedStreamIdFingerprint": "09d0964f0efbc1a75deb",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
