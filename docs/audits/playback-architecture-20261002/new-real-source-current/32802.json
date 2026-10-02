@@ -1,0 +1,36 @@
+{
+  "mediaId": "32802",
+  "title": "Леди, берегись",
+  "year": 1987,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:46:29.290666+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ea608b2e3c1f88145f06",
+      "decoded": true,
+      "actualHeight": 352,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "76a2d07b48a822d0b696",
+      "videoFrameFingerprint": "2c173841614a6c1bc3f8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9837
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "faf14a315b1eb20b7cf0",
+  "preparedStreamIdFingerprint": "af982f029d8d889e0416",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
