@@ -1,10 +1,10 @@
 {
   "phase": "starts",
   "selected": 500,
-  "attempted": 23,
-  "decodedStarted": 5,
-  "withThreeVoiceLabels": null,
-  "withTwoQualityLabels": 3,
+  "attempted": 0,
+  "decodedStarted": 0,
+  "withThreeVoiceLabels": 0,
+  "withTwoQualityLabels": 0,
   "qualitySwitchConfirmed": 0,
   "audioTrackSwitchConfirmed": 0,
   "voiceLocatorOnly": 0,
@@ -12,11 +12,8 @@
   "variantFailed": 0,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T10:45:04.687552+00:00",
-  "actionsRecorded": 698,
-  "lastPublishedAction": 678,
-  "githubSyncError": null,
-  "infrastructureFailuresExcluded": 308,
-  "excludedTv": 1,
-  "status": "PAUSED_FOR_FOREGROUND_FIX"
+  "updatedAt": "2026-10-02T11:04:31.870169+00:00",
+  "actionsRecorded": 996,
+  "lastPublishedAction": 995,
+  "githubSyncError": null
 }
