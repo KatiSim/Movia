@@ -2353,5 +2353,8 @@
     ],
     "sourceRows": 75,
     "inventoryComplete": false
-  }
+  },
+  "allAdvertisedPreparedPairsTested": true,
+  "allAdvertisedPreparedPairsPassed": false,
+  "meetsVoiceAndQualityVariety": true
 }
