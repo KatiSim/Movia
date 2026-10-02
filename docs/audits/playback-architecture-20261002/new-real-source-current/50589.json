@@ -1,0 +1,36 @@
+{
+  "mediaId": "50589",
+  "title": "В царстве фей",
+  "year": 1903,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:45.708483+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "036f066c2ba019909f50",
+      "decoded": false,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "c2b488c0d6f19a2ac1b7",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 2957
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "715f8a3a1f13c3d6d614",
+  "preparedStreamIdFingerprint": "a9e085d82983193a3998",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
