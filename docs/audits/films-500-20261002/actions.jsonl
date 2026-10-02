@@ -3625,3 +3625,4 @@
 {"seq": 3625, "at": "2026-10-02T11:23:38.754095+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Профессиональный (МВО)", "persist": false}, "accepted": true, "requestMs": 18}
 {"seq": 3626, "at": "2026-10-02T11:23:39.859899+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
 {"seq": 3627, "at": "2026-10-02T11:23:40.109764+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 52}
+{"seq": 3628, "at": "2026-10-02T11:23:40.303010+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "requestMs": 38}
