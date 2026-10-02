@@ -1,0 +1,36 @@
+{
+  "mediaId": "44578",
+  "title": "Бен и я",
+  "year": 1953,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:45.529113+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6e2dafc26aa6d5c9ecee",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "dab22b789b8f8f4e19d8",
+      "videoFrameFingerprint": "fcd7647a1d511d9410e2",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4887
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ee626bba48bb0062a60d",
+  "preparedStreamIdFingerprint": "60ced645c37b4d81c177",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
