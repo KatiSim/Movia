@@ -1277,3 +1277,4 @@
 {"seq": 1277, "at": "2026-10-02T11:08:03.348503+00:00", "action": "internal_movie_result", "mediaId": "577846", "actualDecoded": true, "voices": 1, "qualities": 2, "errorCategory": null}
 {"seq": 1278, "at": "2026-10-02T11:08:03.605991+00:00", "action": "exact_provider_resolve", "mediaId": "22578", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1279, "at": "2026-10-02T11:08:04.565973+00:00", "action": "internal_combined_decode", "mediaId": "22578", "qualityHeight": 406, "voice": "Пифагор", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
+{"seq": 1280, "at": "2026-10-02T11:08:04.720123+00:00", "action": "internal_movie_result", "mediaId": "10374", "actualDecoded": true, "voices": 2, "qualities": 2, "errorCategory": null}
