@@ -1,0 +1,36 @@
+{
+  "mediaId": "44713",
+  "title": "Три ангелочка",
+  "year": 1952,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:15:50.944856+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "be1c5cd15b3aafd3e6fa",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "4e0ffe2f2618611eaa3f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9211
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "761ae2247e2cb968ff50",
+  "preparedStreamIdFingerprint": "bda6e8330173e6bbd815",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
