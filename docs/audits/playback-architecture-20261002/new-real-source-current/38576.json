@@ -1,0 +1,36 @@
+{
+  "mediaId": "38576",
+  "title": "Ужас из могилы",
+  "year": 1973,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:44:03.282953+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6ead0273d1d9599219a5",
+      "decoded": true,
+      "actualHeight": 352,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "a0ae94d3cc06875f5c3c",
+      "videoFrameFingerprint": "5c5a53ed44ba9444ee32",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 13235
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "7ab11e1361caf096f348",
+  "preparedStreamIdFingerprint": "47e558191de41245659a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
