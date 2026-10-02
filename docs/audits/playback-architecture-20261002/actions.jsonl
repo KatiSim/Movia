@@ -3269,3 +3269,4 @@
 {"seq": 3269, "at": "2026-10-02T15:44:24.029222+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3270, "at": "2026-10-02T15:44:24.514258+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 16, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3271, "at": "2026-10-02T15:44:24.828106+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 16, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 3272, "at": "2026-10-02T15:44:25.148212+00:00", "action": "native_player.stop", "details": {"mediaId": "322124", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
