@@ -1,0 +1,39 @@
+..................................................................................................................................................................[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.....2026-10-02 17:35:47,334 - INFO - Provider apibay skipped during reliability cooldown
+.............../data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832890>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe8324d0>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832e30>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832980>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832a70>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832f20>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe832b60>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:287: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe833100>
+  result = dict(raw)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...........<frozen importlib._bootstrap>:1360: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe8336a0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap>:1360: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x79fe833e20>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......
+----------------------------------------------------------------------
+Ran 199 tests in 12.165s
+
+OK
+Torrent resolve error or timeout: 
