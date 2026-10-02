@@ -1,0 +1,42 @@
+{
+  "index": 16,
+  "mediaId": "12582",
+  "title": "Я видел свет",
+  "year": 2016,
+  "rating": 6.3,
+  "voteCount": 223,
+  "genres": "[\"музыка\",\"драма\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14087.61,
+    "observed": {
+      "mediaId": "12582",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 40,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14269.43,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:41:43.474717+00:00"
+}
