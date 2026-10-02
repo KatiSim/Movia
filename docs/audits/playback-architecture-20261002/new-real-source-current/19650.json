@@ -1,0 +1,36 @@
+{
+  "mediaId": "19650",
+  "title": "Мои друзья Тигруля и Винни: Мюзикл Большого леса",
+  "year": 2009,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:22.933185+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7ffab85d6c0e0e369f98",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "a0079f3c5b51db8a35f7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3793
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e50f221e9176bc50a7d1",
+  "preparedStreamIdFingerprint": "6e2de7414f92129ce188",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
