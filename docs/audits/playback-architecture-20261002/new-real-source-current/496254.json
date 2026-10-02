@@ -1,0 +1,52 @@
+{
+  "mediaId": "496254",
+  "title": "വലത് വശത്തെ കള്ളൻ",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:13.004344+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 246,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "641e40601db5e52c15af",
+      "decoded": true,
+      "actualHeight": 246,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7f5e6d03637374c93c25",
+      "videoFrameFingerprint": "14701f23b987b5b1b20b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2952
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "032d8598e335043611f8",
+  "preparedStreamIdFingerprint": "13df8860f983c38703bd",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    246,
+    492
+  ],
+  "advertisedCompatiblePairs": 2
+}
