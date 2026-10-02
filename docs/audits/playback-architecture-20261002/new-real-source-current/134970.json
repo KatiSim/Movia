@@ -1,0 +1,36 @@
+{
+  "mediaId": "134970",
+  "title": "Borderline",
+  "year": 1950,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:46.441600+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7fb6a026d6228eed244d",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "dcb435a1b8ec5869213b",
+      "videoFrameFingerprint": "a5ec105d4f2d643c1ce9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4258
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f417775744573f880d9e",
+  "preparedStreamIdFingerprint": "f521577c55b39e940d8a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
