@@ -3123,3 +3123,4 @@
 {"seq": 3123, "at": "2026-10-02T15:42:35.131206+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3124, "at": "2026-10-02T15:42:35.564998+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 16, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3125, "at": "2026-10-02T15:42:35.914308+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3126, "at": "2026-10-02T15:42:36.244660+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Авторский (Одноголосый) · дорожка 6", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
