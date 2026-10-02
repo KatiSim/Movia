@@ -1,0 +1,13 @@
+{
+  "mediaId": "22465",
+  "title": "Мистер и миссис Смит",
+  "year": 2005,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:21:28.766716+00:00"
+}
