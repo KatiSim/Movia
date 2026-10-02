@@ -1,0 +1,13 @@
+{
+  "mediaId": "21708",
+  "title": "Ледниковый период 2: Глобальное потепление",
+  "year": 2006,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:23:20.890364+00:00"
+}
