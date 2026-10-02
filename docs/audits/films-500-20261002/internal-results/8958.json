@@ -1,0 +1,13 @@
+{
+  "mediaId": "8958",
+  "title": "Битва за Чансари",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:11:11.612522+00:00"
+}
