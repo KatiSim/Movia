@@ -1,0 +1,36 @@
+{
+  "mediaId": "234595",
+  "title": "RaftaaR",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:18.883777+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "67cfc2851eca467f9537",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "dc2a03a1b6f2394d7436",
+      "videoFrameFingerprint": "5553058cc7a21fd95a5e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3924
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d613f4f4ee1d6c27f041",
+  "preparedStreamIdFingerprint": "5be29d5de3ecace3df94",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
