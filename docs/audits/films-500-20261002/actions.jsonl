@@ -1994,3 +1994,4 @@
 {"seq": 1994, "at": "2026-10-02T11:14:27.308063+00:00", "action": "exact_provider_resolve", "mediaId": "15565", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1995, "at": "2026-10-02T11:14:27.510980+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 26}
 {"seq": 1996, "at": "2026-10-02T11:14:27.756124+00:00", "action": "internal_movie_result", "mediaId": "11082", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 1997, "at": "2026-10-02T11:14:27.972874+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 53}
