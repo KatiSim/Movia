@@ -2992,3 +2992,4 @@
 {"seq": 2992, "at": "2026-10-02T11:19:30.227683+00:00", "action": "movie_result", "mediaId": "19241", "decoded": true, "voices": 7, "qualities": 4}
 {"seq": 2993, "at": "2026-10-02T11:19:30.516106+00:00", "action": "player.selectQuality", "mediaId": "19241", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 52}
 {"seq": 2994, "at": "2026-10-02T11:19:30.847753+00:00", "action": "player.selectVoice", "mediaId": "19241", "arguments": {"voice": "Новий канал", "persist": false}, "accepted": true, "requestMs": 68}
+{"seq": 2995, "at": "2026-10-02T11:19:31.058465+00:00", "action": "internal_movie_result", "mediaId": "172102", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
