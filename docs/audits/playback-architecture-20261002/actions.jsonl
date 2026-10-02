@@ -923,3 +923,4 @@
 {"seq": 923, "at": "2026-10-02T14:26:26.459814+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "60459", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 924, "at": "2026-10-02T14:26:27.002591+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "60459", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 925, "at": "2026-10-02T14:26:27.286272+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "60459", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 926, "at": "2026-10-02T14:26:27.624392+00:00", "action": "native_player.stop", "details": {"mediaId": "52218", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
