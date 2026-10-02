@@ -1,0 +1,29 @@
+{
+  "mediaId": "44511",
+  "title": "Страх и вожделение",
+  "year": 1953,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:35:03.276516+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 13814,
+    "observed": {
+      "mediaId": "44511",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 190,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1858,
+      "voice": "Original",
+      "streamFingerprint": "3c842b4c30f987046efa",
+      "locatorFingerprint": "00a933c34e23d6d7b256"
+    },
+    "commandToReadyMs": 14022
+  }
+}
