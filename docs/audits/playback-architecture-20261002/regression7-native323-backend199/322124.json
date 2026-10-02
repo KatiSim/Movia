@@ -160,6 +160,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "406p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "def6",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 380,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 406,
+        "positionMs": 11403,
+        "selectedAudioLabel": "def6",
+        "selectedAudioLanguage": "ru",
+        "frames": 5958,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "de122892f3737394df81",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
