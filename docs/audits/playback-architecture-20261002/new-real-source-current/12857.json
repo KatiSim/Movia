@@ -1,0 +1,36 @@
+{
+  "mediaId": "12857",
+  "title": "Round-Up Time in Texas",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:12:46.308817+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fcc6bae7e19ea33abd7a",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "32d32f31200a0b2b2989",
+      "videoFrameFingerprint": "dab9f34408ab30c22d17",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4669
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "71d4faef483e0c3d6915",
+  "preparedStreamIdFingerprint": "0c7ea6e9e6f49d2f9049",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
