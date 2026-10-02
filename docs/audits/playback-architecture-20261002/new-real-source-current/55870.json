@@ -1,0 +1,36 @@
+{
+  "mediaId": "55870",
+  "title": "Рождение нации",
+  "year": 1915,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:14:54.361330+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b6c612d3ca166a052f5c",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "3b430cde43a72e0ffbe8",
+      "videoFrameFingerprint": "8e05f83a1975a2cf9649",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4059
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f936b1be67015dea3f75",
+  "preparedStreamIdFingerprint": "dbf2c57f33d750cfac5a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
