@@ -30,6 +30,19 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "266p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "jpn1",
+      "expectedLanguage": "ja",
+      "decoded": false,
+      "errorCategory": "AGENT_HTTP_400_VOICE_NOT_FOUND",
+      "observed": null,
+      "positionPreserved": false,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": false,
+      "status": "FAIL"
     }
   ],
   "allProviderSourcesVerified": false,
