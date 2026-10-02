@@ -1368,16 +1368,13 @@ def clear_torrent_cache_dir() -> Dict[str, Any]:
 # --- Search/catalog v2 overrides ---
 # Kept at module bottom so the migration can be adopted without deleting the
 # existing playback/detail code or changing the current catalog identity.
-from catalog_schema_v2 import ensure_schema as _ensure_catalog_schema
 from catalog_schema_v2 import get_revision as _get_catalog_revision
 from search_service import category_condition as _search_category_condition
 from search_service import genre_values as _search_genre_values
 from search_service import search_page as _indexed_search_page
 
-try:
-    _CATALOG_SCHEMA_BOOTSTRAP = _ensure_catalog_schema(DB_PATH)
-except Exception as _schema_exc:
-    _CATALOG_SCHEMA_BOOTSTRAP = {"error": f"{type(_schema_exc).__name__}: {_schema_exc}"}
+# Writer/service startup owns migrations. Importing a read API must never
+# create columns, indexes or FTS data on the playback request path.
 
 
 def _catalog_conditions(
