@@ -325,3 +325,4 @@
 {"seq": 325, "at": "2026-10-02T14:10:10.965334+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "М. Яроцкий", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 326, "at": "2026-10-02T14:10:13.593473+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 327, "at": "2026-10-02T14:10:14.206667+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 328, "at": "2026-10-02T14:10:14.712726+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
