@@ -1,0 +1,46 @@
+{
+  "mediaId": "56303",
+  "title": "Гибель Лузитании",
+  "year": 1918,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:18:32.698231+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fc64ba6b42f3e751af37",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "99217c0aed591b94577a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3164,
+      "profileFingerprint": "59580b698be003197ae3",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "59580b698be003197ae3",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "a4cac79ca2a8b8d66bb9",
+  "preparedStreamIdFingerprint": "14cf655c7e8a5c8eb916",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
