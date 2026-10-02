@@ -3877,3 +3877,4 @@
 {"seq": 3877, "at": "2026-10-02T11:27:21.866355+00:00", "action": "movie_result", "mediaId": "12265", "decoded": true, "voices": 3, "qualities": 3}
 {"seq": 3878, "at": "2026-10-02T11:27:22.190457+00:00", "action": "movie_result", "mediaId": "12265", "decoded": true, "voices": 3, "qualities": 3}
 {"seq": 3879, "at": "2026-10-02T11:27:22.544080+00:00", "action": "player.stop", "mediaId": "11085", "arguments": {}, "accepted": true, "requestMs": 60}
+{"seq": 3880, "at": "2026-10-02T11:27:22.808295+00:00", "action": "media.play", "mediaId": "11085", "arguments": {"mediaId": "11085", "title": "Невидимый гость", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "da686dd4a5fc768f74e3"}, "accepted": true, "requestMs": 15}
