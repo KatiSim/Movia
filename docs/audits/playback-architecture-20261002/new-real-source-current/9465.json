@@ -1,0 +1,36 @@
+{
+  "mediaId": "9465",
+  "title": "Unnatural Selection",
+  "year": 0,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:14.849542+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ad1122a3cc6976157113",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "2beeeaf53016f0662e32",
+      "videoFrameFingerprint": "a02fb792aba21f7e63c6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3656
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "10de35abc1e77ba856fd",
+  "preparedStreamIdFingerprint": "12078f0f30b1d392eb09",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
