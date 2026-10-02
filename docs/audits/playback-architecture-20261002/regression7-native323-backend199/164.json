@@ -394,6 +394,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "В. Горчаков",
+      "expectedAudioLabel": "rus16",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 436,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 25683,
+        "selectedAudioLabel": "rus16",
+        "selectedAudioLanguage": "ru",
+        "frames": 612,
+        "voice": "В. Горчаков",
+        "streamFingerprint": "9193b518095b34ca3c55",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
