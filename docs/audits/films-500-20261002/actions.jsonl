@@ -3075,3 +3075,4 @@
 {"seq": 3075, "at": "2026-10-02T11:20:01.318959+00:00", "action": "player.selectVoice", "mediaId": "23912", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "requestMs": 71}
 {"seq": 3076, "at": "2026-10-02T11:20:01.797561+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
 {"seq": 3077, "at": "2026-10-02T11:20:02.173002+00:00", "action": "internal_movie_result", "mediaId": "18375", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3078, "at": "2026-10-02T11:20:02.593614+00:00", "action": "player.selectQuality", "mediaId": "23912", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 42}
