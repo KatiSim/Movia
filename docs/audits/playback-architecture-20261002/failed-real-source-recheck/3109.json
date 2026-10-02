@@ -1,0 +1,16 @@
+{
+  "mediaId": "3109",
+  "title": "Naughty Boy's Toys",
+  "year": 2006,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:30:36.755789+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "profileChecks": [],
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
