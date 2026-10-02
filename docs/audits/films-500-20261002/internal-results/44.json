@@ -1,0 +1,94 @@
+{
+  "mediaId": "44",
+  "title": "Первый мститель: Противостояние",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "cbd8f0fefdc36cf267eb",
+      "ms": 2666,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "FocusStudio",
+    "LeDoyen (укр)",
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:05.631842+00:00"
+}
