@@ -2368,3 +2368,4 @@
 {"seq": 2368, "at": "2026-10-02T15:01:57.469632+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectQuality", "quality": "534p", "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
 {"seq": 2369, "at": "2026-10-02T15:01:57.832600+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectVoice", "quality": null, "voice": "AlphaProject", "status": "completed", "code": null}, "sourcePaths": []}
 {"seq": 2370, "at": "2026-10-02T15:01:59.308917+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectVoice", "quality": null, "voice": "Original (с субтитрами)", "status": "completed", "code": null}, "sourcePaths": []}
+{"seq": 2371, "at": "2026-10-02T15:02:00.802261+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectQuality", "quality": "266p", "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
