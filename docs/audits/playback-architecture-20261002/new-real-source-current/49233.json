@@ -1,0 +1,36 @@
+{
+  "mediaId": "49233",
+  "title": "Властелин танца",
+  "year": 2011,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:02.192148+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "72761fd6bb756293f49d",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "0e7b604e082e742ab6f3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4006
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9b0f4dad852fa42f39bc",
+  "preparedStreamIdFingerprint": "396c82f6a03b0639d576",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
