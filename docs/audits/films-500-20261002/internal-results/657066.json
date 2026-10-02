@@ -1,0 +1,13 @@
+{
+  "mediaId": "657066",
+  "title": "Панда большая и маленькая",
+  "year": 1972,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:11:09.842621+00:00"
+}
