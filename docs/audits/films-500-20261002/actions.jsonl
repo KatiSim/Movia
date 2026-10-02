@@ -998,3 +998,4 @@
 {"seq": 998, "at": "2026-10-02T11:04:32.319131+00:00", "action": "player.stop", "mediaId": null, "arguments": {}, "accepted": true, "requestMs": 17}
 {"seq": 999, "at": "2026-10-02T11:04:32.507607+00:00", "action": "exact_provider_resolve", "mediaId": "429526", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1000, "at": "2026-10-02T11:04:32.712638+00:00", "action": "media.play", "mediaId": "169", "arguments": {"mediaId": "169", "title": "Тёмный рыцарь", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 19}
+{"seq": 1001, "at": "2026-10-02T11:04:32.939192+00:00", "action": "internal_combined_decode", "mediaId": "10097", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
