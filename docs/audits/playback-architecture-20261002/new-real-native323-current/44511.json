@@ -4,7 +4,34 @@
   "year": 1953,
   "build": 323,
   "checkedAt": "2026-10-02T14:35:03.276516+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "480p",
+      "voice": "track:1:1:0",
+      "expectedAudioLabel": null,
+      "expectedLanguage": null,
+      "decoded": true,
+      "ms": 347,
+      "observed": {
+        "mediaId": "44511",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 480,
+        "positionMs": 5721,
+        "selectedAudioLabel": null,
+        "selectedAudioLanguage": "und",
+        "frames": 2018,
+        "voice": "Аудиодорожка 1",
+        "streamFingerprint": "3c842b4c30f987046efa",
+        "locatorFingerprint": "00a933c34e23d6d7b256"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": false,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,16 @@
       "locatorFingerprint": "00a933c34e23d6d7b256"
     },
     "commandToReadyMs": 14022
-  }
+  },
+  "preparedSupportedPairs": 1,
+  "preparedQualities": [
+    480
+  ],
+  "preparedVoices": [
+    {
+      "choice": "track:1:1:0",
+      "actualName": null,
+      "language": null
+    }
+  ]
 }
