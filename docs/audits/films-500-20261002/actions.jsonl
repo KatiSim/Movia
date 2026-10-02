@@ -1826,3 +1826,4 @@
 {"seq": 1826, "at": "2026-10-02T11:13:47.502166+00:00", "action": "exact_provider_resolve", "mediaId": "4002", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1827, "at": "2026-10-02T11:13:47.742924+00:00", "action": "exact_provider_resolve", "mediaId": "594", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1828, "at": "2026-10-02T11:13:47.971345+00:00", "action": "internal_combined_decode", "mediaId": "405789", "qualityHeight": 360, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
+{"seq": 1829, "at": "2026-10-02T11:13:48.187348+00:00", "action": "native_matrix321_begin", "evidenceGate": "Exact manifest voice ordinal, actual Media3 audio label, video height, then 3 subsequent frames; preserve position"}
