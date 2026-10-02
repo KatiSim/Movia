@@ -47,5 +47,9 @@
   "manifestQualities": [
     360
   ],
-  "advertisedCompatiblePairs": 1
+  "advertisedCompatiblePairs": 1,
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 1
 }
