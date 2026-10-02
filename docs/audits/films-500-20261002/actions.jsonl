@@ -996,3 +996,4 @@
 {"seq": 996, "at": "2026-10-02T11:04:31.863623+00:00", "action": "player.probeSurface", "mediaId": null, "arguments": {"enabled": true}, "accepted": true, "requestMs": 154}
 {"seq": 997, "at": "2026-10-02T11:04:32.005180+00:00", "action": "internal_movie_result", "mediaId": "538366", "actualDecoded": true, "voices": 2, "qualities": 2, "errorCategory": null}
 {"seq": 998, "at": "2026-10-02T11:04:32.319131+00:00", "action": "player.stop", "mediaId": null, "arguments": {}, "accepted": true, "requestMs": 17}
+{"seq": 999, "at": "2026-10-02T11:04:32.507607+00:00", "action": "exact_provider_resolve", "mediaId": "429526", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
