@@ -1,0 +1,30 @@
+{
+  "mediaId": "50925",
+  "title": "Энчантималс. Весна на урожайных полях",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:14:21.968371+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ac3b11673fa5f6db0481",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14156
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "95f149379d5cd2ab24dd",
+  "preparedStreamIdFingerprint": "eae2628adaea0fb10fc8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
