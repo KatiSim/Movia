@@ -810,3 +810,4 @@
 {"seq": 810, "at": "2026-10-02T11:02:08.541839+00:00", "action": "internal_movie_result", "mediaId": "23911", "actualDecoded": true, "voices": 14, "qualities": 2, "errorCategory": null}
 {"seq": 811, "at": "2026-10-02T11:02:08.762326+00:00", "action": "internal_movie_result", "mediaId": "75", "actualDecoded": true, "voices": 6, "qualities": 2, "errorCategory": null}
 {"seq": 812, "at": "2026-10-02T11:02:09.008357+00:00", "action": "exact_provider_resolve", "mediaId": "19241", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 813, "at": "2026-10-02T11:02:09.208342+00:00", "action": "exact_provider_resolve", "mediaId": "23912", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
