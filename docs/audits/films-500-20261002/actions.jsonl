@@ -2938,3 +2938,4 @@
 {"seq": 2938, "at": "2026-10-02T11:19:11.951166+00:00", "action": "exact_provider_resolve", "mediaId": "26406", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2939, "at": "2026-10-02T11:19:12.132137+00:00", "action": "movie_result", "mediaId": "75", "decoded": true, "voices": 7, "qualities": 4}
 {"seq": 2940, "at": "2026-10-02T11:19:12.234045+00:00", "action": "player.stop", "mediaId": "19241", "arguments": {}, "accepted": true, "requestMs": 16}
+{"seq": 2941, "at": "2026-10-02T11:19:12.316463+00:00", "action": "media.play", "mediaId": "19241", "arguments": {"mediaId": "19241", "title": "Гарри Поттер и Принц-полукровка", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "e04722c7dca5460c95e7"}, "accepted": true, "requestMs": 5}
