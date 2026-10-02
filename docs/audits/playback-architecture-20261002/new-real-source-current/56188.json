@@ -1,0 +1,36 @@
+{
+  "mediaId": "56188",
+  "title": "Рембрандт",
+  "year": 1936,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:59.079750+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "85fc756fb1e97352da49",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "5f2f43d8f7d8151ef4a0",
+      "videoFrameFingerprint": "09e8cb6a9e62c485c4dc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9491
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "662adf90261359d28704",
+  "preparedStreamIdFingerprint": "1b510192b66f2898737a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
