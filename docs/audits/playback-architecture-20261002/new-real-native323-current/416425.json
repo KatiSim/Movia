@@ -63,5 +63,7 @@
       "actualName": "default",
       "language": "ru"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
