@@ -1,0 +1,36 @@
+...............................................................................................................................................................[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.....2026-10-02 17:11:47,927 - INFO - Provider apibay skipped during reliability cooldown
+.............../data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611e7a0>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611eb60>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611e4d0>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611e5c0>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611ed40>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611e890>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/projects/movia/backend/runtime/lampa_compat.py:116: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611ec50>
+  if " " in marker or "-" in marker or any(ord(char) > 127 for char in marker):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...........<frozen importlib._bootstrap>:1360: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611f3d0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap>:1360: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x790611ff10>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......
+----------------------------------------------------------------------
+Ran 196 tests in 11.430s
+
+OK
+Torrent resolve error or timeout: 
