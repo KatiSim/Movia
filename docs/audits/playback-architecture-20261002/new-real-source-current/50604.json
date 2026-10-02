@@ -1,0 +1,36 @@
+{
+  "mediaId": "50604",
+  "title": "Искатель приключений",
+  "year": 1917,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:41.531426+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f4a4306090811994d57a",
+      "decoded": false,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "708888ef857829461452",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 8221
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "401f6036afe233bdedb5",
+  "preparedStreamIdFingerprint": "cfb7e0c57489211aff72",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
