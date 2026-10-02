@@ -2256,3 +2256,4 @@
 {"seq": 2256, "at": "2026-10-02T11:15:32.327837+00:00", "action": "media.play", "mediaId": "164", "arguments": {"mediaId": "164", "title": "Побег из Шоушенка", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "44d63c105ea70f535a79"}, "accepted": true, "requestMs": 8}
 {"seq": 2257, "at": "2026-10-02T11:15:34.256196+00:00", "action": "internal_movie_result", "mediaId": "55025", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2258, "at": "2026-10-02T11:15:34.440544+00:00", "action": "internal_movie_result", "mediaId": "29742", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2259, "at": "2026-10-02T11:15:34.608848+00:00", "action": "internal_movie_result", "mediaId": "54283", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
