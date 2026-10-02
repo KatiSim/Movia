@@ -3288,3 +3288,4 @@
 {"seq": 3288, "at": "2026-10-02T15:44:38.022172+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3289, "at": "2026-10-02T15:44:38.964510+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3290, "at": "2026-10-02T15:44:39.265434+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3291, "at": "2026-10-02T15:44:39.579732+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО) · дорожка 6", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
