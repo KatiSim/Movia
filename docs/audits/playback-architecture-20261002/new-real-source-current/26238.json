@@ -1,0 +1,36 @@
+{
+  "mediaId": "26238",
+  "title": "Собачий Отель",
+  "year": 2000,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:35.631748+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "333023d8adb48c67e57f",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "001f28e457aacc1a49e1",
+      "videoFrameFingerprint": "df8c31c135bcdb31d521",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5095
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c3793b37c6d60ed4c3ed",
+  "preparedStreamIdFingerprint": "411e5f9e438765e56f79",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
