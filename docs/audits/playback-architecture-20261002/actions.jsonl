@@ -3088,3 +3088,4 @@
 {"seq": 3088, "at": "2026-10-02T15:42:11.543891+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3089, "at": "2026-10-02T15:42:11.948553+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3090, "at": "2026-10-02T15:42:12.282977+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3091, "at": "2026-10-02T15:42:13.290057+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
