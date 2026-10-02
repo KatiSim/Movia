@@ -106,3 +106,4 @@
 {"seq": 106, "at": "2026-10-02T14:07:52.899883+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Профессиональный (МВО) · дорожка 14", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 107, "at": "2026-10-02T14:07:53.735092+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 14, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 108, "at": "2026-10-02T14:07:54.057395+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 109, "at": "2026-10-02T14:07:54.341318+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
