@@ -911,3 +911,4 @@
 {"seq": 911, "at": "2026-10-02T14:26:16.048340+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "33493", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 912, "at": "2026-10-02T14:26:18.433321+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "29703", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 913, "at": "2026-10-02T14:26:18.751382+00:00", "action": "native_player.stop", "details": {"mediaId": "60459", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 914, "at": "2026-10-02T14:26:19.115681+00:00", "action": "native_media.play", "details": {"mediaId": "60459", "arguments": {"mediaId": "60459", "title": "Аватар 4", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "389bf5979ac457ad25a9"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
