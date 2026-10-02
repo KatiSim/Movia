@@ -1,0 +1,13 @@
+{
+  "mediaId": "45305",
+  "title": "Люди Икс 2",
+  "year": 2003,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:22:10.822942+00:00"
+}
