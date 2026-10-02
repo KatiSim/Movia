@@ -1,0 +1,36 @@
+{
+  "mediaId": "55373",
+  "title": "Вот это чувство",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:27.216291+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "754a30f18ede6fef9755",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 8,
+      "audioPcmFingerprint": "e18f5e548f38fdac23bd",
+      "videoFrameFingerprint": "573637b1d4ad57028724",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3547
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "75b24f07170349165c75",
+  "preparedStreamIdFingerprint": "74746f487181ecf50e21",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
