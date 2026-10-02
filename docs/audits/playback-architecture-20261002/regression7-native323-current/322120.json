@@ -134,6 +134,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "delete · дорожка 6",
+      "expectedAudioLabel": "eng5",
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 622,
+      "observed": {
+        "mediaId": "322120",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 13101,
+        "selectedAudioLabel": "eng5",
+        "selectedAudioLanguage": "en",
+        "frames": 3799,
+        "voice": "delete · дорожка 6",
+        "streamFingerprint": "c489eaa1720f0a1825e5",
+        "locatorFingerprint": "9e72e6918229dc1d5d8c"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
