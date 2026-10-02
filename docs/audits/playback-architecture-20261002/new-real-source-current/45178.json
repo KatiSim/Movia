@@ -1,0 +1,52 @@
+{
+  "mediaId": "45178",
+  "title": "Истинный японец",
+  "year": 2022,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:58:25.990429+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "eef0a89f6b499e99cf38",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "e31af9afbf38c910b10f",
+      "videoFrameFingerprint": "4071021b48b54fa60689",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4126
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f9294c156af6f7f1ca9a",
+  "preparedStreamIdFingerprint": "bbbf2de3c9bc649044ae",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
