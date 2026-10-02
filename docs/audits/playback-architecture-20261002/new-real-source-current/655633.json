@@ -1,0 +1,52 @@
+{
+  "mediaId": "655633",
+  "title": "Watchful Eyes",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:52.620423+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 240,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "777d4519b46bc016e0d7",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "9832ee0d810cb346b78b",
+      "videoFrameFingerprint": "b171613030aaca57faae",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6001
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "28b9bb50e75331cab8a4",
+  "preparedStreamIdFingerprint": "a7f3636e748e5787431e",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    240,
+    480
+  ],
+  "advertisedCompatiblePairs": 2
+}
