@@ -1,0 +1,165 @@
+{
+  "mediaId": "11095",
+  "title": "Оно",
+  "year": 2017,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:20:38.836210+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2303.05,
+    "observed": {
+      "mediaId": "11095",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 142,
+      "frames": 6077,
+      "quality": "720p",
+      "voice": "Дубляж",
+      "streamFingerprint": "d5bf21cb081ec95e79cb",
+      "locatorFingerprint": "453e60143717578acbd2",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2598
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Original (с субтитрами)",
+      "Paradox",
+      "А. Дольский",
+      "Авторский (Одноголосый)",
+      "Дубляж",
+      "М. Чадов",
+      "Укр. Дубльований",
+      "Ю. Живов"
+    ],
+    "technicalTrackLabels": [
+      "eng8",
+      "rus0",
+      "rus1",
+      "rus2",
+      "rus3",
+      "rus5",
+      "rus6",
+      "ukr7",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Paradox"
+      ],
+      [
+        "1080p",
+        "А. Дольский"
+      ],
+      [
+        "1080p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "М. Чадов"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "1080p",
+        "Ю. Живов"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "Paradox"
+      ],
+      [
+        "360p",
+        "А. Дольский"
+      ],
+      [
+        "360p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "360p",
+        "Дубляж"
+      ],
+      [
+        "360p",
+        "М. Чадов"
+      ],
+      [
+        "360p",
+        "Укр. Дубльований"
+      ],
+      [
+        "360p",
+        "Ю. Живов"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Paradox"
+      ],
+      [
+        "720p",
+        "А. Дольский"
+      ],
+      [
+        "720p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "М. Чадов"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "Ю. Живов"
+      ]
+    ],
+    "sourceRows": 13,
+    "inventoryComplete": false
+  }
+}
