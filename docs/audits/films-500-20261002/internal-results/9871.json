@@ -1,0 +1,13 @@
+{
+  "mediaId": "9871",
+  "title": "Звезда родилась",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:30.518244+00:00"
+}
