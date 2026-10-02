@@ -1,0 +1,104 @@
+{
+  "mediaId": "322120",
+  "title": "22 мили",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2671,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 6,
+  "providerVoiceLabels": [
+    "AAA Sound",
+    "HDRezka",
+    "Original (с субтитрами)",
+    "delete",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 6,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 12,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:02:53.994727+00:00"
+}
