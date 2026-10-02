@@ -1,0 +1,50 @@
+{
+  "mediaId": "56292",
+  "title": "Убийство герцога де Гиза",
+  "year": 1908,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:18:25.024168+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "45a06973963f34c3e2b9",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "d16f34e3e51ca32d27a8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3719,
+      "profileFingerprint": "a483fc6b855f1adc8cdb",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "profileChecks": [
+    {
+      "profileFingerprint": "a483fc6b855f1adc8cdb",
+      "status": "PREPARED"
+    },
+    {
+      "profileFingerprint": "a5de4598b41670f6260e",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "3b45f9c2c13fc356c84d",
+  "preparedStreamIdFingerprint": "5d54b6d6ccd1b13555de",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
