@@ -1,0 +1,36 @@
+{
+  "mediaId": "42245",
+  "title": "Барон фон Клаус — садист",
+  "year": 1962,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:29.776737+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "18a76ea31bc870dbe4f9",
+      "decoded": true,
+      "actualHeight": 288,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "99880f5abded2df840dd",
+      "videoFrameFingerprint": "8eb5191d32b8a7b9fff5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5700
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9e5dcec77254cbd2588d",
+  "preparedStreamIdFingerprint": "e28c6240531f2d0d151e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
