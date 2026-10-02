@@ -1,0 +1,29 @@
+{
+  "mediaId": "45784",
+  "title": "Серенада любви",
+  "year": 1946,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:32:12.844073+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 11873,
+    "observed": {
+      "mediaId": "45784",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 331,
+      "selectedAudioLabel": "default",
+      "selectedAudioLanguage": "ru",
+      "frames": 1606,
+      "voice": "Профессиональный (МВО)",
+      "streamFingerprint": "c86a339062275288bae5",
+      "locatorFingerprint": "43c800aa001b4844d709"
+    },
+    "commandToReadyMs": 11973
+  }
+}
