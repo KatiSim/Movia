@@ -1,0 +1,16 @@
+{
+  "versionCode": 323,
+  "selected": 1,
+  "attempted": 1,
+  "decodedMovies": 1,
+  "fullPreparedMatricesPassed": 0,
+  "variantPairsPassed": 3,
+  "variantPairsFailed": 1,
+  "withAtLeastThreePreparedVoices": 0,
+  "withAtLeastTwoPreparedQualities": 1,
+  "stableStartsWithinFiveSeconds": 1,
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true,
+  "allProviderSourcesVerified": false,
+  "updatedAt": "2026-10-02T14:58:37.636111+00:00"
+}
