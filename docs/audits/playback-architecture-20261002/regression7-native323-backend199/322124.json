@@ -472,6 +472,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "track:1:9:0",
+      "expectedAudioLabel": null,
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 408,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 29818,
+        "selectedAudioLabel": "def8",
+        "selectedAudioLanguage": "ru",
+        "frames": 6400,
+        "voice": "def8",
+        "streamFingerprint": "de122892f3737394df81",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
