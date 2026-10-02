@@ -1,0 +1,36 @@
+{
+  "mediaId": "55006",
+  "title": "Жизнь с отцом",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:38.357737+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1d93e48b2b94eae58165",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "70566d8a2e8509e511d5",
+      "videoFrameFingerprint": "6888ae5512186ebac412",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6482
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 3,
+  "preparedSourceFingerprint": "42346476995c099c63e4",
+  "preparedStreamIdFingerprint": "14877806d34f36553aa4",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
