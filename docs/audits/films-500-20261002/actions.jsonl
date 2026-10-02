@@ -2211,3 +2211,4 @@
 {"seq": 2211, "at": "2026-10-02T11:15:24.690605+00:00", "action": "player.selectVoice", "mediaId": "203", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 50}
 {"seq": 2212, "at": "2026-10-02T11:15:24.780145+00:00", "action": "internal_movie_result", "mediaId": "32553", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2213, "at": "2026-10-02T11:15:24.910675+00:00", "action": "exact_provider_resolve", "mediaId": "641", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2214, "at": "2026-10-02T11:15:24.999888+00:00", "action": "movie_result", "mediaId": "203", "decoded": true, "voices": 5, "qualities": 4}
