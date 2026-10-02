@@ -4,7 +4,34 @@
   "year": 1994,
   "build": 323,
   "checkedAt": "2026-10-02T15:39:02.725005+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Voize",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 234,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1175,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 29,
+        "voice": "Voize",
+        "streamFingerprint": "44d63c105ea70f535a79",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,137 @@
       "locatorFingerprint": "6dd64a8931b8fdbb5f50"
     },
     "commandToReadyMs": 2775
-  }
+  },
+  "preparedSupportedPairs": 50,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Voize",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "Дуб. (Кириллица)",
+      "actualName": "rus1",
+      "language": "ru"
+    },
+    {
+      "choice": "Союз Видео",
+      "actualName": "rus2",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 4",
+      "actualName": "rus3",
+      "language": "ru"
+    },
+    {
+      "choice": "FocusX",
+      "actualName": "rus4",
+      "language": "ru"
+    },
+    {
+      "choice": "Киномания",
+      "actualName": "rus5",
+      "language": "ru"
+    },
+    {
+      "choice": "ОРТ",
+      "actualName": "rus6",
+      "language": "ru"
+    },
+    {
+      "choice": "ТВЦ",
+      "actualName": "rus7",
+      "language": "ru"
+    },
+    {
+      "choice": "СТС",
+      "actualName": "rus8",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 10",
+      "actualName": "rus9",
+      "language": "ru"
+    },
+    {
+      "choice": "Екатеринбург Арт",
+      "actualName": "rus10",
+      "language": "ru"
+    },
+    {
+      "choice": "НТВ",
+      "actualName": "rus11",
+      "language": "ru"
+    },
+    {
+      "choice": "А. Гаврилов",
+      "actualName": "rus12",
+      "language": "ru"
+    },
+    {
+      "choice": "Ю. Сербин",
+      "actualName": "rus13",
+      "language": "ru"
+    },
+    {
+      "choice": "Ю. Живов",
+      "actualName": "rus15",
+      "language": "ru"
+    },
+    {
+      "choice": "В. Горчаков",
+      "actualName": "rus16",
+      "language": "ru"
+    },
+    {
+      "choice": "C. Визгунов",
+      "actualName": "rus17",
+      "language": "ru"
+    },
+    {
+      "choice": "Е. Гаевский",
+      "actualName": "rus19",
+      "language": "ru"
+    },
+    {
+      "choice": "А.Алексеев",
+      "actualName": "rus20",
+      "language": "ru"
+    },
+    {
+      "choice": "В. Дохалов",
+      "actualName": "rus21",
+      "language": "ru"
+    },
+    {
+      "choice": "ICTV (укр.)",
+      "actualName": "ukr23",
+      "language": "uk"
+    },
+    {
+      "choice": "1+1",
+      "actualName": "ukr24",
+      "language": "uk"
+    },
+    {
+      "choice": "СТБ",
+      "actualName": "ukr25",
+      "language": "uk"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "eng26",
+      "language": "en"
+    },
+    {
+      "choice": "Eng. Orig. with Commentary",
+      "actualName": "eng27",
+      "language": "en"
+    }
+  ]
 }
