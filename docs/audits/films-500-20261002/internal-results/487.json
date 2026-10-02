@@ -1,0 +1,193 @@
+{
+  "mediaId": "487",
+  "title": "Джанго освобождённый",
+  "year": 2012,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2612,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 14,
+  "providerVoiceLabels": [
+    "C. Визгунов",
+    "Original (с субтитрами)",
+    "А. Дасевич",
+    "А. Дольский",
+    "А. Матвеев",
+    "Авторский (Одноголосый)",
+    "В. Горчаков",
+    "Д. Нурмухаметов",
+    "Дубляж",
+    "Л. Володарский",
+    "М. Чадов",
+    "Укр. Дубльований",
+    "Ю. Живов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng16",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr17",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng16",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr17",
+      "language": "uk",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 14,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 28,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:12:29.469912+00:00"
+}
