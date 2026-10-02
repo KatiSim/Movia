@@ -1670,6 +1670,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "ICTV (укр.)",
+      "expectedAudioLabel": "ukr23",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 696,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 78452,
+        "frames": 3232,
+        "quality": "720p",
+        "voice": "ICTV (укр.)",
+        "streamFingerprint": "485779858882a439dc82",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50",
+        "selectedAudioLabel": "ukr23",
+        "selectedAudioLanguage": "uk",
+        "selectedAudio": [
+          [
+            "track:1:21:0",
+            "ukr23",
+            "uk"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:15:32.114059+00:00",
