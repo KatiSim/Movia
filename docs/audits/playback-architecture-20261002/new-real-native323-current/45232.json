@@ -4,7 +4,34 @@
   "year": 2021,
   "build": 323,
   "checkedAt": "2026-10-02T14:31:44.071220+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "270p",
+      "voice": "Синема УС",
+      "expectedAudioLabel": "default",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 1001,
+      "observed": {
+        "mediaId": "45232",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 870,
+        "selectedAudioLabel": "default",
+        "selectedAudioLanguage": "ru",
+        "frames": 1399,
+        "voice": "Синема УС",
+        "streamFingerprint": "d9f3733550a5976dcdfb",
+        "locatorFingerprint": "4389d90a211d10f31fa5"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,17 @@
       "locatorFingerprint": "4389d90a211d10f31fa5"
     },
     "commandToReadyMs": 2785
-  }
+  },
+  "preparedSupportedPairs": 2,
+  "preparedQualities": [
+    270,
+    540
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Синема УС",
+      "actualName": "default",
+      "language": "ru"
+    }
+  ]
 }
