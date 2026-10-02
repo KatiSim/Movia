@@ -3655,3 +3655,4 @@
 {"seq": 3655, "at": "2026-10-02T11:24:02.696814+00:00", "action": "player.selectQuality", "mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 48}
 {"seq": 3656, "at": "2026-10-02T11:24:02.935499+00:00", "action": "player.selectVoice", "mediaId": "375", "arguments": {"voice": "Профессиональный (МВО), Двухголосый (ДВО)", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3657, "at": "2026-10-02T11:24:03.518430+00:00", "action": "movie_result", "mediaId": "375", "decoded": true, "voices": 10, "qualities": 4}
+{"seq": 3658, "at": "2026-10-02T11:24:03.778936+00:00", "action": "player.selectQuality", "mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 16}
