@@ -4,7 +4,34 @@
   "year": 2016,
   "build": 323,
   "checkedAt": "2026-10-02T14:09:04.888814+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 481,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1077,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 1416,
+        "voice": "Дубляж",
+        "streamFingerprint": "e00504b1f88998a0e271",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,72 @@
       "locatorFingerprint": "ac5c7031cfa6a006e7bc"
     },
     "commandToReadyMs": 2277
-  }
+  },
+  "preparedSupportedPairs": 24,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Дубляж",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "LE-Production",
+      "actualName": "rus1",
+      "language": "ru"
+    },
+    {
+      "choice": "Двухголосый (ДВО) · дорожка 3",
+      "actualName": "rus2",
+      "language": "ru"
+    },
+    {
+      "choice": "Двухголосый (ДВО) · дорожка 4",
+      "actualName": "rus3",
+      "language": "ru"
+    },
+    {
+      "choice": "Двухголосый (ДВО) · дорожка 5",
+      "actualName": "rus4",
+      "language": "ru"
+    },
+    {
+      "choice": "STEPonee",
+      "actualName": "rus5",
+      "language": "ru"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "jpn6",
+      "language": "ja"
+    },
+    {
+      "choice": "Укр. Дубльований",
+      "actualName": "ukr7",
+      "language": "uk"
+    },
+    {
+      "choice": "Профессиональный (МВО), Двухголосый (ДВО) · дорожка 9",
+      "actualName": "ukr8",
+      "language": "uk"
+    },
+    {
+      "choice": "Профессиональный (МВО), Двухголосый (ДВО) · дорожка 10",
+      "actualName": "ukr9",
+      "language": "uk"
+    },
+    {
+      "choice": "Профессиональный (МВО), Двухголосый (ДВО) · дорожка 11",
+      "actualName": "ukr10",
+      "language": "uk"
+    },
+    {
+      "choice": "delete",
+      "actualName": "jpn11",
+      "language": "ja"
+    }
+  ]
 }
