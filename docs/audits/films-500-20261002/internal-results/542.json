@@ -1,0 +1,13 @@
+{
+  "mediaId": "542",
+  "title": "Умница Уилл Хантинг",
+  "year": 1997,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:18:21.448537+00:00"
+}
