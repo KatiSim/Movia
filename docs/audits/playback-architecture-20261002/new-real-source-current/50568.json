@@ -1,0 +1,36 @@
+{
+  "mediaId": "50568",
+  "title": "Через Сингапур",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:56:35.175636+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7378ba73b332bd4c4762",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "855cb28b6a0f205b95f2",
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9187
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "7d3e7346588f0c01a871",
+  "preparedStreamIdFingerprint": "d62239c346f3eac65b3b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
