@@ -595,6 +595,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Е. Гаевский",
+      "expectedAudioLabel": "rus6",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 526,
+      "observed": {
+        "mediaId": "12245",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 26474,
+        "frames": 1109,
+        "quality": "720p",
+        "voice": "Е. Гаевский",
+        "streamFingerprint": "a18d69c53e10da864997",
+        "locatorFingerprint": "615c871aa3e7cf5371c1",
+        "selectedAudioLabel": "rus6",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:7:0",
+            "rus6",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:14:31.426117+00:00",
