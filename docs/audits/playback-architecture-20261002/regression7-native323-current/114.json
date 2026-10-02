@@ -134,6 +134,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Профессиональный (МВО) · дорожка 6",
+      "expectedAudioLabel": "rus5",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 584,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 5486,
+        "selectedAudioLabel": "rus5",
+        "selectedAudioLanguage": "ru",
+        "frames": 140,
+        "voice": "Профессиональный (МВО) · дорожка 6",
+        "streamFingerprint": "45c2e85d0ef4b7ffee0f",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
