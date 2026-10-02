@@ -864,3 +864,4 @@
 {"seq": 864, "at": "2026-10-02T11:02:47.494358+00:00", "action": "internal_combined_decode", "mediaId": "322124", "qualityHeight": 406, "voice": "def0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 865, "at": "2026-10-02T11:02:49.951504+00:00", "action": "internal_movie_result", "mediaId": "9877", "actualDecoded": true, "voices": 8, "qualities": 2, "errorCategory": null}
 {"seq": 866, "at": "2026-10-02T11:02:50.207444+00:00", "action": "exact_provider_resolve", "mediaId": "322120", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 867, "at": "2026-10-02T11:02:50.426753+00:00", "action": "internal_movie_result", "mediaId": "322124", "actualDecoded": true, "voices": 10, "qualities": 2, "errorCategory": null}
