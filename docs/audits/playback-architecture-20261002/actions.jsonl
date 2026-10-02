@@ -2977,3 +2977,4 @@
 {"seq": 2977, "at": "2026-10-02T15:40:55.180324+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2978, "at": "2026-10-02T15:40:55.439709+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Невафильм", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2979, "at": "2026-10-02T15:40:58.283497+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2980, "at": "2026-10-02T15:40:58.661561+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
