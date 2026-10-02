@@ -1,0 +1,36 @@
+{
+  "mediaId": "29608",
+  "title": "Шейк, Рэттл и Рок!",
+  "year": 1994,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:24.726774+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5289e3f3cfb745661757",
+      "decoded": true,
+      "actualHeight": 400,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "323cc7513e4eb105f255",
+      "videoFrameFingerprint": "0456a5bcdb086b8620fa",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9659
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cab7ef8e6455bfe49fbf",
+  "preparedStreamIdFingerprint": "7eae159d50e63b3884b4",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
