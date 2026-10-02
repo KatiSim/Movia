@@ -2865,3 +2865,4 @@
 {"seq": 2865, "at": "2026-10-02T11:18:50.059176+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 76}
 {"seq": 2866, "at": "2026-10-02T11:18:50.579801+00:00", "action": "internal_movie_result", "mediaId": "14486", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2867, "at": "2026-10-02T11:18:50.904614+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
+{"seq": 2868, "at": "2026-10-02T11:18:51.202576+00:00", "action": "exact_provider_resolve", "mediaId": "15521", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
