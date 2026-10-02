@@ -1,0 +1,36 @@
+{
+  "mediaId": "8344",
+  "title": "Брачный круг",
+  "year": 1924,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:27.907680+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2a5259785b398ae90828",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "6fb78ef6eda8c15bdbd9",
+      "videoFrameFingerprint": "49ff32202b2e0ba41f49",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4456
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "10114e64f38ec6d39477",
+  "preparedStreamIdFingerprint": "1d184dd5c89652907c53",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
