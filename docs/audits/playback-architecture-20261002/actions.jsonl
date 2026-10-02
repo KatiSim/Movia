@@ -2837,3 +2837,4 @@
 {"seq": 2837, "at": "2026-10-02T15:39:14.292913+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2838, "at": "2026-10-02T15:39:14.725914+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2839, "at": "2026-10-02T15:39:17.816139+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Киномания", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2840, "at": "2026-10-02T15:39:18.422143+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 6, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
