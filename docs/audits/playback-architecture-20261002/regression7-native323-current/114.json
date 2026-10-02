@@ -1,0 +1,29 @@
+{
+  "mediaId": "114",
+  "title": "Унесённые призраками",
+  "year": 2001,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:07:31.672016+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 1473,
+    "observed": {
+      "mediaId": "114",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 190,
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "frames": 14,
+      "voice": "Невафильм",
+      "streamFingerprint": "730d734572896bc71aae",
+      "locatorFingerprint": "583e025774f838c7d603"
+    },
+    "commandToReadyMs": 1724
+  }
+}
