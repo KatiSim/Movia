@@ -4,7 +4,34 @@
   "year": 1946,
   "build": 323,
   "checkedAt": "2026-10-02T14:32:12.844073+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Профессиональный (МВО)",
+      "expectedAudioLabel": "default",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 745,
+      "observed": {
+        "mediaId": "45784",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 884,
+        "selectedAudioLabel": "default",
+        "selectedAudioLanguage": "ru",
+        "frames": 1620,
+        "voice": "Профессиональный (МВО)",
+        "streamFingerprint": "c86a339062275288bae5",
+        "locatorFingerprint": "43c800aa001b4844d709"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,17 @@
       "locatorFingerprint": "43c800aa001b4844d709"
     },
     "commandToReadyMs": 11973
-  }
+  },
+  "preparedSupportedPairs": 2,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Профессиональный (МВО)",
+      "actualName": "default",
+      "language": "ru"
+    }
+  ]
 }
