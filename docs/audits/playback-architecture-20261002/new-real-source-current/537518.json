@@ -1,0 +1,52 @@
+{
+  "mediaId": "537518",
+  "title": "Birthday Party",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:31.382078+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 272,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "4606656e1f866271bb20",
+      "decoded": true,
+      "actualHeight": 272,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "65ce916137e3880df463",
+      "videoFrameFingerprint": "59bcbccf7d4f40e47448",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3018
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "71a78bd247deedb81150",
+  "preparedStreamIdFingerprint": "12e7098e674d71050e3f",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    272,
+    544
+  ],
+  "advertisedCompatiblePairs": 2
+}
