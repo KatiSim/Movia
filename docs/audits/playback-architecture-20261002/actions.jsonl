@@ -363,3 +363,4 @@
 {"seq": 363, "at": "2026-10-02T14:10:42.419193+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 364, "at": "2026-10-02T14:10:43.582730+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 16, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 365, "at": "2026-10-02T14:10:44.191089+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 16, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 366, "at": "2026-10-02T14:10:45.123342+00:00", "action": "native_player.stop", "details": {"mediaId": "322124", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
