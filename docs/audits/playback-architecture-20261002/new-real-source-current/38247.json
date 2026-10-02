@@ -1,0 +1,36 @@
+{
+  "mediaId": "38247",
+  "title": "Удивительная Грейс",
+  "year": 1974,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:45:00.803511+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d64c1dac7089d0eca1b7",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "d8f7f712343d32868456",
+      "videoFrameFingerprint": "40e27bdabf8ce6ba2247",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12207
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b9a0ea21d07b741bf4ef",
+  "preparedStreamIdFingerprint": "6804b9f5baf671d54999",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
