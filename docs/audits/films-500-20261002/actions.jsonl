@@ -3810,3 +3810,4 @@
 {"seq": 3810, "at": "2026-10-02T11:26:42.338910+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 23}
 {"seq": 3811, "at": "2026-10-02T11:26:42.603471+00:00", "action": "player.selectVoice", "mediaId": "7349", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 33}
 {"seq": 3812, "at": "2026-10-02T11:26:43.370092+00:00", "action": "movie_result", "mediaId": "7349", "decoded": true, "voices": 5, "qualities": 2}
+{"seq": 3813, "at": "2026-10-02T11:26:43.670643+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 26}
