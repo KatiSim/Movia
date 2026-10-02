@@ -347,7 +347,8 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
             localization_policy_upgrade = (
                 _meta_int(conn, "localization_policy_version", 0) < LOCALIZATION_POLICY_VERSION
             )
-            if localization_policy_upgrade:
+            normalization_upgrade = _meta_int(conn, "normalization_version", 0) != NORMALIZATION_VERSION
+            if localization_policy_upgrade or normalization_upgrade:
                 # Revalidate all display titles exactly once when the language
                 # boundary changes. This clears legacy entries that were merely
                 # Cyrillic (for example Macedonian/Serbian) but not Russian.
@@ -366,10 +367,10 @@ def ensure_schema(path: str | Path) -> dict[str, Any]:
                            alternative_titles,localization_source,localization_updated_at,
                            created_at
                     FROM movies
-                    WHERE normalized_ru_title='' OR normalized_ru_title IS NULL
-                       OR normalized_original_title='' OR normalized_original_title IS NULL
-                       OR updated_at='' OR updated_at IS NULL
-                       OR localized_ru_title='' OR localized_ru_title IS NULL
+                    -- Empty normalized/localized titles are valid unknown
+                    -- metadata after a completed pass. Only unprocessed rows
+                    -- or invalid alias storage need a repeat backfill.
+                    WHERE updated_at='' OR updated_at IS NULL
                        OR alternative_titles='' OR alternative_titles IS NULL
                     ORDER BY id
                     """
