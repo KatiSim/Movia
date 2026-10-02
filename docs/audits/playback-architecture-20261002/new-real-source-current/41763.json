@@ -1,0 +1,36 @@
+{
+  "mediaId": "41763",
+  "title": "День триффидов",
+  "year": 1963,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:32.478991+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "752abdb194504dd856c2",
+      "decoded": true,
+      "actualHeight": 366,
+      "videoFrames": 3,
+      "audioFrames": 54,
+      "audioPcmFingerprint": "e163b1dd631865879d73",
+      "videoFrameFingerprint": "5987f5c87a80b4c1221d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4252
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "04509ecf01bfbe2e6bcd",
+  "preparedStreamIdFingerprint": "e86deb41819aed8782e0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
