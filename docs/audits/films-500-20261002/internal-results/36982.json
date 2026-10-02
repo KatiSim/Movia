@@ -1,0 +1,13 @@
+{
+  "mediaId": "36982",
+  "title": "Красная косынка",
+  "year": 1977,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:10:40.994359+00:00"
+}
