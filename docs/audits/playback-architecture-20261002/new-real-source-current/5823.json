@@ -1,0 +1,36 @@
+{
+  "mediaId": "5823",
+  "title": "Journey Into Medicine",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:17:36.376430+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "928b4d00c37f694373af",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "aeec30130205bf7fa5c5",
+      "videoFrameFingerprint": "beb68734836213dc68b5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9121
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d04a1c17e3cc6bcea24d",
+  "preparedStreamIdFingerprint": "fc59748ae30c19727071",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
