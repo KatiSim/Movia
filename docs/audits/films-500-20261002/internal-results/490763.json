@@ -1,0 +1,94 @@
+{
+  "mediaId": "490763",
+  "title": "Затоичи и Ёдзимбо",
+  "year": 1970,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 6277,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "Авторский (Одноголосый)",
+    "Профессиональный (МВО)",
+    "Цікава Ідея (укр)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn2",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn4",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn2",
+      "language": "ja",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn4",
+      "language": "ja",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:04:03.473390+00:00"
+}
