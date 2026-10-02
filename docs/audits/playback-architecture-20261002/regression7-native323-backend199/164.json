@@ -1070,6 +1070,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "C. Визгунов",
+      "expectedAudioLabel": "rus17",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 301,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 71419,
+        "selectedAudioLabel": "rus17",
+        "selectedAudioLanguage": "ru",
+        "frames": 1705,
+        "voice": "C. Визгунов",
+        "streamFingerprint": "0330df60de3a9b16d3d8",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
