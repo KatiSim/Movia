@@ -3355,3 +3355,4 @@
 {"seq": 3355, "at": "2026-10-02T15:45:24.174599+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3356, "at": "2026-10-02T15:45:24.527258+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "delete · дорожка 6", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3357, "at": "2026-10-02T15:45:25.509056+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 6, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3358, "at": "2026-10-02T15:45:25.942735+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
