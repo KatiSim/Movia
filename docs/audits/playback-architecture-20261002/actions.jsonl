@@ -191,3 +191,4 @@
 {"seq": 191, "at": "2026-10-02T14:08:42.076646+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "СТБ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 192, "at": "2026-10-02T14:08:43.326806+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 9, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 193, "at": "2026-10-02T14:08:43.749889+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 194, "at": "2026-10-02T14:08:44.026796+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "1+1", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
