@@ -3569,3 +3569,4 @@
 {"seq": 3569, "at": "2026-10-02T11:23:15.140014+00:00", "action": "movie_result", "mediaId": "152022", "decoded": true, "voices": 9, "qualities": 2}
 {"seq": 3570, "at": "2026-10-02T11:23:15.243756+00:00", "action": "player.selectQuality", "mediaId": "152022", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 13}
 {"seq": 3571, "at": "2026-10-02T11:23:15.332506+00:00", "action": "player.selectVoice", "mediaId": "152022", "arguments": {"voice": "1+1", "persist": false}, "accepted": true, "requestMs": 17}
+{"seq": 3572, "at": "2026-10-02T11:23:16.853087+00:00", "action": "movie_result", "mediaId": "152022", "decoded": true, "voices": 9, "qualities": 2}
