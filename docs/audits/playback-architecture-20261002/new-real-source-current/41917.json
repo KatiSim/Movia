@@ -1,0 +1,36 @@
+{
+  "mediaId": "41917",
+  "title": "Мороз по коже",
+  "year": 1963,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:12.269102+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "21523e552c1fe5a0d918",
+      "decoded": false,
+      "actualHeight": null,
+      "videoFrames": 0,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": null,
+      "status": "FAIL",
+      "exitCode": 146,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 6970
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f5475fdb2a68ba513f13",
+  "preparedStreamIdFingerprint": "194ec428f38e8168820a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
