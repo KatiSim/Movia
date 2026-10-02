@@ -1,0 +1,36 @@
+{
+  "mediaId": "143307",
+  "title": "Antipathy",
+  "year": 2027,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:36.034873+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "78ec8c48656f1a792648",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "dbca9485b2c5fbdf40c6",
+      "videoFrameFingerprint": "8d3d8f5c360498a38861",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3374
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b8bf789dacce3f1ca9af",
+  "preparedStreamIdFingerprint": "c7b6abcc79cf0d005307",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
