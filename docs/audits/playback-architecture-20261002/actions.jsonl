@@ -1723,3 +1723,4 @@
 {"seq": 1723, "at": "2026-10-02T14:39:55.788682+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "46447", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1724, "at": "2026-10-02T14:39:55.961230+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "31418", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1725, "at": "2026-10-02T14:39:56.197911+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "46447", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 1726, "at": "2026-10-02T14:39:56.393475+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "44880", "quality": 0, "voice": null}, "sourcePaths": []}
