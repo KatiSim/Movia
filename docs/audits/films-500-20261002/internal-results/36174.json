@@ -1,0 +1,13 @@
+{
+  "mediaId": "36174",
+  "title": "Маленький роман",
+  "year": 1979,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:11:29.842366+00:00"
+}
