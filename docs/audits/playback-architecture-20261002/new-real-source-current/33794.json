@@ -1,0 +1,36 @@
+{
+  "mediaId": "33794",
+  "title": "Убийство в космосе",
+  "year": 1985,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:45.379594+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8d9378b6c61a0dfa0c08",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "9e6f92c50b846cd496e3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4028
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "23092171f11ec6b33526",
+  "preparedStreamIdFingerprint": "47780896a302f3fcaef3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
