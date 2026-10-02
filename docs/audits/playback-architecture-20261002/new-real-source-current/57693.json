@@ -1,0 +1,36 @@
+{
+  "mediaId": "57693",
+  "title": "Старым добрым летом",
+  "year": 1949,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:12:31.308178+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "141e58346b0ea156dfa9",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "e1efe7ca3e18bc9eaf34",
+      "videoFrameFingerprint": "a3cb1f035c6c31f00feb",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4515
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fdcaf5279011dab763e2",
+  "preparedStreamIdFingerprint": "0fc576c0110a918b571a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
