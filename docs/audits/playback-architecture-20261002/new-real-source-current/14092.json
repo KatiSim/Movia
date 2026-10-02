@@ -1,0 +1,36 @@
+{
+  "mediaId": "14092",
+  "title": "Поход динозавров",
+  "year": 2011,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:33.089067+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "606afe229a2c72ad8907",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "43521f204f736423800e",
+      "videoFrameFingerprint": "e9fd74167a375c1cf24d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4940
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cb267324009f83ed5337",
+  "preparedStreamIdFingerprint": "2183f7a0a3654e0537b3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
