@@ -3085,3 +3085,4 @@
 {"seq": 3085, "at": "2026-10-02T11:20:05.608041+00:00", "action": "player.selectVoice", "mediaId": "23912", "arguments": {"voice": "С.Р.И.", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3086, "at": "2026-10-02T11:20:06.447646+00:00", "action": "internal_movie_result", "mediaId": "45062", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3087, "at": "2026-10-02T11:20:06.932127+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
+{"seq": 3088, "at": "2026-10-02T11:20:07.302122+00:00", "action": "exact_provider_resolve", "mediaId": "18398", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
