@@ -1,0 +1,36 @@
+{
+  "mediaId": "41583",
+  "title": "Спартак и 10 гладиаторов",
+  "year": 1964,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:42.581033+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d01d7afe9f2671383399",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "24e7f35b5a654c83748e",
+      "videoFrameFingerprint": "e3fe77304b3ac39bb7a9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4831
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "36edd14c9546075e3fdf",
+  "preparedStreamIdFingerprint": "bd3a0e4bea196f0880b8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
