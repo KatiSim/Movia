@@ -1,0 +1,36 @@
+{
+  "mediaId": "19038",
+  "title": "The Wiggles: Yule Be Wiggling",
+  "year": 2001,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:00.479905+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5d7dc77c6ca12a46afcb",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "4c4ec73bcb462605c4ec",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3625
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a24b087596c07406d072",
+  "preparedStreamIdFingerprint": "cb222cbcb6a11a4b1c9a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
