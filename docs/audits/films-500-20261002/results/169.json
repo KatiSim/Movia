@@ -1,105 +1,23 @@
 {
   "mediaId": "169",
   "title": "Тёмный рыцарь",
-  "build": 320,
-  "variants": [
-    {
-      "quality": "720p",
-      "voice": "А. Гаврилов",
-      "decoded": true,
-      "qualityMatches": true,
-      "voiceReportedMatches": true,
-      "ms": 848.6,
-      "observed": {
-        "mediaId": "169",
-        "state": "READY",
-        "switchState": "READY",
-        "isPlaying": true,
-        "height": 720,
-        "positionMs": 830,
-        "frames": 20,
-        "quality": "Auto",
-        "voice": "А. Гаврилов",
-        "streamFingerprint": "0b401ad3718f46edec48",
-        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
-        "selectedAudioLabel": "rus1",
-        "selectedAudioLanguage": "ru",
-        "selectedAudio": [
-          [
-            "track:1:2:0",
-            "rus1",
-            "ru"
-          ]
-        ]
-      }
-    },
-    {
-      "quality": "360p",
-      "voice": "Кравец",
-      "decoded": true,
-      "qualityMatches": true,
-      "voiceReportedMatches": true,
-      "ms": 824.85,
-      "observed": {
-        "mediaId": "169",
-        "state": "READY",
-        "switchState": "READY",
-        "isPlaying": true,
-        "height": 360,
-        "positionMs": 1157,
-        "frames": 30,
-        "quality": "360p",
-        "voice": "Кравец",
-        "streamFingerprint": "cb2081e1bf300337611f",
-        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
-        "selectedAudioLabel": "rus0",
-        "selectedAudioLanguage": "ru",
-        "selectedAudio": [
-          [
-            "track:1:1:1",
-            "rus0 · 2",
-            "ru"
-          ]
-        ]
-      }
-    },
-    {
-      "quality": "720p",
-      "voice": "Дубляж",
-      "decoded": false,
-      "ms": 10107.75,
-      "observed": {
-        "mediaId": "169",
-        "state": "BUFFERING",
-        "switchState": "RECOVERING",
-        "isPlaying": false,
-        "height": 0,
-        "positionMs": 1464,
-        "frames": 39,
-        "quality": null,
-        "voice": null,
-        "streamFingerprint": "dc937b59892604f5a86a",
-        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
-        "selectedAudioLabel": null,
-        "selectedAudioLanguage": null,
-        "selectedAudio": []
-      },
-      "reason": "bounded frame observation timeout"
-    }
-  ],
+  "year": 2008,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:14:00.486861+00:00",
   "startup": {
     "decoded": true,
     "qualityMatches": true,
     "voiceReportedMatches": true,
-    "ms": 3597.97,
+    "ms": 1033.53,
     "observed": {
       "mediaId": "169",
       "state": "READY",
       "switchState": "READY",
       "isPlaying": true,
       "height": 720,
-      "positionMs": 240,
-      "frames": 5,
+      "positionMs": 184,
+      "frames": 4,
       "quality": "720p",
       "voice": "Дубляж",
       "streamFingerprint": "2b286c1600732b69e44c",
@@ -114,7 +32,7 @@
         ]
       ]
     },
-    "commandToReadyMs": 3984
+    "commandToReadyMs": 1721
   },
   "inventory": {
     "voiceLabels": [
@@ -130,23 +48,14 @@
     ],
     "technicalTrackLabels": [
       "eng8",
-      "eng8 · 18",
       "rus0",
-      "rus0 · 2",
       "rus1",
-      "rus1 · 4",
       "rus2",
-      "rus2 · 6",
       "rus3",
-      "rus3 · 8",
       "rus4",
-      "rus4 · 10",
       "rus5",
-      "rus5 · 12",
       "rus6",
-      "rus6 · 14",
       "ukr7",
-      "ukr7 · 16",
       "Не указано"
     ],
     "qualityLabels": [
@@ -266,6 +175,5 @@
     ],
     "sourceRows": 48,
     "inventoryComplete": false
-  },
-  "checkedAt": "2026-10-02T11:04:36.501448+00:00"
+  }
 }
