@@ -1,0 +1,61 @@
+{
+  "mediaId": "14829",
+  "title": "Легенды страны Оз: Возвращение в Изумрудный Город",
+  "year": 2014,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 406,
+      "actualHeight": 406,
+      "qualityMatches": true,
+      "voice": "Рус. Дублированный",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 5477,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    406,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 4,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:07:36.261659+00:00"
+}
