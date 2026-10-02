@@ -1,0 +1,13 @@
+{
+  "mediaId": "38764",
+  "title": "Ночные пришельцы",
+  "year": 1972,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:11:37.705554+00:00"
+}
