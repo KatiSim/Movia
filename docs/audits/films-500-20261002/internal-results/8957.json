@@ -1,0 +1,17 @@
+{
+  "mediaId": "8957",
+  "title": "Царство",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "errorCategory": "TimeoutError",
+  "checkedAt": "2026-10-02T11:05:20.881076+00:00"
+}
