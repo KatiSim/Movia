@@ -919,3 +919,4 @@
 {"seq": 919, "at": "2026-10-02T14:26:24.701902+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "54919", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 920, "at": "2026-10-02T14:26:24.920822+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "39932", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 921, "at": "2026-10-02T14:26:25.852977+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "60459", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 922, "at": "2026-10-02T14:26:26.181304+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "60459", "arguments": {"quality": "480p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
