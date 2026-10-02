@@ -1,0 +1,36 @@
+{
+  "mediaId": "35152",
+  "title": "В поисках счастья",
+  "year": 1982,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:11.581636+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "38fd433a122446a895b7",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "0898d166d52798d3cfd7",
+      "videoFrameFingerprint": "7fd7f82e97ef6645ce14",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3026
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a6dad2f243aa096cf89d",
+  "preparedStreamIdFingerprint": "3ca7e73f2ff6c8e9cfbe",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
