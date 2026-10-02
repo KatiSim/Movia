@@ -1,43 +1,95 @@
 {
-  "index": 14,
   "mediaId": "12265",
   "title": "Тарзан. Легенда",
   "year": 2016,
-  "rating": 5.9,
-  "voteCount": 6607,
-  "genres": "[\"фэнтези\",\"боевик\",\"приключения\"]",
+  "build": 321,
   "variants": [],
+  "checkedAt": "2026-10-02T11:27:08.064776+00:00",
   "startup": {
-    "decoded": false,
-    "ms": 14117.1,
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 5281.0,
     "observed": {
       "mediaId": "12265",
-      "state": "BUFFERING",
-      "switchState": "SWITCHING_SOURCE",
-      "isPlaying": false,
-      "height": 0,
-      "positionMs": 0,
-      "frames": 39,
-      "quality": null,
-      "voice": null,
-      "streamFingerprint": "dc937b59892604f5a86a",
-      "locatorFingerprint": "b1c0c34499bdf48b728d",
-      "selectedAudioLabel": null,
-      "selectedAudioLanguage": null,
-      "selectedAudio": []
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 210,
+      "frames": 12458,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "75e7453590f5c4f7b842",
+      "locatorFingerprint": "653b5d47ad928ea63ba2",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
     },
-    "reason": "bounded frame observation timeout",
-    "commandToReadyMs": 14267.91,
-    "withinFiveSeconds": false
+    "commandToReadyMs": 5498
   },
   "inventory": {
-    "voiceLabels": [],
-    "qualityLabels": [],
-    "advertisedPairs": [],
-    "sourceRows": 0,
-    "inventoryComplete": false,
-    "technicalTrackLabels": []
-  },
-  "build": 319,
-  "checkedAt": "2026-10-02T10:41:14.150146+00:00"
+    "voiceLabels": [
+      "FocusStudio",
+      "Original (с субтитрами)",
+      "Дубляж"
+    ],
+    "technicalTrackLabels": [
+      "eng2",
+      "rus0",
+      "rus1",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p",
+      "720p"
+    ],
+    "advertisedPairs": [
+      [
+        "270p",
+        "FocusStudio"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "FocusStudio"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "FocusStudio"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ]
+    ],
+    "sourceRows": 13,
+    "inventoryComplete": false
+  }
 }
