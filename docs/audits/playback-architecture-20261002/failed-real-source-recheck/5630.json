@@ -1,0 +1,50 @@
+{
+  "mediaId": "5630",
+  "title": "Witch Madness",
+  "year": 2000,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:40.532328+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "df95fa578b27683eb11b",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioExpected": true,
+      "audioDecoded": true,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "a8abd5de63ebef9a0dae",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8361,
+      "profileFingerprint": "4c03944b6d4ef5899370",
+      "audioPresence": "DECODED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "profileChecks": [
+    {
+      "profileFingerprint": "4c03944b6d4ef5899370",
+      "status": "PREPARED"
+    },
+    {
+      "profileFingerprint": "2177068b5383b8256acc",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "f301ebf0193a24d29d16",
+  "preparedStreamIdFingerprint": "2e9bc42d850c9a0a9161",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
