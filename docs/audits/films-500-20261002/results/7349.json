@@ -3,7 +3,45 @@
   "title": "Душа",
   "year": 2020,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "270p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 450,
+      "observed": {
+        "mediaId": "7349",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 906,
+        "frames": 12055,
+        "quality": "270p",
+        "voice": "Дубляж",
+        "streamFingerprint": "e0b6c9cee6820c77e1e9",
+        "locatorFingerprint": "d40b6974f7dde034c414",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:26:26.463941+00:00",
   "startup": {
     "decoded": true,
