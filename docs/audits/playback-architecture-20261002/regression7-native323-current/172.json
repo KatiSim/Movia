@@ -472,6 +472,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "jpn6",
+      "expectedLanguage": "ja",
+      "decoded": true,
+      "ms": 303,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 25903,
+        "selectedAudioLabel": "jpn6",
+        "selectedAudioLanguage": "ja",
+        "frames": 2004,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "196ca2c9f6f0a417cef5",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
