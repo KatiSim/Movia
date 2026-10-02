@@ -1,0 +1,36 @@
+{
+  "mediaId": "3204",
+  "title": "Joe Glow, the Firefly",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:16.390099+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cdcaf649b34c921630b5",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "9fdd267a2f79dd695466",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3096
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "00b5f76e7a763b3e35b6",
+  "preparedStreamIdFingerprint": "0fd92b88ff3a7753cac5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
