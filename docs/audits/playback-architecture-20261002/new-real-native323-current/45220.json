@@ -43,6 +43,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": false,
       "status": "FAIL"
+    },
+    {
+      "quality": "534p",
+      "voice": "AlphaProject",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 763,
+      "observed": {
+        "mediaId": "45220",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 534,
+        "positionMs": 1947,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 490,
+        "voice": "AlphaProject",
+        "streamFingerprint": "2644c9a9f32520e30130",
+        "locatorFingerprint": "d4b3305990bd9f57f243"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
