@@ -264,6 +264,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "AAA Sound",
+      "expectedAudioLabel": "ukr4",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 281,
+      "observed": {
+        "mediaId": "322120",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 24247,
+        "selectedAudioLabel": "ukr4",
+        "selectedAudioLanguage": "uk",
+        "frames": 4051,
+        "voice": "AAA Sound",
+        "streamFingerprint": "376e8dbe4f17b2b42122",
+        "locatorFingerprint": "9e72e6918229dc1d5d8c"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
