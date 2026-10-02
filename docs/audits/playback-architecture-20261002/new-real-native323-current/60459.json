@@ -1,0 +1,29 @@
+{
+  "mediaId": "60459",
+  "title": "Аватар 4",
+  "year": 2029,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:26:18.717031+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 6570,
+    "observed": {
+      "mediaId": "60459",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 189,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 192,
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "9f2a65241b7994899d46",
+      "locatorFingerprint": "8825be7506ccc1bbe393"
+    },
+    "commandToReadyMs": 6756
+  }
+}
