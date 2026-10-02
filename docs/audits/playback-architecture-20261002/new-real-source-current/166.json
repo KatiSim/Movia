@@ -1,0 +1,100 @@
+{
+  "mediaId": "166",
+  "title": "Майкл",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:02.100913+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "eng2",
+      "language": "en",
+      "sourceFingerprint": "409da471d044f33096bf",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "08854d628147136a999a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2943
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 5,
+  "preparedSourceFingerprint": "736fad7832490b9754e5",
+  "preparedStreamIdFingerprint": "57bc71609e9d20f57a7a",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    680
+  ],
+  "advertisedCompatiblePairs": 10
+}
