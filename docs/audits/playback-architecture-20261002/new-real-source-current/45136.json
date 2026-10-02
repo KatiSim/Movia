@@ -1,0 +1,64 @@
+{
+  "mediaId": "45136",
+  "title": "Детки-убийцы 3",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:01.585339+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "jpn1",
+      "language": "ja",
+      "sourceFingerprint": "537e13e01d3fcbbe923a",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "58a806ffccee6cf6ab75",
+      "videoFrameFingerprint": "56126141943b999b7765",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5581
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "3ffc3839d6d61e387508",
+  "preparedStreamIdFingerprint": "bc8cddc49011558ae425",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 4
+}
