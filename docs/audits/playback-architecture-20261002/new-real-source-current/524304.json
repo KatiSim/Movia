@@ -1,0 +1,52 @@
+{
+  "mediaId": "524304",
+  "title": "Bubba's Dead: The Final Massacre",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:29.263233+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "e66c310bbfb63452d4e2",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "d7f31caa27ee354b0705",
+      "videoFrameFingerprint": "20b00f43b5cef3a7acaa",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3179
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8dff5b94280c2b0af734",
+  "preparedStreamIdFingerprint": "d4f3e7fe773f5dc340de",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
