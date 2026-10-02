@@ -1,0 +1,36 @@
+{
+  "mediaId": "56613",
+  "title": "Летающие тигры",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:33.487287+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6fbb9715a3162ea63f1e",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "2caf0a9e79060c5ec1bf",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3881
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "79bc42b451aa94c7c38f",
+  "preparedStreamIdFingerprint": "677412c7e3d5d15e529f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
