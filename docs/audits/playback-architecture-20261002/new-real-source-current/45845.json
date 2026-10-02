@@ -1,0 +1,52 @@
+{
+  "mediaId": "45845",
+  "title": "Рождение Китаро",
+  "year": 2023,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:28.849607+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "5df1bf1fad27ca10f761",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "27f1a1a3be87a236bc19",
+      "videoFrameFingerprint": "b0434d2cf7bad8deb6fc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3074
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "78acb28778f8e56001af",
+  "preparedStreamIdFingerprint": "41f6997f77e64d0d1a77",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
