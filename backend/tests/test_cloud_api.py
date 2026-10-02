@@ -11,6 +11,10 @@ class Catalog:
     def get_all_genres(self): return ["Фантастика"]
     def get_movie_details(self, ident, **kwargs):
         self.calls.append((ident, kwargs));return {"id": ident, "streams": [], "movie": {"id": ident}} if ident == "158" else None
+    def get_movie_playback_card(self, ident):
+        self.calls.append(("playback", ident))
+        return {"id": ident, "streams": [{"voice": "Studio", "quality": "Auto", "audio_track_index": 1,
+                "url": "https://cdn.example/master.m3u8", "headers": {"Referer": "https://provider.example"}}]} if ident == "158" else None
     def search_catalog(self, text, **kwargs): self.calls.append(kwargs);return {"movies": [], "people": []}
     def get_person_projects(self, name, **kwargs): self.calls.append(kwargs);return {"projects": []}
 
@@ -28,6 +32,21 @@ class CloudApiTests(unittest.TestCase):
         self.assertTrue(all(row["id"] in {1,4,13,16,17,21,23,28,29,31,32,33} for row in data["providers"]))
     def test_provider_configuration_rejects_extra_arguments(self):
         self.assertEqual(400,self.service.response("/api/providers/config?source=http://127.0.0.1")[0])
+    def test_playback_card_is_fresh_and_does_not_load_recommendations_or_providers(self):
+        for _ in range(2):
+            code, body, _ = self.service.response("/api/movie/158/playback")
+            row = json.loads(body)["movie"]["streams"][0]
+            self.assertEqual(200, code)
+            self.assertEqual(("Studio", 1), (row["voice"], row["audio_track_index"]))
+            self.assertEqual({"Referer": "https://provider.example"}, row["headers"])
+        self.assertEqual([("playback", "158"), ("playback", "158")], self.catalog.calls)
+        self.assertEqual([], self.stream_calls)
+        self.assertFalse(self.service.cache)
+
+    def test_playback_card_rejects_extra_arguments_and_unknown_id(self):
+        self.assertEqual(400, self.service.response("/api/movie/158/playback?enrich=1")[0])
+        self.assertEqual(404, self.service.response("/api/movie/999/playback")[0])
+
     def test_movie_details_disable_live_enrichment(self):
         self.assertEqual(200,self.service.response("/api/movie/158")[0]);self.assertEqual(("158",{"enrich":False}),self.catalog.calls[0])
     def test_missing_movie_is_404(self): self.assertEqual(404,self.service.response("/api/movie/999")[0])
@@ -72,3 +91,4 @@ class CloudApiTests(unittest.TestCase):
         finally:server.shutdown();server.server_close();thread.join()
 
 if __name__ == "__main__": unittest.main()
+

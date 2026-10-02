@@ -59,7 +59,7 @@ def positive(query, name, default, maximum):
     return int(value)
 
 def is_stream_request(target):
-    try: return bool(re.fullmatch(r"/api/movie/(m_)?[0-9]{1,12}/stream", urlsplit(target).path))
+    try: return bool(re.fullmatch(r"/api/movie/(m_)?[0-9]{1,12}/(?:stream|playback)", urlsplit(target).path))
     except ValueError: return False
 
 class ReadService:
@@ -94,10 +94,13 @@ class ReadService:
                 raise InvalidRequest("invalid_person")
             return 200, self.catalog.get_person_projects(name, limit=positive(query, "limit", 100, 200),
                 credit_scope=scope, enrich=False)
-        match = re.fullmatch(r"/api/movie/(m_)?([0-9]{1,12})(/stream)?", path)
+        match = re.fullmatch(r"/api/movie/(m_)?([0-9]{1,12})(/(?:stream|playback))?", path)
         if match:
             movie_id = (match[1] or "") + match[2]
-            if match[3]:
+            if match[3] == "/playback":
+                from local_stream_gateway import playback_card_response
+                return playback_card_response(movie_id, query, self.catalog)
+            if match[3] == "/stream":
                 season = positive(query, "season", 1, 1000) if "season" in query else None
                 episode = positive(query, "episode", 1, 10000) if "episode" in query else None
                 if (season is None) != (episode is None):

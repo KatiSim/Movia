@@ -21,3 +21,10 @@ def stream_gateway_response(movie_id, query, service):
     if code==200:
         body.update(id=body.get('mediaId'),playback_url=rows[0]['url'] if rows else '',top_stream=rows[0] if rows else None)
     return code,body
+
+
+def playback_card_response(movie_id, query, catalog):
+    if not re.fullmatch(r'(?:m_)?[0-9]{1,12}', str(movie_id)) or query:
+        return 400, {'code': 'INVALID_ARGUMENT'}
+    card = catalog.get_movie_playback_card(str(movie_id))
+    return (200, {'movie': card}) if card else (404, {'code': 'NOT_FOUND'})

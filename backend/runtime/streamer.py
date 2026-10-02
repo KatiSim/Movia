@@ -4031,6 +4031,18 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                         self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
                     return
 
+                if len(parts) == 4 and parts[3] == "playback":
+                    from local_stream_gateway import playback_card_response
+                    code, payload = playback_card_response(movie_id, params, catalog_api)
+                    self.send_response(code)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+                    return
+
                 if is_prewarm_next_request:
                     season_raw = params.get("season", [None])[0]
                     episode_raw = params.get("episode", [None])[0]
