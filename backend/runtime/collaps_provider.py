@@ -141,6 +141,18 @@ def fetch_imdb_id_from_tmdb(title: str, year: int = 0, tmdb_id: int = 0, is_tv: 
     return None
 
 
+def _audio_display_labels(audio_names: List[Any]) -> List[str]:
+    """Keep provider labels losslessly; identical labels need ordinal choices."""
+    raw = [str(name or "").strip() or "Не указано" for name in audio_names]
+    counts: Dict[str, int] = {}
+    for label in raw:
+        counts[label.casefold()] = counts.get(label.casefold(), 0) + 1
+    return [
+        f"{label} · дорожка {index + 1}" if counts[label.casefold()] > 1 else label
+        for index, label in enumerate(raw)
+    ]
+
+
 def parse_collaps_page(
     html: str,
     mirror: str,
@@ -185,9 +197,9 @@ def parse_collaps_page(
                 if hls_url and str(hls_url).startswith("http"):
                     audio_names = (matched_ep.get("audio") or {}).get("names") or ["Дубляж"]
                     subtitles = matched_ep.get("cc") or []
-                    for audio_index, name in enumerate(audio_names):
-                        norm_voice = normalize_collaps_voice(name)
-                        stream_id = f"collaps_{imdb_id}_s{target_season}e{target_episode}_{urllib.parse.quote(norm_voice, safe="")}"
+                    for audio_index, name in enumerate(_audio_display_labels(audio_names)):
+                        norm_voice = name
+                        stream_id = f"collaps_{imdb_id}_s{target_season}e{target_episode}_a{audio_index}_{urllib.parse.quote(norm_voice, safe="")}"
                         streams.append({
                             "stream_id": stream_id,
                             "streamId": stream_id,
@@ -195,6 +207,7 @@ def parse_collaps_page(
                             "provider": "collaps",
                             "source_type_id": 9,
                             "voice": norm_voice,
+                            "source_voice_label": str(audio_names[audio_index] or "").strip(),
                             "quality": "Auto",
                             "audio_track_index": audio_index,
                             "url": str(hls_url).strip(),
@@ -236,9 +249,9 @@ def parse_collaps_page(
         except Exception:
             pass
 
-    for audio_index, name in enumerate(audio_names):
-        norm_voice = normalize_collaps_voice(name)
-        stream_id = f"collaps_{imdb_id}_{urllib.parse.quote(norm_voice, safe="")}"
+    for audio_index, name in enumerate(_audio_display_labels(audio_names)):
+        norm_voice = name
+        stream_id = f"collaps_{imdb_id}_a{audio_index}_{urllib.parse.quote(norm_voice, safe="")}"
         streams.append({
             "stream_id": stream_id,
             "streamId": stream_id,
@@ -246,6 +259,7 @@ def parse_collaps_page(
             "provider": "collaps",
             "source_type_id": 9,
             "voice": norm_voice,
+            "source_voice_label": str(audio_names[audio_index] or "").strip(),
             "quality": "Auto",
             "audio_track_index": audio_index,
             "url": hls_url,

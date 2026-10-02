@@ -492,7 +492,7 @@ def sanitize_streams(
             "catalog_media_id", "catalogMediaId", "canonical_title",
             "canonicalTitle", "canonical_original_title", "canonicalOriginalTitle",
             "canonical_year", "canonicalYear", "canonical_media_type",
-            "canonicalMediaType", "transport",
+            "canonicalMediaType", "transport", "source_voice_label",
         ):
             if key in raw and raw.get(key) is not None:
                 cleaned[key] = raw.get(key)

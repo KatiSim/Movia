@@ -108,6 +108,15 @@ def normalize_voice_name(voice: Optional[str]) -> str:
         return "Original (с субтитрами)"
     return v
 
+def normalize_provider_voice(stream: Dict[str, Any]) -> str:
+    # Source labels identify actual renditions. A studio/category alias must
+    # never merge different provider tracks or remove an ordinal suffix.
+    label = str(stream.get("source_voice_label") or "").strip()
+    if label:
+        return str(stream.get("voice") or label).strip()
+    return normalize_voice_name(stream.get("voice") or stream.get("translation"))
+
+
 def _safe_int(value: Any, default: int = 0) -> int:
     try:
         return max(0, int(value))
@@ -193,10 +202,7 @@ def query_zona_api(
     # Normalize provider voice labels once at the boundary, while keeping
     # every returned audio/quality variant distinct.
     for stream in streams:
-        if stream.get("voice") is not None:
-            stream["voice"] = normalize_voice_name(stream.get("voice"))
-        elif stream.get("translation") is not None:
-            stream["voice"] = normalize_voice_name(stream.get("translation"))
+        stream["voice"] = normalize_provider_voice(stream)
 
     validated_streams = sanitize_streams(streams, require_source=True)
 

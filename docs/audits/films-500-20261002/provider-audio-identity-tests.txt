@@ -1,0 +1,10 @@
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.............................................................................................................2026-10-02 13:30:06,160 - INFO - Provider apibay skipped during reliability cooldown
+.......................
+----------------------------------------------------------------------
+Ran 132 tests in 6.701s
+
+OK

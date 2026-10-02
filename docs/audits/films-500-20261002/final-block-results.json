@@ -1,0 +1,15 @@
+{
+  "sourceRowsRecorded": 826,
+  "moviesWithDecodedVideoAndAudio": 263,
+  "moviesWithThreeManifestVoices": 0,
+  "native321MoviesStarted": 25,
+  "native321FullMatricesPassed": 18,
+  "native321VariantPairsPassed": 393,
+  "native321VariantPairsFailed": 21,
+  "target500FullMatricesCompleted": false,
+  "fullLazyMediaIntegrationCompleted": false,
+  "serverAudioIdentityTestsPassed": 132,
+  "activeParserReloadedWithNewIdentityFix": false,
+  "uiUsed": false,
+  "temporaryAuditServiceStopped": true
+}

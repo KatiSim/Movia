@@ -14,7 +14,7 @@ class CollapsProviderTrackIndexTest(unittest.TestCase):
             </script>
         '''
         streams = parse_collaps_page(html, "https://api.example", "tt123")
-        self.assertEqual(["Дубляж", "Original"], [s["voice"] for s in streams])
+        self.assertEqual(["Дубляж", "Original (English)"], [s["voice"] for s in streams])
         self.assertEqual([0, 1], [s["audio_track_index"] for s in streams])
         self.assertEqual([9, 9], [s["source_type_id"] for s in streams])
 
@@ -29,7 +29,7 @@ class CollapsProviderTrackIndexTest(unittest.TestCase):
             season=1,
             episode=1,
         )
-        self.assertEqual(["LostFilm", "Original"], [s["voice"] for s in streams])
+        self.assertEqual(["LostFilm", "Original (English)"], [s["voice"] for s in streams])
         self.assertEqual([0, 1], [s["audio_track_index"] for s in streams])
         self.assertEqual([9, 9], [s["source_type_id"] for s in streams])
 
