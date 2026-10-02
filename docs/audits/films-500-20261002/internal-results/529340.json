@@ -1,0 +1,138 @@
+{
+  "mediaId": "529340",
+  "title": "Последняя фантазия",
+  "year": 2001,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 346,
+      "actualHeight": 346,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "a5220324b7036c962fee",
+      "ms": 2712,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 9,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "Авторский (Одноголосый)",
+    "Дубляж",
+    "П. Гланц",
+    "Профессиональный (МВО)",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "Ю. Живов",
+    "студия Карусель"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    346,
+    690
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "def7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 9,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 18,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:02:57.939484+00:00"
+}
