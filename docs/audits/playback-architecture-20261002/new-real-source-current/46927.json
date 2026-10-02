@@ -1,0 +1,36 @@
+{
+  "mediaId": "46927",
+  "title": "Курица из другого мира",
+  "year": 1996,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:15:31.464880+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1f94cc29e58c8c95a4bf",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "ad4c948cb39b9f1d6877",
+      "videoFrameFingerprint": "44e65be57640926bb574",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9455
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ddcff97c4620b69229cf",
+  "preparedStreamIdFingerprint": "eac7e49818baa646e8a5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
