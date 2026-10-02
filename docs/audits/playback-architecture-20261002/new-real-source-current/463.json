@@ -1,0 +1,15 @@
+{
+  "mediaId": "463",
+  "title": "Человек-бензопила",
+  "year": 2022,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:23.861392+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
