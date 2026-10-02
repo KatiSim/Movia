@@ -1,0 +1,15 @@
+{
+  "mediaId": "416977",
+  "title": "Play Nice",
+  "year": 1992,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:42.362032+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
