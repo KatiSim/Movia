@@ -4019,3 +4019,4 @@
 {"seq": 4019, "at": "2026-10-02T11:28:51.287335+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4020, "at": "2026-10-02T11:28:51.604127+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 47}
 {"seq": 4021, "at": "2026-10-02T11:28:51.876371+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 35}
+{"seq": 4022, "at": "2026-10-02T11:28:52.298407+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}

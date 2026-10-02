@@ -3,7 +3,45 @@
   "title": "Земля до начала времен",
   "year": 1988,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "406p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "def0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 197,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 406,
+        "positionMs": 1014,
+        "frames": 13966,
+        "quality": "406p",
+        "voice": "Дубляж",
+        "streamFingerprint": "62057c9351b82ddc1329",
+        "locatorFingerprint": "18ecbfb721c28071cdda",
+        "selectedAudioLabel": "def0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "def0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:28:48.539857+00:00",
   "startup": {
     "decoded": true,
