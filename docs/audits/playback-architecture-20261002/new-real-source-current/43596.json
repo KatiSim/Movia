@@ -1,0 +1,36 @@
+{
+  "mediaId": "43596",
+  "title": "Дикий ветер",
+  "year": 1957,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:36:35.193215+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b5200811aee8ec7e404c",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "7508d1c71506ff59791f",
+      "videoFrameFingerprint": "2255e6e5d8de754bb7f6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3500
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f81926a3079356c9b8cb",
+  "preparedStreamIdFingerprint": "393e912ec6b126c8bf9f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
