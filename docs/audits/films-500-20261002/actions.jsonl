@@ -2986,3 +2986,4 @@
 {"seq": 2986, "at": "2026-10-02T11:19:28.075903+00:00", "action": "player.selectVoice", "mediaId": "19241", "arguments": {"voice": "Е. Солодухин", "persist": false}, "accepted": true, "requestMs": 29}
 {"seq": 2987, "at": "2026-10-02T11:19:28.728554+00:00", "action": "movie_result", "mediaId": "19241", "decoded": true, "voices": 7, "qualities": 4}
 {"seq": 2988, "at": "2026-10-02T11:19:28.951819+00:00", "action": "player.selectQuality", "mediaId": "19241", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 23}
+{"seq": 2989, "at": "2026-10-02T11:19:29.157923+00:00", "action": "internal_movie_result", "mediaId": "59", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}

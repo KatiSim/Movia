@@ -1,0 +1,13 @@
+{
+  "mediaId": "59",
+  "title": "Невероятный Халк",
+  "year": 2008,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:19:29.003916+00:00"
+}
