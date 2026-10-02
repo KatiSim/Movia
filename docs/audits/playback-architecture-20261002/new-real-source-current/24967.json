@@ -1,0 +1,36 @@
+{
+  "mediaId": "24967",
+  "title": "Несносный Деннис отправляется в круиз",
+  "year": 2002,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:35.851682+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "02fde38b7cdb0ac29430",
+      "decoded": true,
+      "actualHeight": 576,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "e1158340af7b6826fc95",
+      "videoFrameFingerprint": "2f1a173de191317cbbb3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4764
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b9936bc3b2ab8cfb213a",
+  "preparedStreamIdFingerprint": "3a9baee472f6db469ad9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
