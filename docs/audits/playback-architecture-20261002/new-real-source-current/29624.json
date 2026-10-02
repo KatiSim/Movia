@@ -1,0 +1,36 @@
+{
+  "mediaId": "29624",
+  "title": "Самый маленький кролик",
+  "year": 1994,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:01.202140+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7b1b0912a930a9cc7254",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "36ea680709df29978497",
+      "videoFrameFingerprint": "0246a4fb46b6ac818bae",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3433
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "e018c7358309fa93d3f2",
+  "preparedStreamIdFingerprint": "062be7a4c3d5b24c14d7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
