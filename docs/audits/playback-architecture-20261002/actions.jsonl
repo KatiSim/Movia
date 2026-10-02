@@ -3113,3 +3113,4 @@
 {"seq": 3113, "at": "2026-10-02T15:42:28.620202+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3114, "at": "2026-10-02T15:42:31.433830+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Профессиональный (МВО), Двухголосый (ДВО)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3115, "at": "2026-10-02T15:42:31.996831+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 13, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3116, "at": "2026-10-02T15:42:32.354750+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
