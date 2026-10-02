@@ -9,11 +9,11 @@
   "audioTrackSwitchConfirmed": 51,
   "voiceLocatorOnly": 0,
   "variantPassed": 55,
-  "variantFailed": 0,
+  "variantFailed": 1,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:15:48.834759+00:00",
-  "actionsRecorded": 2330,
-  "lastPublishedAction": 2148,
-  "githubSyncError": "Git push failed, exit 1"
+  "updatedAt": "2026-10-02T11:15:57.186977+00:00",
+  "actionsRecorded": 2361,
+  "lastPublishedAction": 2330,
+  "githubSyncError": null
 }
