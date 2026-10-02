@@ -966,6 +966,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "А. Гаврилов",
+      "expectedAudioLabel": "rus12",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 281,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 64819,
+        "selectedAudioLabel": "rus12",
+        "selectedAudioLanguage": "ru",
+        "frames": 1548,
+        "voice": "А. Гаврилов",
+        "streamFingerprint": "48a5a8edc9480fc0d3a1",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
