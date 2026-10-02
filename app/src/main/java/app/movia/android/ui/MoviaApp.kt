@@ -146,6 +146,7 @@ import app.movia.android.ui.theme.MoviaTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -638,7 +639,7 @@ private fun MoviaContent(
                     if (cached != null && (cached.streams.isNotEmpty() || !cached.playbackUrl.isNullOrBlank())) {
                         cached
                     } else if (requestedMediaRef != null) {
-                        DemoCatalogRepository.findFullById(requestedMediaRef.contentId) ?: cached
+                        DemoCatalogRepository.findPlaybackById(requestedMediaRef.contentId) ?: cached
                     } else {
                         DemoCatalogRepository.findFullByTitle(baseTitle) ?: cached
                     }
@@ -666,7 +667,12 @@ private fun MoviaContent(
                 val saved = progressByMediaRef[progressKey]
                     ?: progressByTitle[title]
                     ?: lastProgress.takeIf { it.mediaRef == mediaRef || it.title == title }
-                val sortedStreams = content?.streams.orEmpty().sortedWith(
+                val titlePreferences = preferencesRepository.titlePlaybackPreferences(baseTitle).first()
+                val initialVoice = titlePreferences.audio ?: playbackPreferences.audio
+                val initialQuality = titlePreferences.quality ?: playbackPreferences.quality
+                val sortedStreams = content?.let {
+                    app.movia.android.domain.playback.catalogPlaybackStreams(it, mediaRef)
+                }.orEmpty().sortedWith(
                     compareBy<app.movia.android.domain.model.StreamOption> { option ->
                         val v = option.voice.lowercase()
                         when {
@@ -685,7 +691,7 @@ private fun MoviaContent(
                     }.thenByDescending { it.seeders }
                 )
                 val streamCandidates = sortedStreams.mapNotNull { it.url.takeIf { u -> u.isNotBlank() } }
-                val preferredSource = streamCandidates.firstOrNull() ?: content?.playbackUrl
+                val preferredSource = streamCandidates.firstOrNull()
                 playbackSession.start(
                     mediaId = mediaRef.contentId,
                     title = title,
@@ -696,6 +702,11 @@ private fun MoviaContent(
                     audioTrackId = playbackPreferences.audio,
                     subtitleTrackId = if (playbackPreferences.subtitlesEnabled) "Auto" else null,
                     candidateStreams = streamCandidates,
+                    candidateStreamOptions = sortedStreams,
+                    contentYear = content?.year,
+                    mediaType = content?.type,
+                    preferredQuality = initialQuality,
+                    preferredVoice = initialVoice,
                 )
                 ensurePlayerOpen()
             }

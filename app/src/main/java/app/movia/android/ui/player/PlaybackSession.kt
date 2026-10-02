@@ -314,7 +314,7 @@ class PlaybackSession(context: Context) {
     private var requestedVideoQuality: String = "Auto"
     private var userSelectedAutoQuality = false
     private var userSelectedAutoAudio = false
-    private var requestedAudioTrack: String? = null
+    private var requestedAudioTrack: AudioChoiceIdentity? = null
     private var desiredPlayWhenReady = false
     private var frameProbe: PlaybackFrameProbe? = null
     val probeFrames: Long get() = frameProbe?.frames ?: 0L
@@ -525,7 +525,7 @@ class PlaybackSession(context: Context) {
         val choice = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0).audio
             .firstOrNull { it.id == voice || it.label.equals(voice, true) } ?: return false
         userSelectedAutoAudio = false
-        requestedAudioTrack = choice.label
+        requestedAudioTrack = choice.audioIdentity()
         playbackRequest = playbackRequest?.copy(requestedVoice = choice.label, requestedStreamId = activeCandidate?.stableStreamId)
         _state.value = _state.value.copy(audioTrackId = choice.id, activeStreamSelection =
             (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = choice.label))
@@ -560,7 +560,7 @@ class PlaybackSession(context: Context) {
         }
         if (requestedAudioTrack == null && (userSelectedAutoAudio || activeCandidate?.audioTrackIndex == null)) builder.clearOverridesOfType(C.TRACK_TYPE_AUDIO)
         requestedAudioTrack?.let { wanted ->
-            choices.audio.firstOrNull { it.id == wanted || it.label.equals(wanted, true) }?.let {
+            choices.audio.firstOrNull { it.audioIdentity() == wanted }?.let {
                 builder.setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, false).setOverrideForType(it.override)
             }
         }

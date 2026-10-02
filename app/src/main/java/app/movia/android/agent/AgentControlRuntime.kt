@@ -946,7 +946,7 @@ object AgentControlRuntime {
                 val persistedContent = if (cachedContent?.streams?.any { it.url.isNotBlank() } == true) {
                     null
                 } else if (!mediaId.isNullOrBlank()) {
-                    DemoCatalogRepository.findFullById(mediaId)
+                    DemoCatalogRepository.findPlaybackById(mediaId)
                 } else if (!requestedTitle.isNullOrBlank()) {
                     // Title-only agent actions must resolve the canonical content ID before playback.
                     // Otherwise the fallback title becomes a fake mediaId and every discovered
@@ -982,7 +982,7 @@ object AgentControlRuntime {
                         ?: library.progressByTitle.first()[displayTitle]
                 } else null
                 val streamId = requested["streamId"] as String?
-                val knownStreams = content.streams.filter { it.url.isNotBlank() }
+                val knownStreams = app.movia.android.domain.playback.catalogPlaybackStreams(content, MediaRef(content.id, season, episode))
                 val exactKnown = streamId?.let { id -> knownStreams.firstOrNull { it.streamId == id } }
                 val variantIntent = resolveMediaPlayVariantIntent(
                     explicitQuality = requested["quality"] as String?,

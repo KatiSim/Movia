@@ -263,6 +263,23 @@ class AdaptivePlaybackRegressionTest {
         val rows=listOf(0,1).map { StreamOption("Studio ${if(it==0) "A" else "B"}","Auto",url="$base/master.m3u8",audioTrackIndex=it) }
         assertEquals(listOf("Auto","Studio B"),voiceMenu(rows,choices,"Auto",rows[0]))
     }
+    @Test fun selectedCodecCopyPreservesTheDistinctLanguageLabelAndAudioIdentity() {
+        fun group(id: String, lang: String, selected: Boolean) = androidx.media3.common.Tracks.Group(
+            androidx.media3.common.TrackGroup(id, androidx.media3.common.Format.Builder()
+                .setLabel("Studio").setLanguage(lang).setSampleMimeType("audio/mp4a-latm").build()),
+            false, intArrayOf(C.FORMAT_HANDLED), booleanArrayOf(selected))
+        val before = playbackChoices(androidx.media3.common.Tracks(listOf(
+            group("English", "en", false), group("Russian AAC", "ru", true), group("Russian copy", "ru", false))), 0)
+        val wanted = before.audio.single { it.selected }.audioIdentity()
+        val after = playbackChoices(androidx.media3.common.Tracks(listOf(
+            group("English", "en", false), group("Russian AAC", "ru", false), group("Russian copy", "ru", true))), 0)
+        assertEquals(2, after.audio.size)
+        assertEquals(2, after.audio.map { it.label }.distinct().size)
+        assertEquals("Studio · 2", after.audio.single { it.selected }.label)
+        assertEquals(wanted, after.audio.single { it.selected }.audioIdentity())
+        assertNotEquals(after.audio.first().audioIdentity(), wanted)
+    }
+
     @Test fun persistedIdenticalAudioLabelsKeepTheSelectedLanguageThroughTheirOrdinal() {
         val formats=listOf("en","ru").map { androidx.media3.common.Format.Builder().setLabel("Studio").setLanguage(it).setSampleMimeType("audio/mp4a-latm").build() }
         val group=androidx.media3.common.Tracks.Group(androidx.media3.common.TrackGroup("qa:language",*formats.toTypedArray()),false,

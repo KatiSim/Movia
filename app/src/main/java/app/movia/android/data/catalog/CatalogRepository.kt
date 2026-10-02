@@ -767,6 +767,15 @@ object DemoCatalogRepository : CatalogRepository {
     /** See findByTitle: this is deliberately cache-only. */
     override fun findById(id: String): MediaContent? = movieCache.get(id)
 
+    /** Playback does not wait for related cards or metadata enrichment. */
+    suspend fun findPlaybackById(id: String): MediaContent? = runSafe {
+        movieCache.get(id)?.takeIf { it.streams.isNotEmpty() }?.let { return@runSafe it }
+        val response = httpGet("/api/movie/$id/playback", connectTimeoutMs = 2_000, readTimeoutMs = 2_000)
+            ?: return@runSafe movieCache.get(id)
+        val json = JSONObject(response)
+        parseMediaObject(json.optJSONObject("movie") ?: json).takeIf { it.id == id }?.also(::cacheItem)
+    }
+
     override suspend fun findFullById(id: String): MediaContent? = runSafe {
         (detailsCache.get(id) ?: getDetailsBundleById(id))?.movie
     }

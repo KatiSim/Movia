@@ -22,6 +22,21 @@ data class PlaybackChoices(
     internal val supportedAudioOrdinals: Set<Int>? = null,
 )
 
+internal data class AudioChoiceIdentity(
+    val label: String?,
+    val language: String?,
+    val roleFlags: Int,
+    val anonymousOrdinal: Int?,
+)
+
+internal fun PlaybackTrackChoice.audioIdentity(): AudioChoiceIdentity {
+    val format = override.mediaTrackGroup.getFormat(override.trackIndices.first())
+    val label = format.label?.trim()?.takeIf { it.isNotBlank() }
+    return AudioChoiceIdentity(label,
+        format.language?.takeUnless { it.isBlank() || it == "und" }, format.roleFlags,
+        providerAudioIndex.takeIf { label == null })
+}
+
 internal fun qualityHeight(value: String): Int? = app.movia.android.domain.model.videoQualityHeight(value)
 
 internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices {
@@ -51,7 +66,7 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
                 val previous = knownKey?.let(namedAudioIndexes::get)
                 if (previous != null) {
                     if (group.isTrackSelected(index) && !audio[previous].selected) audio[previous] =
-                        PlaybackTrackChoice(id, name, language = language, selected = true,
+                        audio[previous].copy(id = id, selected = true,
                             override = TrackSelectionOverride(group.mediaTrackGroup, index), providerAudioIndex = providerOrdinal)
                 } else {
                     val label = if (audio.any { it.label == name }) "$name · ${audio.size + 1}" else name

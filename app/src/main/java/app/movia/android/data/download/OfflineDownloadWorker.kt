@@ -57,7 +57,7 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
         }
         return try {
             setForeground(downloadForeground(title))
-            val content = withContext(Dispatchers.IO) { DemoCatalogRepository.findFullById(contentId) ?: DemoCatalogRepository.findById(contentId) }
+            val content = withContext(Dispatchers.IO) { DemoCatalogRepository.findPlaybackById(contentId) ?: DemoCatalogRepository.findById(contentId) }
                 ?: return failed("MEDIA_NOT_FOUND")
             val preferenceRepository = app.movia.android.data.preferences.MoviaPreferencesRepository(applicationContext)
             val playbackPreferences = preferenceRepository.playbackPreferences.first()
