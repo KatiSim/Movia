@@ -1,0 +1,52 @@
+{
+  "mediaId": "536093",
+  "title": "La fotógrafa",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:45.919932+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "bf245c766d1e6d426abc",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "2a6f7fe6e247d9f28579",
+      "videoFrameFingerprint": "b07ed07298bb978117e4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3570
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0c35d865cbfc85c704fa",
+  "preparedStreamIdFingerprint": "b9a30a458a9b0f211a2e",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
