@@ -1,0 +1,83 @@
+{
+  "mediaId": "2612",
+  "title": "Наш маленький секрет",
+  "year": 2024,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "ukr0",
+      "voiceLanguage": "uk",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2868,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Red Head Sound",
+    "delete",
+    "Так Треба Продакшн"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:07:04.623992+00:00"
+}
