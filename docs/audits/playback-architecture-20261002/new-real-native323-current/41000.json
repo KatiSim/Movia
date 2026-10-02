@@ -1,0 +1,29 @@
+{
+  "mediaId": "41000",
+  "title": "Киборг 2087",
+  "year": 1966,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:31:57.701352+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 4479,
+    "observed": {
+      "mediaId": "41000",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 218,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1481,
+      "voice": "Original",
+      "streamFingerprint": "66e347ad7fde3704045e",
+      "locatorFingerprint": "4902f4a87d14b380d955"
+    },
+    "commandToReadyMs": 4700
+  }
+}
