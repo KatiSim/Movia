@@ -2928,3 +2928,4 @@
 {"seq": 2928, "at": "2026-10-02T15:40:22.190007+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2929, "at": "2026-10-02T15:40:22.512408+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Екатеринбург Арт", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2930, "at": "2026-10-02T15:40:23.063489+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 36, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2931, "at": "2026-10-02T15:40:23.440297+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
