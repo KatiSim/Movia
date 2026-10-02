@@ -1,0 +1,36 @@
+{
+  "mediaId": "209626",
+  "title": "Hanabi",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:42.130345+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f4242adbe31bcbac66bb",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ec69736771893d32e152",
+      "videoFrameFingerprint": "a7dcedf01d19c1011f58",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2968
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fa9c8014195fadbbaa4a",
+  "preparedStreamIdFingerprint": "29fe6574922d3ca5fa96",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
