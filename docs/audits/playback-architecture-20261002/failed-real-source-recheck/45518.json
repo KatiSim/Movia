@@ -1,0 +1,38 @@
+{
+  "mediaId": "45518",
+  "title": "В космосе с Маркиплиером: Часть 2",
+  "year": 2022,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:20.160046+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f66b0f7b1fd140dd14be",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14026,
+      "profileFingerprint": "650e99b89439382478e7",
+      "audioPresence": "UNDETERMINED"
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "650e99b89439382478e7",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "3a72c6abdba160241f70",
+  "preparedStreamIdFingerprint": "58fa68e4f56759cc08bb",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
