@@ -238,6 +238,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "С. Рябов",
+      "expectedAudioLabel": "rus9",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 717,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 9292,
+        "selectedAudioLabel": "rus9",
+        "selectedAudioLanguage": "ru",
+        "frames": 228,
+        "voice": "С. Рябов",
+        "streamFingerprint": "6221d439a45844871ee9",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
