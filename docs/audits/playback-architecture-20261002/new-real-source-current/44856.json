@@ -1,0 +1,51 @@
+{
+  "mediaId": "44856",
+  "title": "Байджу Бавра",
+  "year": 1952,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:21.644107+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "6766aa56e4adb82a4abe",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "b9983753bcddb51c1d52",
+      "videoFrameFingerprint": "445505eee61cf6ea1cfd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3816
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "731e5e46b4482a05ca36",
+  "preparedStreamIdFingerprint": "f0a107d786e7aabf4434",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
