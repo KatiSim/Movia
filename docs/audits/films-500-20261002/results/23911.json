@@ -447,6 +447,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Новий канал",
+      "expectedAudioLabel": "ukr12",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 440,
+      "observed": {
+        "mediaId": "23911",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 15362,
+        "frames": 4065,
+        "quality": "360p",
+        "voice": "Новий канал",
+        "streamFingerprint": "6f7bc8165143337bb00f",
+        "locatorFingerprint": "b340698e1edcc4d8a43a",
+        "selectedAudioLabel": "ukr12",
+        "selectedAudioLanguage": "uk",
+        "selectedAudio": [
+          [
+            "track:1:13:0",
+            "ukr12",
+            "uk"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:18:02.695635+00:00",
