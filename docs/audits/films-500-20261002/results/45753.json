@@ -1,0 +1,42 @@
+{
+  "index": 12,
+  "mediaId": "45753",
+  "title": "\"Питер Пэн\" пошел не так",
+  "year": 2016,
+  "rating": 6.9,
+  "voteCount": 66,
+  "genres": "[\"комедия\",\"семейный\",\"музыка\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14192.52,
+    "observed": {
+      "mediaId": "45753",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 39,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14250.92,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:40:44.772829+00:00"
+}
