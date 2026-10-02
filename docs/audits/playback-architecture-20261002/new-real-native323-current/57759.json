@@ -1,0 +1,29 @@
+{
+  "mediaId": "57759",
+  "title": "Получи меня опять",
+  "year": 1932,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:34:22.987365+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 3937,
+    "observed": {
+      "mediaId": "57759",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 319,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1821,
+      "voice": "Original",
+      "streamFingerprint": "b388b4ea637ed00e7591",
+      "locatorFingerprint": "b7ce052b22e20c7c2fe7"
+    },
+    "commandToReadyMs": 4087
+  }
+}
