@@ -1,0 +1,61 @@
+{
+  "mediaId": "10457",
+  "title": "Зло",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 302,
+      "actualHeight": 302,
+      "qualityMatches": true,
+      "voice": "Рус. Дублированный",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2801,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    302,
+    536
+  ],
+  "manifestVoices": [
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 4,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:05:11.252423+00:00"
+}
