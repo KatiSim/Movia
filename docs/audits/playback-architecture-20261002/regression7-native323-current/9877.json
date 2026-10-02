@@ -1,0 +1,29 @@
+{
+  "mediaId": "9877",
+  "title": "Ужасающий",
+  "year": 2018,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:09:58.533048+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 1304,
+    "observed": {
+      "mediaId": "9877",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 254,
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "frames": 2233,
+      "voice": "GoLTFilm",
+      "streamFingerprint": "a8ead739b86745114114",
+      "locatorFingerprint": "48685269b1bf490fd348"
+    },
+    "commandToReadyMs": 1669
+  }
+}
