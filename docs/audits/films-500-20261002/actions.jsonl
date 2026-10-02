@@ -3917,3 +3917,4 @@
 {"seq": 3917, "at": "2026-10-02T11:27:42.187907+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
 {"seq": 3918, "at": "2026-10-02T11:27:42.530773+00:00", "action": "player.selectQuality", "mediaId": "11085", "arguments": {"quality": "536p", "persist": false}, "accepted": true, "requestMs": 21}
 {"seq": 3919, "at": "2026-10-02T11:27:42.810266+00:00", "action": "player.selectVoice", "mediaId": "11085", "arguments": {"voice": "В одне рило (укр)", "persist": false}, "accepted": true, "requestMs": 37}
+{"seq": 3920, "at": "2026-10-02T11:27:43.501108+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
