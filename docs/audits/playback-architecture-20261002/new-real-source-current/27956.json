@@ -1,0 +1,36 @@
+{
+  "mediaId": "27956",
+  "title": "Халтурщики",
+  "year": 1997,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:30.030097+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "27a4dc99d2befe8fe4e6",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "52e86c4806e2ebbb35c3",
+      "videoFrameFingerprint": "f2669fa9aa5da70cecac",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3364
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d71e39f63f40c2606e31",
+  "preparedStreamIdFingerprint": "d46b7445b1922908c138",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
