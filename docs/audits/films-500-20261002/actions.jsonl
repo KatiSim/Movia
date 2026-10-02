@@ -3630,3 +3630,4 @@
 {"seq": 3630, "at": "2026-10-02T11:23:41.324562+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 10}
 {"seq": 3631, "at": "2026-10-02T11:23:41.602863+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 52}
 {"seq": 3632, "at": "2026-10-02T11:23:42.377645+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
+{"seq": 3633, "at": "2026-10-02T11:23:42.558241+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 33}
