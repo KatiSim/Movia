@@ -1,0 +1,82 @@
+{
+  "mediaId": "17056",
+  "title": "Табу",
+  "year": 2012,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3130,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "Профессиональный (МВО)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "por1",
+      "language": "pt",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "por3",
+      "language": "pt",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "por1",
+      "language": "pt",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "por3",
+      "language": "pt",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:09:29.643052+00:00"
+}
