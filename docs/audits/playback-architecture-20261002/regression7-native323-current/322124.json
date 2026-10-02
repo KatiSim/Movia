@@ -238,6 +238,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Ю. Живов",
+      "expectedAudioLabel": "def2",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 1910,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 18362,
+        "selectedAudioLabel": "def2",
+        "selectedAudioLanguage": "ru",
+        "frames": 3327,
+        "voice": "Ю. Живов",
+        "streamFingerprint": "58ede5af36f438196d3a",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
