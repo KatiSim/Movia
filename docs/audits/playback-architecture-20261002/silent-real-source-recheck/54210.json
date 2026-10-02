@@ -1,0 +1,46 @@
+{
+  "mediaId": "54210",
+  "title": "Туз червей",
+  "year": 1921,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:17:47.954401+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "596096f71b7ca44b16c0",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "9506d3a2cbffb81d4fa2",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8686,
+      "profileFingerprint": "a561f4a5550988898fb1",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "a561f4a5550988898fb1",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "a9118d37ca2e4b731905",
+  "preparedStreamIdFingerprint": "1c98d420665b1b2f9c3f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
