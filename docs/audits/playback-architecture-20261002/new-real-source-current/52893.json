@@ -1,0 +1,36 @@
+{
+  "mediaId": "52893",
+  "title": "А вот и мистер Джордан",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:09.246632+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a993ca6a50a5ce9693f7",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1b9670772419a5bfc949",
+      "videoFrameFingerprint": "387525f71b7165ae37e0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4872
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4210282039f44bb317bd",
+  "preparedStreamIdFingerprint": "b8a784b49bafa20b5f7e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
