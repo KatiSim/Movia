@@ -1,0 +1,29 @@
+{
+  "mediaId": "45232",
+  "title": "Внимание, опасная жена!",
+  "year": 2021,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:31:44.071220+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 2544,
+    "observed": {
+      "mediaId": "45232",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 321,
+      "selectedAudioLabel": "default",
+      "selectedAudioLanguage": "ru",
+      "frames": 1383,
+      "voice": "Синема УС",
+      "streamFingerprint": "d9f3733550a5976dcdfb",
+      "locatorFingerprint": "4389d90a211d10f31fa5"
+    },
+    "commandToReadyMs": 2785
+  }
+}
