@@ -1,0 +1,36 @@
+{
+  "mediaId": "20488",
+  "title": "Томас и его друзья: Великое открытие",
+  "year": 2008,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:27.752512+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1a8a8d1856f0d7f54211",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "7f73c4d6d7c41ae3d467",
+      "videoFrameFingerprint": "33a6a5d8d73c2f6b4b6f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3651
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d8c10fe71bc76ceb3b1c",
+  "preparedStreamIdFingerprint": "10804dcb545fe215e232",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
