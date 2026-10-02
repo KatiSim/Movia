@@ -1,0 +1,52 @@
+{
+  "mediaId": "438600",
+  "title": "Акулы цунами",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:24.077241+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 264,
+      "voice": "rus0",
+      "language": "ru",
+      "sourceFingerprint": "a6e11603906e27356739",
+      "decoded": true,
+      "actualHeight": 264,
+      "videoFrames": 3,
+      "audioFrames": 9,
+      "audioPcmFingerprint": "db4b6b87203de41342e8",
+      "videoFrameFingerprint": "3e02f6270eeab200ebee",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3303
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "52da98c4dc3581ba80b0",
+  "preparedStreamIdFingerprint": "06d3d214e42c6ca7073e",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    264,
+    528
+  ],
+  "advertisedCompatiblePairs": 2
+}
