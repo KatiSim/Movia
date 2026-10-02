@@ -1,0 +1,13 @@
+{
+  "mediaId": "9841",
+  "title": "Дэдпул 2",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:14:55.510279+00:00"
+}
