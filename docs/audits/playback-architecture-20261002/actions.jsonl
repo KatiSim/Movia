@@ -3349,3 +3349,4 @@
 {"seq": 3349, "at": "2026-10-02T15:45:18.996253+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3350, "at": "2026-10-02T15:45:19.302803+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "delete · дорожка 4", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3351, "at": "2026-10-02T15:45:19.958871+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3352, "at": "2026-10-02T15:45:20.306178+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
