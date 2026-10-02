@@ -1,0 +1,36 @@
+{
+  "mediaId": "48157",
+  "title": "Сэди Томпсон",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:28.866484+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "0f9493598d6b6a1edda4",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "80a779fd2c8370ccaa8c",
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9996
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f34172e9bd24881839fd",
+  "preparedStreamIdFingerprint": "143c0218b6adbdc5b29c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
