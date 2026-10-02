@@ -1,0 +1,52 @@
+{
+  "mediaId": "654478",
+  "title": "Dastaar",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:41.815401+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 294,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "9ef6b25605e82dfa1e55",
+      "decoded": true,
+      "actualHeight": 294,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f5c681dad4e244a589ea",
+      "videoFrameFingerprint": "de7abf4288b304c81451",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3182
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c9668fb3103458ebff02",
+  "preparedStreamIdFingerprint": "bc46ee9e6f47054df0cf",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    294,
+    490
+  ],
+  "advertisedCompatiblePairs": 2
+}
