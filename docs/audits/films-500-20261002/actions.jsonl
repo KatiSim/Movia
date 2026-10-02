@@ -1006,3 +1006,4 @@
 {"seq": 1006, "at": "2026-10-02T11:04:36.909670+00:00", "action": "internal_combined_decode", "mediaId": "10315", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1007, "at": "2026-10-02T11:04:37.064584+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 81}
 {"seq": 1008, "at": "2026-10-02T11:04:37.296271+00:00", "action": "internal_movie_result", "mediaId": "429526", "actualDecoded": true, "voices": 2, "qualities": 2, "errorCategory": null}
+{"seq": 1009, "at": "2026-10-02T11:04:37.459625+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "requestMs": 62}
