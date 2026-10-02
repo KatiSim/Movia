@@ -1,0 +1,11 @@
+{
+  "mediaId": "577253",
+  "title": "Batman: The Dark Knight Returns",
+  "year": 2013,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": false,
+  "errorCategory": "EXACT_IMDB_UNAVAILABLE",
+  "checkedAt": "2026-10-02T11:05:14.506574+00:00"
+}
