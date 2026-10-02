@@ -1,0 +1,36 @@
+{
+  "mediaId": "57300",
+  "title": "Энни с Клондайка",
+  "year": 1936,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:53.710504+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "82bd6741c5623de2e343",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "89ddee9f2939ba06d5e6",
+      "videoFrameFingerprint": "af46c247d76e3ce10680",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8041
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0e4201ce456d907d72f9",
+  "preparedStreamIdFingerprint": "a04c771fb3349a2d87d3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
