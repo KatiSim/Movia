@@ -290,6 +290,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "НТВ",
+      "expectedAudioLabel": "rus11",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 505,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 19161,
+        "selectedAudioLabel": "rus11",
+        "selectedAudioLanguage": "ru",
+        "frames": 457,
+        "voice": "НТВ",
+        "streamFingerprint": "f7b3520566ae9b69700c",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
