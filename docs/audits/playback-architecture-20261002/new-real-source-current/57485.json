@@ -1,0 +1,36 @@
+{
+  "mediaId": "57485",
+  "title": "Лиллиан Расселл",
+  "year": 1940,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:08.106050+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "340f8929cfe92688065f",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "84e1ced638d15d32c2d3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4622
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cc6b8f39494f97b373ea",
+  "preparedStreamIdFingerprint": "a421273362c35abf881f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
