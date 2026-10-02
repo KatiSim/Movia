@@ -972,3 +972,4 @@
 {"seq": 972, "at": "2026-10-02T14:26:57.075513+00:00", "action": "real_source_decode_result", "details": {"mediaId": "45518", "requestedHeight": 0, "voice": null, "language": null, "sourceFingerprint": "f66b0f7b1fd140dd14be", "decoded": false, "status": "FAIL", "errorCategory": "DECODER_TIMEOUT", "ms": 14033}, "sourcePaths": []}
 {"seq": 973, "at": "2026-10-02T14:26:57.201638+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "45518", "decoded": false, "allPreparedPairsPassed": false, "errorCategory": null}, "sourcePaths": []}
 {"seq": 974, "at": "2026-10-02T14:26:57.505851+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "56782", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 975, "at": "2026-10-02T14:26:57.688415+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}

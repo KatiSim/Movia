@@ -69,6 +69,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "534p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "jpn1",
+      "expectedLanguage": "ja",
+      "decoded": true,
+      "ms": 641,
+      "observed": {
+        "mediaId": "45220",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 534,
+        "positionMs": 2770,
+        "selectedAudioLabel": "jpn1",
+        "selectedAudioLanguage": "ja",
+        "frames": 511,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "cef8e872ab4d2d36a4be",
+        "locatorFingerprint": "d4b3305990bd9f57f243"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
