@@ -1,0 +1,8 @@
+{
+  "backendTestsPassed": 192,
+  "activeServiceChanged": true,
+  "phoneUiInteraction": false,
+  "cardRequests": [],
+  "status": "FAIL",
+  "errorCategory": "AssertionError"
+}
