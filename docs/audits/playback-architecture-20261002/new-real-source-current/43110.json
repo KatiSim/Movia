@@ -1,0 +1,36 @@
+{
+  "mediaId": "43110",
+  "title": "Лунная птица",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:23.771495+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ade3dc87dd0fc55c57d4",
+      "decoded": true,
+      "actualHeight": 576,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "6462e0b8710151756528",
+      "videoFrameFingerprint": "938410ae828c241d6cfe",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6170
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d5d173ee0bcc299fad5e",
+  "preparedStreamIdFingerprint": "235d6ab52898f51c33f0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
