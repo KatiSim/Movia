@@ -1,0 +1,36 @@
+{
+  "mediaId": "4482",
+  "title": "В поисках счастья",
+  "year": 1998,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:45.564701+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "38fd433a122446a895b7",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "0898d166d52798d3cfd7",
+      "videoFrameFingerprint": "7fd7f82e97ef6645ce14",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4096
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a6dad2f243aa096cf89d",
+  "preparedStreamIdFingerprint": "ec15e5e80f7bd86fd8bc",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
