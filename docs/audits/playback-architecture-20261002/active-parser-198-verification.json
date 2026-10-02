@@ -1,0 +1,9 @@
+{
+  "backendTestsPassed": 198,
+  "cardRequests": [],
+  "catalogRowsBefore": 96802,
+  "phoneUiUsed": false,
+  "healthReadyMs": 6218,
+  "status": "FAIL",
+  "errorCategory": "HTTPError"
+}
