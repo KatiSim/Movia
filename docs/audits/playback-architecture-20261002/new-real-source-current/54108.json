@@ -1,0 +1,36 @@
+{
+  "mediaId": "54108",
+  "title": "Чарли Чен в опере",
+  "year": 1936,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:51.590645+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5ebba6b28cdc86cc4a28",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "75ea4fc5b211744b98dd",
+      "videoFrameFingerprint": "873c0a67dd4ebfdef088",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9116
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f9236629295c095c5321",
+  "preparedStreamIdFingerprint": "a6ff3595c6d576aae768",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
