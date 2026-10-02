@@ -1,0 +1,36 @@
+{
+  "mediaId": "55033",
+  "title": "Юный лорд Фаунтлерой",
+  "year": 1936,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:57.117578+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "841a9158a112ae8b6fba",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "fd0d9a90eb404e425839",
+      "videoFrameFingerprint": "4220ef222d1f0625d851",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4855
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b78bd0fb30c5d77cf795",
+  "preparedStreamIdFingerprint": "5159d04d1651e08473ef",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
