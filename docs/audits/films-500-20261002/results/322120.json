@@ -1,0 +1,94 @@
+{
+  "mediaId": "322120",
+  "title": "22 мили",
+  "year": 2018,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:29:25.295226+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2234.28,
+    "observed": {
+      "mediaId": "322120",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 302,
+      "frames": 14640,
+      "quality": "720p",
+      "voice": "Дубляж",
+      "streamFingerprint": "201b5e02ff46054b1fbb",
+      "locatorFingerprint": "9e72e6918229dc1d5d8c",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2427
+  },
+  "inventory": {
+    "voiceLabels": [
+      "AAA Sound",
+      "HDRezka",
+      "Original (с субтитрами)",
+      "Дубляж"
+    ],
+    "technicalTrackLabels": [
+      "delete",
+      "eng2",
+      "eng3",
+      "eng5",
+      "rus0",
+      "rus1",
+      "ukr4"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p"
+    ],
+    "advertisedPairs": [
+      [
+        "360p",
+        "AAA Sound"
+      ],
+      [
+        "360p",
+        "HDRezka"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "AAA Sound"
+      ],
+      [
+        "720p",
+        "HDRezka"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ]
+    ],
+    "sourceRows": 6,
+    "inventoryComplete": false
+  }
+}
