@@ -3818,3 +3818,4 @@
 {"seq": 3818, "at": "2026-10-02T11:26:45.938325+00:00", "action": "movie_result", "mediaId": "7349", "decoded": true, "voices": 5, "qualities": 2}
 {"seq": 3819, "at": "2026-10-02T11:26:46.263390+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 22}
 {"seq": 3820, "at": "2026-10-02T11:26:46.575410+00:00", "action": "player.selectVoice", "mediaId": "7349", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "requestMs": 35}
+{"seq": 3821, "at": "2026-10-02T11:26:47.139197+00:00", "action": "movie_result", "mediaId": "7349", "decoded": true, "voices": 5, "qualities": 2}
