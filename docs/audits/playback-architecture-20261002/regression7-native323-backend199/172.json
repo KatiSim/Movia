@@ -717,5 +717,7 @@
       "actualName": "jpn11",
       "language": "ja"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
