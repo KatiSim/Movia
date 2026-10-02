@@ -1,0 +1,13 @@
+{
+  "mediaId": "581",
+  "title": "Лицо со шрамом",
+  "year": 1983,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:19:09.847061+00:00"
+}
