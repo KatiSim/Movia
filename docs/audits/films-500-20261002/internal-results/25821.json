@@ -1,0 +1,13 @@
+{
+  "mediaId": "25821",
+  "title": "Любовное настроение",
+  "year": 2000,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:54.473326+00:00"
+}
