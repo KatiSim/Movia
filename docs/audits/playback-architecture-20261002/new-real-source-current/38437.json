@@ -1,0 +1,36 @@
+{
+  "mediaId": "38437",
+  "title": "Кровавая церемония",
+  "year": 1973,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:00.624762+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "11e5c49e4df7f839516e",
+      "decoded": true,
+      "actualHeight": 368,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "66a3b8a7f5469df92a1a",
+      "videoFrameFingerprint": "ea5eccd5330973fdb89d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4591
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "5c842358daa70c400c09",
+  "preparedStreamIdFingerprint": "5eae2ae4f49140d0ff44",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
