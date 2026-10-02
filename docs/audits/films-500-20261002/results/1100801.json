@@ -1,0 +1,48 @@
+{
+  "index": 4,
+  "mediaId": "1100801",
+  "title": "Маленький большой солдат",
+  "year": 2010,
+  "rating": 6.8,
+  "voteCount": 352,
+  "genres": "[\"боевик\",\"комедия\",\"приключения\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14198.41,
+    "observed": {
+      "mediaId": "1100801",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "e64dc575fd881de5e4d7",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14400.5,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:39:16.370975+00:00"
+}
