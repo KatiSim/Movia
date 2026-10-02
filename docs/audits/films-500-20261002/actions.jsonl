@@ -2275,3 +2275,4 @@
 {"seq": 2275, "at": "2026-10-02T11:15:37.838526+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
 {"seq": 2276, "at": "2026-10-02T11:15:38.237841+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 48}
 {"seq": 2277, "at": "2026-10-02T11:15:38.549040+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "Союз Видео", "persist": false}, "accepted": true, "requestMs": 91}
+{"seq": 2278, "at": "2026-10-02T11:15:39.575731+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
