@@ -1,0 +1,36 @@
+{
+  "mediaId": "24975",
+  "title": "Ограбление",
+  "year": 2002,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:32.548758+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a20aa893299fd74eb0e8",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "289acb08e382708f0dc8",
+      "videoFrameFingerprint": "0c6421070e6c99cb8028",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4165
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "339810cfaba64f71c599",
+  "preparedStreamIdFingerprint": "46ce27fd9a7bc63d57a5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
