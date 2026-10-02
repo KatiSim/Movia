@@ -1,0 +1,19 @@
+{
+  "phase": "starts",
+  "selected": 500,
+  "attempted": 0,
+  "decodedStarted": 0,
+  "withThreeVoiceLabels": 0,
+  "withTwoQualityLabels": 0,
+  "qualitySwitchConfirmed": 0,
+  "audioTrackSwitchConfirmed": 0,
+  "voiceLocatorOnly": 0,
+  "variantPassed": 0,
+  "variantFailed": 0,
+  "variantUnverified": 0,
+  "completed": false,
+  "updatedAt": "2026-10-02T10:38:17.363961+00:00",
+  "actionsRecorded": 6,
+  "lastPublishedAction": 5,
+  "githubSyncError": null
+}
