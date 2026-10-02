@@ -1,0 +1,36 @@
+{
+  "mediaId": "22299",
+  "title": "Сиротки бури",
+  "year": 1921,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:58:21.951955+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "51628f3b07bebe6647ee",
+      "decoded": false,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "45c71c9f699a84b03a0f",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 3140
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "2390c1d2b89033a01214",
+  "preparedStreamIdFingerprint": "a1e4815fbe5f6f1f0a33",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
