@@ -1,0 +1,52 @@
+{
+  "mediaId": "617724",
+  "title": "כי את מכוערת",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:11.411721+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 346,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "603a223a3a7d745b9232",
+      "decoded": true,
+      "actualHeight": 346,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f8d7f70e0219dc48e2a6",
+      "videoFrameFingerprint": "b5c5f44f4d2a0810c1a6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4313
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9b91bd4b3bb817ec14e8",
+  "preparedStreamIdFingerprint": "725f27c88b598d5edc5e",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    346,
+    694
+  ],
+  "advertisedCompatiblePairs": 2
+}
