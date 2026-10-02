@@ -1,0 +1,36 @@
+{
+  "mediaId": "44729",
+  "title": "Дипкурьер",
+  "year": 1952,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:01.351168+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "dccfa45c1a47a84af0f5",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "950cf9069b02cf8554ec",
+      "videoFrameFingerprint": "171863ebe4c63768ed1b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4103
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0332d9c959f2e97ee668",
+  "preparedStreamIdFingerprint": "6c60c80ce6946fbb6cd0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
