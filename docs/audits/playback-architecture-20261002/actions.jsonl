@@ -3004,3 +3004,4 @@
 {"seq": 3004, "at": "2026-10-02T15:41:14.390468+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3005, "at": "2026-10-02T15:41:14.740649+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "С. Рябов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3006, "at": "2026-10-02T15:41:15.829253+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 10, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3007, "at": "2026-10-02T15:41:16.243661+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
