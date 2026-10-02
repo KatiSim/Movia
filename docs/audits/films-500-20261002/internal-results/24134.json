@@ -1,0 +1,83 @@
+{
+  "mediaId": "24134",
+  "title": "Высший пилотаж",
+  "year": 2003,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 414,
+      "actualHeight": 414,
+      "qualityMatches": true,
+      "voice": "Рус. Проф. многоголосый",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2795,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Двухголосый (ДВО)",
+    "Профессиональный (МВО)",
+    "Профессиональный (МВО), Двухголосый (ДВО)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    414,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "Рус. Проф. многоголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Проф. двухголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Люб. двухголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Проф. многоголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Проф. двухголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Люб. двухголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:07:08.566261+00:00"
+}
