@@ -82,6 +82,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Tycoon",
+      "expectedAudioLabel": "rus3",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 594,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 3843,
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "frames": 100,
+        "voice": "Tycoon",
+        "streamFingerprint": "8660567bc80eb86e0033",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
