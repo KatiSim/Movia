@@ -937,3 +937,4 @@
 {"seq": 937, "at": "2026-10-02T14:26:34.219764+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "40212", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 938, "at": "2026-10-02T14:26:34.515171+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "52218", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 939, "at": "2026-10-02T14:26:34.919723+00:00", "action": "native_player.stop", "details": {"mediaId": "416425", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 940, "at": "2026-10-02T14:26:35.112649+00:00", "action": "native_media.play", "details": {"mediaId": "416425", "arguments": {"mediaId": "416425", "title": "Гигант", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "f5af5efe5db1b3eaa472"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
