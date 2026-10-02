@@ -3835,3 +3835,4 @@
 {"seq": 3835, "at": "2026-10-02T11:26:57.572184+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 40}
 {"seq": 3836, "at": "2026-10-02T11:26:57.821621+00:00", "action": "player.selectVoice", "mediaId": "8611", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "requestMs": 45}
 {"seq": 3837, "at": "2026-10-02T11:26:58.707354+00:00", "action": "movie_result", "mediaId": "8611", "decoded": true, "voices": 4, "qualities": 4}
+{"seq": 3838, "at": "2026-10-02T11:26:59.050794+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 52}
