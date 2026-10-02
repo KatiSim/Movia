@@ -3578,3 +3578,4 @@
 {"seq": 3578, "at": "2026-10-02T11:23:18.800698+00:00", "action": "player.selectQuality", "mediaId": "152022", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 21}
 {"seq": 3579, "at": "2026-10-02T11:23:19.001501+00:00", "action": "internal_movie_result", "mediaId": "7353", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3580, "at": "2026-10-02T11:23:19.268387+00:00", "action": "player.selectVoice", "mediaId": "152022", "arguments": {"voice": "ТРК Украина", "persist": false}, "accepted": true, "requestMs": 19}
+{"seq": 3581, "at": "2026-10-02T11:23:19.537285+00:00", "action": "exact_provider_resolve", "mediaId": "21708", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
