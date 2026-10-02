@@ -1,0 +1,105 @@
+{
+  "mediaId": "477552",
+  "title": "Бойцовая рыбка",
+  "year": 1983,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 396,
+      "actualHeight": 396,
+      "qualityMatches": true,
+      "voice": "СТС",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2914,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 6,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Авторский (Одноголосый)",
+    "Профессиональный (МВО)",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "СТС",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    396,
+    684
+  ],
+  "manifestVoices": [
+    {
+      "name": "СТС",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Проф. двухголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Проф. многоголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Одноголосый",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Ю. Живов",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "СТС",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Проф. двухголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Проф. многоголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Рус. Одноголосый",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Ю. Живов",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 6,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 12,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:04:21.059823+00:00"
+}
