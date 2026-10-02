@@ -65,3 +65,4 @@
 {"seq": 65, "at": "2026-10-02T14:07:33.739722+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 66, "at": "2026-10-02T14:07:34.273771+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 67, "at": "2026-10-02T14:07:34.574680+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Невафильм", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 68, "at": "2026-10-02T14:07:35.533820+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}

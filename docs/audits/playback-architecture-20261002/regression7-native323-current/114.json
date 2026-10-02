@@ -4,7 +4,34 @@
   "year": 2001,
   "build": 323,
   "checkedAt": "2026-10-02T14:07:31.672016+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Невафильм",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 759,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 989,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 34,
+        "voice": "Невафильм",
+        "streamFingerprint": "730d734572896bc71aae",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,92 @@
       "locatorFingerprint": "583e025774f838c7d603"
     },
     "commandToReadyMs": 1724
-  }
+  },
+  "preparedSupportedPairs": 32,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Невафильм",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "КиноПоиск HD",
+      "actualName": "rus1",
+      "language": "ru"
+    },
+    {
+      "choice": "Reanimedia",
+      "actualName": "rus2",
+      "language": "ru"
+    },
+    {
+      "choice": "Tycoon",
+      "actualName": "rus3",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 5",
+      "actualName": "rus4",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 6",
+      "actualName": "rus5",
+      "language": "ru"
+    },
+    {
+      "choice": "П.Гланц и И.Королёва",
+      "actualName": "rus6",
+      "language": "ru"
+    },
+    {
+      "choice": "А. Гаврилов",
+      "actualName": "rus7",
+      "language": "ru"
+    },
+    {
+      "choice": "Ю. Сербин",
+      "actualName": "rus8",
+      "language": "ru"
+    },
+    {
+      "choice": "С. Рябов",
+      "actualName": "rus9",
+      "language": "ru"
+    },
+    {
+      "choice": "Е. Рудой",
+      "actualName": "rus10",
+      "language": "ru"
+    },
+    {
+      "choice": "Авторский (Одноголосый)",
+      "actualName": "rus11",
+      "language": "ru"
+    },
+    {
+      "choice": "ТЕТ (укр)",
+      "actualName": "ukr12",
+      "language": "uk"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 14",
+      "actualName": "ukr13",
+      "language": "uk"
+    },
+    {
+      "choice": "Дубляж",
+      "actualName": "eng14",
+      "language": "en"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "jpn15",
+      "language": "ja"
+    }
+  ]
 }
