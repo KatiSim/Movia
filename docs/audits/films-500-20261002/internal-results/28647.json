@@ -1,0 +1,13 @@
+{
+  "mediaId": "28647",
+  "title": "Храброе сердце",
+  "year": 1995,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:21:40.494963+00:00"
+}
