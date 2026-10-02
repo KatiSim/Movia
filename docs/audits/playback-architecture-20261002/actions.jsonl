@@ -1157,3 +1157,4 @@
 {"seq": 1157, "at": "2026-10-02T14:29:50.225651+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "303007", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1158, "at": "2026-10-02T14:29:52.760325+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "40868", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1159, "at": "2026-10-02T14:29:53.040136+00:00", "action": "native_player.stop", "details": {"mediaId": "3138", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1160, "at": "2026-10-02T14:29:53.282013+00:00", "action": "native_media.play", "details": {"mediaId": "3138", "arguments": {"mediaId": "3138", "title": "The Owl and the Pussycat", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "4d10494690e04fa5d183"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
