@@ -1,0 +1,160 @@
+{
+  "mediaId": "23912",
+  "title": "В поисках Немо",
+  "year": 2003,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 3033,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 11,
+  "providerVoiceLabels": [
+    "Eng. Orig. with Commentary",
+    "Original (с субтитрами)",
+    "delete",
+    "А. Гаврилов",
+    "Двухголосый (ДВО)",
+    "Дубляж",
+    "Е. Гранкин",
+    "Карповский",
+    "С.Р.И.",
+    "Укр. Дубльований",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "eng9",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng9",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 11,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 22,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:29.379541+00:00"
+}
