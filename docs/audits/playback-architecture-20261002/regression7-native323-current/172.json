@@ -30,6 +30,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "LE-Production",
+      "expectedAudioLabel": "rus1",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 484,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1960,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "frames": 1438,
+        "voice": "LE-Production",
+        "streamFingerprint": "92f861b5a9ad6689f2ed",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
