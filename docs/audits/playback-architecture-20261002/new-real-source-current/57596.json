@@ -1,0 +1,36 @@
+{
+  "mediaId": "57596",
+  "title": "Кульминация",
+  "year": 1944,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:17.979811+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "824e9f70219e6bd18c2b",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "9fd5be1eaeb9358d6dba",
+      "videoFrameFingerprint": "87cc81d0120a719dba3b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3358
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3981d476add478c32b49",
+  "preparedStreamIdFingerprint": "615af2afecd2a5749372",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
