@@ -74,3 +74,4 @@
 {"seq": 74, "at": "2026-10-02T10:42:51.811412+00:00", "action": "player.stop", "mediaId": "25271", "arguments": {}, "accepted": true, "requestMs": 79}
 {"seq": 75, "at": "2026-10-02T10:42:51.979840+00:00", "action": "media.play", "mediaId": "25271", "arguments": {"mediaId": "25271", "title": "Сердцеедки", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 15}
 {"seq": 76, "at": "2026-10-02T10:43:06.173328+00:00", "action": "movie_result", "mediaId": "25271", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 77, "at": "2026-10-02T10:43:06.304657+00:00", "action": "player.stop", "mediaId": "2624", "arguments": {}, "accepted": true, "requestMs": 47}
