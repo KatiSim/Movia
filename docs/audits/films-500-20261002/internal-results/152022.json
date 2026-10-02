@@ -1,0 +1,138 @@
+{
+  "mediaId": "152022",
+  "title": "1+1",
+  "year": 2011,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2655,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 9,
+  "providerVoiceLabels": [
+    "1+1",
+    "AAA Sound",
+    "Original (с субтитрами)",
+    "Ozz",
+    "R5",
+    "delete",
+    "Авторский (Одноголосый)",
+    "Профессиональный (МВО)",
+    "ТРК Украина"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "fin3",
+      "language": "fi",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "fre8",
+      "language": "fr",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "fin3",
+      "language": "fi",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "fre8",
+      "language": "fr",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 9,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 18,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:00.138653+00:00"
+}
