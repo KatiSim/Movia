@@ -1,0 +1,36 @@
+{
+  "mediaId": "43509",
+  "title": "Поцелуй их за меня",
+  "year": 1957,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:46.324636+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a0c7f81de48ba8d9f1ad",
+      "decoded": true,
+      "actualHeight": 358,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "10c830b8c23809a2005f",
+      "videoFrameFingerprint": "605bfbd9ddfcac824459",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4314
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7d9e3c9919d9e8191999",
+  "preparedStreamIdFingerprint": "2c222305884f1f1889b1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
