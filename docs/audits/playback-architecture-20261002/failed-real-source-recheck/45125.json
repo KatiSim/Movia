@@ -1,0 +1,16 @@
+{
+  "mediaId": "45125",
+  "title": "Mudhal Sabatham",
+  "year": 2008,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:39.026688+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "profileChecks": [],
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
