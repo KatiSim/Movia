@@ -1,0 +1,36 @@
+{
+  "mediaId": "37430",
+  "title": "Стриптиз",
+  "year": 1976,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:36.821966+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "86737d30f9a753659e4d",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "597ab10b90766de6a9d7",
+      "videoFrameFingerprint": "c7e0d0d9c3849b83b1bc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3715
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "511c1457c4aadba5e571",
+  "preparedStreamIdFingerprint": "66abf2283c156bdd562b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
