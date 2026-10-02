@@ -1,0 +1,13 @@
+{
+  "mediaId": "38",
+  "title": "Новый Человек-паук: Высокое напряжение",
+  "year": 2014,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:17:53.118992+00:00"
+}
