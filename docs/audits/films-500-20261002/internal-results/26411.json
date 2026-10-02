@@ -1,0 +1,13 @@
+{
+  "mediaId": "26411",
+  "title": "Звёздные войны: Эпизод 1 - Скрытая угроза",
+  "year": 1999,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:16:59.997537+00:00"
+}
