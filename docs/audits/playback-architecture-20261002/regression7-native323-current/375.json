@@ -212,6 +212,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "СТБ",
+      "expectedAudioLabel": "ukr8",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 1042,
+      "observed": {
+        "mediaId": "375",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 8881,
+        "selectedAudioLabel": "ukr8",
+        "selectedAudioLanguage": "uk",
+        "frames": 1027,
+        "voice": "СТБ",
+        "streamFingerprint": "b04616690a128c9e8945",
+        "locatorFingerprint": "e49535a5f5a959d6295b"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
