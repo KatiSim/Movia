@@ -4,7 +4,34 @@
   "year": 1941,
   "build": 323,
   "checkedAt": "2026-10-02T14:31:51.179866+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "1080p",
+      "voice": "track:1:1:0",
+      "expectedAudioLabel": null,
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 246,
+      "observed": {
+        "mediaId": "57322",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 1080,
+        "positionMs": 1422,
+        "selectedAudioLabel": null,
+        "selectedAudioLanguage": "en",
+        "frames": 1460,
+        "voice": "Английский",
+        "streamFingerprint": "0d803d2eda09ee3313c9",
+        "locatorFingerprint": "ff75b24f4591b040326f"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": false,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,16 @@
       "locatorFingerprint": "ff75b24f4591b040326f"
     },
     "commandToReadyMs": 4675
-  }
+  },
+  "preparedSupportedPairs": 1,
+  "preparedQualities": [
+    1080
+  ],
+  "preparedVoices": [
+    {
+      "choice": "track:1:1:0",
+      "actualName": null,
+      "language": "en"
+    }
+  ]
 }
