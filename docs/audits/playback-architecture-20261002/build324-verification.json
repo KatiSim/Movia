@@ -17,5 +17,7 @@
     "sha256": "1bc6ab0d1583560e59ea1a94eedf7fbfafd31fe1192b9ddc7aa26206e12983eb"
   },
   "status": "FAIL",
-  "error": ""
+  "error": "INSTALL_FAILED_USER_RESTRICTED: Android cancelled installation",
+  "installedBuild": 323,
+  "nativeVerificationPerformed": false
 }
