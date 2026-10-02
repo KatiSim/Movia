@@ -3279,3 +3279,4 @@
 {"seq": 3279, "at": "2026-10-02T15:44:31.164744+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО) · дорожка 2", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3280, "at": "2026-10-02T15:44:31.794057+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 2, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3281, "at": "2026-10-02T15:44:32.185186+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3282, "at": "2026-10-02T15:44:32.515085+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
