@@ -35,3 +35,4 @@
 {"seq": 35, "at": "2026-10-02T10:40:01.014404+00:00", "action": "player.stop", "mediaId": "18749", "arguments": {}, "accepted": true, "requestMs": 92}
 {"seq": 36, "at": "2026-10-02T10:40:01.160652+00:00", "action": "media.play", "mediaId": "18749", "arguments": {"mediaId": "18749", "title": "Елена – свободная", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 15}
 {"seq": 37, "at": "2026-10-02T10:40:15.443998+00:00", "action": "movie_result", "mediaId": "18749", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 38, "at": "2026-10-02T10:40:15.583735+00:00", "action": "player.stop", "mediaId": "54310", "arguments": {}, "accepted": true, "requestMs": 45}
