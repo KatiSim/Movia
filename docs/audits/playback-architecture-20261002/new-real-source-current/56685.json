@@ -1,0 +1,36 @@
+{
+  "mediaId": "56685",
+  "title": "Мрачное путешествие",
+  "year": 1937,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:18.022224+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "36c502aa61f194e5ba32",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "e75cd6c365b9930f2e3e",
+      "videoFrameFingerprint": "88ebe08488c8c3fa4585",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4056
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "4384b2ca06b5249c2eb8",
+  "preparedStreamIdFingerprint": "4b4e6027f35b15b8d6ee",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
