@@ -1,0 +1,101 @@
+{
+  "mediaId": "7349",
+  "title": "Душа",
+  "year": 2020,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:26:26.463941+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 9594.14,
+    "observed": {
+      "mediaId": "7349",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 151,
+      "frames": 12034,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "e0b6c9cee6820c77e1e9",
+      "locatorFingerprint": "d40b6974f7dde034c414",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 9783
+  },
+  "inventory": {
+    "voiceLabels": [
+      "HDRezka",
+      "Original (с субтитрами)",
+      "VOICE PROJECT STUDIO",
+      "Дубляж",
+      "Укр. Дубльований"
+    ],
+    "technicalTrackLabels": [
+      "eng4",
+      "rus0",
+      "rus2",
+      "rus3",
+      "ukr1"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p"
+    ],
+    "advertisedPairs": [
+      [
+        "270p",
+        "HDRezka"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "VOICE PROJECT STUDIO"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "Укр. Дубльований"
+      ],
+      [
+        "540p",
+        "HDRezka"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "VOICE PROJECT STUDIO"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "Укр. Дубльований"
+      ]
+    ],
+    "sourceRows": 5,
+    "inventoryComplete": false
+  }
+}
