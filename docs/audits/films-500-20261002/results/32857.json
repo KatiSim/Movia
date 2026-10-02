@@ -1,0 +1,58 @@
+{
+  "index": 17,
+  "mediaId": "32857",
+  "title": "Свидетель",
+  "year": 1987,
+  "rating": 7.0,
+  "voteCount": 141,
+  "genres": "[\"драма\",\"история\"]",
+  "variants": [],
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 4526.66,
+    "observed": {
+      "mediaId": "32857",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 360,
+      "positionMs": 263,
+      "frames": 45,
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "778a710633b497546e52",
+      "locatorFingerprint": "f2f7c40986bd594df03f",
+      "selectedAudioLabel": "def0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:1",
+          "def0 · 2",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 4734.23,
+    "withinFiveSeconds": true
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Original (с субтитрами)",
+      "def0",
+      "def0 · 2",
+      "def1",
+      "def1 · 4",
+      "Ю. Немахов"
+    ],
+    "qualityLabels": [
+      "360p"
+    ],
+    "advertisedPairs": [],
+    "sourceRows": 3,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:41:48.679778+00:00"
+}

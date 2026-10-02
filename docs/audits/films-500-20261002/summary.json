@@ -1,9 +1,9 @@
 {
   "phase": "starts",
   "selected": 500,
-  "attempted": 16,
-  "decodedStarted": 3,
-  "withThreeVoiceLabels": 3,
+  "attempted": 17,
+  "decodedStarted": 4,
+  "withThreeVoiceLabels": 4,
   "withTwoQualityLabels": 3,
   "qualitySwitchConfirmed": 0,
   "audioTrackSwitchConfirmed": 0,
@@ -12,8 +12,8 @@
   "variantFailed": 0,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T10:41:43.963130+00:00",
-  "actionsRecorded": 57,
-  "lastPublishedAction": 54,
+  "updatedAt": "2026-10-02T10:41:48.695106+00:00",
+  "actionsRecorded": 58,
+  "lastPublishedAction": 57,
   "githubSyncError": null
 }
