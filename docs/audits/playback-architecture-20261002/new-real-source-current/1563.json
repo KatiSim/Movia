@@ -1,0 +1,36 @@
+{
+  "mediaId": "1563",
+  "title": "Здравствуй, грусть",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:39.600797+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d860cf241df7762b3a94",
+      "decoded": true,
+      "actualHeight": 204,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "16a543ed7e4dd8932108",
+      "videoFrameFingerprint": "a7521f107c7031467086",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3299
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cfe84f8aaa4af21c417d",
+  "preparedStreamIdFingerprint": "d27490a441a8f3beb8d6",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
