@@ -316,6 +316,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "М. Яроцкий",
+      "expectedAudioLabel": "rus4",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 284,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 21803,
+        "selectedAudioLabel": "rus4",
+        "selectedAudioLanguage": "ru",
+        "frames": 2720,
+        "voice": "М. Яроцкий",
+        "streamFingerprint": "7fde96415a5a633a4b2f",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
