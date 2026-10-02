@@ -1,0 +1,36 @@
+{
+  "mediaId": "59411",
+  "title": "Эйфория",
+  "year": 2006,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:42.442663+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5eafa102b6635d54d1ec",
+      "decoded": true,
+      "actualHeight": 428,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "87a4cb4ebf4b23004039",
+      "videoFrameFingerprint": "f6bff029c867864c8d4e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2731
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cd0fb286480f0042762a",
+  "preparedStreamIdFingerprint": "74d8ea0e671f1c0ad4ae",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
