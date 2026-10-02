@@ -1,0 +1,36 @@
+{
+  "mediaId": "56829",
+  "title": "Битва под Сан-Пьетро",
+  "year": 1945,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:04.914016+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5782efabb1564c447070",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "4faf2c8f73375fbfdba7",
+      "videoFrameFingerprint": "a7dcedf01d19c1011f58",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4200
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "ed527dc1ed22058d4b3a",
+  "preparedStreamIdFingerprint": "067d775b6336eaa18ca5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
