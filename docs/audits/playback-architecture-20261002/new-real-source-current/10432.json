@@ -1,0 +1,52 @@
+{
+  "mediaId": "10432",
+  "title": "Дети-убийцы",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:03.852405+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "b8e4db84370a0090a376",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fe11fd05454a8568ac97",
+      "videoFrameFingerprint": "cd62c534818e7cdf3744",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3392
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0d631835d7908154cf99",
+  "preparedStreamIdFingerprint": "a8f048612a4d95a36855",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
