@@ -1,0 +1,36 @@
+{
+  "mediaId": "56059",
+  "title": "Дом Ротшильдов",
+  "year": 1934,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:01.611350+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "52cb85372f4e9f007bf0",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "cb350f4fde8c5b9ab54f",
+      "videoFrameFingerprint": "56017da67930a990864c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4435
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "692d61d4fd2582ef5fbc",
+  "preparedStreamIdFingerprint": "e3eab97a5c3d3c637c70",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
