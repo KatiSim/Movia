@@ -1,0 +1,36 @@
+{
+  "mediaId": "57446",
+  "title": "Представьте себе",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:51:56.565904+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c5b7c194e0414d9a2e68",
+      "decoded": true,
+      "actualHeight": 454,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "24f393260b809b30e46d",
+      "videoFrameFingerprint": "dbf72bf514ed81e7d1a5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12630
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1718eae524ed0ffee14a",
+  "preparedStreamIdFingerprint": "7dc60c41ad35339a1d79",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
