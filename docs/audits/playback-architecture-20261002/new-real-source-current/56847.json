@@ -1,0 +1,36 @@
+{
+  "mediaId": "56847",
+  "title": "Барабаны джунглей",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:20.207484+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "9b854c260f32c06a4730",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "e0f8b5bc9427266cbe39",
+      "videoFrameFingerprint": "c4654db308686e157dfd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5217
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "570f0871c64809a2f7e7",
+  "preparedStreamIdFingerprint": "3a359c7883113f1c6a62",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
