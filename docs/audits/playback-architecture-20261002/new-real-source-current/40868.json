@@ -1,0 +1,36 @@
+{
+  "mediaId": "40868",
+  "title": "Другой ящик",
+  "year": 1966,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:15:05.305323+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "50691b579847d1e1bf02",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "9ef245310c1ac9e491e8",
+      "videoFrameFingerprint": "b33ffb4861eafab26dfc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6988
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "358aae7e14d94c192aed",
+  "preparedStreamIdFingerprint": "924d17c5826190968e3c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
