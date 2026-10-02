@@ -1983,3 +1983,4 @@
 {"seq": 1983, "at": "2026-10-02T11:14:25.019598+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}
 {"seq": 1984, "at": "2026-10-02T11:14:25.143927+00:00", "action": "internal_movie_result", "mediaId": "1267", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 1985, "at": "2026-10-02T11:14:25.409126+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 42}
+{"seq": 1986, "at": "2026-10-02T11:14:25.626494+00:00", "action": "exact_provider_resolve", "mediaId": "35779", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
