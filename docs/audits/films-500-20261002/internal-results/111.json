@@ -1,0 +1,94 @@
+{
+  "mediaId": "111",
+  "title": "Семь",
+  "year": 1995,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3397,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "Інтер (укр)",
+    "Позитив",
+    "Профессиональный (МВО)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng2",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:30.624624+00:00"
+}
