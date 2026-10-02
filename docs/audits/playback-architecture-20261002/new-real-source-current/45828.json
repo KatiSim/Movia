@@ -1,0 +1,52 @@
+{
+  "mediaId": "45828",
+  "title": "Остаться в моих мыслях",
+  "year": 2023,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:57.710843+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 324,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "d0815d0e6ed141625ab4",
+      "decoded": true,
+      "actualHeight": 324,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "51922ed1dd032f538683",
+      "videoFrameFingerprint": "f35282f25067cabccdaf",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3848
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "34348db70c91b64dc28d",
+  "preparedStreamIdFingerprint": "0a442fc5433fd5c1a8c3",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    324,
+    648
+  ],
+  "advertisedCompatiblePairs": 2
+}
