@@ -400,3 +400,4 @@
 {"seq": 400, "at": "2026-10-02T14:11:12.912674+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 401, "at": "2026-10-02T14:11:13.254043+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "56822", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 402, "at": "2026-10-02T14:11:13.563803+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 403, "at": "2026-10-02T14:11:13.856558+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "29703", "quality": 0, "voice": null}, "sourcePaths": []}
