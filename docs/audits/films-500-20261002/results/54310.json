@@ -1,0 +1,42 @@
+{
+  "index": 11,
+  "mediaId": "54310",
+  "title": "Клуб Зеро",
+  "year": 2023,
+  "rating": 6.2,
+  "voteCount": 109,
+  "genres": "[\"драма\",\"комедия\",\"детектив\",\"триллер\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14141.58,
+    "observed": {
+      "mediaId": "54310",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 39,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14302.84,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:40:30.059879+00:00"
+}
