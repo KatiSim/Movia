@@ -1,0 +1,36 @@
+{
+  "mediaId": "47213",
+  "title": "Доктор Кто: Далеки (в цвете)",
+  "year": 2023,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:12.644765+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3cfbd00eef706b8f45fe",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "4514e6bfcf8091e9ad1a",
+      "videoFrameFingerprint": "a10e7a9c8aeef2ad6ae5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3728
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "505551b19a9a8a3bd294",
+  "preparedStreamIdFingerprint": "96fa026721f408215ed5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
