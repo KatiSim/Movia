@@ -1,0 +1,42 @@
+{
+  "index": 8,
+  "mediaId": "36089",
+  "title": "Пожиратели плоти",
+  "year": 1979,
+  "rating": 6.7,
+  "voteCount": 698,
+  "genres": "[\"ужасы\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14088.03,
+    "observed": {
+      "mediaId": "36089",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 25,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "545436bf0f2131760cb4",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14234.94,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:39:55.786461+00:00"
+}
