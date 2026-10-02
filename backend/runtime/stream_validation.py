@@ -167,6 +167,7 @@ def stream_variant_key(raw: Dict[str, Any], url: Optional[str] = None) -> tuple:
         _variant_text(_first_text(raw, "file_path", "filePath")),
         _variant_text(_first_text(raw, "video_track_index", "videoTrackIndex")),
         _variant_text(_first_text(raw, "audio_track_index", "audioTrackIndex")),
+        _http_request_profile(raw) if clean_url.lower().startswith(("http://", "https://")) else (),
     )
 
 
@@ -212,6 +213,53 @@ def _safe_http_headers(value: Any) -> Dict[str, str]:
             continue
         result[name] = text
     return result
+
+
+def _http_request_profile(raw: Dict[str, Any]) -> tuple:
+    """The same URL with different playback headers is a different request."""
+    headers = _safe_http_headers(raw.get("headers") or raw.get("http_headers") or raw.get("httpHeaders"))
+    return (
+        _variant_text(_first_text(raw, "provider", "provider_id", "providerId", "source")),
+        tuple(sorted((name.casefold(), value) for name, value in headers.items())),
+        _first_text(raw, "user_agent", "userAgent"),
+    )
+
+
+def _disambiguate_audio_variants(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Repair legacy cache labels and IDs without inventing missing studio names.
+
+    A provider's two identically named logical audio tracks must remain two
+    selectable options. Quality renditions of one audio track keep one name.
+    The original label makes this transformation idempotent on DB/API reads.
+    """
+    groups: Dict[tuple, List[Dict[str, Any]]] = {}
+    for row in rows:
+        if row.get("audio_track_index") is None:
+            continue
+        label = str(row.get("source_voice_label") or row["voice"]).strip()
+        key = (
+            row["url"], _http_request_profile(row),
+            _first_text(row, "catalog_media_id", "catalogMediaId"),
+            _first_text(row, "season"), _first_text(row, "episode"),
+            _variant_text(label),
+        )
+        groups.setdefault(key, []).append(row)
+    for group in groups.values():
+        if len({row["audio_track_index"] for row in group}) < 2:
+            continue
+        for row in group:
+            label = str(row.get("source_voice_label") or row["voice"]).strip()
+            row["source_voice_label"] = label
+            row["voice"] = f"{label} · дорожка {row['audio_track_index'] + 1}"
+    ids: Dict[str, List[Dict[str, Any]]] = {}
+    for row in rows:
+        ids.setdefault(row["stream_id"], []).append(row)
+    for ident, group in ids.items():
+        if len(group) < 2:
+            continue
+        for row in group:
+            row["stream_id"] = ident + ":" + stable_stream_id(row).removeprefix("stream:")
+    return rows
 
 
 
@@ -456,9 +504,15 @@ def sanitize_streams(
     for raw in streams:
         if not isinstance(raw, dict):
             continue
+        # Generic stream dictionaries already contain a provider's display
+        # label. LAMPA release classification must not erase studio names or
+        # distinguishable raw labels at the cache/API boundary.
+        provider_voice = raw.get("voice")
         raw = normalize_lampa_result(raw)
         if not isinstance(raw, dict):
             continue
+        if isinstance(provider_voice, str) and provider_voice.strip():
+            raw["voice"] = provider_voice.strip()
         raw = _normalize_unverified_adaptive_manifest_claim(raw)
         url = str(raw.get("url") or raw.get("playback_url") or "").strip()
         source = str(raw.get("source") or raw.get("source_id") or "").strip()
@@ -496,6 +550,12 @@ def sanitize_streams(
         ):
             if key in raw and raw.get(key) is not None:
                 cleaned[key] = raw.get(key)
+
+        source_voice_label = str(cleaned.get("source_voice_label") or "").strip()
+        if source_voice_label and len(source_voice_label) <= 512 and not any(ord(char) < 32 for char in source_voice_label):
+            cleaned["source_voice_label"] = source_voice_label
+        else:
+            cleaned.pop("source_voice_label", None)
 
         # Standard DRM metadata may cross the API boundary, but key material,
         # offline key-set IDs and embedded secrets are intentionally never copied.
@@ -614,4 +674,4 @@ def sanitize_streams(
 
         result_indexes[variant_key] = len(result)
         result.append(cleaned)
-    return result
+    return _disambiguate_audio_variants(result)
