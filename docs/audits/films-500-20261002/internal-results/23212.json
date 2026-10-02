@@ -1,0 +1,13 @@
+{
+  "mediaId": "23212",
+  "title": "Убить Билла 2",
+  "year": 2004,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:17:31.610971+00:00"
+}
