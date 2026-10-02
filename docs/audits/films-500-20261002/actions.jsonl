@@ -2001,3 +2001,4 @@
 {"seq": 2001, "at": "2026-10-02T11:14:29.081140+00:00", "action": "internal_movie_result", "mediaId": "15565", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2002, "at": "2026-10-02T11:14:29.341815+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 29}
 {"seq": 2003, "at": "2026-10-02T11:14:29.568818+00:00", "action": "exact_provider_resolve", "mediaId": "36067", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2004, "at": "2026-10-02T11:14:29.932388+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 67}
