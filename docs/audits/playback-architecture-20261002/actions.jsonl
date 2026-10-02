@@ -3062,3 +3062,4 @@
 {"seq": 3062, "at": "2026-10-02T15:41:53.995376+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "ТЕТ (укр)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3063, "at": "2026-10-02T15:41:54.487594+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 29, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3064, "at": "2026-10-02T15:41:54.834218+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3065, "at": "2026-10-02T15:41:55.101954+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Профессиональный (МВО) · дорожка 14", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
