@@ -1,0 +1,36 @@
+{
+  "mediaId": "56831",
+  "title": "Сообщение с Алеут",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:34.836841+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "58d9e8b159d069da1485",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "fdb4c54db5cf1b5d1f1b",
+      "videoFrameFingerprint": "4ea1494980166ce07467",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4091
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "81593b351f9720129b34",
+  "preparedStreamIdFingerprint": "e4743bc595a3cdca4863",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
