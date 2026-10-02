@@ -3142,3 +3142,4 @@
 {"seq": 3142, "at": "2026-10-02T11:20:27.114823+00:00", "action": "player.selectQuality", "mediaId": "627", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 29}
 {"seq": 3143, "at": "2026-10-02T11:20:27.408473+00:00", "action": "player.selectVoice", "mediaId": "627", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3144, "at": "2026-10-02T11:20:28.116368+00:00", "action": "movie_result", "mediaId": "627", "decoded": true, "voices": 5, "qualities": 2}
+{"seq": 3145, "at": "2026-10-02T11:20:28.417208+00:00", "action": "player.selectQuality", "mediaId": "627", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 35}
