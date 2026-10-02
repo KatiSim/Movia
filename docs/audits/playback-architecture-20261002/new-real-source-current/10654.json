@@ -1,0 +1,51 @@
+{
+  "mediaId": "10654",
+  "title": "犬神家の一族",
+  "year": 2006,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:51.147591+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "b45d3279d980d554014b",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fde0eb3fc2d03c1a000e",
+      "videoFrameFingerprint": "4a0de8ca06b45af66282",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3408
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e173a33900bff80a640a",
+  "preparedStreamIdFingerprint": "8bc6b7a8f7b071f1ccaf",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
