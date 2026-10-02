@@ -1,0 +1,52 @@
+{
+  "mediaId": "620874",
+  "title": "Mare",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:24.162962+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 288,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "ac34b21d35950baca2d6",
+      "decoded": true,
+      "actualHeight": 288,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ac14510711737bee2ca6",
+      "videoFrameFingerprint": "2d42337971b83e21aaed",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3115
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5d6ba450bbcb66689683",
+  "preparedStreamIdFingerprint": "1bebfa7febc74121d0a2",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    288,
+    576
+  ],
+  "advertisedCompatiblePairs": 2
+}
