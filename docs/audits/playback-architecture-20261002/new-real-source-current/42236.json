@@ -1,0 +1,36 @@
+{
+  "mediaId": "42236",
+  "title": "Симпозиум популярных певцов",
+  "year": 1962,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:36:59.169536+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "41e0e8bd0f3feb2f191b",
+      "decoded": true,
+      "actualHeight": 960,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "099acffaafb76f82cf21",
+      "videoFrameFingerprint": "47f81001cd70905c6505",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3381
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f8899e4db086dbaa4dc5",
+  "preparedStreamIdFingerprint": "36089023f46dcadbab47",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
