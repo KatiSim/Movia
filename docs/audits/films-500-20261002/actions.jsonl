@@ -3838,3 +3838,4 @@
 {"seq": 3838, "at": "2026-10-02T11:26:59.050794+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 52}
 {"seq": 3839, "at": "2026-10-02T11:26:59.288297+00:00", "action": "player.selectVoice", "mediaId": "8611", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 37}
 {"seq": 3840, "at": "2026-10-02T11:27:00.093874+00:00", "action": "movie_result", "mediaId": "8611", "decoded": true, "voices": 4, "qualities": 4}
+{"seq": 3841, "at": "2026-10-02T11:27:00.380497+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 22}
