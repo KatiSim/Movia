@@ -2725,3 +2725,4 @@
 {"seq": 2725, "at": "2026-10-02T11:18:00.530613+00:00", "action": "player.selectQuality", "mediaId": "46", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 6}
 {"seq": 2726, "at": "2026-10-02T11:18:00.617840+00:00", "action": "player.selectVoice", "mediaId": "46", "arguments": {"voice": "Омикрон (укр)", "persist": false}, "accepted": true, "requestMs": 10}
 {"seq": 2727, "at": "2026-10-02T11:18:01.407973+00:00", "action": "movie_result", "mediaId": "46", "decoded": true, "voices": 7, "qualities": 4}
+{"seq": 2728, "at": "2026-10-02T11:18:01.497123+00:00", "action": "player.selectQuality", "mediaId": "46", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 7}
