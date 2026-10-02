@@ -1,0 +1,36 @@
+{
+  "mediaId": "3344",
+  "title": "Red White and Boo",
+  "year": 1955,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:37.809263+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "264738864c65c7dffc46",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "02b997d581fc171090a8",
+      "videoFrameFingerprint": "99483ae72809ce13a0c8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3105
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2d9809cffd70cb86a81e",
+  "preparedStreamIdFingerprint": "c44690eb11c8dbdb0e47",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
