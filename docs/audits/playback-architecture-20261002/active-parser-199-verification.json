@@ -1,0 +1,31 @@
+{
+  "backendTestsPassed": 199,
+  "cardRequests": [
+    {
+      "mediaId": "45127",
+      "sourceRows": 0,
+      "ms": 273
+    },
+    {
+      "mediaId": "164",
+      "sourceRows": 75,
+      "ms": 357
+    },
+    {
+      "mediaId": "375",
+      "sourceRows": 30,
+      "ms": 190
+    },
+    {
+      "mediaId": "39012",
+      "sourceRows": 1,
+      "ms": 47
+    }
+  ],
+  "phoneUiUsed": false,
+  "healthReadyMs": 6622,
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true,
+  "rootIndexPreserved": true,
+  "status": "PASS"
+}
