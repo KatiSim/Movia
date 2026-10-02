@@ -56,6 +56,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Союз Видео",
+      "expectedAudioLabel": "rus2",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 385,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 5139,
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "frames": 123,
+        "voice": "Союз Видео",
+        "streamFingerprint": "ef12bb4c9779bb8c4c0e",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
