@@ -1,0 +1,36 @@
+{
+  "mediaId": "57223",
+  "title": "В старой Аризоне",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:47.514386+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a19b12b1745cdcdb76b0",
+      "decoded": true,
+      "actualHeight": 1072,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "d749b39aceb765b3f579",
+      "videoFrameFingerprint": "10e1be6ee4117aa24435",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5785
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "01fde900ed07f2d79b4d",
+  "preparedStreamIdFingerprint": "8f7922e09e5c8080d149",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
