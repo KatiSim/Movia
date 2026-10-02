@@ -1,0 +1,30 @@
+{
+  "mediaId": "7153",
+  "title": "Tomorrow's Drivers",
+  "year": 1954,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:46:48.382809+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4a0c69f52d99f9215e1d",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14062
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1b709c7615174b093eab",
+  "preparedStreamIdFingerprint": "1d94b4b7174aaaab70c0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
