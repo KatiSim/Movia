@@ -1,0 +1,36 @@
+{
+  "mediaId": "56882",
+  "title": "Последний шанс",
+  "year": 1945,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:44:24.691805+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "40975fe1b490fff66062",
+      "decoded": true,
+      "actualHeight": 464,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "84f8d27cc4d6c19069e8",
+      "videoFrameFingerprint": "50e998780d3149a3e875",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5267
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "08fbe81805766bdcd6b5",
+  "preparedStreamIdFingerprint": "f3fe780085d67a40acf1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
