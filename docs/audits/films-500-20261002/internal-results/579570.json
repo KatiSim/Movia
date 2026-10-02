@@ -1,0 +1,49 @@
+{
+  "mediaId": "579570",
+  "title": "九品芝麻官",
+  "year": 1994,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "default",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fbbc4541a8658cfde631",
+      "ms": 2826,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "Авторский (Одноголосый)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360
+  ],
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 1,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:09:41.272141+00:00"
+}
