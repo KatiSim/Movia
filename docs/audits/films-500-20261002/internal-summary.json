@@ -1,14 +1,14 @@
 {
-  "checked": 222,
+  "checked": 223,
   "selected": 500,
-  "identityValidated": 221,
-  "withHttpSource": 198,
-  "moviesDecoded": 196,
+  "identityValidated": 222,
+  "withHttpSource": 199,
+  "moviesDecoded": 197,
   "withAtLeastThreeManifestVoices": 96,
-  "withAtLeastTwoManifestQualities": 176,
-  "componentDecodesPassed": 196,
+  "withAtLeastTwoManifestQualities": 177,
+  "componentDecodesPassed": 197,
   "componentDecodesFailed": 0,
   "nativeSwitchingVerified": false,
   "allMatrixCombinationsVerified": false,
-  "updatedAt": "2026-10-02T11:10:13.200443+00:00"
+  "updatedAt": "2026-10-02T11:10:14.134719+00:00"
 }
