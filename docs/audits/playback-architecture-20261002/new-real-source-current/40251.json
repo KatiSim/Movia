@@ -1,0 +1,36 @@
+{
+  "mediaId": "40251",
+  "title": "Дикари на улицах",
+  "year": 1968,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:08.274516+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "831bb62352afb10ed320",
+      "decoded": true,
+      "actualHeight": 336,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "de037b8147a8c61f8027",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5661
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "38b2d7c783cdecdd28aa",
+  "preparedStreamIdFingerprint": "26fd4b28c34c33da6a6a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
