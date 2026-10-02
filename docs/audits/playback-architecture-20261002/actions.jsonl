@@ -886,3 +886,4 @@
 {"seq": 886, "at": "2026-10-02T14:25:55.456344+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56568", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 887, "at": "2026-10-02T14:25:55.693597+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "57550", "decoded": false, "allPreparedPairsPassed": false, "errorCategory": null}, "sourcePaths": []}
 {"seq": 888, "at": "2026-10-02T14:25:55.959468+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56568", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 889, "at": "2026-10-02T14:25:56.188346+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "55935", "quality": 0, "voice": null}, "sourcePaths": []}
