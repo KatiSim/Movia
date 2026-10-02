@@ -1,0 +1,52 @@
+{
+  "mediaId": "10132",
+  "title": "Песнь древа",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:06.004357+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 306,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "d168ff6b231505b0d877",
+      "decoded": true,
+      "actualHeight": 306,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "13ccf6fad36cd75f86ea",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2890
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "249128912e1afb8cbfac",
+  "preparedStreamIdFingerprint": "508d970d6b502d3f1de9",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    306,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
