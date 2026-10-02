@@ -1,0 +1,36 @@
+{
+  "mediaId": "57606",
+  "title": "Дама в горностае",
+  "year": 1948,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:51:48.675923+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e3e7e3f10e24868ef09c",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "bb6f3ed473f2e4f8d066",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6382
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f0e74f81b0e673c3e09d",
+  "preparedStreamIdFingerprint": "ba489dc8b1bb8c837e49",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
