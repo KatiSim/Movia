@@ -1,0 +1,36 @@
+{
+  "mediaId": "39932",
+  "title": "Банда стариков",
+  "year": 1969,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:24.891548+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d0d3fad4bfa58228aa36",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "90750e275f8387954233",
+      "videoFrameFingerprint": "c0d21bd7973873f642df",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4256
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e5498b325eb3d29fc416",
+  "preparedStreamIdFingerprint": "0a049367ab4bfddfc1d0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
