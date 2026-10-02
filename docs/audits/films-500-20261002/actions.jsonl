@@ -3802,3 +3802,4 @@
 {"seq": 3802, "at": "2026-10-02T11:26:38.469055+00:00", "action": "player.selectVoice", "mediaId": "7349", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 23}
 {"seq": 3803, "at": "2026-10-02T11:26:39.168467+00:00", "action": "movie_result", "mediaId": "7349", "decoded": true, "voices": 5, "qualities": 2}
 {"seq": 3804, "at": "2026-10-02T11:26:39.570539+00:00", "action": "player.selectQuality", "mediaId": "7349", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 39}
+{"seq": 3805, "at": "2026-10-02T11:26:39.826016+00:00", "action": "player.selectVoice", "mediaId": "7349", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "requestMs": 36}
