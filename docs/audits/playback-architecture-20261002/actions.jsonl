@@ -242,3 +242,4 @@
 {"seq": 242, "at": "2026-10-02T14:09:11.214304+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 243, "at": "2026-10-02T14:09:11.733158+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "172", "arguments": {"voice": "Двухголосый (ДВО) · дорожка 3", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 244, "at": "2026-10-02T14:09:12.560517+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "172", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 245, "at": "2026-10-02T14:09:12.865330+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
