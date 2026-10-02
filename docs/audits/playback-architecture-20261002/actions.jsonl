@@ -390,3 +390,4 @@
 {"seq": 390, "at": "2026-10-02T14:11:07.454776+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "56568", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 391, "at": "2026-10-02T14:11:07.935643+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 392, "at": "2026-10-02T14:11:08.260780+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "56822", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 393, "at": "2026-10-02T14:11:08.606621+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
