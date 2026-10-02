@@ -1,0 +1,13 @@
+{
+  "mediaId": "27562",
+  "title": "Пятый элемент",
+  "year": 1997,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:40.962389+00:00"
+}
