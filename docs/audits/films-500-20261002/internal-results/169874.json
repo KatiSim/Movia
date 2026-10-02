@@ -1,0 +1,13 @@
+{
+  "mediaId": "169874",
+  "title": "Изгой",
+  "year": 2000,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:10.541167+00:00"
+}
