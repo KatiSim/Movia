@@ -188,3 +188,4 @@
 {"seq": 188, "at": "2026-10-02T14:08:40.524299+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "ICTV (укр.)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 189, "at": "2026-10-02T14:08:41.459392+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 8, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 190, "at": "2026-10-02T14:08:41.797446+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 191, "at": "2026-10-02T14:08:42.076646+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "СТБ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
