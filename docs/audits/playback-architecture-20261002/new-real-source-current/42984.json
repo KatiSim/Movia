@@ -1,0 +1,36 @@
+{
+  "mediaId": "42984",
+  "title": "Подвиги Геракла: Геракл и царица Лидии",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:48.697796+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e32b12a6ab1d6fefe2ab",
+      "decoded": true,
+      "actualHeight": 256,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "776857fef24e5bc3464f",
+      "videoFrameFingerprint": "434296d1966a141a7156",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4596
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "74ec77a61ad76eb1999a",
+  "preparedStreamIdFingerprint": "5fdef08780caa91856fe",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
