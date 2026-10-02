@@ -40,6 +40,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "СВ Студия",
+      "expectedAudioLabel": "rus1",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 592,
+      "observed": {
+        "mediaId": "8645",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 1719,
+        "frames": 12962,
+        "quality": "270p",
+        "voice": "СВ Студия",
+        "streamFingerprint": "ac7edce16ede45f6524d",
+        "locatorFingerprint": "a5d150a659060d096d48",
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:2:0",
+            "rus1",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:27:45.208933+00:00",
