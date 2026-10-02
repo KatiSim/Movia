@@ -30,6 +30,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Профессиональный (МВО)",
+      "expectedAudioLabel": "default",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 809,
+      "observed": {
+        "mediaId": "45784",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 1358,
+        "selectedAudioLabel": "default",
+        "selectedAudioLanguage": "ru",
+        "frames": 1632,
+        "voice": "Профессиональный (МВО)",
+        "streamFingerprint": "c86a339062275288bae5",
+        "locatorFingerprint": "43c800aa001b4844d709"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
