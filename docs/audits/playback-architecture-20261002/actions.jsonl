@@ -1841,3 +1841,4 @@
 {"seq": 1841, "at": "2026-10-02T14:43:38.090467+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "39929", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1842, "at": "2026-10-02T14:43:38.435986+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "665816", "decoded": false, "allPreparedPairsPassed": false, "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"}, "sourcePaths": []}
 {"seq": 1843, "at": "2026-10-02T14:43:38.857236+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "484146", "decoded": false, "allPreparedPairsPassed": false, "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"}, "sourcePaths": []}
+{"seq": 1844, "at": "2026-10-02T14:43:39.231887+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "284828", "quality": 0, "voice": null}, "sourcePaths": []}
