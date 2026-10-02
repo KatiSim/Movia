@@ -446,6 +446,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "КиноПоиск HD",
+      "expectedAudioLabel": "rus1",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 752,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 15895,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "frames": 389,
+        "voice": "КиноПоиск HD",
+        "streamFingerprint": "c7b594503bfb6c8d2258",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,

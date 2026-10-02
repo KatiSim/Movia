@@ -116,3 +116,4 @@
 {"seq": 116, "at": "2026-10-02T14:07:57.907233+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 17, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 117, "at": "2026-10-02T14:07:58.182692+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 118, "at": "2026-10-02T14:07:58.436433+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "КиноПоиск HD", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 119, "at": "2026-10-02T14:07:59.395696+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 18, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
