@@ -472,6 +472,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "540p",
+      "voice": "ICTV (укр.)",
+      "expectedAudioLabel": "ukr7",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 274,
+      "observed": {
+        "mediaId": "375",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 540,
+        "positionMs": 19557,
+        "selectedAudioLabel": "ukr7",
+        "selectedAudioLanguage": "uk",
+        "frames": 1280,
+        "voice": "ICTV (укр.)",
+        "streamFingerprint": "52f4ff30a78e6ffaf459",
+        "locatorFingerprint": "e49535a5f5a959d6295b"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
