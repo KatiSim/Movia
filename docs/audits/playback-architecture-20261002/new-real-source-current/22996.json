@@ -1,0 +1,36 @@
+{
+  "mediaId": "22996",
+  "title": "Читальня",
+  "year": 2005,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:57.030829+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "bdc8137687e4c40562a7",
+      "decoded": true,
+      "actualHeight": 384,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "dfbe76ae6bfe8bc97217",
+      "videoFrameFingerprint": "a14c6d3c0c73340d2185",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4008
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5cb1d68fbc94dac47992",
+  "preparedStreamIdFingerprint": "daf9022ae9f9f78be525",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
