@@ -1,0 +1,36 @@
+{
+  "mediaId": "56618",
+  "title": "Два флага Запада",
+  "year": 1950,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:35.364610+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f476d9d1c3ba26be2487",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "29f845e0f5df2032a977",
+      "videoFrameFingerprint": "42adf3e2ca2bc5a4757b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4547
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "354249d0bd5d162ff212",
+  "preparedStreamIdFingerprint": "679e89ef2fbae9cff02d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
