@@ -2988,3 +2988,4 @@
 {"seq": 2988, "at": "2026-10-02T15:41:02.670468+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2989, "at": "2026-10-02T15:41:03.004727+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2990, "at": "2026-10-02T15:41:03.254555+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Профессиональный (МВО) · дорожка 5", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2991, "at": "2026-10-02T15:41:06.174080+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 5, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
