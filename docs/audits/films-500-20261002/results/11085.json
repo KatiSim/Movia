@@ -1,0 +1,113 @@
+{
+  "mediaId": "11085",
+  "title": "Невидимый гость",
+  "year": 2017,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:27:22.465812+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2530.66,
+    "observed": {
+      "mediaId": "11085",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 536,
+      "positionMs": 272,
+      "frames": 12607,
+      "quality": "536p",
+      "voice": "Дубляж",
+      "streamFingerprint": "da686dd4a5fc768f74e3",
+      "locatorFingerprint": "25d1f47584f7a48d545b",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2759
+  },
+  "inventory": {
+    "voiceLabels": [
+      "AlexFilm",
+      "Original (с субтитрами)",
+      "spa3",
+      "Інтер (укр)",
+      "Авторский (Одноголосый)",
+      "В одне рило (укр)",
+      "Дубляж"
+    ],
+    "technicalTrackLabels": [
+      "def4",
+      "def5",
+      "def6",
+      "delete",
+      "rus0",
+      "rus1",
+      "rus2"
+    ],
+    "qualityLabels": [
+      "268p",
+      "536p"
+    ],
+    "advertisedPairs": [
+      [
+        "268p",
+        "AlexFilm"
+      ],
+      [
+        "268p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "268p",
+        "Інтер (укр)"
+      ],
+      [
+        "268p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "268p",
+        "В одне рило (укр)"
+      ],
+      [
+        "268p",
+        "Дубляж"
+      ],
+      [
+        "536p",
+        "AlexFilm"
+      ],
+      [
+        "536p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "536p",
+        "Інтер (укр)"
+      ],
+      [
+        "536p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "536p",
+        "В одне рило (укр)"
+      ],
+      [
+        "536p",
+        "Дубляж"
+      ]
+    ],
+    "sourceRows": 7,
+    "inventoryComplete": false
+  }
+}
