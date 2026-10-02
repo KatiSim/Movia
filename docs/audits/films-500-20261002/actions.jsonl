@@ -3900,3 +3900,4 @@
 {"seq": 3900, "at": "2026-10-02T11:27:34.475191+00:00", "action": "player.selectQuality", "mediaId": "11085", "arguments": {"quality": "268p", "persist": false}, "accepted": true, "requestMs": 20}
 {"seq": 3901, "at": "2026-10-02T11:27:34.764106+00:00", "action": "player.selectVoice", "mediaId": "11085", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "requestMs": 35}
 {"seq": 3902, "at": "2026-10-02T11:27:35.755704+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
+{"seq": 3903, "at": "2026-10-02T11:27:36.065350+00:00", "action": "player.selectQuality", "mediaId": "11085", "arguments": {"quality": "536p", "persist": false}, "accepted": true, "requestMs": 34}
