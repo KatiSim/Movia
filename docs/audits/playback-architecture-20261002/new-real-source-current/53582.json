@@ -1,0 +1,36 @@
+{
+  "mediaId": "53582",
+  "title": "Она обошлась с ним нечестно",
+  "year": 1933,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:20.342401+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "39b12d6385540988372e",
+      "decoded": true,
+      "actualHeight": 412,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "b34333108f3b41d65ff9",
+      "videoFrameFingerprint": "0a734db24361ca4838bd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5998
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6dbf80a5c6ad038a4475",
+  "preparedStreamIdFingerprint": "bc6a379ad332be0aa418",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
