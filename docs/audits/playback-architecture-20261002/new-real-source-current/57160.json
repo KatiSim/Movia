@@ -1,0 +1,36 @@
+{
+  "mediaId": "57160",
+  "title": "В старой Оклахоме",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:51.874584+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5acfe1aacec4428d4679",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "67f044f8fb7d8046248c",
+      "videoFrameFingerprint": "68d55d3641eb5e904b97",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4090
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ee74e46584db00804c2b",
+  "preparedStreamIdFingerprint": "340823682362832a1faf",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
