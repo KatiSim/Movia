@@ -212,6 +212,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Ю. Сербин",
+      "expectedAudioLabel": "rus8",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 752,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 8460,
+        "selectedAudioLabel": "rus8",
+        "selectedAudioLanguage": "ru",
+        "frames": 208,
+        "voice": "Ю. Сербин",
+        "streamFingerprint": "413c2eb921ca7e6f30ca",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
