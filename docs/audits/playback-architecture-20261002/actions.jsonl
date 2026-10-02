@@ -377,3 +377,4 @@
 {"seq": 377, "at": "2026-10-02T14:10:58.221533+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "23590", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 378, "at": "2026-10-02T14:10:59.140613+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО) · дорожка 2", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 379, "at": "2026-10-02T14:10:59.583921+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "56568", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 380, "at": "2026-10-02T14:10:59.986616+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 2, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
