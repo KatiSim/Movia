@@ -3314,3 +3314,4 @@
 {"seq": 3314, "at": "2026-10-02T11:21:24.307581+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 9}
 {"seq": 3315, "at": "2026-10-02T11:21:24.401289+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "КиноПоиск HD", "persist": false}, "accepted": true, "requestMs": 11}
 {"seq": 3316, "at": "2026-10-02T11:21:24.892500+00:00", "action": "internal_movie_result", "mediaId": "7354", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3317, "at": "2026-10-02T11:21:25.090624+00:00", "action": "exact_provider_resolve", "mediaId": "28722", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
