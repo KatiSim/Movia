@@ -6,14 +6,14 @@
   "withThreeVoiceLabels": 8,
   "withTwoQualityLabels": 8,
   "qualitySwitchConfirmed": 8,
-  "audioTrackSwitchConfirmed": 73,
+  "audioTrackSwitchConfirmed": 74,
   "voiceLocatorOnly": 0,
-  "variantPassed": 77,
+  "variantPassed": 78,
   "variantFailed": 1,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:16:45.848661+00:00",
-  "actionsRecorded": 2531,
+  "updatedAt": "2026-10-02T11:16:46.947931+00:00",
+  "actionsRecorded": 2534,
   "lastPublishedAction": 2518,
-  "githubSyncError": null
+  "githubSyncError": "Git push failed, exit 1"
 }

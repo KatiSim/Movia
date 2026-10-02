@@ -2531,3 +2531,4 @@
 {"seq": 2531, "at": "2026-10-02T11:16:45.839704+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "ТВЦ", "persist": false}, "accepted": true, "requestMs": 105}
 {"seq": 2532, "at": "2026-10-02T11:16:46.084537+00:00", "action": "internal_movie_result", "mediaId": "20407", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2533, "at": "2026-10-02T11:16:46.403398+00:00", "action": "exact_provider_resolve", "mediaId": "18378", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2534, "at": "2026-10-02T11:16:46.939788+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
