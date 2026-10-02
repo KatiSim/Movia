@@ -1,0 +1,36 @@
+{
+  "mediaId": "29925",
+  "title": "Ночь, в которую мы никогда не встретимся",
+  "year": 1993,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:35.782650+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4416df30593e24e41041",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "140306d7c7710e6dfb00",
+      "videoFrameFingerprint": "3b9b4a7b48210affc192",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9272
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a19085a9ae9d305dd1c4",
+  "preparedStreamIdFingerprint": "224b237bb8826e8a68a2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
