@@ -3639,3 +3639,4 @@
 {"seq": 3639, "at": "2026-10-02T11:23:44.788745+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 29}
 {"seq": 3640, "at": "2026-10-02T11:23:44.978796+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Cine++ (укр)", "persist": false}, "accepted": true, "requestMs": 27}
 {"seq": 3641, "at": "2026-10-02T11:23:45.676721+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
+{"seq": 3642, "at": "2026-10-02T11:23:45.879303+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 26}
