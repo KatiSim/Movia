@@ -1,0 +1,13 @@
+{
+  "mediaId": "98",
+  "title": "Список Шиндлера",
+  "year": 1993,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:43.336442+00:00"
+}
