@@ -1,0 +1,36 @@
+{
+  "mediaId": "35112",
+  "title": "Это вышло из Голливуда",
+  "year": 1982,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:42.580517+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "eeb8912ca9bad5513967",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "ca3ed1aae99c269fd7bf",
+      "videoFrameFingerprint": "2322142d62c6cef096f1",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 11944
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "123de104f0667fc5e886",
+  "preparedStreamIdFingerprint": "9420d7e7d27fe1f0840c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
