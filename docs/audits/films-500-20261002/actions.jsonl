@@ -2834,3 +2834,4 @@
 {"seq": 2834, "at": "2026-10-02T11:18:38.872682+00:00", "action": "internal_movie_result", "mediaId": "16539", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2835, "at": "2026-10-02T11:18:39.312044+00:00", "action": "player.selectQuality", "mediaId": "23911", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 24}
 {"seq": 2836, "at": "2026-10-02T11:18:39.555484+00:00", "action": "exact_provider_resolve", "mediaId": "35228", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2837, "at": "2026-10-02T11:18:39.852976+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "requestMs": 90}
