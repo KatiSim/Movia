@@ -1,0 +1,36 @@
+{
+  "mediaId": "56687",
+  "title": "Бессмертный сержант",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:52.678360+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "636f0c23f55cdfdf81a4",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "f1be614f99430c0fdbd7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4386
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4220fc74bc760ed97126",
+  "preparedStreamIdFingerprint": "b4432e442eb57548e083",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
