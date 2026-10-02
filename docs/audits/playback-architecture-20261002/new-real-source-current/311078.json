@@ -1,0 +1,36 @@
+{
+  "mediaId": "311078",
+  "title": "Axolotl Wooper Looper’s Lair",
+  "year": 1987,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:53.078832+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ca8cb15d2d5b4f3f1b9f",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "3ec8394f39843c623852",
+      "videoFrameFingerprint": "670860fab479e8f75572",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3170
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2d32d301fcbacdab9df4",
+  "preparedStreamIdFingerprint": "bb77c710db65d954096f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
