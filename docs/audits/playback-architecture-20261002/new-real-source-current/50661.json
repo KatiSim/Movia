@@ -1,0 +1,36 @@
+{
+  "mediaId": "50661",
+  "title": "Мой дед",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:05.974600+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "0635b27f869501544460",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "64aee92234981ba4a3fc",
+      "videoFrameFingerprint": "46f600bf2ed586040466",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6482
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9a31a546171961591142",
+  "preparedStreamIdFingerprint": "d1b022ad38bba11742ae",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
