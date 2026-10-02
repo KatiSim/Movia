@@ -1,0 +1,83 @@
+{
+  "mediaId": "8611",
+  "title": "Оно 2",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "825173fa0dfdf4286864",
+      "ms": 2682,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "HDRezka",
+    "Original (с субтитрами)",
+    "Дубляж",
+    "Укр. Дубльований"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:12.789882+00:00"
+}
