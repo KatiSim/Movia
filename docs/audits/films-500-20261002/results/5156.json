@@ -1,0 +1,42 @@
+{
+  "index": 18,
+  "mediaId": "5156",
+  "title": "Уэнделл и Уайлд",
+  "year": 2022,
+  "rating": 6.6,
+  "voteCount": 397,
+  "genres": "[\"мультфильм\",\"комедия\",\"фэнтези\",\"приключения\",\"ужасы\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14103.64,
+    "observed": {
+      "mediaId": "5156",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 53,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "d87ebb85b7ed63c521d5",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14304.67,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:42:03.421377+00:00"
+}
