@@ -1,0 +1,14 @@
+{
+  "versionCode": 325,
+  "buildExitCode": 0,
+  "installedVersionCode": 323,
+  "nativeTestsExecuted": false,
+  "installationBlocked": true,
+  "unitTests": {
+    "tests": 160,
+    "failures": 0,
+    "errors": 0
+  },
+  "rootIndexPreserved": true,
+  "status": "BUILD_UNIT_PASS_NATIVE_INSTALL_BLOCKED"
+}
