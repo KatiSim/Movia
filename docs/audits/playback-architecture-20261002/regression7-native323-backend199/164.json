@@ -836,6 +836,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "ТВЦ",
+      "expectedAudioLabel": "rus7",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 268,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 54657,
+        "selectedAudioLabel": "rus7",
+        "selectedAudioLanguage": "ru",
+        "frames": 1303,
+        "voice": "ТВЦ",
+        "streamFingerprint": "26f3baebc4007e52e77d",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
