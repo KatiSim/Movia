@@ -1,0 +1,36 @@
+{
+  "mediaId": "14294",
+  "title": "The Eye Creatures",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:37.182481+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8c0b79889972264b3899",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "a6de3154581197a8fc96",
+      "videoFrameFingerprint": "edab9bfd83d8307c24c8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3968
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "bd3306a52d835217682e",
+  "preparedStreamIdFingerprint": "21ad4f5990005d137929",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
