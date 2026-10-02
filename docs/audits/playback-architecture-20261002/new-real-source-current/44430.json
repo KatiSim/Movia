@@ -1,0 +1,36 @@
+{
+  "mediaId": "44430",
+  "title": "Дональд Дак: Дневник Дональда",
+  "year": 1954,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:50.742141+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2bdb71849dc9a05e636a",
+      "decoded": true,
+      "actualHeight": 478,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "d4589f33c7600cc9ca98",
+      "videoFrameFingerprint": "3655f886445d3e689e24",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8384
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "96967e24fb645f6294c7",
+  "preparedStreamIdFingerprint": "22fc935ad0af9c6e83d4",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
