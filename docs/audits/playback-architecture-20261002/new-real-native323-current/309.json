@@ -108,6 +108,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "eng2",
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 729,
+      "observed": {
+        "mediaId": "309",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 3889,
+        "selectedAudioLabel": "eng2",
+        "selectedAudioLanguage": "en",
+        "frames": 840,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "540b813410bb2a05c662",
+        "locatorFingerprint": "0db503259ce4927f6dde"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
