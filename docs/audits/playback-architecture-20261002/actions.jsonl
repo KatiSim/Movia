@@ -1659,3 +1659,4 @@
 {"seq": 1659, "at": "2026-10-02T14:39:07.328336+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "56269", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1660, "at": "2026-10-02T14:39:07.689043+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56269", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1661, "at": "2026-10-02T14:39:07.871394+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56269", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 1662, "at": "2026-10-02T14:39:08.140730+00:00", "action": "native_player.stop", "details": {"mediaId": "55006", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
