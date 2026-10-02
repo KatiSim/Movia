@@ -398,14 +398,12 @@ def _annotate_streams_with_source_truth(
         return result
     kind = _availability_media_kind(movie_obj, season, episode)
     try:
-        state = index.get(
-            media_id,
-            kind=kind,
-            season=season if kind == MEDIA_EPISODE else None,
-            episode=episode if kind == MEDIA_EPISODE else None,
-            include_sources=True,
-            include_locator=False,
-        )
+        from playback_availability_index import PlaybackMediaKey
+        key = PlaybackMediaKey(str(media_id), kind,
+            season if kind == MEDIA_EPISODE else None,
+            episode if kind == MEDIA_EPISODE else None)
+        # A GET overlay must not reconcile expiry through a SQLite write.
+        state = index.get_by_key(key.value, include_sources=True, include_locator=False)
     except Exception as exc:
         with _PLAYBACK_AVAILABILITY_METRICS_LOCK:
             _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL += 1
@@ -414,6 +412,7 @@ def _annotate_streams_with_source_truth(
     if not isinstance(state, dict):
         return result
 
+    observed_at = time.time()
     source_ids_by_fingerprint: Dict[Tuple[str, str], str] = {}
     verified_by_fingerprint: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for source in state.get("sources") or []:
@@ -429,6 +428,13 @@ def _annotate_streams_with_source_truth(
         # A stable ID permits native feedback; it is not proof of playback.
         if source.get("verificationStatus") != "VERIFIED":
             continue
+        expiry = source.get("expiresAt")
+        if expiry is not None:
+            try:
+                if not math.isfinite(float(expiry)) or float(expiry) <= observed_at + index.expiry_margin_seconds:
+                    continue
+            except (ValueError, TypeError, OverflowError):
+                continue
         qualities = [str(value).strip() for value in (source.get("actualQualities") or []) if str(value).strip()]
         actual_quality = str(source.get("actualQuality") or "").strip()
         if actual_quality and actual_quality not in qualities:
@@ -1400,7 +1406,7 @@ def _local_stream_response(movie_id, params):
     with _LOCAL_STREAM_SERVICE_LOCK:
         if _LOCAL_STREAM_SERVICE is None:
             from catalog_stream_service import CatalogStreamService
-            from database import filter_streams_for_content
+            from stream_identity import filter_streams_for_content
             _LOCAL_STREAM_SERVICE = CatalogStreamService(catalog_api, sys.modules[__name__], filter_streams_for_content)
         service = _LOCAL_STREAM_SERVICE
     from local_stream_gateway import stream_gateway_response
@@ -2803,7 +2809,7 @@ def _scope_streams_to_catalog_card(
         return clean
     clean = _retarget_reusable_multiseason_torrent_packs(clean, season, episode)
     try:
-        from database import filter_streams_for_content
+        from stream_identity import filter_streams_for_content
 
         content = dict(identity)
         if season is not None:

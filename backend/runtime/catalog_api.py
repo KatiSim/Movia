@@ -68,8 +68,8 @@ def _validated_row_streams(
     """
     raw_streams = parse_json_safely(row_data.get("streams"), [])
     try:
-        # Lazy import keeps catalog_api usable during database initialization.
-        from database import filter_streams_for_content
+        # Identity validation is independent from writer schema initialization.
+        from stream_identity import filter_streams_for_content
 
         raw_streams = filter_streams_for_content(
             raw_streams,

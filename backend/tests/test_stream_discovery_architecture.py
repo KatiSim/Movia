@@ -74,6 +74,34 @@ class DiscoveryPersistenceTest(unittest.TestCase):
             self.assertFalse(persist.called)
         self.assertEqual(['A'], [row['voice'] for row in streamer.get_cached_streams('fixture')])
 
+    def test_source_truth_overlay_reads_while_another_sqlite_writer_is_busy(self):
+        from playback_availability_index import PlaybackAvailabilityService, MEDIA_MOVIE
+        index=PlaybackAvailabilityService(self.path/'truth.db')
+        source=self.row('Studio')
+        index.record_discovery('7',[source],kind=MEDIA_MOVIE)
+        connection=index.repository.connect();connection.execute('BEGIN IMMEDIATE')
+        try:
+            with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',index):
+                started=time.monotonic()
+                rows=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)
+                self.assertLess(time.monotonic()-started,.5)
+                self.assertIn('sourceId',rows[0])
+        finally:connection.rollback();connection.close()
+
+    def test_expired_verification_is_not_published_by_the_readonly_overlay(self):
+        from playback_availability_index import PlaybackMediaKey, MEDIA_MOVIE
+        class Index:
+            expiry_margin_seconds=15
+            def get_by_key(self,key,**kwargs):
+                import hashlib
+                return {'sources':[{'sourceId':'expired','provider':'fixture','locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'verificationStatus':'VERIFIED','expiresAt':time.time()-1,'actualQuality':'720p','actualQualities':['720p']}]}
+            def get(self,*args,**kwargs):raise AssertionError('Mutating read')
+        source=self.row('Studio')
+        with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',Index()):
+            row=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)[0]
+        self.assertEqual('expired',row['sourceId']);self.assertNotIn('sourceTruth',row)
+
     def test_memory_cache_and_identity_locks_stay_bounded_for_large_catalog(self):
         locks = {id(streamer._resolve_lock_for(str(index))) for index in range(5000)}
         self.assertLessEqual(len(locks), 64)
