@@ -4,7 +4,34 @@
   "year": 2024,
   "build": 323,
   "checkedAt": "2026-10-02T14:31:37.433222+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "270p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "default",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 392,
+      "observed": {
+        "mediaId": "404109",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 744,
+        "selectedAudioLabel": "default",
+        "selectedAudioLanguage": "ru",
+        "frames": 1331,
+        "voice": "Дубляж",
+        "streamFingerprint": "4f53759eca023e6e7d7a",
+        "locatorFingerprint": "cd6df9d5bb77af74829a"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,17 @@
       "locatorFingerprint": "cd6df9d5bb77af74829a"
     },
     "commandToReadyMs": 2657
-  }
+  },
+  "preparedSupportedPairs": 2,
+  "preparedQualities": [
+    270,
+    540
+  ],
+  "preparedVoices": [
+    {
+      "choice": "Дубляж",
+      "actualName": "default",
+      "language": "ru"
+    }
+  ]
 }
