@@ -1,0 +1,48 @@
+{
+  "index": 15,
+  "mediaId": "4042",
+  "title": "Единственная девушка в оркестре",
+  "year": 2023,
+  "rating": 6.5,
+  "voteCount": 69,
+  "genres": "[\"документальный\",\"музыка\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14139.71,
+    "observed": {
+      "mediaId": "4042",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 39,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "c2ccf24fa056e85774e5",
+      "selectedAudioLabel": "default",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "default",
+          "ru"
+        ]
+      ]
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14304.47,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:41:28.814120+00:00"
+}
