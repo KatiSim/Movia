@@ -1,0 +1,36 @@
+{
+  "mediaId": "28006",
+  "title": "Среда обитания",
+  "year": 1997,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:22.867359+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "99bdbe97e52771174a9c",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "686eff5aa9fc17ebe7c4",
+      "videoFrameFingerprint": "8f942c501e19cbbc0d8a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9148
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e6945347356f8ca5635d",
+  "preparedStreamIdFingerprint": "bf66f1e625cdd715a95b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
