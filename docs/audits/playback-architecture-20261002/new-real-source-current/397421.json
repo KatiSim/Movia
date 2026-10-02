@@ -1,0 +1,52 @@
+{
+  "mediaId": "397421",
+  "title": "Her Şey Yolunda",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:46.810849+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "47f6929e573a311a4c59",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7a285b1318305c2751cf",
+      "videoFrameFingerprint": "18b1cabefdf4dd4f5433",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3340
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1ef3bfc49635822f1f1c",
+  "preparedStreamIdFingerprint": "166688226730d86cbc8e",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
