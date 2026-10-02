@@ -1,0 +1,162 @@
+{
+  "mediaId": "172",
+  "title": "Твоё имя",
+  "year": 2016,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:24:47.004815+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 4973.5,
+    "observed": {
+      "mediaId": "172",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 229,
+      "frames": 9964,
+      "quality": "720p",
+      "voice": "Дубляж",
+      "streamFingerprint": "e00504b1f88998a0e271",
+      "locatorFingerprint": "ac5c7031cfa6a006e7bc",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 5194
+  },
+  "inventory": {
+    "voiceLabels": [
+      "AlexFilm",
+      "LE-Production",
+      "Original (с субтитрами)",
+      "STEPonee",
+      "jpn11",
+      "jpn6",
+      "Двухголосый (ДВО)",
+      "Дубляж",
+      "Профессиональный (МВО), Двухголосый (ДВО)",
+      "Укр. Дубльований"
+    ],
+    "technicalTrackLabels": [
+      "delete",
+      "rus0",
+      "rus1",
+      "rus2",
+      "rus3",
+      "rus4",
+      "rus5",
+      "ukr10",
+      "ukr7",
+      "ukr8",
+      "ukr9",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "AlexFilm"
+      ],
+      [
+        "1080p",
+        "LE-Production"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "STEPonee"
+      ],
+      [
+        "1080p",
+        "Двухголосый (ДВО)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "Профессиональный (МВО), Двухголосый (ДВО)"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "360p",
+        "LE-Production"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "STEPonee"
+      ],
+      [
+        "360p",
+        "Двухголосый (ДВО)"
+      ],
+      [
+        "360p",
+        "Дубляж"
+      ],
+      [
+        "360p",
+        "Профессиональный (МВО), Двухголосый (ДВО)"
+      ],
+      [
+        "360p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "LE-Production"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "STEPonee"
+      ],
+      [
+        "720p",
+        "Двухголосый (ДВО)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "Профессиональный (МВО), Двухголосый (ДВО)"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ]
+    ],
+    "sourceRows": 29,
+    "inventoryComplete": false
+  }
+}
