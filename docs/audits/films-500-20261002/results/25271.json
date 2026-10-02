@@ -1,0 +1,42 @@
+{
+  "index": 23,
+  "mediaId": "25271",
+  "title": "Сердцеедки",
+  "year": 2001,
+  "rating": 6.2,
+  "voteCount": 1025,
+  "genres": "[\"комедия\",\"мелодрама\",\"криминал\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14002.2,
+    "observed": {
+      "mediaId": "25271",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 61,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14202.01,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:43:06.166640+00:00"
+}
