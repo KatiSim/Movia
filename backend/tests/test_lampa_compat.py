@@ -73,6 +73,16 @@ class LampaReleaseParserTests(unittest.TestCase):
         self.assertEqual(stream["transport"], "torrent")
         self.assertTrue(stream["is_use_internal_subtitles"])
 
+    def test_release_metadata_is_parsed_once_and_all_facts_are_retained(self):
+        from unittest.mock import patch
+        import lampa_compat
+        with patch.object(lampa_compat, "parse_lampa_release_title", wraps=parse_lampa_release_title) as parse:
+            row = normalize_lampa_result({"source": "Provider", "title": "Release S01E02 1080p LostFilm HDR10",
+                                          "url": "https://media.example/movie.mp4"})
+        self.assertEqual(1, parse.call_count)
+        self.assertEqual((1, 2, "1080p", "LostFilm", "HDR10"),
+                         (row["season"], row["episode"], row["quality"], row["voice"], row["hdr"]))
+
     def test_builds_magnet_from_explicit_hash(self):
         raw = {
             "Tracker": "Jackett",

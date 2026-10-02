@@ -190,17 +190,6 @@ def map_row_to_media(row: sqlite3.Row, compact: bool = True) -> Dict[str, Any]:
         # uses exact season counts; inconsistent totals are not displayed as fact.
         episodes_count = sum(season_episode_counts)
     streams_list = []
-    if not compact:
-        streams_list = _validated_row_streams(
-            d,
-            catalog_media_id=d.get("id"),
-            title=title,
-            original_title=original_title,
-            year=year,
-            media_type=media_type or ("tv" if ctype == "series" else "movie"),
-        )
-        if streams_list:
-            playback_url = streams_list[0]["url"]
 
     if compact:
         return {

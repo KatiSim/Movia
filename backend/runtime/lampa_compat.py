@@ -310,6 +310,8 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
     if not magnet_or_url and info_hash:
         magnet_or_url = _magnet_from_hash(info_hash, title)
 
+    parsed_title = parse_lampa_release_title(title) if title else {}
+
     if title:
         result["title"] = title
     if magnet_or_url:
@@ -344,7 +346,7 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
     )
     voice = normalize_voice(explicit_voice)
     if not voice and title:
-        detected = parse_lampa_release_title(title)["voices"]
+        detected = parsed_title["voices"]
         voice = ", ".join(detected)
     if voice:
         result["voice"] = voice
@@ -356,7 +358,7 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
     if explicit_quality:
         result["quality"] = explicit_quality
     elif title:
-        parsed = parse_lampa_release_title(title)
+        parsed = parsed_title
         if parsed["quality"]:
             result["quality"] = parsed["quality"]
         if parsed["resolution"]:
@@ -364,7 +366,7 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
         if parsed["hdr"]:
             result["hdr"] = parsed["hdr"]
     if title:
-        parsed = parse_lampa_release_title(title)
+        parsed = parsed_title
         if parsed["resolution"] and not result.get("resolution"):
             result["resolution"] = parsed["resolution"]
         if parsed["hdr"] and not result.get("hdr"):
@@ -395,7 +397,7 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
         season = None
     if episode == 0:
         episode = None
-    parsed = parse_lampa_release_title(title) if title else {}
+    parsed = parsed_title
     if season is None:
         season = parsed.get("season")
     if episode is None:

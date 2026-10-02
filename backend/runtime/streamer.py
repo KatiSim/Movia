@@ -519,15 +519,11 @@ def _schedule_playback_availability_shadow(
         return
     movie_snapshot = dict(movie_obj)
     stream_snapshot = [dict(item) for item in streams if isinstance(item, dict)]
-    threading.Thread(
-        target=_record_playback_availability_now,
-        args=(
-            movie_snapshot, stream_snapshot, season, episode,
-            str(resolution_status or ""), resolution_error,
-        ),
-        daemon=True,
-        name=f"movia-availability-{movie_obj.get('id')}",
-    ).start()
+    _BACKGROUND_STREAM_EXECUTOR.submit(
+        _record_playback_availability_now,
+        movie_snapshot, stream_snapshot, season, episode,
+        str(resolution_status or ""), resolution_error,
+    )
 
 # A short in-process cache avoids reopening SQLite for repeated playback
 # requests while the persistent cache remains the cross-process source of truth.
@@ -4091,7 +4087,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                             response_details = dict(details)
                             response_movie = dict(movie_obj)
                             if _availability_media_kind(movie_obj, None, None) == MEDIA_MOVIE:
-                                _record_playback_availability_now(
+                                _schedule_playback_availability_shadow(
                                     movie_obj,
                                     movie_obj.get("streams", []) if isinstance(movie_obj.get("streams"), list) else [],
                                     None, None, "RESULTS", None,
