@@ -1,0 +1,36 @@
+{
+  "mediaId": "37903",
+  "title": "Скоби Малоун",
+  "year": 1975,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:17:52.537894+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8a5e77a8179907e66a42",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "b7db4bf10d654eb53507",
+      "videoFrameFingerprint": "51b409924637d6fe39f5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4668
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "42cb5f575e194d966b5c",
+  "preparedStreamIdFingerprint": "460e0600ea6149738e5c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
