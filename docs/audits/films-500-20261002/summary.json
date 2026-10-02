@@ -9,11 +9,11 @@
   "audioTrackSwitchConfirmed": 279,
   "voiceLocatorOnly": 0,
   "variantPassed": 295,
-  "variantFailed": 7,
+  "variantFailed": 8,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:24:31.648614+00:00",
-  "actionsRecorded": 3701,
-  "lastPublishedAction": 3691,
+  "updatedAt": "2026-10-02T11:24:40.036354+00:00",
+  "actionsRecorded": 3702,
+  "lastPublishedAction": 3701,
   "githubSyncError": null
 }

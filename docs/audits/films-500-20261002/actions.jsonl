@@ -3699,3 +3699,4 @@
 {"seq": 3699, "at": "2026-10-02T11:24:31.175930+00:00", "action": "movie_result", "mediaId": "375", "decoded": true, "voices": 10, "qualities": 4}
 {"seq": 3700, "at": "2026-10-02T11:24:31.385437+00:00", "action": "player.selectQuality", "mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 17}
 {"seq": 3701, "at": "2026-10-02T11:24:31.647478+00:00", "action": "player.selectVoice", "mediaId": "375", "arguments": {"voice": "Авторский (Одноголосый)", "persist": false}, "accepted": true, "requestMs": 71}
+{"seq": 3702, "at": "2026-10-02T11:24:40.034408+00:00", "action": "movie_result", "mediaId": "375", "decoded": true, "voices": 10, "qualities": 4}
