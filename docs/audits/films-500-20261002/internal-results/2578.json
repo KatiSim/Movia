@@ -1,0 +1,50 @@
+{
+  "mediaId": "2578",
+  "title": "Свобода",
+  "year": 2024,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "default",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5db70da70cdee102c019",
+      "ms": 5994,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "AlphaProject"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:10:34.894989+00:00"
+}
