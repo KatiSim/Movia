@@ -1,0 +1,30 @@
+{
+  "mediaId": "55904",
+  "title": "Пятый битл",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:17.501318+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4337e846733ce96baf68",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14029
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e9a30bd26302d56bde39",
+  "preparedStreamIdFingerprint": "eb7f46efdf887eb829c0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
