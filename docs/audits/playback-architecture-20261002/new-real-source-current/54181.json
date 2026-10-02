@@ -1,0 +1,36 @@
+{
+  "mediaId": "54181",
+  "title": "Мускусная роза",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:35.534262+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7a662c97d037f14b10e6",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "8945597e6712123f00c3",
+      "videoFrameFingerprint": "32b6c7fdf044554fc065",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3678
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a580cd0eeb1db4b2a794",
+  "preparedStreamIdFingerprint": "a3ea61274b8ec8f866c0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
