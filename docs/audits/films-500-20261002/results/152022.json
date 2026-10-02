@@ -521,6 +521,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "AAA Sound",
+      "expectedAudioLabel": "ukr5",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 257,
+      "observed": {
+        "mediaId": "152022",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 16303,
+        "frames": 8724,
+        "quality": "720p",
+        "voice": "AAA Sound",
+        "streamFingerprint": "dd4aafa7629e4f2ecefa",
+        "locatorFingerprint": "89416fd968bce1686020",
+        "selectedAudioLabel": "ukr5",
+        "selectedAudioLanguage": "uk",
+        "selectedAudio": [
+          [
+            "track:1:6:0",
+            "ukr5",
+            "uk"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:22:50.627242+00:00",
