@@ -1,0 +1,72 @@
+{
+  "mediaId": "10077",
+  "title": "Зверокрекеры",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "ukr0",
+      "voiceLanguage": "uk",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f994783105c61318d8db",
+      "ms": 5518,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "Okko",
+    "Original (с субтитрами)",
+    "ТЕТ (укр)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 6,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:38.299053+00:00"
+}
