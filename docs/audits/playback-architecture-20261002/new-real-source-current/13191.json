@@ -1,0 +1,36 @@
+{
+  "mediaId": "13191",
+  "title": "Paroled - To Die",
+  "year": 1938,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:13:04.215632+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c7059740b8b82fcd8d3b",
+      "decoded": true,
+      "actualHeight": 418,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7d952f2a4cd97fc03ec7",
+      "videoFrameFingerprint": "7c3acf70e81126ac983d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 13200
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "54c74804dd74ccd9aa4e",
+  "preparedStreamIdFingerprint": "75d012329bf86104b8b7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
