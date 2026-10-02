@@ -1,0 +1,52 @@
+{
+  "mediaId": "648735",
+  "title": "Aria-Remix",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:33.439026+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 312,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "bbd2836cc9a17007dce5",
+      "decoded": true,
+      "actualHeight": 312,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "dab0d040be3818576ce0",
+      "videoFrameFingerprint": "60282eac2e7b8fbc7168",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2953
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "bae46998079e4f4e90a2",
+  "preparedStreamIdFingerprint": "1219cdb66436d41c02d4",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    312,
+    702
+  ],
+  "advertisedCompatiblePairs": 2
+}
