@@ -1,0 +1,52 @@
+{
+  "mediaId": "622030",
+  "title": "A Porta ao Lado",
+  "year": 2023,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:22.252817+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "0558f02ab3d56c5bb6ae",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "d7115cbcf4d75c5dec99",
+      "videoFrameFingerprint": "173eb5e636e2f64f8da4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4488
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "efd3b0f578daf018d538",
+  "preparedStreamIdFingerprint": "092b81da5ada08036139",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
