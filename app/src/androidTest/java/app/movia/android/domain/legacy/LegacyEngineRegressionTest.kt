@@ -238,6 +238,11 @@ class LegacyEngineRegressionTest {
         assertFalse(LegacyProviderEngine.matchesTitle("Фильм","Другой фильм"))
     }
     @Test fun fourKQualityIsNormalized() {assertEquals("2160p",LegacyProviderEngine.qualityLabel("4k"))}
+    @Test fun qualityFolderAliasesUseTheSamePlaybackAndDownloadHeights() {
+        for((label,height) in listOf("Full HD" to 1080,"HD" to 720,"UHD" to 2160,"8K" to 4320,"1920x1080" to 1080))
+            assertEquals("${height}p",LegacyProviderEngine.qualityLabel(label))
+        assertEquals("",LegacyProviderEngine.qualityLabel("Movie 1999"))
+    }
     @Test fun originalHttpMediaDomainIsAllowedWithoutOpeningOtherDomains() {
         val policy=android.security.NetworkSecurityPolicy.getInstance()
         assertTrue(policy.isCleartextTrafficPermitted("dl5.vibio.tv"))

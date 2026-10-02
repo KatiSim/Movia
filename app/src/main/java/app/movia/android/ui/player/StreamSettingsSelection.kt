@@ -20,12 +20,13 @@ internal object StreamSettingsSelection {
         )
     }
 
-    fun voiceOptions(streams: List<StreamOption>, quality: String?, preparedUrl: String? = null, preparedHeights: Set<Int> = emptySet()): List<String> {
+    fun voiceOptions(streams: List<StreamOption>, quality: String?, preparedUrl: String? = null, preparedHeights: Set<Int> = emptySet(), prepared: StreamOption? = null): List<String> {
         val usable = streams.filter { it.url.isNotBlank() }
         val requestedQuality = quality?.trim()?.takeIf { it.isNotBlank() && !it.equals("Auto", true) }
         val qualityScoped = requestedQuality?.let { requested ->
             usable.filter { sameQuality(it.quality, requested) ||
-                (it.url == preparedUrl && qualityHeight(requested) in preparedHeights) || isAdaptive(it) }
+                (it.url == preparedUrl && qualityHeight(requested) in preparedHeights &&
+                    (prepared == null || it.headers == prepared.headers && it.userAgent == prepared.userAgent)) || isAdaptive(it) }
         }.orEmpty()
         val pool = if (requestedQuality == null) usable else qualityScoped
         return pool

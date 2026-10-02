@@ -80,4 +80,9 @@ class StreamSettingsSelectionTest {
             }
         }
     }
+    @Test fun preparedQualitiesAreNotAssignedToAnotherHeaderProfile() {
+        val prepared=StreamOption("Studio A","360p",url="https://media.example/master.m3u8",headers=mapOf("Referer" to "https://a.example"))
+        val other=prepared.copy(voice="Studio B",headers=mapOf("Referer" to "https://b.example"))
+        assertEquals(listOf("Studio A"),StreamSettingsSelection.voiceOptions(listOf(prepared,other),"720p",prepared.url,setOf(360,720),prepared))
+    }
 }

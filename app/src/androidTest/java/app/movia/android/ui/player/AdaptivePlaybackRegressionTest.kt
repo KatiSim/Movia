@@ -226,6 +226,52 @@ class AdaptivePlaybackRegressionTest {
             assertEquals(0,control("/__stats").getInt("mediaRequests"))
         } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
     }
+    @Test fun anUnverifiedProviderQualityIsNotOfferedAfterTheManifestHasBeenPrepared() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val source=StreamOption("Studio A","480p",url="$base/master.m3u8",streamId="qa:claimed:480",audioTrackIndex=0,transport="hls")
+        try {
+            main { session.setFrameProbe(true);session.start("movia_qa_claimed_quality","Movia QA",candidateStreamOptions=listOf(source),recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.choices.value.video.size==2 }
+            val menu=main { qualityMenu(listOf(source),session.choices.value,"Studio A",source) }
+            assertFalse("Unverified 480p claim was exposed as a working rendition",menu.contains("480p"))
+            assertTrue(menu.contains("360p"));assertTrue(menu.contains("720p"))
+            val request=main { session.state.value.activeStreamSelection?.requestedQuality }
+            assertFalse(main { session.selectVideoQuality("480p") })
+            assertEquals(request,main { session.state.value.activeStreamSelection?.requestedQuality })
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
+    @Test fun unknownProviderLabelDoesNotHideThePreparedManifestVoice() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val stream=StreamOption("Не указано","Auto",url="$base/master.m3u8",streamId="qa:unknown",audioTrackIndex=0)
+        try {
+            main { session.setFrameProbe(true);session.start("movia_qa_unknown_voice","Movia QA",candidateStreamOptions=listOf(stream),recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.choices.value.audio.size==2 }
+            val menu=main { voiceMenu(listOf(stream),session.choices.value,"Auto",stream) }
+            assertTrue("Default manifest rendition was hidden by an unknown provider label",menu.contains("Studio A"))
+            assertTrue(menu.contains("Studio B"))
+            assertTrue(main { session.selectVoice("Studio B") })
+            waitFor { session.player.audioFormat?.label=="Studio B" }
+            assertEquals("Studio B",main { session.selectedDownloadAudio()?.second })
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
+    @Test fun aDifferentFixedQualityCannotBeSilentlyAcceptedForTheRequestedVoice() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val a=StreamOption("Studio A","360p",url="$base/fixture.mp4",streamId="qa:fixed:a")
+        val b=StreamOption("Studio B","720p",url="$base/v720/index.m3u8",streamId="qa:fixed:b")
+        try {
+            main { session.setFrameProbe(true);session.start("movia_qa_fixed_pair","Movia QA",candidateStreamOptions=listOf(a,b),preferredVoice="Studio A",preferredQuality="360p",recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.player.videoFormat?.height==360 }
+            val selection=main { session.state.value.activeStreamSelection }
+            assertFalse("720p source accepted while 360p was explicitly requested",main { session.selectVoice("Studio B") })
+            assertEquals(a.url,session.activeSourceUri)
+            assertEquals(selection?.requestedVoice,main { session.state.value.activeStreamSelection?.requestedVoice })
+            assertEquals("360p",main { session.state.value.activeStreamSelection?.requestedQuality })
+            assertEquals(360,main { session.player.videoFormat?.height })
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
     @Test fun progressiveOfflineIsDecodedFromCacheWithoutNetwork() {
         control("/__control?mode=online")
         val ref=MediaRef("movia_qa_progressive")

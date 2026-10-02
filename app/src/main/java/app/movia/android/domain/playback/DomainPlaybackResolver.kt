@@ -9,6 +9,8 @@ import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
 import app.movia.android.domain.model.sameRequestedVariant
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
@@ -27,6 +29,8 @@ sealed class PlaybackResolverResult {
 data class PlaybackResolverBackendResponse(
     val candidates: List<StreamCandidate> = emptyList(),
     val errorCode: String? = null,
+    val discoveryPending: Boolean = false,
+    val retryAfterMs: Long = 350L,
 )
 
 /**
@@ -439,13 +443,26 @@ object DomainPlaybackResolver {
                 season,
                 episode,
             )
-            if (status == "ERROR") {
+            if (status in setOf("ERROR", "UNAVAILABLE", "BUSY", "TEMPORARILY_UNAVAILABLE")) {
                 PlaybackResolverBackendResponse(
-                    errorCode = obj.optString("errorCode").ifBlank { "BACKEND_ERROR" },
+                    errorCode = obj.optString("errorCode").ifBlank {
+                        when (status) {
+                            "UNAVAILABLE" -> "SOURCE_UNAVAILABLE"
+                            "BUSY" -> "DISCOVERY_BUSY"
+                            "TEMPORARILY_UNAVAILABLE" -> "DISCOVERY_UNAVAILABLE"
+                            else -> "BACKEND_ERROR"
+                        }
+                    },
                 )
             } else {
-                PlaybackResolverBackendResponse(candidates = streams)
+                PlaybackResolverBackendResponse(
+                    candidates = streams,
+                    discoveryPending = status == "DISCOVERY_PENDING" || obj.optBoolean("refreshing", false),
+                    retryAfterMs = obj.optLong("retryAfterMs", 350L).coerceIn(100L, 800L),
+                )
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (_: Exception) {
             PlaybackResolverBackendResponse(errorCode = "INVALID_RESPONSE")
         }
@@ -634,9 +651,22 @@ object DomainPlaybackResolver {
             // before selecting a network stream.
             val initial = usableCandidates(request, initialCandidates)
 
+            var sawPending = false
             val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
-                backend.resolveByIdentity(request, forceRefresh)
-            } ?: PlaybackResolverBackendResponse(errorCode = "PROVIDER_TIMEOUT")
+                var response = backend.resolveByIdentity(request, forceRefresh)
+                while (response.discoveryPending &&
+                    (forceRefresh || usableCandidates(request, response.candidates).isEmpty())
+                ) {
+                    sawPending = true
+                    delay(response.retryAfterMs.coerceIn(100L, 800L))
+                    // A poll observes the same job; it must not request a new
+                    // forced provider lookup for every HTTP read.
+                    response = backend.resolveByIdentity(request, false)
+                }
+                response
+            } ?: PlaybackResolverBackendResponse(
+                errorCode = if (sawPending) "DISCOVERY_PENDING_TIMEOUT" else "PROVIDER_TIMEOUT",
+            )
             val identityCandidates = usableCandidates(request, identityResponse.candidates)
 
             val discoveredCandidates: List<StreamCandidate>
@@ -645,6 +675,13 @@ object DomainPlaybackResolver {
             if (identityCandidates.isNotEmpty()) {
                 // Do not query /resolve when the identity endpoint succeeded.
                 discoveredCandidates = identityCandidates
+            } else if (identityResponse.errorCode in setOf(
+                    "DISCOVERY_PENDING_TIMEOUT", "DISCOVERY_BUSY", "DISCOVERY_UNAVAILABLE", "SOURCE_UNAVAILABLE",
+                )
+            ) {
+                // A known catalog identity with a server job/failure is not
+                // an invitation to resolve a different title or episode.
+                discoveredCandidates = emptyList()
             } else {
                 val titleResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                     backend.resolveByTitle(request, forceRefresh)
@@ -673,6 +710,8 @@ object DomainPlaybackResolver {
             } else {
                 PlaybackResolverResult.Success(ranked)
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (e: Exception) {
             Log.e(TAG, "resolveStreams failure: ${e::class.java.simpleName}")
             PlaybackResolverResult.Error("Ошибка резолвера", e)

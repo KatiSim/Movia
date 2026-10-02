@@ -531,4 +531,62 @@ class DomainPlaybackResolverTest {
             listOf(resolvedCandidate("other"))).isEmpty())
     }
 
+    @Test fun pendingDiscoveryPollsTheExactIdentityUntilReadyWithoutTitleFallback() = runBlocking {
+        val calls = mutableListOf<Pair<PlaybackRequest, Boolean>>()
+        var titleCalls = 0
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year=2025,
+            requestedVoice="Кубик в Кубе",requestedQuality="720p")
+        val backend = object : PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request: PlaybackRequest, forceRefresh: Boolean): PlaybackResolverBackendResponse {
+                calls += request to forceRefresh
+                return if(calls.size<3) PlaybackResolverBackendResponse(discoveryPending=true,retryAfterMs=100L)
+                    else PlaybackResolverBackendResponse(listOf(resolvedCandidate("ready",quality="720p")))
+            }
+            override suspend fun resolveByTitle(request: PlaybackRequest,forceRefresh: Boolean): PlaybackResolverBackendResponse {
+                titleCalls++;return PlaybackResolverBackendResponse()
+            }
+        }
+        val result=DomainPlaybackResolver.resolveStreamsWithBackend(request,forceRefresh=true,backend=backend)
+        assertEquals("ready",(result as PlaybackResolverResult.Success).candidates.single().stableStreamId)
+        assertEquals(listOf(true,false,false),calls.map { it.second })
+        assertTrue(calls.all { it.first==request });assertEquals(0,titleCalls)
+    }
+
+    @Test fun cachedReadyVariantsAreReturnedWithoutWaitingForOptionalEnrichment() = runBlocking {
+        var calls=0
+        val backend=object: PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls++;return PlaybackResolverBackendResponse(listOf(resolvedCandidate("cached")),discoveryPending=true)
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Unexpected title fallback")
+        }
+        val result=DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend=backend)
+        assertEquals("cached",(result as PlaybackResolverResult.Success).candidates.single().stableStreamId)
+        assertEquals(1,calls)
+    }
+
+    @Test fun terminalDiscoveryFailureNeverFallsBackToAnotherTitle() = runBlocking {
+        for(code in listOf("SOURCE_UNAVAILABLE","DISCOVERY_BUSY","DISCOVERY_UNAVAILABLE")) {
+            val backend=object: PlaybackResolverBackend {
+                override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean)=PlaybackResolverBackendResponse(errorCode=code)
+                override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Unexpected title fallback")
+            }
+            assertTrue(DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend=backend) is PlaybackResolverResult.Error)
+        }
+    }
+
+    @Test fun pendingDiscoveryCancellationStopsPollingInsteadOfBeingConvertedToNoSource() = runBlocking {
+        var calls=0
+        val backend=object:PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls++;return PlaybackResolverBackendResponse(discoveryPending=true,retryAfterMs=100L)
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Unexpected title fallback")
+        }
+        val result=kotlinx.coroutines.withTimeoutOrNull(250L) {
+            DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend=backend)
+        }
+        assertNull(result);assertTrue(calls in 1..3)
+    }
+
 }

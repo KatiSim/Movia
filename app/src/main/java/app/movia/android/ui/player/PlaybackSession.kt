@@ -450,10 +450,10 @@ class PlaybackSession(context: Context) {
     /** Provider voices and Media3 tracks are separate identity spaces. */
     fun selectVideoQuality(value: String): Boolean {
         val quality = value.trim()
-        userSelectedAutoQuality = quality.equals("Auto", true)
         val tracks = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
         val wantedHeight = qualityHeight(quality)
         if (quality.equals("Auto", true) || tracks.video.any { it.height == wantedHeight }) {
+            userSelectedAutoQuality = quality.equals("Auto", true)
             requestedVideoQuality = if (quality.equals("Auto", true)) "Auto" else quality
             playbackRequest = playbackRequest?.copy(requestedQuality = requestedVideoQuality)
             _state.value = _state.value.copy(activeStreamSelection =
@@ -466,6 +466,11 @@ class PlaybackSession(context: Context) {
         val option = streamOptions.value.firstOrNull {
             qualityHeight(it.quality) == wantedHeight && (voice.isNullOrBlank() || it.voice.equals(voice, true))
         } ?: return false
+        val prepared = activeCandidate
+        if (tracks.video.isNotEmpty() && prepared != null && option.url == prepared.url &&
+            option.headers == prepared.headers && option.userAgent == prepared.userAgent
+        ) return false
+        userSelectedAutoQuality = false
         requestedVideoQuality = quality
         switchToStream(option)
         return true
@@ -473,8 +478,8 @@ class PlaybackSession(context: Context) {
 
     fun selectVoice(value: String): Boolean {
         val voice = value.trim()
-        userSelectedAutoAudio = voice.equals("Auto", true)
         if (voice.equals("Auto", true)) {
+            userSelectedAutoAudio = true
             requestedAudioTrack = null
             playbackRequest = playbackRequest?.copy(requestedVoice = "Auto", requestedStreamId = null)
             _state.value = _state.value.copy(activeStreamSelection =
@@ -493,6 +498,11 @@ class PlaybackSession(context: Context) {
         } else null
         val option = preparedVoice ?: StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
         if (option != null && option.voice.equals(voice, true)) {
+            val fixedHeight = qualityHeight(option.quality)
+            if (!requestedVideoQuality.equals("Auto", true) && fixedHeight != null &&
+                fixedHeight != qualityHeight(requestedVideoQuality) && preparedVoice == null
+            ) return false
+            userSelectedAutoAudio = false
             requestedAudioTrack = null
             if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option)
             else {
@@ -509,6 +519,7 @@ class PlaybackSession(context: Context) {
         }
         val choice = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0).audio
             .firstOrNull { it.id == voice || it.label.equals(voice, true) } ?: return false
+        userSelectedAutoAudio = false
         requestedAudioTrack = choice.label
         playbackRequest = playbackRequest?.copy(requestedVoice = choice.label, requestedStreamId = activeCandidate?.stableStreamId)
         _state.value = _state.value.copy(audioTrackId = choice.id, activeStreamSelection =
@@ -1649,7 +1660,7 @@ class PlaybackSession(context: Context) {
             val selected = activeCandidate ?: return
             (current.activeStreamSelection ?: ActiveStreamSelection()).copy(
                 activeStreamId = if (userSelectedAutoAudio) automaticAudioSource?.stableStreamId ?: selected.stableStreamId else selected.stableStreamId,
-                activeQuality = player.videoFormat?.height?.takeIf { it > 0 }?.let { if (it >= 2160) "4K" else "${it}p" } ?: selected.quality,
+                activeQuality = player.videoFormat?.height?.takeIf { it > 0 }?.let { when(it) { 4320 -> "8K"; 2160 -> "4K"; else -> "${it}p" } } ?: selected.quality,
                 activeVoice = when {
                     requestedAudioTrack != null -> observedChoices.audio.firstOrNull { it.selected }?.label ?: selected.voice
                     userSelectedAutoAudio -> automaticAudioSource?.voice ?: observedChoices.audio.firstOrNull { it.selected }?.label ?: selected.voice

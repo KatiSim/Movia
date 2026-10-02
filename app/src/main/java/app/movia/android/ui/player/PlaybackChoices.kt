@@ -59,17 +59,23 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
     return PlaybackChoices(audio, video.distinctBy { it.height }.sortedByDescending { it.height })
 }
 
-internal fun qualityMenu(streams: List<StreamOption>, tracks: PlaybackChoices, voice: String?): List<String> {
+internal fun qualityMenu(streams: List<StreamOption>, tracks: PlaybackChoices, voice: String?, prepared: StreamOption? = null): List<String> {
     val scoped = streams.filter { voice.isNullOrBlank() || voice == "Auto" || it.voice.equals(voice, true) }
-    val options = scoped.mapNotNull { qualityHeight(it.quality) }.plus(tracks.video.map { it.height })
+    val options = scoped.mapNotNull { row ->
+        val height = qualityHeight(row.quality)
+        if (prepared != null && tracks.video.isNotEmpty() && row.url == prepared.url &&
+            row.headers == prepared.headers && row.userAgent == prepared.userAgent &&
+            tracks.video.none { it.height == height }
+        ) null else height
+    }.plus(tracks.video.map { it.height })
         .distinct().sortedDescending().map { when(it) { 4320 -> "8K"; 2160 -> "4K"; else -> "${it}p" } }
     return listOf("Auto") + options
 }
 
 internal fun voiceMenu(streams: List<StreamOption>, tracks: PlaybackChoices, quality: String? = null, prepared: StreamOption? = null): List<String> {
-    val providers = StreamSettingsSelection.voiceOptions(streams, quality, prepared?.url, tracks.video.map { it.height }.toSet())
+    val providers = StreamSettingsSelection.voiceOptions(streams, quality, prepared?.url, tracks.video.map { it.height }.toSet(), prepared)
         .filterNot { it.equals("Auto", true) || it == "Не указано" }
-    val mappedOrdinals = streams.filter { prepared != null && it.url == prepared.url &&
+    val mappedOrdinals = streams.filter { it.voice in providers && prepared != null && it.url == prepared.url &&
         it.headers == prepared.headers && it.userAgent == prepared.userAgent }
         .mapNotNull { it.audioTrackIndex }.toSet()
     val internal = tracks.audio.filterIndexed { index, _ -> index !in mappedOrdinals }

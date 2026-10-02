@@ -426,9 +426,8 @@ public final class LegacyProviderEngine {
     private static Integer matchNumber(String value,String regex){Matcher m=Pattern.compile(regex).matcher(value==null?"":value);if(!m.find())return null;for(int i=1;i<=m.groupCount();i++)if(m.group(i)!=null){int n=Integer.parseInt(m.group(i));return n>0?n:null;}return null;}
     private static Integer extractYear(String value){return matchNumber(value,"\\b((?:19|20)\\d{2})\\b");}
     static String qualityLabel(String value) {
-        if(value==null)return "";if(value.matches("(?iu).*\\b(?:4k|uhd|2160p?)\\b.*"))return "2160p";
-        Matcher m=Pattern.compile("(?i)(?:^|\\D)(240|360|480|540|576|720|1080|1440|2160)p?(?:$|\\D)").matcher(value);
-        return m.find()?m.group(1)+"p":"";
+        Integer height=app.movia.android.domain.model.VideoQualityKt.videoQualityHeight(value);
+        return height!=null && Arrays.asList(144,240,360,480,540,576,720,1080,1440,2160,4320).contains(height)?height+"p":"";
     }
     static boolean isMediaUrl(String value) {
         if(value==null||value.length()>16384||value.matches("(?s).*[\\x00-\\x20\\x7f].*"))return false;
