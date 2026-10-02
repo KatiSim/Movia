@@ -432,5 +432,7 @@
       "actualName": "def6",
       "language": "ru"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
