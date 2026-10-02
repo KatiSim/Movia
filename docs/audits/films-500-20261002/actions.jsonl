@@ -2408,3 +2408,4 @@
 {"seq": 2408, "at": "2026-10-02T11:16:11.644558+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "requestMs": 136}
 {"seq": 2409, "at": "2026-10-02T11:16:11.875693+00:00", "action": "exact_provider_resolve", "mediaId": "48685", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2410, "at": "2026-10-02T11:16:12.256166+00:00", "action": "exact_provider_resolve", "mediaId": "31230", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2411, "at": "2026-10-02T11:16:12.556097+00:00", "action": "exact_provider_resolve", "mediaId": "342", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
