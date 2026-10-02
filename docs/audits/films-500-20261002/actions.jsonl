@@ -33,3 +33,4 @@
 {"seq": 33, "at": "2026-10-02T10:39:56.128827+00:00", "action": "media.play", "mediaId": "37579", "arguments": {"mediaId": "37579", "title": "Зверь", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 16}
 {"seq": 34, "at": "2026-10-02T10:40:00.770021+00:00", "action": "movie_result", "mediaId": "37579", "decoded": true, "voices": 9, "qualities": 2}
 {"seq": 35, "at": "2026-10-02T10:40:01.014404+00:00", "action": "player.stop", "mediaId": "18749", "arguments": {}, "accepted": true, "requestMs": 92}
+{"seq": 36, "at": "2026-10-02T10:40:01.160652+00:00", "action": "media.play", "mediaId": "18749", "arguments": {"mediaId": "18749", "title": "Елена – свободная", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 15}
