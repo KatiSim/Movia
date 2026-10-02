@@ -1,0 +1,36 @@
+{
+  "mediaId": "41193",
+  "title": "Комплексы",
+  "year": 1965,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:01.796579+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7b88643dd1c29f650863",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "864b2f31e2dda11f32e4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4209
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "07272342dd603f96a414",
+  "preparedStreamIdFingerprint": "7900df44e22e35e69db0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
