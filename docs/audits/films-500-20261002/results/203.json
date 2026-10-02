@@ -1,0 +1,142 @@
+{
+  "mediaId": "203",
+  "title": "Мстители: Война бесконечности",
+  "year": 2018,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:15:16.102157+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2608.58,
+    "observed": {
+      "mediaId": "203",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 530,
+      "positionMs": 280,
+      "frames": 1194,
+      "quality": "530p",
+      "voice": "Дубляж",
+      "streamFingerprint": "c71df34f03050f2dd7dc",
+      "locatorFingerprint": "296b6423e5e160505bcb",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2671
+  },
+  "inventory": {
+    "voiceLabels": [
+      "HDRezka",
+      "Original (с субтитрами)",
+      "Дубляж",
+      "М. Чадов",
+      "Укр. Дубльований"
+    ],
+    "technicalTrackLabels": [
+      "eng3",
+      "rus0",
+      "rus2",
+      "ukr1"
+    ],
+    "qualityLabels": [
+      "270p",
+      "530p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "HDRezka"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "М. Чадов"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "270p",
+        "HDRezka"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "М. Чадов"
+      ],
+      [
+        "270p",
+        "Укр. Дубльований"
+      ],
+      [
+        "530p",
+        "HDRezka"
+      ],
+      [
+        "530p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "530p",
+        "Дубляж"
+      ],
+      [
+        "530p",
+        "М. Чадов"
+      ],
+      [
+        "530p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "HDRezka"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "М. Чадов"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ]
+    ],
+    "sourceRows": 54,
+    "inventoryComplete": false
+  }
+}
