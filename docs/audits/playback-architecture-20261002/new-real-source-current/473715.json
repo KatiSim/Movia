@@ -1,0 +1,51 @@
+{
+  "mediaId": "473715",
+  "title": "El fondo del mar",
+  "year": 2003,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:10.348366+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "190f45b75dfebca24cda",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "e72c5da6c149f15acde9",
+      "videoFrameFingerprint": "6d49ca5983f748bedc9e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2914
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9e35b1003027ec66dc05",
+  "preparedStreamIdFingerprint": "ad3533fe1fde3437bcfe",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
