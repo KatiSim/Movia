@@ -212,6 +212,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Профессиональный (МВО), Двухголосый (ДВО) · дорожка 9",
+      "expectedAudioLabel": "ukr8",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 602,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 10775,
+        "selectedAudioLabel": "ukr8",
+        "selectedAudioLanguage": "uk",
+        "frames": 1647,
+        "voice": "Профессиональный (МВО), Двухголосый (ДВО) · дорожка 9",
+        "streamFingerprint": "76eb62406dfadbfd22f3",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
