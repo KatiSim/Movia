@@ -1,0 +1,36 @@
+{
+  "mediaId": "43093",
+  "title": "Молодая земля",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:42:14.425453+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "024126abe37fb3350888",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "8642c5dd78c80a7c8ec2",
+      "videoFrameFingerprint": "6d7d837f09955e25bd74",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4589
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7c0ea92de4985405c1b7",
+  "preparedStreamIdFingerprint": "7a0d134ce1f569938f1c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
