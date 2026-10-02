@@ -13,11 +13,13 @@ data class PlaybackTrackChoice(
     val language: String? = null,
     val selected: Boolean = false,
     internal val override: TrackSelectionOverride,
+    internal val providerAudioIndex: Int? = null,
 )
 
 data class PlaybackChoices(
     val audio: List<PlaybackTrackChoice> = emptyList(),
     val video: List<PlaybackTrackChoice> = emptyList(),
+    internal val supportedAudioOrdinals: Set<Int>? = null,
 )
 
 internal fun qualityHeight(value: String): Int? = app.movia.android.domain.model.videoQualityHeight(value)
@@ -26,6 +28,8 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
     val audio = mutableListOf<PlaybackTrackChoice>()
     val namedAudioIndexes = mutableMapOf<String, Int>()
     val video = mutableListOf<PlaybackTrackChoice>()
+    val providerOrdinals = providerAudioOrdinals(tracks)
+    val supportedAudio = mutableSetOf<Int>()
     tracks.groups.forEachIndexed { groupOrdinal, group ->
         for (index in 0 until group.length) {
             if (!group.isTrackSupported(index)) continue
@@ -36,6 +40,8 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
                     height = format.height, selected = actualHeight == format.height,
                     override = TrackSelectionOverride(group.mediaTrackGroup, index))
             } else if (group.type == C.TRACK_TYPE_AUDIO) {
+                val providerOrdinal = providerOrdinals[groupOrdinal to index]
+                providerOrdinal?.let(supportedAudio::add)
                 val language = format.language?.takeUnless { it.isBlank() || it == "und" }
                 val name = format.label?.takeIf { it.isNotBlank() }
                     ?: language?.let { Locale.forLanguageTag(it).getDisplayLanguage(Locale("ru")) }
@@ -46,17 +52,18 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
                 if (previous != null) {
                     if (group.isTrackSelected(index) && !audio[previous].selected) audio[previous] =
                         PlaybackTrackChoice(id, name, language = language, selected = true,
-                            override = TrackSelectionOverride(group.mediaTrackGroup, index))
+                            override = TrackSelectionOverride(group.mediaTrackGroup, index), providerAudioIndex = providerOrdinal)
                 } else {
                     val label = if (audio.any { it.label == name }) "$name · ${audio.size + 1}" else name
                     if (knownKey != null) namedAudioIndexes[knownKey] = audio.size
                     audio += PlaybackTrackChoice(id, label, language = language,
-                        selected = group.isTrackSelected(index), override = TrackSelectionOverride(group.mediaTrackGroup, index))
+                        selected = group.isTrackSelected(index), override = TrackSelectionOverride(group.mediaTrackGroup, index), providerAudioIndex = providerOrdinal)
                 }
             }
         }
     }
-    return PlaybackChoices(audio, video.distinctBy { it.height }.sortedByDescending { it.height })
+    return PlaybackChoices(audio, video.distinctBy { it.height }.sortedByDescending { it.height },
+        supportedAudio.takeIf { tracks.groups.isNotEmpty() })
 }
 
 internal fun qualityMenu(streams: List<StreamOption>, tracks: PlaybackChoices, voice: String?, prepared: StreamOption? = null): List<String> {
@@ -73,12 +80,16 @@ internal fun qualityMenu(streams: List<StreamOption>, tracks: PlaybackChoices, v
 }
 
 internal fun voiceMenu(streams: List<StreamOption>, tracks: PlaybackChoices, quality: String? = null, prepared: StreamOption? = null): List<String> {
-    val providers = StreamSettingsSelection.voiceOptions(streams, quality, prepared?.url, tracks.video.map { it.height }.toSet(), prepared)
+    val available = streams.filter { row ->
+        prepared == null || row.url != prepared.url || row.headers != prepared.headers || row.userAgent != prepared.userAgent ||
+            row.audioTrackIndex == null || tracks.supportedAudioOrdinals == null || row.audioTrackIndex in tracks.supportedAudioOrdinals
+    }
+    val providers = StreamSettingsSelection.voiceOptions(available, quality, prepared?.url, tracks.video.map { it.height }.toSet(), prepared)
         .filterNot { it.equals("Auto", true) || it == "Не указано" }
     val mappedOrdinals = streams.filter { it.voice in providers && prepared != null && it.url == prepared.url &&
         it.headers == prepared.headers && it.userAgent == prepared.userAgent }
         .mapNotNull { it.audioTrackIndex }.toSet()
-    val internal = tracks.audio.filterIndexed { index, _ -> index !in mappedOrdinals }
+    val internal = tracks.audio.filter { it.providerAudioIndex !in mappedOrdinals }
         .takeIf { tracks.audio.size > 1 || providers.isEmpty() }.orEmpty().map { it.label }
     return (listOf("Auto") + providers + internal).distinct()
 }

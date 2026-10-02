@@ -498,6 +498,11 @@ class PlaybackSession(context: Context) {
         } else null
         val option = preparedVoice ?: StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
         if (option != null && option.voice.equals(voice, true)) {
+            val optionCandidate = StreamCandidate.fromStreamOption(option, _state.value.seasonNumber, _state.value.episodeNumber)
+            if (player.currentTracks.groups.isNotEmpty() && option.audioTrackIndex != null &&
+                canSwitchTracksInPlace(activeCandidate, optionCandidate) &&
+                providerTrackOverride(player.currentTracks, C.TRACK_TYPE_AUDIO, option.audioTrackIndex, option.transportMetadata) == null
+            ) return false
             val fixedHeight = qualityHeight(option.quality)
             if (!requestedVideoQuality.equals("Auto", true) && fixedHeight != null &&
                 fixedHeight != qualityHeight(requestedVideoQuality) && preparedVoice == null
@@ -536,7 +541,7 @@ class PlaybackSession(context: Context) {
         if (index < 0) return null
         val selected = audio[index]
         val format = selected.override.mediaTrackGroup.getFormat(selected.override.trackIndices.first())
-        return index to format.label?.takeIf { it.isNotBlank() }
+        return (selected.providerAudioIndex ?: index) to format.label?.takeIf { it.isNotBlank() }
     }
 
     private fun applyUserTrackPreferences(tracks: Tracks) {
@@ -1651,7 +1656,8 @@ class PlaybackSession(context: Context) {
             transportStatus
         }
         val observedChoices = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
-        val selectedOrdinal = observedChoices.audio.indexOfFirst { it.selected }
+        val selectedAudio = observedChoices.audio.firstOrNull { it.selected }
+        val selectedOrdinal = selectedAudio?.providerAudioIndex ?: observedChoices.audio.indexOfFirst { it.selected }
         val automaticAudioSource = activeCandidate?.let { active ->
             candidates.firstOrNull { it.url == active.url && it.headers == active.headers &&
                 it.userAgent == active.userAgent && it.audioTrackIndex == selectedOrdinal }

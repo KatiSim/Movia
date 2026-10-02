@@ -90,11 +90,8 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
                 val selectedAudioLabel = inputData.getString(KEY_AUDIO_LABEL)?.takeIf { it.isNotBlank() }
                 // A track selected in the player may differ from its provider row's default audio.
                 // Apply the captured rendition only to the same requested logical source.
-                val sameSource = selectedSource.stableStreamId == request.requestedStreamId
-                val source = if (sameSource && selectedAudioIndex != null) selectedSource.copy(
-                    audioTrackIndex = selectedAudioIndex, voice = request.requestedVoice ?: selectedSource.voice,
-                    transportMetadata = selectedSource.transportMetadata + (selectedAudioLabel?.let { mapOf("movia_audio_label" to it) } ?: emptyMap()),
-                ) else selectedSource
+                val source = capturedDownloadSource(selectedSource, request.requestedStreamId,
+                    request.requestedVoice, selectedAudioIndex, selectedAudioLabel)
                 if (source.drmScheme != null) return failed("OFFLINE_LICENSE_REQUIRED")
                 val playable = app.movia.android.domain.legacy.LegacyPlaybackResolver.playable(applicationContext, source)
                     ?: return failed("NO_PLAYABLE_SOURCE")

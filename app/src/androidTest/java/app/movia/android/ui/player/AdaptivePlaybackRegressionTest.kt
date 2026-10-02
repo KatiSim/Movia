@@ -5,6 +5,7 @@ import androidx.media3.common.C
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.movia.android.data.download.AdaptiveOfflineDownloader
+import app.movia.android.data.download.capturedDownloadSource
 import app.movia.android.data.download.DownloadScheduler
 import app.movia.android.data.download.OfflineMediaStore
 import app.movia.android.domain.model.MediaRef
@@ -151,6 +152,28 @@ class AdaptivePlaybackRegressionTest {
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
     }
 
+    @Test fun capturedAudioDropsStaleGroupAndAlternateDownloadWhilePreservingOfflineVariant() {
+        control("/__control?mode=online")
+        val ref=MediaRef("movia_qa_captured_offline")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val row=StreamCandidate("qa:captured",provider="Movia QA",url="$base/master.m3u8",voice="Studio A",
+            quality="Auto",transport="hls",audioTrackIndex=0,downloadUrl="$base/fixture.mp4",
+            transportMetadata=mapOf("zona_audio_group_id" to "stale-group", "zona_audio_group_index" to "1", "movia_audio_label" to "Studio A"))
+        val selected=capturedDownloadSource(row,row.stableStreamId,"Studio B",1,"Studio B")
+        assertNull(selected.downloadUrl)
+        assertFalse(selected.transportMetadata.containsKey("zona_audio_group_id"))
+        assertFalse(selected.transportMetadata.containsKey("zona_audio_group_index"))
+        try {
+            runBlocking { AdaptiveOfflineDownloader.download(context,ref,selected,"720p") }
+            control("/__control?mode=offline")
+            main { session.setFrameProbe(true);session.start(ref.contentId,"Movia QA captured",recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.player.videoFormat?.height==720 && session.player.audioFormat?.label=="Studio B" }
+            assertTrue(session.isOffline)
+            assertEquals(0,control("/__stats").getInt("mediaRequests"))
+            try { capturedDownloadSource(row,"qa:different", "Studio B",1,"Studio B");fail("Captured ordinal applied to a different source") }
+            catch (expected: app.movia.android.data.download.OfflineSelectionException) { assertEquals("AUDIO_SELECTION_SOURCE_CHANGED",expected.code) }
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
+    }
     @Test fun hlsOfflineHasSelectedAudioAndQualityAndMakesZeroMediaRequests() {
         control("/__control?mode=online")
         val ref=MediaRef("movia_qa_offline",1,2)
@@ -225,6 +248,29 @@ class AdaptivePlaybackRegressionTest {
             waitFor { session.probeFrames>2 && session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==720 }
             assertEquals(0,control("/__stats").getInt("mediaRequests"))
         } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
+    }
+    @Test fun unsupportedAudioDoesNotShiftProviderOrdinalsOrAppearAsASelectableVoice() {
+        val formats=listOf("Studio A","Studio B").map { androidx.media3.common.Format.Builder().setLabel(it).setLanguage("ru").setSampleMimeType("audio/mp4a-latm").build() }
+        val group=androidx.media3.common.Tracks.Group(androidx.media3.common.TrackGroup("qa:unsupported",*formats.toTypedArray()),false,
+            intArrayOf(C.FORMAT_UNSUPPORTED_TYPE,C.FORMAT_HANDLED),booleanArrayOf(false,true))
+        val tracks=androidx.media3.common.Tracks(listOf(group))
+        val choices=playbackChoices(tracks,0)
+        assertEquals(1,choices.audio.size);assertEquals(1,choices.audio.single().providerAudioIndex)
+        assertEquals(setOf(1),choices.supportedAudioOrdinals)
+        assertNull(providerTrackOverride(tracks,C.TRACK_TYPE_AUDIO,0))
+        val override=providerTrackOverride(tracks,C.TRACK_TYPE_AUDIO,1)!!
+        assertEquals("Studio B",override.mediaTrackGroup.getFormat(override.trackIndices.first()).label)
+        val rows=listOf(0,1).map { StreamOption("Studio ${if(it==0) "A" else "B"}","Auto",url="$base/master.m3u8",audioTrackIndex=it) }
+        assertEquals(listOf("Auto","Studio B"),voiceMenu(rows,choices,"Auto",rows[0]))
+    }
+    @Test fun persistedIdenticalAudioLabelsKeepTheSelectedLanguageThroughTheirOrdinal() {
+        val formats=listOf("en","ru").map { androidx.media3.common.Format.Builder().setLabel("Studio").setLanguage(it).setSampleMimeType("audio/mp4a-latm").build() }
+        val group=androidx.media3.common.Tracks.Group(androidx.media3.common.TrackGroup("qa:language",*formats.toTypedArray()),false,
+            intArrayOf(C.FORMAT_HANDLED,C.FORMAT_HANDLED),booleanArrayOf(false,true))
+        val tracks=androidx.media3.common.Tracks(listOf(group))
+        val override=providerTrackOverride(tracks,C.TRACK_TYPE_AUDIO,1,mapOf("movia_audio_label" to "Studio"))!!
+        assertEquals("ru",override.mediaTrackGroup.getFormat(override.trackIndices.first()).language)
+        assertNull(providerTrackOverride(tracks,C.TRACK_TYPE_AUDIO,1,mapOf("movia_audio_label" to "Different Studio")))
     }
     @Test fun anUnverifiedProviderQualityIsNotOfferedAfterTheManifestHasBeenPrepared() {
         control("/__control?mode=online")
