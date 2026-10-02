@@ -39,8 +39,6 @@
   },
   "inventory": {
     "voiceLabels": [
-      "default",
-      "default · 2",
       "Профессиональный (МВО)"
     ],
     "qualityLabels": [
@@ -49,7 +47,12 @@
     ],
     "advertisedPairs": [],
     "sourceRows": 1,
-    "inventoryComplete": false
+    "inventoryComplete": false,
+    "technicalTrackLabels": [
+      "default",
+      "default · 2",
+      "Профессиональный (МВО)"
+    ]
   },
   "build": 319,
   "checkedAt": "2026-10-02T10:39:41.208034+00:00"

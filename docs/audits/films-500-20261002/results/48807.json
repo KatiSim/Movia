@@ -35,7 +35,8 @@
     "qualityLabels": [],
     "advertisedPairs": [],
     "sourceRows": 0,
-    "inventoryComplete": false
+    "inventoryComplete": false,
+    "technicalTrackLabels": []
   },
   "build": 319,
   "checkedAt": "2026-10-02T10:39:30.963958+00:00"

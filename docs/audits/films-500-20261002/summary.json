@@ -1,9 +1,9 @@
 {
   "phase": "starts",
   "selected": 500,
-  "attempted": 332,
+  "attempted": 23,
   "decodedStarted": 5,
-  "withThreeVoiceLabels": 5,
+  "withThreeVoiceLabels": null,
   "withTwoQualityLabels": 3,
   "qualitySwitchConfirmed": 0,
   "audioTrackSwitchConfirmed": 0,
@@ -15,5 +15,8 @@
   "updatedAt": "2026-10-02T10:45:04.687552+00:00",
   "actionsRecorded": 698,
   "lastPublishedAction": 678,
-  "githubSyncError": null
+  "githubSyncError": null,
+  "infrastructureFailuresExcluded": 308,
+  "excludedTv": 1,
+  "status": "PAUSED_FOR_FOREGROUND_FIX"
 }

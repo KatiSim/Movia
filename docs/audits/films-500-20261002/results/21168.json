@@ -41,12 +41,6 @@
     "voiceLabels": [
       "Eng. Orig. with Commentary",
       "Original (с субтитрами)",
-      "def0",
-      "def0 · 2",
-      "def1",
-      "def1 · 4",
-      "def2",
-      "def2 · 6",
       "Авторский (Одноголосый)"
     ],
     "qualityLabels": [
@@ -54,7 +48,18 @@
     ],
     "advertisedPairs": [],
     "sourceRows": 3,
-    "inventoryComplete": false
+    "inventoryComplete": false,
+    "technicalTrackLabels": [
+      "Eng. Orig. with Commentary",
+      "Original (с субтитрами)",
+      "def0",
+      "def0 · 2",
+      "def1",
+      "def1 · 4",
+      "def2",
+      "def2 · 6",
+      "Авторский (Одноголосый)"
+    ]
   },
   "build": 319,
   "checkedAt": "2026-10-02T10:42:36.992110+00:00"

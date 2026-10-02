@@ -40,6 +40,18 @@
   "inventory": {
     "voiceLabels": [
       "Original (с субтитрами)",
+      "Інтер (укр)",
+      "Первый Канал"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p"
+    ],
+    "advertisedPairs": [],
+    "sourceRows": 7,
+    "inventoryComplete": false,
+    "technicalTrackLabels": [
+      "Original (с субтитрами)",
       "delete",
       "fre1",
       "fre1 · 4",
@@ -51,14 +63,7 @@
       "ukr2 · 6",
       "Інтер (укр)",
       "Первый Канал"
-    ],
-    "qualityLabels": [
-      "270p",
-      "540p"
-    ],
-    "advertisedPairs": [],
-    "sourceRows": 7,
-    "inventoryComplete": false
+    ]
   },
   "build": 319,
   "checkedAt": "2026-10-02T10:39:36.368579+00:00"

@@ -40,10 +40,6 @@
   "inventory": {
     "voiceLabels": [
       "Original (с субтитрами)",
-      "def0",
-      "def0 · 2",
-      "def1",
-      "def1 · 4",
       "Ю. Немахов"
     ],
     "qualityLabels": [
@@ -51,7 +47,15 @@
     ],
     "advertisedPairs": [],
     "sourceRows": 3,
-    "inventoryComplete": false
+    "inventoryComplete": false,
+    "technicalTrackLabels": [
+      "Original (с субтитрами)",
+      "def0",
+      "def0 · 2",
+      "def1",
+      "def1 · 4",
+      "Ю. Немахов"
+    ]
   },
   "build": 319,
   "checkedAt": "2026-10-02T10:41:48.679778+00:00"
