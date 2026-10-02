@@ -849,3 +849,4 @@
 {"seq": 849, "at": "2026-10-02T14:25:22.130712+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "44153", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 850, "at": "2026-10-02T14:25:22.317657+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "42425", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 851, "at": "2026-10-02T14:25:22.537925+00:00", "action": "native_player.stop", "details": {"mediaId": "642692", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 852, "at": "2026-10-02T14:25:22.845008+00:00", "action": "native_media.play", "details": {"mediaId": "642692", "arguments": {"mediaId": "642692", "title": "Dorothea", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "f9a68bf1d8043875480b"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
