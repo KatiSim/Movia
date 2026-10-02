@@ -1,0 +1,51 @@
+{
+  "mediaId": "45691",
+  "title": "Возвращение Калиостро",
+  "year": 2003,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:50.909553+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 298,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "bc4b3aac42df222a8aa9",
+      "decoded": true,
+      "actualHeight": 298,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "76c3a2c980d80f52f298",
+      "videoFrameFingerprint": "98ce3c4cf8af6b52387e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3051
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9aee219a26507cec2d99",
+  "preparedStreamIdFingerprint": "07a84087967f5c07a031",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    298
+  ],
+  "advertisedCompatiblePairs": 1
+}
