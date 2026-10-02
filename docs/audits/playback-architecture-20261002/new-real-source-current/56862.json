@@ -1,0 +1,36 @@
+{
+  "mediaId": "56862",
+  "title": "Дональд Дак: Дух 1943 года",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:49.958664+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c406aed5d622f1fe05c3",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "4faf2c8f73375fbfdba7",
+      "videoFrameFingerprint": "29a8a8b3f501252152c7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2564
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 4,
+  "preparedSourceFingerprint": "7e19d8590a8e021dd97d",
+  "preparedStreamIdFingerprint": "dabe0ce2f8c188268f86",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
