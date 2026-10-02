@@ -1,0 +1,36 @@
+{
+  "mediaId": "56782",
+  "title": "Мемфис Белль: История летающей крепости",
+  "year": 1944,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:57.473124+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2e836501c375b77c8f69",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "5aa40aa2c76b5d34fd94",
+      "videoFrameFingerprint": "43a90c5fa85348cad938",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3317
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 3,
+  "preparedSourceFingerprint": "5cd08d28a1cd87e0e50e",
+  "preparedStreamIdFingerprint": "d191d09f97440cd3cbca",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
