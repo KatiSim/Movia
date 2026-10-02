@@ -1,0 +1,13 @@
+{
+  "mediaId": "49278",
+  "title": "Пинк: Всё, что я знаю на данный момент",
+  "year": 2021,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:14:20.158068+00:00"
+}
