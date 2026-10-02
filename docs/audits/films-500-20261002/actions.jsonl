@@ -1917,3 +1917,4 @@
 {"seq": 1917, "at": "2026-10-02T11:14:10.564886+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Д. Есарев", "persist": false}, "accepted": true, "requestMs": 20}
 {"seq": 1918, "at": "2026-10-02T11:14:11.797853+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}
 {"seq": 1919, "at": "2026-10-02T11:14:11.978337+00:00", "action": "player.selectQuality", "mediaId": "169", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 35}
+{"seq": 1920, "at": "2026-10-02T11:14:12.250065+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "М. Чадов", "persist": false}, "accepted": true, "requestMs": 54}
