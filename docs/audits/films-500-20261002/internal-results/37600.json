@@ -1,0 +1,13 @@
+{
+  "mediaId": "37600",
+  "title": "Возвращение Розовой пантеры",
+  "year": 1975,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:06:54.185030+00:00"
+}
