@@ -1,0 +1,11 @@
+{
+  "index": 123,
+  "mediaId": "55025",
+  "title": "Секреты войны",
+  "year": 2014,
+  "rating": 6.6,
+  "voteCount": 76,
+  "genres": "[\"военный\",\"семейный\",\"драма\",\"история\"]",
+  "variants": [],
+  "error": "<urlopen error [Errno 111] Connection refused>"
+}
