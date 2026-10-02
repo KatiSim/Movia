@@ -3401,3 +3401,4 @@
 {"seq": 3401, "at": "2026-10-02T11:22:07.194674+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
 {"seq": 3402, "at": "2026-10-02T11:22:07.387904+00:00", "action": "internal_movie_result", "mediaId": "33144", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3403, "at": "2026-10-02T11:22:07.658202+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 16}
+{"seq": 3404, "at": "2026-10-02T11:22:07.900905+00:00", "action": "exact_provider_resolve", "mediaId": "11108", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
