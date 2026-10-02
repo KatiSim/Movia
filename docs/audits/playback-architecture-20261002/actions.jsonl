@@ -2361,3 +2361,4 @@
 {"seq": 2361, "at": "2026-10-02T15:01:52.832317+00:00", "action": "voice_selection_trace_action", "details": {"action": "media.play", "quality": "Auto", "voice": "Auto", "status": "accepted", "code": null}, "sourcePaths": []}
 {"seq": 2362, "at": "2026-10-02T15:01:54.503912+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectQuality", "quality": "266p", "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
 {"seq": 2363, "at": "2026-10-02T15:01:54.870951+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectVoice", "quality": null, "voice": "AlphaProject", "status": "completed", "code": null}, "sourcePaths": []}
+{"seq": 2364, "at": "2026-10-02T15:01:56.193044+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.selectVoice", "quality": null, "voice": "Original (с субтитрами)", "status": "failed", "code": "VOICE_NOT_FOUND"}, "sourcePaths": []}
