@@ -1611,3 +1611,4 @@
 {"seq": 1611, "at": "2026-10-02T14:38:19.531155+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "44108", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1612, "at": "2026-10-02T14:38:20.138365+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "52893", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1613, "at": "2026-10-02T14:38:20.420715+00:00", "action": "native_player.stop", "details": {"mediaId": "9679", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1614, "at": "2026-10-02T14:38:20.608977+00:00", "action": "native_media.play", "details": {"mediaId": "9679", "arguments": {"mediaId": "9679", "title": "Winterset", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "653cd611f258665c3d5f"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
