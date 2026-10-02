@@ -1,0 +1,36 @@
+{
+  "mediaId": "54114",
+  "title": "Женщина в бегах",
+  "year": 1950,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:32.968394+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2c0db98e1ec346d896be",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1338f9d9392878a79b97",
+      "videoFrameFingerprint": "938e6dc7fb974d19ada0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3963
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "dc32a5cd4c44d5005034",
+  "preparedStreamIdFingerprint": "4915d6e4020876da97d6",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
