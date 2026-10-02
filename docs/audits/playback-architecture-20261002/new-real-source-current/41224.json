@@ -1,0 +1,36 @@
+{
+  "mediaId": "41224",
+  "title": "Любовники из могилы",
+  "year": 1965,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:41.508640+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f8fd66c0acea2c4a96c2",
+      "decoded": true,
+      "actualHeight": 384,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "f176571bc81cf933f4b1",
+      "videoFrameFingerprint": "d516562e854c98521ec0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4216
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "351351bb0346c40764ef",
+  "preparedStreamIdFingerprint": "bd3fd7c065412752db73",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
