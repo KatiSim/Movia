@@ -1,0 +1,36 @@
+{
+  "mediaId": "264898",
+  "title": "Baggo",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:07.184689+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "746447e191965177d340",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "cce6e703ff1cbc0d9e54",
+      "videoFrameFingerprint": "83d831ac763a0f4ff832",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2891
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6da82eedcfc8018f0afe",
+  "preparedStreamIdFingerprint": "41bb9dfe2c9b9dfb1b39",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
