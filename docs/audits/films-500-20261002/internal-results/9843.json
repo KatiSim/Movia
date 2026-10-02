@@ -1,0 +1,13 @@
+{
+  "mediaId": "9843",
+  "title": "Первому игроку приготовиться",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:16:00.045787+00:00"
+}
