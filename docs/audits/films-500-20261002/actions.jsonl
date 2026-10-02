@@ -2591,3 +2591,4 @@
 {"seq": 2591, "at": "2026-10-02T11:17:08.501094+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "В. Горчаков", "persist": false}, "accepted": true, "requestMs": 87}
 {"seq": 2592, "at": "2026-10-02T11:17:08.801872+00:00", "action": "internal_movie_result", "mediaId": "635", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2593, "at": "2026-10-02T11:17:09.072567+00:00", "action": "exact_provider_resolve", "mediaId": "20901", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2594, "at": "2026-10-02T11:17:09.792645+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
