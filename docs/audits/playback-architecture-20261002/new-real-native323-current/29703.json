@@ -1,0 +1,30 @@
+{
+  "mediaId": "29703",
+  "title": "Siberia",
+  "year": 1998,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:26:01.914588+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": false,
+    "ms": 16116,
+    "observed": {
+      "mediaId": "29703",
+      "state": "IDLE",
+      "switchState": "FAILED",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "frames": 176,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b"
+    },
+    "errorCategory": "REQUESTED_TRACKS_AND_NEW_FRAMES_TIMEOUT",
+    "commandToReadyMs": 16291
+  }
+}
