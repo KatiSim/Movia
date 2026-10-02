@@ -701,3 +701,4 @@
 {"seq": 701, "at": "2026-10-02T10:57:52.936558+00:00", "action": "compile320_correction", "result": "Initial compile found omitted explicit ranker arguments. Fixed; rebuild pending."}
 {"seq": 702, "at": "2026-10-02T10:59:46.229395+00:00", "action": "internal_500_begin", "scope": "Exact owned-provider resolution, real combined video+audio decoder per movie. Does not replace native Media3 switching tests."}
 {"seq": 703, "at": "2026-10-02T10:59:46.503462+00:00", "action": "exact_provider_resolve", "mediaId": "259", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 704, "at": "2026-10-02T10:59:46.710565+00:00", "action": "exact_provider_resolve", "mediaId": "169", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
