@@ -1649,3 +1649,4 @@
 {"seq": 1649, "at": "2026-10-02T14:38:56.393077+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "45563", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1650, "at": "2026-10-02T14:38:57.303976+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45563", "started": true, "pairs": 4, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1651, "at": "2026-10-02T14:38:57.486723+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45563", "started": true, "pairs": 4, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 1652, "at": "2026-10-02T14:38:57.733211+00:00", "action": "native_player.stop", "details": {"mediaId": "56269", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
