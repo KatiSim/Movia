@@ -498,6 +498,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Укр. Дубльований",
+      "expectedAudioLabel": "ukr7",
+      "expectedLanguage": "uk",
+      "decoded": true,
+      "ms": 450,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 27399,
+        "selectedAudioLabel": "ukr7",
+        "selectedAudioLanguage": "uk",
+        "frames": 2037,
+        "voice": "Укр. Дубльований",
+        "streamFingerprint": "a9f5993bee03b62779fc",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
