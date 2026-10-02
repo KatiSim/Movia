@@ -1,0 +1,52 @@
+{
+  "mediaId": "45087",
+  "title": "சாஹசம்",
+  "year": 2016,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:03.830427+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "cbf24287453e444ea21f",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "d22a12f97aeaa138ac52",
+      "videoFrameFingerprint": "ad59f94f190350bf8a0d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3531
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "13b3f9323257bb079fe5",
+  "preparedStreamIdFingerprint": "fd82d60beece2b81e4b5",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
