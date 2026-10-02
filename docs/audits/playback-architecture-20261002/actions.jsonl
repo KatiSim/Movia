@@ -2888,3 +2888,4 @@
 {"seq": 2888, "at": "2026-10-02T15:39:53.242789+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 22, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2889, "at": "2026-10-02T15:39:55.985626+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2890, "at": "2026-10-02T15:39:56.386841+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "СТБ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2891, "at": "2026-10-02T15:39:57.373780+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 23, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
