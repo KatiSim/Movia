@@ -1,0 +1,159 @@
+{
+  "mediaId": "375",
+  "title": "Леон",
+  "year": 1994,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 5621,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 11,
+  "providerVoiceLabels": [
+    "1+1",
+    "ICTV (укр.)",
+    "Original (с субтитрами)",
+    "Superbit",
+    "delete",
+    "А. Гаврилов",
+    "Авторский (Одноголосый)",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "СТБ",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 11,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 22,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:07.712463+00:00"
+}
