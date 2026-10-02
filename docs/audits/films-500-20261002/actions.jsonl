@@ -3591,3 +3591,4 @@
 {"seq": 3591, "at": "2026-10-02T11:23:23.350311+00:00", "action": "internal_additional_candidates_end", "result": {"checked": 826, "selected": 500, "identityValidated": 822, "withHttpSource": 265, "moviesDecoded": 263, "withAtLeastThreeManifestVoices": 118, "withAtLeastTwoManifestQualities": 228, "componentDecodesPassed": 263, "componentDecodesFailed": 0, "nativeSwitchingVerified": false, "allMatrixCombinationsVerified": false, "updatedAt": "2026-10-02T11:23:23.345033+00:00"}}
 {"seq": 3592, "at": "2026-10-02T11:23:23.734659+00:00", "action": "movie_result", "mediaId": "152022", "decoded": true, "voices": 9, "qualities": 2}
 {"seq": 3593, "at": "2026-10-02T11:23:23.866991+00:00", "action": "movie_result", "mediaId": "152022", "decoded": true, "voices": 9, "qualities": 2}
+{"seq": 3594, "at": "2026-10-02T11:23:24.093216+00:00", "action": "player.stop", "mediaId": "11100", "arguments": {}, "accepted": true, "requestMs": 23}
