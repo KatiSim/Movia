@@ -1,0 +1,36 @@
+{
+  "mediaId": "39143",
+  "title": "Рожденный побеждать",
+  "year": 1971,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:47.722712+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c8c804def5be88e156fd",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "c700fa2b73e1c2e4ec5c",
+      "videoFrameFingerprint": "c4a166e91a70a644f8a3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6824
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8647e79697617f5415c4",
+  "preparedStreamIdFingerprint": "ea17323ab4eca5fbac50",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
