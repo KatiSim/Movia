@@ -3,7 +3,45 @@
   "title": "Гарри Поттер и Принц-полукровка",
   "year": 2009,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 536,
+      "observed": {
+        "mediaId": "19241",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 661,
+        "frames": 4823,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "e04722c7dca5460c95e7",
+        "locatorFingerprint": "e25f32bc9f3c73e124c4",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:19:12.210331+00:00",
   "startup": {
     "decoded": true,
