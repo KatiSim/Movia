@@ -1,0 +1,36 @@
+{
+  "mediaId": "56591",
+  "title": "Война в Северной Атлантике",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:15:44.460873+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "68b7dcf869904ed3b34d",
+      "decoded": true,
+      "actualHeight": 320,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "162fe0ec5dd641b62482",
+      "videoFrameFingerprint": "27a3d515eff672954d72",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3894
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3f6d5b7d1a185e51a74b",
+  "preparedStreamIdFingerprint": "877333ac9422c225809a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
