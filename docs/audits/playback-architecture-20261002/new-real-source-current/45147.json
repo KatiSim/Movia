@@ -1,0 +1,52 @@
+{
+  "mediaId": "45147",
+  "title": "Гонка",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:54.191577+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "rus0",
+      "language": "ru",
+      "sourceFingerprint": "850617184c2cbbb31608",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "92a3c020f5e79625ad72",
+      "videoFrameFingerprint": "6cd90d606147fd258aef",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4289
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cca0489256bcece1498c",
+  "preparedStreamIdFingerprint": "8a4b846e33cd416049f3",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
