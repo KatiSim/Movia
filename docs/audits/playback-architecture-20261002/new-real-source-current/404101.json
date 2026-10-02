@@ -1,0 +1,52 @@
+{
+  "mediaId": "404101",
+  "title": "الهوى سلطان",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:02.545055+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 320,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "d7eb16912a862001eab1",
+      "decoded": true,
+      "actualHeight": 320,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "30ba648113367678ea92",
+      "videoFrameFingerprint": "8564404e1d150ad1b6a3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3072
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7ba182cc532afa1aade3",
+  "preparedStreamIdFingerprint": "10bab1e95fbaf3221ab7",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    320,
+    640
+  ],
+  "advertisedCompatiblePairs": 2
+}
