@@ -3866,3 +3866,4 @@
 {"seq": 3866, "at": "2026-10-02T11:27:16.658545+00:00", "action": "player.selectQuality", "mediaId": "12265", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 23}
 {"seq": 3867, "at": "2026-10-02T11:27:16.903392+00:00", "action": "player.selectVoice", "mediaId": "12265", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 20}
 {"seq": 3868, "at": "2026-10-02T11:27:17.526548+00:00", "action": "movie_result", "mediaId": "12265", "decoded": true, "voices": 3, "qualities": 3}
+{"seq": 3869, "at": "2026-10-02T11:27:17.860148+00:00", "action": "player.selectQuality", "mediaId": "12265", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 33}
