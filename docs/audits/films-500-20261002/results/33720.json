@@ -1,0 +1,42 @@
+{
+  "index": 3,
+  "mediaId": "33720",
+  "title": "Агнец божий",
+  "year": 1985,
+  "rating": 6.4,
+  "voteCount": 142,
+  "genres": "[\"драма\",\"детектив\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14005.89,
+    "observed": {
+      "mediaId": "33720",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "b1c0c34499bdf48b728d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14159.53,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:39:01.689876+00:00"
+}

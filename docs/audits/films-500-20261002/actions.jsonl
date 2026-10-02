@@ -13,3 +13,4 @@
 {"seq": 13, "at": "2026-10-02T10:38:47.155458+00:00", "action": "movie_result", "mediaId": "19497", "decoded": false, "voices": 0, "qualities": 0}
 {"seq": 14, "at": "2026-10-02T10:38:47.356535+00:00", "action": "player.stop", "mediaId": "33720", "arguments": {}, "accepted": true, "requestMs": 36}
 {"seq": 15, "at": "2026-10-02T10:38:47.538737+00:00", "action": "media.play", "mediaId": "33720", "arguments": {"mediaId": "33720", "title": "Агнец божий", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 8}
+{"seq": 16, "at": "2026-10-02T10:39:01.690716+00:00", "action": "movie_result", "mediaId": "33720", "decoded": false, "voices": 0, "qualities": 0}
