@@ -1,0 +1,52 @@
+{
+  "mediaId": "322114",
+  "title": "Брешь",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:41.992819+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "6073773ee2a369dfd562",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "c00723fbf723d480c2f3",
+      "videoFrameFingerprint": "f57d5122908caa783458",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2877
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9d174fbbf7aec9a8d69f",
+  "preparedStreamIdFingerprint": "3c60a9f3b773dfd50d5f",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
