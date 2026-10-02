@@ -82,6 +82,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "406p",
+      "voice": "Авторский (Одноголосый)",
+      "expectedAudioLabel": "def3",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 999,
+      "observed": {
+        "mediaId": "322124",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 406,
+        "positionMs": 10018,
+        "selectedAudioLabel": "def3",
+        "selectedAudioLanguage": "ru",
+        "frames": 3131,
+        "voice": "Авторский (Одноголосый)",
+        "streamFingerprint": "6037759bc2cf08750b6f",
+        "locatorFingerprint": "18ecbfb721c28071cdda"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
