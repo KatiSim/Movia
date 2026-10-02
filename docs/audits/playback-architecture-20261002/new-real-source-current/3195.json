@@ -1,0 +1,36 @@
+{
+  "mediaId": "3195",
+  "title": "Doing What's Fright",
+  "year": 1959,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:17:14.186603+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cbece937fbe33b23ff4d",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "02b997d581fc171090a8",
+      "videoFrameFingerprint": "99483ae72809ce13a0c8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4521
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f56545364779056b80e2",
+  "preparedStreamIdFingerprint": "8095a672c3e4238ea9f6",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
