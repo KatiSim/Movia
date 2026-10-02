@@ -40,6 +40,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "270p",
+      "voice": "FocusStudio",
+      "expectedAudioLabel": "rus1",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 256,
+      "observed": {
+        "mediaId": "12265",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 270,
+        "positionMs": 1878,
+        "frames": 12501,
+        "quality": "270p",
+        "voice": "FocusStudio",
+        "streamFingerprint": "db8b8e4fd8de68310d4d",
+        "locatorFingerprint": "653b5d47ad928ea63ba2",
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:2:0",
+            "rus1",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:27:08.064776+00:00",
