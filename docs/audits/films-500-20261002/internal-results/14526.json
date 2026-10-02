@@ -1,0 +1,13 @@
+{
+  "mediaId": "14526",
+  "title": "Вселенная Стивена Хокинга",
+  "year": 2014,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:21:57.617235+00:00"
+}
