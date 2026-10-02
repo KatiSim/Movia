@@ -1,0 +1,13 @@
+{
+  "mediaId": "15528",
+  "title": "Голодные игры: И вспыхнет пламя",
+  "year": 2013,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:18.643552+00:00"
+}
