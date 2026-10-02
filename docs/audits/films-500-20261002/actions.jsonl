@@ -2950,3 +2950,4 @@
 {"seq": 2950, "at": "2026-10-02T11:19:15.912246+00:00", "action": "player.selectQuality", "mediaId": "19241", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 9}
 {"seq": 2951, "at": "2026-10-02T11:19:16.058296+00:00", "action": "player.selectVoice", "mediaId": "19241", "arguments": {"voice": "Профессиональный (МВО), Двухголосый (ДВО)", "persist": false}, "accepted": true, "requestMs": 32}
 {"seq": 2952, "at": "2026-10-02T11:19:17.106293+00:00", "action": "movie_result", "mediaId": "19241", "decoded": true, "voices": 7, "qualities": 4}
+{"seq": 2953, "at": "2026-10-02T11:19:17.411109+00:00", "action": "player.selectQuality", "mediaId": "19241", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 51}
