@@ -1,0 +1,83 @@
+{
+  "mediaId": "8943",
+  "title": "Вельзевул",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "88320edaaedbcb379a71",
+      "ms": 2334,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "AAA Sound",
+    "Original (с субтитрами)",
+    "delete",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "mul1",
+      "language": "mul",
+      "group": "audio0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "mul1",
+      "language": "mul",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:23.491104+00:00"
+}
