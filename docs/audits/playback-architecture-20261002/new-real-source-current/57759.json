@@ -1,0 +1,36 @@
+{
+  "mediaId": "57759",
+  "title": "Получи меня опять",
+  "year": 1932,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:17:58.313265+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fa5422b084462c197d5b",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "55e059b3a251a0095544",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3448
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "06ac16caba0b7f84aa8e",
+  "preparedStreamIdFingerprint": "b388b4ea637ed00e7591",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
