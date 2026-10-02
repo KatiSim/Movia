@@ -82,6 +82,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Plan B",
+      "expectedAudioLabel": "rus3",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 1648,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 5317,
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "frames": 2348,
+        "voice": "Plan B",
+        "streamFingerprint": "273f7e4482a6293b7db3",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
