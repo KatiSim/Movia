@@ -1,0 +1,94 @@
+{
+  "mediaId": "627",
+  "title": "ВАЛЛ·И",
+  "year": 2008,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2670,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж",
+    "С.Р.И.",
+    "Укр. Дубльований",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr3",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng4",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:50.446096+00:00"
+}
