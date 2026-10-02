@@ -849,3 +849,4 @@
 {"seq": 849, "at": "2026-10-02T11:02:38.328151+00:00", "action": "exact_provider_resolve", "mediaId": "12265", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 850, "at": "2026-10-02T11:02:38.572574+00:00", "action": "audit_harness_checkpoint", "result": "Publish corrected decoder probe, infrastructure-stop guard, real/technical voice distinction and preserved original cohort."}
 {"seq": 851, "at": "2026-10-02T11:02:39.492120+00:00", "action": "internal_combined_decode", "mediaId": "8611", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
+{"seq": 852, "at": "2026-10-02T11:02:39.723925+00:00", "action": "internal_combined_decode", "mediaId": "12265", "qualityHeight": 270, "voice": "rus0", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
