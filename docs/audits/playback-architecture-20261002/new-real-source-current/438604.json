@@ -1,0 +1,52 @@
+{
+  "mediaId": "438604",
+  "title": "私家偵探",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:23:36.974063+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 268,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "49b6ba43253988b0542e",
+      "decoded": true,
+      "actualHeight": 268,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "9b488358e3e3604d7150",
+      "videoFrameFingerprint": "d589d0ce88e2e4f6e36f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3675
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fa27b393a239a9ea2f64",
+  "preparedStreamIdFingerprint": "fd7139dfd72a14cbcd12",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    268,
+    536
+  ],
+  "advertisedCompatiblePairs": 2
+}
