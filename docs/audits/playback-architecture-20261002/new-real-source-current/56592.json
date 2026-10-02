@@ -1,0 +1,36 @@
+{
+  "mediaId": "56592",
+  "title": "С тех пор как вы ушли",
+  "year": 1944,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:40.890572+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "971d5a2bc6a15f69f994",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "af93b22eb900ff0ffe07",
+      "videoFrameFingerprint": "3e4115d79b3c26fa041e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4592
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6a3d50791a313f97c49a",
+  "preparedStreamIdFingerprint": "7f4bac99c9c1902caf7d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
