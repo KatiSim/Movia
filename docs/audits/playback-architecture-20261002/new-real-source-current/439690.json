@@ -1,0 +1,52 @@
+{
+  "mediaId": "439690",
+  "title": "Songs of Paradise",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:12.103688+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "038e01890245630f6726",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "4c5860a2fe03b70d5582",
+      "videoFrameFingerprint": "380713983c91b140a038",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3462
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b6b31b0ae04b4980c9f6",
+  "preparedStreamIdFingerprint": "2b8509147fb11349fea2",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
