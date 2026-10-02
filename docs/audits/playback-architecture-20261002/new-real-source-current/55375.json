@@ -1,0 +1,36 @@
+{
+  "mediaId": "55375",
+  "title": "Стенабой",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:22:07.036489+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b478436e6a00da3be2f0",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "0b18c2cf8fe085351aea",
+      "videoFrameFingerprint": "44b6050a8e8cb598382e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4312
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "dd364ff0878315314d0d",
+  "preparedStreamIdFingerprint": "6eb662064f86132ca9d5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
