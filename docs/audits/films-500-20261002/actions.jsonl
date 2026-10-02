@@ -3412,3 +3412,4 @@
 {"seq": 3412, "at": "2026-10-02T11:22:10.170287+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 33}
 {"seq": 3413, "at": "2026-10-02T11:22:10.468446+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "КиноПоиск HD", "persist": false}, "accepted": true, "requestMs": 48}
 {"seq": 3414, "at": "2026-10-02T11:22:10.839503+00:00", "action": "internal_movie_result", "mediaId": "45305", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3415, "at": "2026-10-02T11:22:11.167556+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
