@@ -1,0 +1,13 @@
+{
+  "mediaId": "51",
+  "title": "Гарри Поттер и философский камень",
+  "year": 2001,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:12:18.105859+00:00"
+}
