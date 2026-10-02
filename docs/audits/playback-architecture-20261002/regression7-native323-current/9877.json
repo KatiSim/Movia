@@ -56,6 +56,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Хихикающий доктор",
+      "expectedAudioLabel": "rus2",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 455,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 3378,
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "frames": 2306,
+        "voice": "Хихикающий доктор",
+        "streamFingerprint": "a62fa7a2eced0eb2e307",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
