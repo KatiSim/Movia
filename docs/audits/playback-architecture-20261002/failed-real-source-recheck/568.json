@@ -1,0 +1,16 @@
+{
+  "mediaId": "568",
+  "title": "Южный Парк",
+  "year": 1997,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:29:39.328257+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "profileChecks": [],
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
