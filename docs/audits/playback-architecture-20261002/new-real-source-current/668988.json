@@ -1,0 +1,52 @@
+{
+  "mediaId": "668988",
+  "title": "EXP",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:35:08.347572+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "d0d7334fc5ee0c67908e",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "3e6d0486b4ce18ff9995",
+      "videoFrameFingerprint": "5bc608b3fe25684c8fe7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7660
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fc8d882866f623421692",
+  "preparedStreamIdFingerprint": "8dc24be39a0b65a8976f",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
