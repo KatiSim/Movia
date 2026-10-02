@@ -2361,3 +2361,4 @@
 {"seq": 2361, "at": "2026-10-02T11:15:57.168207+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
 {"seq": 2362, "at": "2026-10-02T11:15:57.362368+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 28}
 {"seq": 2363, "at": "2026-10-02T11:15:57.563909+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "Екатеринбург Арт", "persist": false}, "accepted": true, "requestMs": 67}
+{"seq": 2364, "at": "2026-10-02T11:15:58.315198+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
