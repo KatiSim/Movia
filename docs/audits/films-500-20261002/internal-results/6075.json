@@ -1,0 +1,13 @@
+{
+  "mediaId": "6075",
+  "title": "Лига справедливости Зака Снайдера",
+  "year": 2021,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:22:17.363512+00:00"
+}
