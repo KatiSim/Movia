@@ -1,0 +1,36 @@
+{
+  "mediaId": "44153",
+  "title": "Завещание человечеству",
+  "year": 1955,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:10:32.195640+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "250eda7920bfdcb4aa4f",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "4f996f0f81133efed856",
+      "videoFrameFingerprint": "00259895e7e0fa00e58a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4753
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "11d29ec4556bf9a5b965",
+  "preparedStreamIdFingerprint": "465c36de9fd325bc8ae7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
