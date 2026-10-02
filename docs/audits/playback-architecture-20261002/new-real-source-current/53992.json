@@ -1,0 +1,36 @@
+{
+  "mediaId": "53992",
+  "title": "Шерлок Холмс и секретное оружие",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:30.312058+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "17a5be2a25292ddd56cc",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "ce791e143d9a62b96792",
+      "videoFrameFingerprint": "f8135eb95e25e349d40f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4456
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0954d2e8fda7d6143cad",
+  "preparedStreamIdFingerprint": "239e7b839c2793acecc0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
