@@ -1,0 +1,36 @@
+{
+  "mediaId": "50899",
+  "title": "Энчантималс. Тайны заснеженной долины",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:12.517888+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "263be05721bae1357138",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "2423ec481c6dee276959",
+      "videoFrameFingerprint": "eae907782c89765794eb",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4224
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "73608d6a32d423885558",
+  "preparedStreamIdFingerprint": "5d56320155c955c5604e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
