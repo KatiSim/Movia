@@ -1,0 +1,29 @@
+{
+  "mediaId": "46927",
+  "title": "Курица из другого мира",
+  "year": 1996,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:30:27.523122+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 9018,
+    "observed": {
+      "mediaId": "46927",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 1080,
+      "positionMs": 247,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1063,
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "eac7e49818baa646e8a5",
+      "locatorFingerprint": "414a552a24fb3207e1cd"
+    },
+    "commandToReadyMs": 9469
+  }
+}
