@@ -2277,3 +2277,4 @@
 {"seq": 2277, "at": "2026-10-02T11:15:38.549040+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "Союз Видео", "persist": false}, "accepted": true, "requestMs": 91}
 {"seq": 2278, "at": "2026-10-02T11:15:39.575731+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
 {"seq": 2279, "at": "2026-10-02T11:15:39.895768+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 64}
+{"seq": 2280, "at": "2026-10-02T11:15:40.098803+00:00", "action": "internal_movie_result", "mediaId": "13953", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
