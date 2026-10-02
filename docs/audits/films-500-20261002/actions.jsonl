@@ -65,3 +65,4 @@
 {"seq": 65, "at": "2026-10-02T10:42:18.436947+00:00", "action": "player.stop", "mediaId": "29807", "arguments": {}, "accepted": true, "requestMs": 68}
 {"seq": 66, "at": "2026-10-02T10:42:18.581464+00:00", "action": "media.play", "mediaId": "29807", "arguments": {"mediaId": "29807", "title": "Драконий жемчуг Зет: Стойкие бойцы — Гохан и Транкс", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 13}
 {"seq": 67, "at": "2026-10-02T10:42:32.846818+00:00", "action": "movie_result", "mediaId": "29807", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 68, "at": "2026-10-02T10:42:33.112563+00:00", "action": "player.stop", "mediaId": "21168", "arguments": {}, "accepted": true, "requestMs": 24}
