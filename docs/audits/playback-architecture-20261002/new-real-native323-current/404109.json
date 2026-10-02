@@ -30,6 +30,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "540p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "default",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 404,
+      "observed": {
+        "mediaId": "404109",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 540,
+        "positionMs": 1382,
+        "selectedAudioLabel": "default",
+        "selectedAudioLanguage": "ru",
+        "frames": 1348,
+        "voice": "Дубляж",
+        "streamFingerprint": "4f53759eca023e6e7d7a",
+        "locatorFingerprint": "cd6df9d5bb77af74829a"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
