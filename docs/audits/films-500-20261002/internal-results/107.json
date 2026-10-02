@@ -1,0 +1,160 @@
+{
+  "mediaId": "107",
+  "title": "Гарри Поттер и Тайная комната",
+  "year": 2002,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "35ee8aa604a421dce0fb",
+      "ms": 2706,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 11,
+  "providerVoiceLabels": [
+    "1+1",
+    "Original (с субтитрами)",
+    "А. Дольский",
+    "Дубляж",
+    "Е. Солодухин",
+    "Киномания",
+    "Кравец",
+    "Новий канал",
+    "П.Гланц и И.Королёва",
+    "Укр. Дубльований",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 11,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 22,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:10.839117+00:00"
+}
