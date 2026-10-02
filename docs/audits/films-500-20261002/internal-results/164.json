@@ -1,0 +1,313 @@
+{
+  "mediaId": "164",
+  "title": "Побег из Шоушенка",
+  "year": 1994,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 3025,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 25,
+  "providerVoiceLabels": [
+    "1+1",
+    "C. Визгунов",
+    "Eng. Orig. with Commentary",
+    "FocusX",
+    "ICTV (укр.)",
+    "Original (с субтитрами)",
+    "Voize",
+    "А. Гаврилов",
+    "А.Алексеев",
+    "В. Горчаков",
+    "В. Дохалов",
+    "Дуб. (Кириллица)",
+    "Е. Гаевский",
+    "Екатеринбург Арт",
+    "Киномания",
+    "НТВ",
+    "ОРТ",
+    "Профессиональный (МВО)",
+    "СТБ",
+    "СТС",
+    "Союз Видео",
+    "ТВЦ",
+    "Ю. Живов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus20",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus21",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr23",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr24",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr25",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng26",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "eng27",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus20",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus21",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr23",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr24",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr25",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng26",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng27",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 25,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 50,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:15.125409+00:00"
+}
