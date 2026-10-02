@@ -3494,3 +3494,4 @@
 {"seq": 3494, "at": "2026-10-02T11:22:48.189213+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 49}
 {"seq": 3495, "at": "2026-10-02T11:22:48.713054+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
 {"seq": 3496, "at": "2026-10-02T11:22:48.986496+00:00", "action": "internal_movie_result", "mediaId": "6056", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3497, "at": "2026-10-02T11:22:49.255784+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 22}
