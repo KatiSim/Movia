@@ -11,9 +11,8 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import app.movia.android.domain.playback.StreamCandidate
 import app.movia.android.domain.playback.StreamRequestProfile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
@@ -55,13 +54,13 @@ internal object ZonaMediaProbe {
     suspend fun expand(
         context: Context,
         candidates: List<StreamCandidate>,
-    ): List<StreamCandidate> = coroutineScope {
-        candidates.map { candidate ->
-            async(Dispatchers.IO) {
-                if (!shouldProbe(candidate)) listOf(candidate) else probeOne(context.applicationContext, candidate)
-            }
-        }.awaitAll().flatten()
-    }
+        onCandidates: suspend (List<StreamCandidate>) -> Unit = {},
+    ): List<StreamCandidate> = probeCandidatesProgressively(
+        candidates = candidates,
+        requiresProbe = ::shouldProbe,
+        probe = { probeOne(context.applicationContext, it) },
+        onCandidates = onCandidates,
+    )
 
     private suspend fun probeOne(
         context: Context,
@@ -76,16 +75,26 @@ internal object ZonaMediaProbe {
             .setMediaSourceFactory(sourceFactory)
             .build()
         try {
-            val durationMs = runCatching {
-                val durationUs = retriever.retrieveDurationUs()
-                    .get(DURATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            val durationMs = try {
+                val durationUs = runInterruptible {
+                    retriever.retrieveDurationUs().get(DURATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                }
                 durationUs.takeIf { it > 0L && it != C.TIME_UNSET }?.div(1_000L)
-            }.getOrNull() ?: candidate.durationMs
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            } ?: candidate.durationMs
 
-            val groups = runCatching {
-                retriever.retrieveTrackGroups()
-                    .get(TRACK_GROUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            }.getOrNull() ?: return@withContext listOf(candidate.copy(durationMs = durationMs))
+            val groups = try {
+                runInterruptible {
+                    retriever.retrieveTrackGroups().get(TRACK_GROUP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            } ?: return@withContext listOf(candidate.copy(durationMs = durationMs))
 
             val videoGroups = (0 until groups.length)
                 .map { index -> index to groups.get(index) }
@@ -156,7 +165,9 @@ internal object ZonaMediaProbe {
                 }
             }
             expanded.ifEmpty { listOf(candidate.copy(durationMs = durationMs)) }
-        } catch (_: Throwable) {
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
             listOf(candidate)
         } finally {
             runCatching { retriever.close() }

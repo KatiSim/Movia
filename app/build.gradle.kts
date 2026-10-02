@@ -14,7 +14,7 @@ android {
         applicationId = "app.movia.android"
         minSdk = 26
         targetSdk = 35
-        versionCode = 317
+        versionCode = 318
         versionName = "0.0.1"
         val apiOrigin = providers.gradleProperty("moviaApiBaseUrl").orElse("http://127.0.0.1:8888").get()
         require(apiOrigin.matches(Regex("[A-Za-z0-9.:/\\-]+"))) { "Movia API origin contains unsupported characters" }

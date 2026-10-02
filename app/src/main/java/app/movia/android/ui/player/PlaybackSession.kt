@@ -1330,8 +1330,11 @@ class PlaybackSession(context: Context) {
             }
             if (playbackRequest?.correlationId != request.correlationId) return@launch
             if (result is PlaybackResolverResult.Success) {
-                // Probe only the backend rows; original provider rows already identify their variants.
-                mergeDiscovered(ZonaMediaProbe.expand(appContext, result.candidates))
+                // Publish ready backend rows immediately. Slow metadata sources add their
+                // verified tracks later; candidate mutations remain on this playback scope.
+                ZonaMediaProbe.expand(appContext, result.candidates) { rows ->
+                    mergeDiscovered(rows)
+                }
             }
             val additional = nativeDiscovery.await()
             updateConsumer.join()
