@@ -1,0 +1,36 @@
+{
+  "mediaId": "57461",
+  "title": "Воры и охотники",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:50.671968+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8209193a62649139b365",
+      "decoded": true,
+      "actualHeight": 1072,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "860d9ed1b11cfeef3b6a",
+      "videoFrameFingerprint": "aa2a14cb086d654ecedd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3771
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6a9d533f78dea5e75a9f",
+  "preparedStreamIdFingerprint": "efb0b85fbd1450f0936e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
