@@ -1,0 +1,126 @@
+{
+  "mediaId": "8611",
+  "title": "Оно 2",
+  "year": 2019,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:26:50.095126+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 5059.23,
+    "observed": {
+      "mediaId": "8611",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 221,
+      "frames": 12271,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "717f2bfe05ee6d102fe8",
+      "locatorFingerprint": "1356d8145e1bd7cf314c",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 5346
+  },
+  "inventory": {
+    "voiceLabels": [
+      "HDRezka",
+      "Original (с субтитрами)",
+      "Дубляж",
+      "Укр. Дубльований"
+    ],
+    "technicalTrackLabels": [
+      "eng3",
+      "rus0",
+      "rus1",
+      "ukr2",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "HDRezka"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "270p",
+        "HDRezka"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "Укр. Дубльований"
+      ],
+      [
+        "540p",
+        "HDRezka"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "HDRezka"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ]
+    ],
+    "sourceRows": 22,
+    "inventoryComplete": false
+  }
+}
