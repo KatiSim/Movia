@@ -1,0 +1,36 @@
+{
+  "mediaId": "56799",
+  "title": "У льва есть крылья",
+  "year": 1939,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:52.133867+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2798d12e1ab163503406",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "15aa4fd5011a165bb37f",
+      "videoFrameFingerprint": "b096489941c3aed47bd8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3981
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4d545abeb952651617ca",
+  "preparedStreamIdFingerprint": "a0eee11f70ca573d47a2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
