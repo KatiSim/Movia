@@ -84,5 +84,9 @@
     270,
     540
   ],
-  "advertisedCompatiblePairs": 8
+  "advertisedCompatiblePairs": 8,
+  "allPreparedPairsTested": false,
+  "allPreparedPairsPassed": false,
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2
 }
