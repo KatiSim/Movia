@@ -602,6 +602,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "delete",
+      "expectedAudioLabel": "jpn11",
+      "expectedLanguage": "ja",
+      "decoded": true,
+      "ms": 439,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 34682,
+        "selectedAudioLabel": "jpn11",
+        "selectedAudioLanguage": "ja",
+        "frames": 2204,
+        "voice": "delete",
+        "streamFingerprint": "f371a8fb622cae8cb993",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
