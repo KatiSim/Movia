@@ -1,0 +1,36 @@
+{
+  "mediaId": "284828",
+  "title": "Лучшие из лучших",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:39.213961+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e1151d9c4c09e77b06bc",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "adf6b002415efcdb2fdc",
+      "videoFrameFingerprint": "929063a49e0b068dc914",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3548
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "90bc3269e8676578eaca",
+  "preparedStreamIdFingerprint": "ade805647a4071d3d604",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
