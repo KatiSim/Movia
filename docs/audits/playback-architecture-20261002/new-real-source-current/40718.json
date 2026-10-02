@@ -1,0 +1,36 @@
+{
+  "mediaId": "40718",
+  "title": "Электронный лабиринт THX 1138 4EB",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:46.217967+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "33b5d791ff09b9f9f747",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "60af993f4af6e553c7d0",
+      "videoFrameFingerprint": "6929064c15e37f97db75",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3162
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "69b592aca3e8df65db86",
+  "preparedStreamIdFingerprint": "534ed24f7dec78dfda03",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
