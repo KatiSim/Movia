@@ -368,6 +368,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Ю. Живов",
+      "expectedAudioLabel": "rus15",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 480,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 24617,
+        "selectedAudioLabel": "rus15",
+        "selectedAudioLanguage": "ru",
+        "frames": 587,
+        "voice": "Ю. Живов",
+        "streamFingerprint": "dacf62a9a235cf39c110",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
