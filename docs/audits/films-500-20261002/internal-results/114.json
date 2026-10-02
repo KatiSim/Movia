@@ -1,0 +1,213 @@
+{
+  "mediaId": "114",
+  "title": "Унесённые призраками",
+  "year": 2001,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2888,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 16,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Reanimedia",
+    "Tycoon",
+    "А. Гаврилов",
+    "Авторский (Одноголосый)",
+    "Дубляж",
+    "Е. Рудой",
+    "КиноПоиск HD",
+    "Невафильм",
+    "П.Гланц и И.Королёва",
+    "Профессиональный (МВО)",
+    "С. Рябов",
+    "ТЕТ (укр)",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr13",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng14",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn15",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr13",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng14",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn15",
+      "language": "ja",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 16,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 32,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:55.394007+00:00"
+}
