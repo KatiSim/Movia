@@ -1,0 +1,193 @@
+{
+  "mediaId": "23911",
+  "title": "Пираты Карибского моря: Проклятие Чёрной жемчужины",
+  "year": 2003,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2936,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 14,
+  "providerVoiceLabels": [
+    "1+1",
+    "C. Визгунов",
+    "LeDoyen (укр)",
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "Дубляж",
+    "Карповский",
+    "Новий канал",
+    "П.Гланц и И.Королёва",
+    "Профессиональный (МВО)",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "СТС",
+    "Ю. Живов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr11",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng13",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr11",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng13",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 14,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 28,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:22.255974+00:00"
+}
