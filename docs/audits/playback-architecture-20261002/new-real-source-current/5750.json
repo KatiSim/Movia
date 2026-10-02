@@ -1,0 +1,36 @@
+{
+  "mediaId": "5750",
+  "title": "Georgie and the Dragon",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:42.671042+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2c235679896dde0b80a0",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "873c0a67dd4ebfdef088",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3113
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "53c6e1845cfd44135f7a",
+  "preparedStreamIdFingerprint": "d9be0133721c85e88105",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
