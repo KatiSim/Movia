@@ -3046,3 +3046,4 @@
 {"seq": 3046, "at": "2026-10-02T15:41:42.592911+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3047, "at": "2026-10-02T15:41:45.614966+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3048, "at": "2026-10-02T15:41:46.075399+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 24, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3049, "at": "2026-10-02T15:41:46.488977+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
