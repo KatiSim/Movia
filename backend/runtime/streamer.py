@@ -1396,6 +1396,21 @@ def _catalog_playback_movie(movie_id: Any) -> Optional[Dict[str, Any]]:
     return catalog_api.get_movie_playback_card(str(movie_id))
 
 
+_LOCAL_STREAM_SERVICE = None
+_LOCAL_STREAM_SERVICE_LOCK = threading.Lock()
+
+def _local_stream_response(movie_id, params):
+    global _LOCAL_STREAM_SERVICE
+    with _LOCAL_STREAM_SERVICE_LOCK:
+        if _LOCAL_STREAM_SERVICE is None:
+            from catalog_stream_service import CatalogStreamService
+            from database import filter_streams_for_content
+            _LOCAL_STREAM_SERVICE = CatalogStreamService(catalog_api, sys.modules[__name__], filter_streams_for_content)
+        service = _LOCAL_STREAM_SERVICE
+    from local_stream_gateway import stream_gateway_response
+    return stream_gateway_response(movie_id, params, service)
+
+
 def _prewarm_next_episode_for_movie_id(
     movie_id: Any,
     season: Optional[int],
@@ -4009,6 +4024,17 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                 is_prewarm_next_request = len(parts) >= 4 and parts[3] == "prewarm-next"
                 is_sequels_request = len(parts) >= 4 and parts[3] in ["sequels", "franchise"]
 
+                if is_stream_request:
+                    code, payload = _local_stream_response(movie_id, params)
+                    self.send_response(code)
+                    self.send_header("Content-Type", "application/json; charset=utf-8")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    if send_body:
+                        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+                    return
+
                 if is_prewarm_next_request:
                     season_raw = params.get("season", [None])[0]
                     episode_raw = params.get("episode", [None])[0]
@@ -4943,6 +4969,7 @@ def run_server():
         server.serve_forever()
     finally:
         server.server_close()
+        if _LOCAL_STREAM_SERVICE is not None: _LOCAL_STREAM_SERVICE.close()
         if PID_FILE.exists():
             try:
                 PID_FILE.unlink()

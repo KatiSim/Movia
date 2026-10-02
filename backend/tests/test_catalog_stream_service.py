@@ -112,3 +112,20 @@ class CatalogStreamServiceTests(unittest.TestCase):
         self.assertEqual(400,self.api.response('/api/movie/7/stream?refresh=invalid')[0])
         self.assertEqual(200,self.api.response('/api/movie/7/stream?refresh=1')[0])
         self.assertTrue(self.entered.wait(2)); self.assertTrue(self.calls[0]['force_refresh'])
+
+    def test_actual_camel_case_catalog_series_card_is_scoped_to_exact_episode(self):
+        self.card.pop('media_type'); self.card.update(mediaType='tv', type='series', category='ANIME')
+        self.assertEqual(400,self.service('7',None,None)[0])
+        self.results=[self.row('right',season=2,episode=3)]
+        self.assertEqual('DISCOVERY_PENDING',self.service('7',2,3)[1]['status'])
+        self.assertTrue(self.entered.wait(2));self.release.set()
+        self.wait(lambda:self.service.queue.status(('7',2,3))=='READY')
+        self.assertEqual('tv',self.calls[0]['media_type'])
+        self.assertEqual((2,3),(self.calls[0]['season'],self.calls[0]['episode']))
+
+    def test_animation_and_anime_shelves_do_not_turn_movies_into_series(self):
+        for category in ('ANIME','ANIMATION','DRAMAS_ASIAN'):
+            self.card.pop('media_type',None);self.card.update(mediaType='movie',type='movie',category=category,
+                streams=[self.row('cached')])
+            self.assertEqual('READY',self.service('7',None,None)[1]['status'])
+            self.assertEqual(400,self.service('7',1,1)[0])
