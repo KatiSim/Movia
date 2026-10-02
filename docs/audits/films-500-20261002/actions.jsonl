@@ -2654,3 +2654,4 @@
 {"seq": 2654, "at": "2026-10-02T11:17:35.577861+00:00", "action": "player.stop", "mediaId": "46", "arguments": {}, "accepted": true, "requestMs": 5}
 {"seq": 2655, "at": "2026-10-02T11:17:35.769317+00:00", "action": "media.play", "mediaId": "46", "arguments": {"mediaId": "46", "title": "Властелин колец: возвращение короля", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "51d3b67a01c6dc335bae"}, "accepted": true, "requestMs": 15}
 {"seq": 2656, "at": "2026-10-02T11:17:36.397624+00:00", "action": "internal_movie_result", "mediaId": "8593", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2657, "at": "2026-10-02T11:17:36.946305+00:00", "action": "exact_provider_resolve", "mediaId": "17481", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
