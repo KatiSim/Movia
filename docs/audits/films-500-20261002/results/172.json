@@ -1055,5 +1055,8 @@
     ],
     "sourceRows": 29,
     "inventoryComplete": false
-  }
+  },
+  "allAdvertisedPreparedPairsTested": true,
+  "allAdvertisedPreparedPairsPassed": false,
+  "meetsVoiceAndQualityVariety": true
 }
