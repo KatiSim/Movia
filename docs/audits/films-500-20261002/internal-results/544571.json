@@ -1,0 +1,105 @@
+{
+  "mediaId": "544571",
+  "title": "Дж. Эдгар",
+  "year": 2011,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "ukr0",
+      "voiceLanguage": "uk",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3077,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 6,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "А. Дасевич",
+    "Дубляж",
+    "Новий канал",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr0",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 6,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 12,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:06:07.308342+00:00"
+}
