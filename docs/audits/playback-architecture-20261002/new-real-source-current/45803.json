@@ -1,0 +1,52 @@
+{
+  "mediaId": "45803",
+  "title": "Телохранитель",
+  "year": 1944,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:17.015559+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "f164b0623e6ff06f4424",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f9dbc2c99048ef5c6b64",
+      "videoFrameFingerprint": "a304309603c27dfe38f9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5624
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "67d2ffb9126e70c7a493",
+  "preparedStreamIdFingerprint": "8d02ca764b9107044cb6",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
