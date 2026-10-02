@@ -1,0 +1,29 @@
+{
+  "mediaId": "38124",
+  "title": "Исчезновение рейса 412",
+  "year": 1974,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:34:00.991584+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 9806,
+    "observed": {
+      "mediaId": "38124",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 208,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1707,
+      "voice": "Original",
+      "streamFingerprint": "ee69789907bacbf05785",
+      "locatorFingerprint": "5d745163c699d50e3faf"
+    },
+    "commandToReadyMs": 10265
+  }
+}
