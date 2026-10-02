@@ -1271,3 +1271,4 @@
 {"seq": 1271, "at": "2026-10-02T14:31:40.941414+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "404109", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1272, "at": "2026-10-02T14:31:41.612641+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "404109", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1273, "at": "2026-10-02T14:31:41.961160+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "404109", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1274, "at": "2026-10-02T14:31:42.256074+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "404109", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
