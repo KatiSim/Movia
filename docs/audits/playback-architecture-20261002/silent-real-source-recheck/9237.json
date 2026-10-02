@@ -1,0 +1,46 @@
+{
+  "mediaId": "9237",
+  "title": "Агент Али. Фильм",
+  "year": 2019,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:18:09.488258+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "387b9cdb799a68da3948",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "4edca38519407602efce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2611,
+      "profileFingerprint": "10978721ccd72ba7b588",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "10978721ccd72ba7b588",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "f73f362b7cb903a733b5",
+  "preparedStreamIdFingerprint": "59953fb806c2c81aa3a2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
