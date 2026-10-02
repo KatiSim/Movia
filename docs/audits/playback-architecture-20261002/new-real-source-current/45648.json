@@ -1,0 +1,64 @@
+{
+  "mediaId": "45648",
+  "title": "Деревенская глубинка: Каникулы",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:56:54.196078+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "jpn1",
+      "language": "ja",
+      "sourceFingerprint": "92a14c4e1571f7237707",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "b47b74df1ae072118c1f",
+      "videoFrameFingerprint": "044423641ad9c386ef18",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3738
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "94a534b7ee525a812fd1",
+  "preparedStreamIdFingerprint": "3f0f74a302f59894a5ea",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 4
+}
