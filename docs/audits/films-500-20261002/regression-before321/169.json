@@ -1,0 +1,271 @@
+{
+  "mediaId": "169",
+  "title": "Тёмный рыцарь",
+  "build": 320,
+  "variants": [
+    {
+      "quality": "720p",
+      "voice": "А. Гаврилов",
+      "decoded": true,
+      "qualityMatches": true,
+      "voiceReportedMatches": true,
+      "ms": 848.6,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 830,
+        "frames": 20,
+        "quality": "Auto",
+        "voice": "А. Гаврилов",
+        "streamFingerprint": "0b401ad3718f46edec48",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:2:0",
+            "rus1",
+            "ru"
+          ]
+        ]
+      }
+    },
+    {
+      "quality": "360p",
+      "voice": "Кравец",
+      "decoded": true,
+      "qualityMatches": true,
+      "voiceReportedMatches": true,
+      "ms": 824.85,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1157,
+        "frames": 30,
+        "quality": "360p",
+        "voice": "Кравец",
+        "streamFingerprint": "cb2081e1bf300337611f",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:1",
+            "rus0 · 2",
+            "ru"
+          ]
+        ]
+      }
+    },
+    {
+      "quality": "720p",
+      "voice": "Дубляж",
+      "decoded": false,
+      "ms": 10107.75,
+      "observed": {
+        "mediaId": "169",
+        "state": "BUFFERING",
+        "switchState": "RECOVERING",
+        "isPlaying": false,
+        "height": 0,
+        "positionMs": 1464,
+        "frames": 39,
+        "quality": null,
+        "voice": null,
+        "streamFingerprint": "dc937b59892604f5a86a",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": null,
+        "selectedAudioLanguage": null,
+        "selectedAudio": []
+      },
+      "reason": "bounded frame observation timeout"
+    }
+  ],
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 3597.97,
+    "observed": {
+      "mediaId": "169",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 240,
+      "frames": 5,
+      "quality": "720p",
+      "voice": "Дубляж",
+      "streamFingerprint": "2b286c1600732b69e44c",
+      "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 3984
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Original (с субтитрами)",
+      "А. Гаврилов",
+      "Д. Есарев",
+      "Дубляж",
+      "Кравец",
+      "М. Чадов",
+      "Укр. Дубльований",
+      "Ю. Живов",
+      "Ю. Сербин"
+    ],
+    "technicalTrackLabels": [
+      "eng8",
+      "eng8 · 18",
+      "rus0",
+      "rus0 · 2",
+      "rus1",
+      "rus1 · 4",
+      "rus2",
+      "rus2 · 6",
+      "rus3",
+      "rus3 · 8",
+      "rus4",
+      "rus4 · 10",
+      "rus5",
+      "rus5 · 12",
+      "rus6",
+      "rus6 · 14",
+      "ukr7",
+      "ukr7 · 16",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "А. Гаврилов"
+      ],
+      [
+        "1080p",
+        "Д. Есарев"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "Кравец"
+      ],
+      [
+        "1080p",
+        "М. Чадов"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "1080p",
+        "Ю. Живов"
+      ],
+      [
+        "1080p",
+        "Ю. Сербин"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "А. Гаврилов"
+      ],
+      [
+        "360p",
+        "Д. Есарев"
+      ],
+      [
+        "360p",
+        "Дубляж"
+      ],
+      [
+        "360p",
+        "Кравец"
+      ],
+      [
+        "360p",
+        "М. Чадов"
+      ],
+      [
+        "360p",
+        "Укр. Дубльований"
+      ],
+      [
+        "360p",
+        "Ю. Живов"
+      ],
+      [
+        "360p",
+        "Ю. Сербин"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "А. Гаврилов"
+      ],
+      [
+        "720p",
+        "Д. Есарев"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "Кравец"
+      ],
+      [
+        "720p",
+        "М. Чадов"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "Ю. Живов"
+      ],
+      [
+        "720p",
+        "Ю. Сербин"
+      ]
+    ],
+    "sourceRows": 48,
+    "inventoryComplete": false
+  },
+  "checkedAt": "2026-10-02T11:04:36.501448+00:00"
+}
