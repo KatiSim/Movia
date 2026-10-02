@@ -1,0 +1,36 @@
+{
+  "mediaId": "56046",
+  "title": "Вдова пастора",
+  "year": 1920,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:40.563537+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c00168866b4c8a9b0f03",
+      "decoded": false,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 8772
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7b53ab474d494e4bd124",
+  "preparedStreamIdFingerprint": "4decfaf414befd8409c1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
