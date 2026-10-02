@@ -1,0 +1,49 @@
+{
+  "mediaId": "579587",
+  "title": "Однажды в Китае 5",
+  "year": 1994,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "default",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "c281b2493e7418c3e2b6",
+      "ms": 2850,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "В. Горчаков"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270
+  ],
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 1,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:04.167301+00:00"
+}
