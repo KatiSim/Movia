@@ -1,0 +1,52 @@
+{
+  "mediaId": "45587",
+  "title": "Медовый месяц в Иерусалиме",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:38.284888+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "41833d33a9f1dc2eac66",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7748e45373b5a66c95d1",
+      "videoFrameFingerprint": "8b0f662d48df7e1e1d57",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8204
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1d7d0b834822ff77c8a7",
+  "preparedStreamIdFingerprint": "64981a04d3e3d3121364",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
