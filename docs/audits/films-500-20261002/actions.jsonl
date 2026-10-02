@@ -3173,3 +3173,4 @@
 {"seq": 3173, "at": "2026-10-02T11:20:38.660958+00:00", "action": "movie_result", "mediaId": "627", "decoded": true, "voices": 5, "qualities": 2}
 {"seq": 3174, "at": "2026-10-02T11:20:38.890310+00:00", "action": "player.stop", "mediaId": "11095", "arguments": {}, "accepted": true, "requestMs": 51}
 {"seq": 3175, "at": "2026-10-02T11:20:39.084029+00:00", "action": "media.play", "mediaId": "11095", "arguments": {"mediaId": "11095", "title": "Оно", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "d5bf21cb081ec95e79cb"}, "accepted": true, "requestMs": 19}
+{"seq": 3176, "at": "2026-10-02T11:20:39.349109+00:00", "action": "internal_movie_result", "mediaId": "15532", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
