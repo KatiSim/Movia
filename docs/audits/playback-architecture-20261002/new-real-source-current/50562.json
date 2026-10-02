@@ -1,0 +1,36 @@
+{
+  "mediaId": "50562",
+  "title": "Человек в железной маске",
+  "year": 1939,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:29:44.075277+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8fcc130a8e421f42fd85",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "fe03bc51d69ff54926c0",
+      "videoFrameFingerprint": "321c5fdac9f5c686c162",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5440
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "38b8e1faf3e19bf95f42",
+  "preparedStreamIdFingerprint": "b345f5ea5bb1c7cb6ce1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
