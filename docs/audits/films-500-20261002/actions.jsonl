@@ -2487,3 +2487,4 @@
 {"seq": 2487, "at": "2026-10-02T11:16:31.278758+00:00", "action": "internal_movie_result", "mediaId": "48131", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2488, "at": "2026-10-02T11:16:31.871372+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 36}
 {"seq": 2489, "at": "2026-10-02T11:16:32.101933+00:00", "action": "internal_movie_result", "mediaId": "11078", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2490, "at": "2026-10-02T11:16:32.721472+00:00", "action": "internal_movie_result", "mediaId": "11328", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
