@@ -1,0 +1,36 @@
+{
+  "mediaId": "40870",
+  "title": "Злой дух",
+  "year": 1966,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:51:12.147537+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "25fbbc34a4395b01986d",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "799ff1d1359daf75a330",
+      "videoFrameFingerprint": "1231de13af96f3739e5f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3719
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3531791b44f985420511",
+  "preparedStreamIdFingerprint": "127210901922396b5706",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
