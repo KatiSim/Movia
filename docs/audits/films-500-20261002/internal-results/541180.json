@@ -1,0 +1,61 @@
+{
+  "mediaId": "541180",
+  "title": "Война динозавров",
+  "year": 2007,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 306,
+      "actualHeight": 306,
+      "qualityMatches": true,
+      "voice": "Рус. Дублированный",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "568e713d7e53470df1d9",
+      "ms": 2852,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    306,
+    522
+  ],
+  "manifestVoices": [
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "Рус. Дублированный",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "Eng.Original",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 4,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:04:41.895091+00:00"
+}
