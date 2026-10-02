@@ -1,0 +1,15 @@
+{
+  "mediaId": "15171",
+  "title": "7 гномов",
+  "year": 2014,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:15.637216+00:00",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 0,
+  "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"
+}
