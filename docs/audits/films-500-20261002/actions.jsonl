@@ -3095,3 +3095,4 @@
 {"seq": 3095, "at": "2026-10-02T11:20:09.998145+00:00", "action": "player.selectVoice", "mediaId": "23912", "arguments": {"voice": "Карповский", "persist": false}, "accepted": true, "requestMs": 87}
 {"seq": 3096, "at": "2026-10-02T11:20:10.548144+00:00", "action": "internal_movie_result", "mediaId": "169874", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3097, "at": "2026-10-02T11:20:10.947032+00:00", "action": "exact_provider_resolve", "mediaId": "4801", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 3098, "at": "2026-10-02T11:20:11.406801+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
