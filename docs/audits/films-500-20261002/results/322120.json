@@ -3,7 +3,45 @@
   "title": "22 мили",
   "year": 2018,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 764,
+      "observed": {
+        "mediaId": "322120",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 990,
+        "frames": 14658,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "201b5e02ff46054b1fbb",
+        "locatorFingerprint": "9e72e6918229dc1d5d8c",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:29:25.295226+00:00",
   "startup": {
     "decoded": true,

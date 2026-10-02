@@ -4065,3 +4065,4 @@
 {"seq": 4065, "at": "2026-10-02T11:29:28.110191+00:00", "action": "movie_result", "mediaId": "322120", "decoded": true, "voices": 4, "qualities": 2}
 {"seq": 4066, "at": "2026-10-02T11:29:28.405512+00:00", "action": "player.selectQuality", "mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 28}
 {"seq": 4067, "at": "2026-10-02T11:29:28.588355+00:00", "action": "player.selectVoice", "mediaId": "322120", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 15}
+{"seq": 4068, "at": "2026-10-02T11:29:29.591193+00:00", "action": "movie_result", "mediaId": "322120", "decoded": true, "voices": 4, "qualities": 2}
