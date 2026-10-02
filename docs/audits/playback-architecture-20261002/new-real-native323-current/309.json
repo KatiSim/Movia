@@ -212,6 +212,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Movie Dubbing",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 709,
+      "observed": {
+        "mediaId": "309",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 6722,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 910,
+        "voice": "Movie Dubbing",
+        "streamFingerprint": "b4de9d355d58a37824ce",
+        "locatorFingerprint": "0db503259ce4927f6dde"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
