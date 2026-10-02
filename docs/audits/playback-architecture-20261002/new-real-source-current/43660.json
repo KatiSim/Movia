@@ -1,0 +1,36 @@
+{
+  "mediaId": "43660",
+  "title": "Общество анонимных птичников",
+  "year": 1957,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:20.510136+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b078729b7eb5941e1498",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "108b2f3141b047bf8fdc",
+      "videoFrameFingerprint": "b404240806d41b161a49",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3715
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "024b0a14714a5030990f",
+  "preparedStreamIdFingerprint": "11bb26e2be7112bdff75",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
