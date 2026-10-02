@@ -3870,3 +3870,4 @@
 {"seq": 3870, "at": "2026-10-02T11:27:18.147654+00:00", "action": "player.selectVoice", "mediaId": "12265", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 53}
 {"seq": 3871, "at": "2026-10-02T11:27:18.801576+00:00", "action": "movie_result", "mediaId": "12265", "decoded": true, "voices": 3, "qualities": 3}
 {"seq": 3872, "at": "2026-10-02T11:27:19.139453+00:00", "action": "player.selectQuality", "mediaId": "12265", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 30}
+{"seq": 3873, "at": "2026-10-02T11:27:19.387205+00:00", "action": "player.selectVoice", "mediaId": "12265", "arguments": {"voice": "FocusStudio", "persist": false}, "accepted": true, "requestMs": 32}
