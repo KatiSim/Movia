@@ -1,0 +1,36 @@
+{
+  "mediaId": "11004",
+  "title": "Показывает Элстри",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:39.898382+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5e1eb4c366b632bb9fdc",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "4c5e9903b206cf1c901f",
+      "videoFrameFingerprint": "ca7229595b48a91676a3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12645
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a81cf0304db83fc4d8b5",
+  "preparedStreamIdFingerprint": "4fb1807ad9af41ac64e5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
