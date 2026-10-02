@@ -1,0 +1,202 @@
+{
+  "mediaId": "27637",
+  "title": "Колония",
+  "year": 1997,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "40aaa772b955d76a90ce",
+      "ms": 2296,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 15,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "Авторский (Одноголосый)",
+    "Видеосервис",
+    "Дубляж",
+    "М. Яроцкий",
+    "Профессиональный (МВО)",
+    "Россия 1",
+    "ТВ3",
+    "ТРК Україна (укр)",
+    "Ю. Живов",
+    "Ю. Немахов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr13",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng14",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr13",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng14",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 15,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 30,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:46.565253+00:00"
+}
