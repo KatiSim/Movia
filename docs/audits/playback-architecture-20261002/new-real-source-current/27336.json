@@ -1,0 +1,36 @@
+{
+  "mediaId": "27336",
+  "title": "Никому не говори",
+  "year": 1998,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:43.744473+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5b8637598865e19ea483",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "e14bfa9719cff5d029d0",
+      "videoFrameFingerprint": "f3c5ba019b76cafdf1f7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3150
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fcd6e584c2b3253ab2cb",
+  "preparedStreamIdFingerprint": "2d268d86e61061bca7ce",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
