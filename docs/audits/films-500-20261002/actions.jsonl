@@ -3793,3 +3793,4 @@
 {"seq": 3793, "at": "2026-10-02T11:26:25.929780+00:00", "action": "movie_result", "mediaId": "172", "decoded": true, "voices": 10, "qualities": 3}
 {"seq": 3794, "at": "2026-10-02T11:26:26.197484+00:00", "action": "movie_result", "mediaId": "172", "decoded": true, "voices": 10, "qualities": 3}
 {"seq": 3795, "at": "2026-10-02T11:26:26.511455+00:00", "action": "player.stop", "mediaId": "7349", "arguments": {}, "accepted": true, "requestMs": 37}
+{"seq": 3796, "at": "2026-10-02T11:26:26.726415+00:00", "action": "media.play", "mediaId": "7349", "arguments": {"mediaId": "7349", "title": "Душа", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "e0b6c9cee6820c77e1e9"}, "accepted": true, "requestMs": 8}
