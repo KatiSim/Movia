@@ -1,0 +1,11 @@
+{
+  "mediaId": "25065",
+  "title": "Мистер Бин",
+  "year": 2002,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": false,
+  "errorCategory": "EXACT_IMDB_UNAVAILABLE",
+  "checkedAt": "2026-10-02T11:15:16.373200+00:00"
+}
