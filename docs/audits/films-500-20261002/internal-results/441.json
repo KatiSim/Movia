@@ -1,0 +1,168 @@
+{
+  "mediaId": "441",
+  "title": "Бесславные ублюдки",
+  "year": 2009,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2880,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 12,
+  "providerVoiceLabels": [
+    "BBC Saint-Petersburg & LHS",
+    "LeDoyen (укр)",
+    "Original (с субтитрами)",
+    "delete",
+    "А. Гаврилов",
+    "Дубляж",
+    "М. Чадов",
+    "ТРК Украина",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng11",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng11",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 12,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 24,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:12:54.407417+00:00"
+}
