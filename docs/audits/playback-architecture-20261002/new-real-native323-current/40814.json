@@ -1,0 +1,29 @@
+{
+  "mediaId": "40814",
+  "title": "Дракула: Принц тьмы",
+  "year": 1966,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:31:04.706628+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 6474,
+    "observed": {
+      "mediaId": "40814",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 240,
+      "positionMs": 173,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1195,
+      "voice": "Original",
+      "streamFingerprint": "2c4a6c33d947c4858f09",
+      "locatorFingerprint": "0d59ab21440dc340a336"
+    },
+    "commandToReadyMs": 6725
+  }
+}
