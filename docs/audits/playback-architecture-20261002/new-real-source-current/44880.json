@@ -1,0 +1,36 @@
+{
+  "mediaId": "44880",
+  "title": "День, когда Земля остановилась",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:56.270808+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6dede22ce37926cdc04e",
+      "decoded": true,
+      "actualHeight": 540,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "55919131e43f2d454fcc",
+      "videoFrameFingerprint": "7e80e46a76e2d3a0f4ce",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 10016
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d6d6063d3d9fb338242d",
+  "preparedStreamIdFingerprint": "1469e3c06b8e85b60c7d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
