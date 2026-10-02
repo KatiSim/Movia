@@ -374,6 +374,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Хихикающий доктор",
+      "expectedAudioLabel": "rus2",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 271,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 17690,
+        "frames": 13632,
+        "quality": "720p",
+        "voice": "Хихикающий доктор",
+        "streamFingerprint": "a62fa7a2eced0eb2e307",
+        "locatorFingerprint": "48685269b1bf490fd348",
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:3:0",
+            "rus2",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:28:07.149593+00:00",
