@@ -1,0 +1,36 @@
+{
+  "mediaId": "55935",
+  "title": "В старом Чикаго",
+  "year": 1938,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:55.962448+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fb8af457a3cd8b8091b7",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "a8f5c8a401d9c23f515d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3908
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "68c207d65465e3991447",
+  "preparedStreamIdFingerprint": "49ae4cc17ee48a0ddb50",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
