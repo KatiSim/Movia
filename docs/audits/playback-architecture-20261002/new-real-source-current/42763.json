@@ -1,0 +1,36 @@
+{
+  "mediaId": "42763",
+  "title": "Сирано де Бержерак",
+  "year": 1960,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:25.484698+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "31065f3c736af85e6a0b",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "8f89975ac4177e1012eb",
+      "videoFrameFingerprint": "1ddb43c2e85ba99d6af0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4033
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2a7961b4e146494158b1",
+  "preparedStreamIdFingerprint": "ccd958b430106860f95a",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
