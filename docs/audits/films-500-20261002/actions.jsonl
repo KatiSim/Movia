@@ -2007,3 +2007,4 @@
 {"seq": 2007, "at": "2026-10-02T11:14:30.647446+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}
 {"seq": 2008, "at": "2026-10-02T11:14:30.823599+00:00", "action": "exact_provider_resolve", "mediaId": "87", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2009, "at": "2026-10-02T11:14:31.099895+00:00", "action": "internal_movie_result", "mediaId": "36067", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2010, "at": "2026-10-02T11:14:31.272495+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}
