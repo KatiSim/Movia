@@ -1,0 +1,36 @@
+{
+  "mediaId": "235711",
+  "title": "Home Sweet Home",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:39.123743+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e2043a807d5dbbd94bb2",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7310ed5aa4e9148e33fd",
+      "videoFrameFingerprint": "172877eb3412e645b788",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3119
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2c7c3871849fc260bb17",
+  "preparedStreamIdFingerprint": "b25417b50872997677bb",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
