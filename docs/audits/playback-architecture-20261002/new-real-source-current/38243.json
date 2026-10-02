@@ -1,0 +1,36 @@
+{
+  "mediaId": "38243",
+  "title": "Закрыто по понедельникам",
+  "year": 1974,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:49.099384+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ac5193d1a2df56c91586",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "b321d2d667ccdc1b9ae0",
+      "videoFrameFingerprint": "a9adde8faf957e534c38",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3357
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c8d768f39438c2c86ed4",
+  "preparedStreamIdFingerprint": "5f2ebeabedf44cd65db2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
