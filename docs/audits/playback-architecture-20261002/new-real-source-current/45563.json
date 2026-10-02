@@ -1,0 +1,64 @@
+{
+  "mediaId": "45563",
+  "title": "Старик и мальчик",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:24.312839+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "d611ec5f273ebcbf9b12",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "d6eb6f0b363ffdb4a471",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6267
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "85d6b1bbc159f8fe8dd7",
+  "preparedStreamIdFingerprint": "b568365bdf5b836b2e7b",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "hin1",
+      "language": "hi",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "hin1",
+      "language": "hi",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 4
+}
