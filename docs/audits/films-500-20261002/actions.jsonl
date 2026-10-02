@@ -2817,3 +2817,4 @@
 {"seq": 2817, "at": "2026-10-02T11:18:33.284618+00:00", "action": "internal_movie_result", "mediaId": "31224", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2818, "at": "2026-10-02T11:18:33.619321+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Профессиональный (МВО), Двухголосый (ДВО)", "persist": false}, "accepted": true, "requestMs": 61}
 {"seq": 2819, "at": "2026-10-02T11:18:33.968993+00:00", "action": "exact_provider_resolve", "mediaId": "12336", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2820, "at": "2026-10-02T11:18:34.447508+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
