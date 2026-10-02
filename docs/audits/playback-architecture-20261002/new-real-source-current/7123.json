@@ -1,0 +1,36 @@
+{
+  "mediaId": "7123",
+  "title": "Камень, ножницы, бумага",
+  "year": 2012,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:34.166504+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "022156ec5e55280c10b4",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "b9f5b73d29a777b09e7c",
+      "videoFrameFingerprint": "b33ffb4861eafab26dfc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3959
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6ebc2d7d435928f92730",
+  "preparedStreamIdFingerprint": "ed31a5a94811728f634b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
