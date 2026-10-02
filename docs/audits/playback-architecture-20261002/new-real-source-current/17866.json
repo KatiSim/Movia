@@ -1,0 +1,36 @@
+{
+  "mediaId": "17866",
+  "title": "Скрытая красота: История любви, которая питает Землю",
+  "year": 2011,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:46:09.563334+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8b5a53511be5a36499fa",
+      "decoded": true,
+      "actualHeight": 718,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "4f8578e6e256c26fa9bd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8975
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "499ed188ee0d0448ed0d",
+  "preparedStreamIdFingerprint": "bf10c0c3e05e439fdfb3",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
