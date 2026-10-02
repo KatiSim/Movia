@@ -94,6 +94,41 @@ class AdaptivePlaybackRegressionTest {
             assertFalse(main { session.selectVoice("Missing studio") })
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
     }
+    @Test fun stalledStartupHandsOverBeforeWatchdogAndPreservesPauseAndPosition() {
+        control("/__control?mode=online")
+        val session = main { MoviaPlaybackRegistry.obtain(context) }
+        val ref = "movia_qa_handover"
+        try {
+            main {
+                session.setFrameProbe(true)
+                session.start(ref, "Movia QA handover", sourceUri = "$base/stall.mp4",
+                    startPositionMs = 12_000L, recordHistory = false)
+                session.pausePlayback()
+            }
+            val started = SystemClock.elapsedRealtime()
+            runBlocking { withContext(Dispatchers.Main) {
+                session.acceptDiscoveredCandidates(listOf(StreamCandidate("qa:fresh", provider = "Movia QA",
+                    url = "$base/fixture.mp4", catalogMediaId = ref, canonicalTitle = "Movia QA handover",
+                    voice = "Studio A", quality = "360p")))
+            } }
+            waitFor { session.player.playbackState == androidx.media3.common.Player.STATE_READY &&
+                session.activeSourceUri == "$base/fixture.mp4" }
+            assertTrue("Startup must not wait for the ten-second watchdog", SystemClock.elapsedRealtime() - started < 5_000L)
+            assertFalse(main { session.player.playWhenReady })
+            assertTrue(kotlin.math.abs(main { session.player.currentPosition } - 12_000L) < 500L)
+            main { session.playPlayback() }
+            waitFor { session.probeFrames >= 3 }
+            val playingUri = session.activeSourceUri
+            runBlocking { withContext(Dispatchers.Main) {
+                session.acceptDiscoveredCandidates(listOf(StreamCandidate("qa:late", provider = "Movia QA",
+                    url = "$base/fixture.mp4?late=1", catalogMediaId = ref, canonicalTitle = "Movia QA handover",
+                    voice = "Studio A", quality = "360p")))
+            } }
+            Thread.sleep(1800)
+            assertEquals("Late discovery must not interrupt playing media", playingUri, session.activeSourceUri)
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
+
     @Test fun hlsOfflineHasSelectedAudioAndQualityAndMakesZeroMediaRequests() {
         control("/__control?mode=online")
         val ref=MediaRef("movia_qa_offline",1,2)

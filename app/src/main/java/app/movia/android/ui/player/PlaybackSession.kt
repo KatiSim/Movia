@@ -344,6 +344,8 @@ class PlaybackSession(context: Context) {
     private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
     private var discoveryJob: Job? = null
+    private var startupHandoverJob: Job? = null
+    private var startupHandoverUsed = false
     private var webResolveJob: Job? = null
     private var appliedTrackSelectionKey: String? = null
 
@@ -1183,6 +1185,8 @@ class PlaybackSession(context: Context) {
         recordHistory: Boolean = true,
     ) {
         this.recordHistory = recordHistory
+        startupHandoverJob?.cancel()
+        startupHandoverUsed = false
         discoveryJob?.cancel()
         userSelectedAutoQuality = false
         userSelectedAutoAudio = false
@@ -1284,32 +1288,7 @@ class PlaybackSession(context: Context) {
         discoveryJob = scope.launch {
             val updates = kotlinx.coroutines.channels.Channel<List<StreamCandidate>>(kotlinx.coroutines.channels.Channel.CONFLATED)
             suspend fun mergeDiscovered(incoming: List<StreamCandidate>) {
-                val current = playbackRequest ?: return
-                if (current.correlationId != request.correlationId || incoming.isEmpty()) return
-                val needsRecovery = _state.value.switchState == PlaybackSwitchState.FAILED
-                candidates = StreamRanker.rankCandidates(
-                    StreamDeduplicator.deduplicate(incoming + candidates), context = requestContext(current))
-                publishCandidateOptions()
-                recoveryAttemptBudget = candidates.size.coerceAtLeast(1) * 2 + 1
-                val desired = selectInitialCandidate(current) ?: return
-                if (activeCandidate == null) {
-                    _state.value = _state.value.copy(
-                        activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(source = desired.provider))
-                    if (!prepareCandidate(desired, current, current.startPositionMs, playbackGeneration)) {
-                        handleCandidateFailure("PREPARE_FAILED", current.startPositionMs, playbackGeneration)
-                    }
-                    return
-                }
-                val preferredVoiceArrived = !current.requestedVoice.isNullOrBlank() &&
-                    desired.voice == current.requestedVoice && activeCandidate?.voice != current.requestedVoice
-                val preferredQualityArrived = !current.requestedQuality.isNullOrBlank() &&
-                    !current.requestedQuality.equals("Auto", true) && desired.quality == current.requestedQuality &&
-                    activeCandidate?.quality != current.requestedQuality && player.videoFormat?.height != desired.resolutionHeight
-                if (desired.stableStreamId != activeCandidate?.stableStreamId &&
-                    (needsRecovery || preferredVoiceArrived || preferredQualityArrived)) {
-                    val position = if (needsRecovery) _state.value.currentPositionMs else player.currentPosition
-                    switchToStream(desired.toStreamOption(), position.coerceAtLeast(0))
-                }
+                if (playbackRequest?.correlationId == request.correlationId) acceptDiscoveredCandidates(incoming)
             }
             val updateConsumer = launch { for (incoming in updates) mergeDiscovered(incoming) }
             val nativeDiscovery = async(Dispatchers.IO) {
@@ -1346,6 +1325,62 @@ class PlaybackSession(context: Context) {
         }
     }
 
+    /** All discovery routes enter on the playback scope; stale identities are discarded. */
+    internal suspend fun acceptDiscoveredCandidates(incoming: List<StreamCandidate>) {
+        val current = playbackRequest ?: return
+        if (incoming.isEmpty()) return
+        val needsRecovery = _state.value.switchState == PlaybackSwitchState.FAILED
+        val validated = DomainPlaybackResolver.validatedCandidates(current, incoming)
+        if (validated.isEmpty()) return
+        candidates = StreamRanker.rankCandidates(
+            StreamDeduplicator.deduplicate(validated + candidates), context = requestContext(current))
+        publishCandidateOptions()
+        recoveryAttemptBudget = candidates.size.coerceAtLeast(1) * 2 + 1
+        val desired = selectInitialCandidate(current) ?: return
+        if (activeCandidate == null) {
+            _state.value = _state.value.copy(
+                activeStreamSelection = (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(source = desired.provider))
+            if (!prepareCandidate(desired, current, current.startPositionMs, playbackGeneration)) {
+                handleCandidateFailure("PREPARE_FAILED", current.startPositionMs, playbackGeneration)
+            }
+            return
+        }
+        scheduleStartupHandover(current, validated)
+        val preferredVoiceArrived = !current.requestedVoice.isNullOrBlank() &&
+            desired.voice == current.requestedVoice && activeCandidate?.voice != current.requestedVoice
+        val preferredQualityArrived = !current.requestedQuality.isNullOrBlank() &&
+            !current.requestedQuality.equals("Auto", true) && desired.quality == current.requestedQuality &&
+            activeCandidate?.quality != current.requestedQuality && player.videoFormat?.height != desired.resolutionHeight
+        if (desired.stableStreamId != activeCandidate?.stableStreamId &&
+            (needsRecovery || preferredVoiceArrived || preferredQualityArrived)) {
+            val position = if (needsRecovery) _state.value.currentPositionMs else player.currentPosition
+            switchToStream(desired.toStreamOption(), position.coerceAtLeast(0))
+        }
+    }
+
+    private fun scheduleStartupHandover(request: PlaybackRequest, incoming: List<StreamCandidate>) {
+        if (startupHandoverUsed || startupHandoverJob?.isActive == true ||
+            firstFrameLatencyMs != null || readyLatencyMs != null || recoveryJob?.isActive == true) return
+        val previous = activeCandidate ?: return
+        val replacement = selectStartupReplacement(request, previous, incoming, requestContext(request)) ?: return
+        val generation = playbackGeneration
+        startupHandoverJob = scope.launch {
+            delay((1_500L - (SystemClock.elapsedRealtime() - requestStartedMs)).coerceAtLeast(0))
+            if (!isCurrentGeneration(generation) || playbackRequest?.correlationId != request.correlationId ||
+                activeCandidate != previous || firstFrameLatencyMs != null || readyLatencyMs != null ||
+                player.playbackState == Player.STATE_READY || player.isPlaying || recoveryJob?.isActive == true) return@launch
+            startupHandoverUsed = true
+            watchdogJob?.cancel()
+            stallWatchdogJob?.cancel()
+            val position = maxOf(request.startPositionMs, _state.value.currentPositionMs, player.currentPosition.coerceAtLeast(0))
+            _state.value = _state.value.copy(switchState = PlaybackSwitchState.SWITCHING_SOURCE)
+            Log.i(TAG, "Startup discovery handover id=" + replacement.stableStreamId)
+            if (!prepareCandidate(replacement, request, position, generation)) {
+                handleCandidateFailure("STARTUP_HANDOVER_FAILED", position, generation)
+            }
+        }
+    }
+
     fun switchToStream(streamUrl: String, resumePositionMs: Long = -1L) {
         if (streamUrl.isBlank()) return
         val normalized = streamUrl.trim()
@@ -1359,6 +1394,8 @@ class PlaybackSession(context: Context) {
     }
 
     fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L) {
+        startupHandoverJob?.cancel()
+        startupHandoverUsed = true
         if (stream.url.isBlank() || !_state.value.hasMedia) return
         val generation = nextPlaybackGeneration()
         watchdogJob?.cancel()
@@ -1539,6 +1576,7 @@ class PlaybackSession(context: Context) {
     }
 
     fun stopAndClear() {
+        startupHandoverJob?.cancel()
         discoveryJob?.cancel()
         webResolveJob?.cancel()
         nextPlaybackGeneration()

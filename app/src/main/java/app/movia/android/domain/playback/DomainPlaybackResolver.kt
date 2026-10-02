@@ -564,6 +564,9 @@ object DomainPlaybackResolver {
         .filter(::isStructurallyValidCandidate)
         .filter { identityMatches(request, it) }
 
+    internal fun validatedCandidates(request: PlaybackRequest, candidates: List<StreamCandidate>): List<StreamCandidate> =
+        usableCandidates(request, candidates)
+
     /** Start a validated cached HTTP candidate while fresh discovery proceeds. */
     internal fun cachedStartupCandidates(
         request: PlaybackRequest,
