@@ -1,0 +1,29 @@
+{
+  "mediaId": "23590",
+  "title": "Волосы дыбом",
+  "year": 2004,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:25:39.524267+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 6679,
+    "observed": {
+      "mediaId": "23590",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 240,
+      "positionMs": 233,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 8,
+      "voice": "Original",
+      "streamFingerprint": "c1369def7a9aafc3c5cb",
+      "locatorFingerprint": "d016acefb94bd5f91e47"
+    },
+    "commandToReadyMs": 7179
+  }
+}
