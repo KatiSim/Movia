@@ -2616,3 +2616,4 @@
 {"seq": 2616, "at": "2026-10-02T11:17:15.791468+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "ICTV (укр.)", "persist": false}, "accepted": true, "requestMs": 67}
 {"seq": 2617, "at": "2026-10-02T11:17:16.463410+00:00", "action": "internal_movie_result", "mediaId": "15537", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2618, "at": "2026-10-02T11:17:16.790266+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
+{"seq": 2619, "at": "2026-10-02T11:17:17.041173+00:00", "action": "exact_provider_resolve", "mediaId": "13362", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
