@@ -1,0 +1,36 @@
+{
+  "mediaId": "29121",
+  "title": "Монастырь",
+  "year": 1995,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:49:13.674353+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6d4be5fba057deb8b5f5",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "10c830b8c23809a2005f",
+      "videoFrameFingerprint": "b26c86c492e09816aa24",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7100
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8a8e83406e0b221a240d",
+  "preparedStreamIdFingerprint": "ed02b26e72897ff3ca08",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
