@@ -1,0 +1,13 @@
+{
+  "mediaId": "10236",
+  "title": "Сэр",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:10:43.243770+00:00"
+}
