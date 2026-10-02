@@ -114,6 +114,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Карповский",
+      "expectedAudioLabel": "rus3",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 410,
+      "observed": {
+        "mediaId": "12245",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 5058,
+        "frames": 596,
+        "quality": "360p",
+        "voice": "Карповский",
+        "streamFingerprint": "f6464d15854430c1ecce",
+        "locatorFingerprint": "615c871aa3e7cf5371c1",
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:4:0",
+            "rus3",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:14:31.426117+00:00",
