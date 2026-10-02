@@ -3,7 +3,45 @@
   "title": "Властелин колец: возвращение короля",
   "year": 2003,
   "build": 321,
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 252,
+      "observed": {
+        "mediaId": "46",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1168,
+        "frames": 3409,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "51d3b67a01c6dc335bae",
+        "locatorFingerprint": "97e717725185ef9c08e7",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": false,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
+    }
+  ],
   "checkedAt": "2026-10-02T11:17:35.373193+00:00",
   "startup": {
     "decoded": true,
