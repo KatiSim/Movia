@@ -225,6 +225,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "530p",
+      "voice": "М. Чадов",
+      "expectedAudioLabel": "rus2",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 150,
+      "observed": {
+        "mediaId": "203",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 530,
+        "positionMs": 6099,
+        "frames": 1339,
+        "quality": "530p",
+        "voice": "М. Чадов",
+        "streamFingerprint": "442ca3b0d2a9802861ef",
+        "locatorFingerprint": "296b6423e5e160505bcb",
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:3:0",
+            "rus2",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:15:16.102157+00:00",
