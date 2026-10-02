@@ -1,0 +1,50 @@
+{
+  "mediaId": "37203",
+  "title": "Элис, милая Элис",
+  "year": 1976,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "default",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "53cf5c6f428e0f8d459a",
+      "ms": 3701,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "Diva Universal"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:08:00.302482+00:00"
+}
