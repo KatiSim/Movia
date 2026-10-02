@@ -4068,3 +4068,4 @@
 {"seq": 4068, "at": "2026-10-02T11:29:29.591193+00:00", "action": "movie_result", "mediaId": "322120", "decoded": true, "voices": 4, "qualities": 2}
 {"seq": 4069, "at": "2026-10-02T11:29:29.887349+00:00", "action": "player.selectQuality", "mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 31}
 {"seq": 4070, "at": "2026-10-02T11:29:30.148668+00:00", "action": "player.selectVoice", "mediaId": "322120", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "requestMs": 34}
+{"seq": 4071, "at": "2026-10-02T11:29:30.460039+00:00", "action": "movie_result", "mediaId": "322120", "decoded": true, "voices": 4, "qualities": 2}
