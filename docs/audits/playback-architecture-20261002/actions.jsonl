@@ -230,3 +230,4 @@
 {"seq": 230, "at": "2026-10-02T14:09:03.131914+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 231, "at": "2026-10-02T14:09:04.288110+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 22, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 232, "at": "2026-10-02T14:09:04.592237+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 22, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 233, "at": "2026-10-02T14:09:04.943539+00:00", "action": "native_player.stop", "details": {"mediaId": "172", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
