@@ -1,0 +1,36 @@
+{
+  "mediaId": "25709",
+  "title": "Непокоренный",
+  "year": 1956,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:57:33.569266+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3be394b500c538018f45",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "b45a1e7e74269d894012",
+      "videoFrameFingerprint": "e5b298cf26887d924c73",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3915
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fa210f6a042157330730",
+  "preparedStreamIdFingerprint": "a2cf1485947008dd8084",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
