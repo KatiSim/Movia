@@ -1,0 +1,13 @@
+{
+  "mediaId": "38787",
+  "title": "Леди поет блюз",
+  "year": 1972,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:11:47.505553+00:00"
+}
