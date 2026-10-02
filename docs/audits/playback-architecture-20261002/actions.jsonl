@@ -3023,3 +3023,4 @@
 {"seq": 3023, "at": "2026-10-02T15:41:26.335375+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3024, "at": "2026-10-02T15:41:29.878233+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 16, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3025, "at": "2026-10-02T15:41:30.209615+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3026, "at": "2026-10-02T15:41:30.547733+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Невафильм", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
