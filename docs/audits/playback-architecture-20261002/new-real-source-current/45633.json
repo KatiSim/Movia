@@ -1,0 +1,36 @@
+{
+  "mediaId": "45633",
+  "title": "Идеальное Рождество Артура",
+  "year": 2000,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:13.851651+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6baa8d49fd45461e9166",
+      "decoded": true,
+      "actualHeight": 288,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "f669af01845aeead5eac",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3990
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "dde7e988d5934ef48233",
+  "preparedStreamIdFingerprint": "c536179b5f8e3862d10b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
