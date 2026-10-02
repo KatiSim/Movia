@@ -1549,3 +1549,4 @@
 {"seq": 1549, "at": "2026-10-02T14:37:11.555007+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "4482", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1550, "at": "2026-10-02T14:37:12.170628+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "45682", "quality": 360, "voice": "default"}, "sourcePaths": []}
 {"seq": 1551, "at": "2026-10-02T14:37:12.504632+00:00", "action": "native_player.stop", "details": {"mediaId": "57231", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1552, "at": "2026-10-02T14:37:12.798897+00:00", "action": "native_media.play", "details": {"mediaId": "57231", "arguments": {"mediaId": "57231", "title": "Битва караванов", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "77e320fe7338a8fd918c"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
