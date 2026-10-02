@@ -328,3 +328,4 @@
 {"seq": 328, "at": "2026-10-02T14:10:14.712726+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 329, "at": "2026-10-02T14:10:15.576812+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 6, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 330, "at": "2026-10-02T14:10:15.978791+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 331, "at": "2026-10-02T14:10:16.266466+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Профессиональный (МВО) · дорожка 7", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
