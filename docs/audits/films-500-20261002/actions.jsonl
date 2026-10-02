@@ -1035,3 +1035,4 @@
 {"seq": 1035, "at": "2026-10-02T11:04:51.200727+00:00", "action": "player.probeSurface", "mediaId": null, "arguments": {"enabled": false}, "accepted": true, "requestMs": 6}
 {"seq": 1036, "at": "2026-10-02T11:04:53.019091+00:00", "action": "internal_movie_result", "mediaId": "582450", "actualDecoded": true, "voices": 3, "qualities": 1, "errorCategory": null}
 {"seq": 1037, "at": "2026-10-02T11:04:53.323936+00:00", "action": "exact_provider_resolve", "mediaId": "8956", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 1038, "at": "2026-10-02T11:04:54.148850+00:00", "action": "internal_movie_result", "mediaId": "662823", "actualDecoded": true, "voices": 1, "qualities": 2, "errorCategory": null}
