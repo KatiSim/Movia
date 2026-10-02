@@ -1,0 +1,36 @@
+{
+  "mediaId": "56773",
+  "title": "Лентяй",
+  "year": 1925,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:35:54.607185+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "54da2f110d0130b8011e",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "8828188aff9f50721228",
+      "videoFrameFingerprint": "6669a757bfbd0ac10635",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9962
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "253e1a2aeaecfaad98eb",
+  "preparedStreamIdFingerprint": "e5137b2ea6f483cd0252",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
