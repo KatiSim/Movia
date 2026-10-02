@@ -1,0 +1,12 @@
+{
+  "selected": 38,
+  "attempted": 38,
+  "decodedMovies": 5,
+  "fullPreparedMatricesPassed": 4,
+  "withAtLeastThreeVoices": 0,
+  "withAtLeastTwoQualities": 0,
+  "moviesWithAllCachedHttpProfilesPassed": 4,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "updatedAt": "2026-10-02T15:32:04.550732+00:00"
+}
