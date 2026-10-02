@@ -1,0 +1,13 @@
+{
+  "mediaId": "31224",
+  "title": "Эдвард руки-ножницы",
+  "year": 1990,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:18:33.267199+00:00"
+}
