@@ -1,0 +1,36 @@
+{
+  "mediaId": "59837",
+  "title": "Суворов",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:37.521295+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "bc56e50dccbc545d93d7",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "a19954dcecdace772b0c",
+      "videoFrameFingerprint": "db46b5e43e8a86baf7a5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6116
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "aa2c1cb03d883b163b65",
+  "preparedStreamIdFingerprint": "08c4b4fed0df626a2ecd",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
