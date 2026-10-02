@@ -1,0 +1,36 @@
+{
+  "mediaId": "47057",
+  "title": "Путешествие на Марс",
+  "year": 1918,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:47.877082+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ace530143dbc3e3fe752",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "34a5f14709cf0f159247",
+      "videoFrameFingerprint": "bc3f240089c4053c9c75",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4787
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6c05c414702757bfc670",
+  "preparedStreamIdFingerprint": "d05f4318133cd1797ded",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
