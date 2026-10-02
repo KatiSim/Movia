@@ -468,3 +468,4 @@
 {"seq": 468, "at": "2026-10-02T14:11:58.065502+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "HDRezka", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 469, "at": "2026-10-02T14:11:59.790103+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 8, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 470, "at": "2026-10-02T14:12:00.297446+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 471, "at": "2026-10-02T14:12:00.908922+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
