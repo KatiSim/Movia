@@ -1,0 +1,36 @@
+{
+  "mediaId": "56872",
+  "title": "Янки в королевских ВВС",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:25.891621+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a8acaa43d869841acff9",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "4a7002534aecc966e1fb",
+      "videoFrameFingerprint": "cc96f855f7d6333a1316",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4235
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b087a6b08e07518bed04",
+  "preparedStreamIdFingerprint": "c4d45e48475c2f1930f2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
