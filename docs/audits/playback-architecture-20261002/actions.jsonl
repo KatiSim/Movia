@@ -2115,3 +2115,4 @@
 {"seq": 2115, "at": "2026-10-02T14:54:59.022182+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "55881", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 2116, "at": "2026-10-02T14:54:59.888337+00:00", "action": "backend195_readonly_retest", "details": {"exitCode": 0, "activeServiceChanged": false}, "sourcePaths": []}
 {"seq": 2117, "at": "2026-10-02T14:55:00.360769+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "54865", "decoded": false, "allPreparedPairsPassed": false, "errorCategory": "NO_ACCESSIBLE_CACHED_SOURCE"}, "sourcePaths": []}
+{"seq": 2118, "at": "2026-10-02T14:55:01.543452+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "45230", "quality": 360, "voice": "default"}, "sourcePaths": []}
