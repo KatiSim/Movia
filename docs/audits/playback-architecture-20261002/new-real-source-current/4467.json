@@ -1,0 +1,36 @@
+{
+  "mediaId": "4467",
+  "title": "Хитроухий заяц",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:17.930755+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a79d303e057c2c31d01a",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "2e34d3bf7fb2ed17312c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3510
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cf31c3fd0a2a50ccf7c5",
+  "preparedStreamIdFingerprint": "0755d2223db567c4415d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
