@@ -1,0 +1,83 @@
+{
+  "mediaId": "531020",
+  "title": "Безумное кино для взрослых",
+  "year": 2021,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2794,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 4,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "delete",
+    "КиноПоиск HD",
+    "Укр. Дубльований"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rum1",
+      "language": "ro",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "rum3",
+      "language": "ro",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rum1",
+      "language": "ro",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr2",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rum3",
+      "language": "ro",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 8,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:26.798961+00:00"
+}
