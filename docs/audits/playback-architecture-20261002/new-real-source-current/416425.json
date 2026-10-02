@@ -1,0 +1,51 @@
+{
+  "mediaId": "416425",
+  "title": "Гигант",
+  "year": 2009,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:29.293787+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "d812d083157d91f172f7",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "d629b8f1c78cddbb2f4f",
+      "videoFrameFingerprint": "b63b4d48217fc999bf82",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5986
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3e40cca60c4b926f0f41",
+  "preparedStreamIdFingerprint": "f5af5efe5db1b3eaa472",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
