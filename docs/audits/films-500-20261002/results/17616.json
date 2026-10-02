@@ -1,0 +1,42 @@
+{
+  "index": 22,
+  "mediaId": "17616",
+  "title": "Голодный кролик атакует",
+  "year": 2011,
+  "rating": 6.0,
+  "voteCount": 1124,
+  "genres": "[\"боевик\",\"драма\",\"триллер\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14058.19,
+    "observed": {
+      "mediaId": "17616",
+      "state": "BUFFERING",
+      "switchState": "SWITCHING_SOURCE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 61,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "0f3053fb47a7b558d283",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14248.13,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:42:51.506657+00:00"
+}
