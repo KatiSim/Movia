@@ -1,0 +1,52 @@
+{
+  "mediaId": "45219",
+  "title": "Кулак ярости",
+  "year": 2019,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:34.584918+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 414,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "1d993a7d92adca278525",
+      "decoded": true,
+      "actualHeight": 414,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "169c80d80df2db651ca1",
+      "videoFrameFingerprint": "26f13f62da140cacfe9c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2874
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0bf434872c7dea952529",
+  "preparedStreamIdFingerprint": "c232639aefbb4478dc55",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    414,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
