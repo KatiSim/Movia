@@ -1,0 +1,29 @@
+{
+  "mediaId": "57693",
+  "title": "Старым добрым летом",
+  "year": 1949,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:27:29.217112+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 3815,
+    "observed": {
+      "mediaId": "57693",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 153,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 625,
+      "voice": "Original",
+      "streamFingerprint": "0fc576c0110a918b571a",
+      "locatorFingerprint": "8a973a7cc5f4a4b046d6"
+    },
+    "commandToReadyMs": 4005
+  }
+}
