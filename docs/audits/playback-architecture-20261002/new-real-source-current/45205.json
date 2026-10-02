@@ -1,0 +1,36 @@
+{
+  "mediaId": "45205",
+  "title": "Бен-Гур: Расказ Христа",
+  "year": 1925,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:46.566015+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "078087ee964375190c8d",
+      "decoded": true,
+      "actualHeight": 544,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "4424f36202de987c5053",
+      "videoFrameFingerprint": "4b5d37736927613f5d10",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3244
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7984a552826b6424c101",
+  "preparedStreamIdFingerprint": "966925605bbaccfd599b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
