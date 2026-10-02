@@ -2264,3 +2264,4 @@
 {"seq": 2264, "at": "2026-10-02T11:15:35.572682+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 56}
 {"seq": 2265, "at": "2026-10-02T11:15:35.678200+00:00", "action": "internal_movie_result", "mediaId": "13369", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2266, "at": "2026-10-02T11:15:35.806991+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "Voize", "persist": false}, "accepted": true, "requestMs": 21}
+{"seq": 2267, "at": "2026-10-02T11:15:35.882421+00:00", "action": "internal_movie_result", "mediaId": "53721", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
