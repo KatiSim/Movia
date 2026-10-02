@@ -2935,3 +2935,4 @@
 {"seq": 2935, "at": "2026-10-02T15:40:27.828589+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2936, "at": "2026-10-02T15:40:28.382245+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 38, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2937, "at": "2026-10-02T15:40:28.752508+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2938, "at": "2026-10-02T15:40:29.069832+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
