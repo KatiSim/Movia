@@ -1,0 +1,52 @@
+{
+  "mediaId": "438603",
+  "title": "Дворняга",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:28:01.430308+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "bf021f90b7935d21da65",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fecb6681941211554a10",
+      "videoFrameFingerprint": "25f63e6a83becd3ebd2d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2668
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ae327039e8cdc7e7fda4",
+  "preparedStreamIdFingerprint": "457bcadeecdfce1fead4",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
