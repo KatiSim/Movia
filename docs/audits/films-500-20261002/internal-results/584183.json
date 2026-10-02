@@ -1,0 +1,60 @@
+{
+  "mediaId": "584183",
+  "title": "Ван-Пис: Футбольный король мечты!",
+  "year": 2002,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3108,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Авторский (Одноголосый)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:05:03.634950+00:00"
+}
