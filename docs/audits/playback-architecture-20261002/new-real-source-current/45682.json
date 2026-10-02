@@ -1,0 +1,52 @@
+{
+  "mediaId": "45682",
+  "title": "Кошачий концерт",
+  "year": 1947,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:11.546916+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "c0872394dda571dbc9a9",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "13eebd0dc7bacbcaa50b",
+      "videoFrameFingerprint": "f145cd6f9c51d6a97962",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3282
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8c797bcfbd888b7344de",
+  "preparedStreamIdFingerprint": "387d78c26fd51792254e",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
