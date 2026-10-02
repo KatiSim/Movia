@@ -1,0 +1,127 @@
+{
+  "mediaId": "11095",
+  "title": "Оно",
+  "year": 2017,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2600,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 8,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Paradox",
+    "А. Дольский",
+    "Авторский (Одноголосый)",
+    "Дубляж",
+    "М. Чадов",
+    "Укр. Дубльований",
+    "Ю. Живов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 8,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 16,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:50.601503+00:00"
+}
