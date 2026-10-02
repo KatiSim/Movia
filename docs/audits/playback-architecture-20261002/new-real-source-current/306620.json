@@ -1,0 +1,36 @@
+{
+  "mediaId": "306620",
+  "title": "Nox",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:42:30.003207+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2a926ad232fdefffcd65",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "9fd5be1eaeb9358d6dba",
+      "videoFrameFingerprint": "0528cd8a765c7116604e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3506
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8ec985698458519cb8e7",
+  "preparedStreamIdFingerprint": "3762c16644b166845e9f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
