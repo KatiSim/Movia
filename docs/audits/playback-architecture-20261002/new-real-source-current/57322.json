@@ -1,0 +1,36 @@
+{
+  "mediaId": "57322",
+  "title": "Охота Гайаваты на кролика",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:36.304546+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "22e5374e15b2687333d9",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "f031080dfc336d233f2d",
+      "videoFrameFingerprint": "c7afaae78655185b3876",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4170
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ca53cb4e85494212f57a",
+  "preparedStreamIdFingerprint": "0d803d2eda09ee3313c9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
