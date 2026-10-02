@@ -1,0 +1,29 @@
+{
+  "mediaId": "56568",
+  "title": "... в котором мы служим",
+  "year": 1942,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:25:48.438957+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 5270,
+    "observed": {
+      "mediaId": "56568",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 352,
+      "positionMs": 210,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 61,
+      "voice": "Original",
+      "streamFingerprint": "2bfce1d0bfff16544e6b",
+      "locatorFingerprint": "7bdc64d1dd536c2b0d6a"
+    },
+    "commandToReadyMs": 5526
+  }
+}
