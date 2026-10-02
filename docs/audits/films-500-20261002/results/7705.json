@@ -1,0 +1,65 @@
+{
+  "index": 6,
+  "mediaId": "7705",
+  "title": "Как быть хорошей женой",
+  "year": 2020,
+  "rating": 5.9,
+  "voteCount": 259,
+  "genres": "[\"комедия\"]",
+  "variants": [],
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 5005.03,
+    "observed": {
+      "mediaId": "7705",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 312,
+      "frames": 7,
+      "quality": "540p",
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "a20ec706e38bc90e3564",
+      "locatorFingerprint": "831cb6137249670ecb55",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:1",
+          "rus0 · 2",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 5122.79,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Original (с субтитрами)",
+      "delete",
+      "fre1",
+      "fre1 · 4",
+      "fre3",
+      "fre3 · 8",
+      "rus0",
+      "rus0 · 2",
+      "ukr2",
+      "ukr2 · 6",
+      "Інтер (укр)",
+      "Первый Канал"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p"
+    ],
+    "advertisedPairs": [],
+    "sourceRows": 7,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:39:36.368579+00:00"
+}
