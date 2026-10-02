@@ -1,0 +1,36 @@
+{
+  "mediaId": "56040",
+  "title": "Крестовые походы",
+  "year": 1935,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:48.043641+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "66f225a5c977372abccc",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "20ef1aeb9062b9cdb952",
+      "videoFrameFingerprint": "c57c3fe4447bb9f94e84",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4560
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "edb0a6b3c741899b4d5a",
+  "preparedStreamIdFingerprint": "bbef7fb55e9e9a4bf86e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
