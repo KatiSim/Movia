@@ -1,0 +1,52 @@
+{
+  "mediaId": "321556",
+  "title": "18th Rose",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:30:46.364945+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "7144a225eec70057121a",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "d2e15377abf9b59a6f81",
+      "videoFrameFingerprint": "ae0da5c046f65c771a03",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3112
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "41138fdc12a6a5a4a055",
+  "preparedStreamIdFingerprint": "826b19526b5a8d53dbc8",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
