@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Single Media3 session, real frames, sanitized append-only history; no display operations."""
 from pathlib import Path
-import json,os,time,hashlib,uuid,urllib.request,urllib.error,threading,subprocess,datetime,signal,re,sys
+import json,os,time,hashlib,uuid,urllib.request,urllib.error,threading,subprocess,datetime,signal,re,sys,fcntl
 OUT=Path('/data/data/com.termux/files/home/.cache/movia-audit-500-20261002')
 REPO=OUT/'repo'; AUDIT=REPO/'docs/audits/films-500-20261002'
 TOKEN=(Path.home()/'.config/movia-agent/token').read_text().strip()
@@ -31,9 +31,13 @@ def observations():
   'selectedAudioLabel':m.get('selectedAudioLabel'),'selectedAudioLanguage':m.get('selectedAudioLanguage'),'selectedAudio':audio}
 def git(*args):return subprocess.run(['git',*args],cwd=REPO,capture_output=True,text=True,timeout=25)
 def checkpoint(event,extra=None):
+ with (OUT/'git-journal.lock').open('a') as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX)
+  return checkpoint_locked(event,extra)
+def checkpoint_locked(event,extra=None):
  global SEQ
  with LOCK:
-  SEQ+=1;event={'seq':SEQ,'at':now(),**event}
+  SEQ=sum(1 for _ in (AUDIT/'actions.jsonl').open())+1;event={'seq':SEQ,'at':now(),**event}
   with (AUDIT/'actions.jsonl').open('a') as f:f.write(json.dumps(event,ensure_ascii=False)+'\n');f.flush();os.fsync(f.fileno())
   SUMMARY.update(updatedAt=now(),actionsRecorded=SEQ,lastPublishedAction=PUBLISHED,githubSyncError=PUBLISH_ERROR)
   (AUDIT/'summary.json').write_text(json.dumps(SUMMARY,ensure_ascii=False,indent=2)+'\n')
@@ -67,34 +71,43 @@ def act(action,args=None,media=None):
   checkpoint({'action':action,'mediaId':media,'arguments':safe,'accepted':False,'error':str(e)[:120]});raise
 def can_continue():return time.time()<DEADLINE and not PAUSE.exists() and not STOP.is_set()
 def wait_ready(media_id,baseline,max_seconds=14,quality=None,voice=None):
- started=time.monotonic();last=None
+ started=time.monotonic();last=None;last_streams={}
  while time.monotonic()-started<max_seconds and can_continue():
   try:
-   s,m,o=observations();last=o
+   s,m,o=observations();last=o;last_streams=s
    ready=m.get('mediaItemId')==media_id and m.get('isPlaying') and m.get('domainPlaybackState')=='READY' and m.get('switchState')=='READY' and m.get('videoHeight',0)>0 and s.get('probeFrames',0)>=baseline+3
    if ready:
     q_ok=not quality or o['height']==int(re.search(r'\d+',quality)[0])
     v_ok=not voice or str(o.get('voice','')).casefold()==voice.casefold()
     return {'decoded':True,'qualityMatches':q_ok,'voiceReportedMatches':v_ok,'ms':round((time.monotonic()-started)*1000,2),'observed':o},s
-  except (RuntimeError,TimeoutError,urllib.error.URLError):pass
+  except urllib.error.URLError as e:
+   if getattr(e,'reason',None) and ('refused' in str(e).lower() or 'reset' in str(e).lower()):raise
+  except (RuntimeError,TimeoutError):pass
   time.sleep(.15)
- return {'decoded':False,'ms':round((time.monotonic()-started)*1000,2),'observed':last,'reason':'bounded frame observation timeout'},{}
+ return {'decoded':False,'ms':round((time.monotonic()-started)*1000,2),'observed':last,'reason':'bounded frame observation timeout'},last_streams
 def inventory(streams):
- pairs=set();voices=set();qualities=set();source_rows=0
+ pairs=set();voices=set();qualities=set();source_rows=0;automatic_voices=set();technical=set()
+ def meaningful(v):
+  return bool(v) and v.casefold() not in ['auto','не указано','unknown','none','delete','default'] and not re.fullmatch(r'(?:rus|fre|eng|def|ukr|und)\d+(?: · \d+)?|default(?: · \d+)?',v,re.I)
  for group in streams.get('qualities',[]):
   q=group.get('quality','')
   for row in group.get('voices',[]):
    source_rows+=1;v=str(row.get('voice') or '').strip()
-   if v and v.casefold() not in ['auto','не указано','unknown','none']:voices.add(v)
+   if meaningful(v):voices.add(v)
+   elif v:technical.add(v)
    if re.fullmatch(r'\d{3,4}p',q):
     qualities.add(q)
-    if v and v in voices:pairs.add((q,v))
+    if meaningful(v):pairs.add((q,v))
+   elif q.lower() in ('auto','не указано') and meaningful(v):automatic_voices.add(v)
  for x in streams.get('videoTracks',[]):
   if x.get('height',0)>0:qualities.add(str(x['height'])+'p')
  for x in streams.get('audioTracks',[]):
   v=str(x.get('voice') or '').strip()
-  if v and v.casefold() not in ['auto','не указано','unknown','none']:voices.add(v)
- return {'voiceLabels':sorted(voices),'qualityLabels':sorted(qualities,key=lambda x:int(x[:-1])),'advertisedPairs':[list(x) for x in sorted(pairs)],'sourceRows':source_rows,'inventoryComplete':False}
+  if meaningful(v):voices.add(re.sub(r' · \d+$','',v))
+  elif v:technical.add(v)
+ for q in qualities:
+  for v in automatic_voices:pairs.add((q,v))
+ return {'voiceLabels':sorted(voices),'technicalTrackLabels':sorted(technical),'qualityLabels':sorted(qualities,key=lambda x:int(x[:-1])),'advertisedPairs':[list(x) for x in sorted(pairs)],'sourceRows':source_rows,'inventoryComplete':False}
 def read_results():
  result={}
  for f in (AUDIT/'results').glob('*.json'):
@@ -117,8 +130,8 @@ signal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupte
 thread=threading.Thread(target=publish,daemon=True);thread.start()
 manifest=json.loads((OUT/'manifest.json').read_text());before=snapshot();(OUT/('user-before-'+PHASE+'.json')).write_text(json.dumps(before,ensure_ascii=False))
 try:
- assert before['app']['versionCode']==319 and before['app']['uiAttached']==False,'Unexpected runtime or UI attached'
- checkpoint({'action':'headless_cold_launch319','result':json.loads(Path('/data/data/com.termux/files/home/.cache/movia-handover-319-20261002/cold-headless.json').read_text())})
+ assert before['app']['versionCode']==320 and before['app']['uiAttached']==False,'Unexpected runtime or UI attached'
+ checkpoint({'action':'headless_foreground_launch320','note':'No Activity. Foreground service retains existing registry session during user-requested audit.'})
  act('player.probeSurface',{'enabled':True})
  existing=read_results();refresh_summary()
  for movie in manifest:
@@ -134,7 +147,7 @@ try:
    act('media.play',{'mediaId':media_id,'title':movie['title'],'quality':'Auto','voice':'Auto','recordHistory':False,'persist':False,'resume':False},media_id)
    result,streams=wait_ready(media_id,baseline)
    result['commandToReadyMs']=round((time.monotonic()-started)*1000,2);result['withinFiveSeconds']=result['decoded'] and result['commandToReadyMs']<=5000
-   row['startup']=result;row['inventory']=inventory(streams);row['build']=319;row['checkedAt']=now()
+   row['startup']=result;row['inventory']=inventory(streams);row['build']=320;row['checkedAt']=now()
    if PHASE=='matrix' and result['decoded']:
     # Wait for the remaining provider fan-out for this phase; no URL is counted as a decode.
     end=time.monotonic()+10;last_count=0;stable=0
@@ -156,7 +169,7 @@ try:
       change,new_s=wait_ready(media_id,baseline,12,quality,voice);variant.update(change)
       o=change.get('observed') or {}
       variant['qualityActualChanged']=change['decoded'] and o.get('height')!=prior.get('height')
-      variant['audioTrackIdentityChanged']=change['decoded'] and (o.get('selectedAudio')!=prior.get('selectedAudio') or (o.get('selectedAudioLabel'),o.get('selectedAudioLanguage'))!=(prior.get('selectedAudioLabel'),prior.get('selectedAudioLanguage')))
+      variant['audioTrackIdentityChanged']=change['decoded'] and ((o.get('selectedAudioLabel'),o.get('selectedAudioLanguage'))!=(prior.get('selectedAudioLabel'),prior.get('selectedAudioLanguage')))
       variant['locatorChanged']=change['decoded'] and o.get('locatorFingerprint')!=prior.get('locatorFingerprint')
       variant['studioIndependentlyVerified']=False
       if not change['decoded'] or not change['qualityMatches'] or not change['voiceReportedMatches']:variant['status']='FAIL'
@@ -167,14 +180,14 @@ try:
    save_movie(row)
    print(json.dumps({'mediaId':media_id,'title':movie['title'],'decoded':result['decoded'],'startupMs':result['commandToReadyMs'],'voices':len(row['inventory']['voiceLabels']),'qualities':len(row['inventory']['qualityLabels']),'attempted':SUMMARY['attempted'],'decodedStarted':SUMMARY['decodedStarted']},ensure_ascii=False),flush=True)
   except Exception as e:
-   row['error']=str(e)[:150];save_movie(row)
+   checkpoint({'action':'audit_infrastructure_pause','mediaId':media_id,'error':str(e)[:150]});PAUSE.touch();break
 finally:
  try:
   try:act('player.stop')
   except Exception:pass
   act('player.probeSurface',{'enabled':False})
   after=snapshot();assert before['library']==after['library'] and before['settings']==after['settings'],'User data changed'
-  refresh_summary();SUMMARY.update(userLibraryPreserved=True,userSettingsPreserved=True,completed=SUMMARY['attempted']==500 if PHASE=='starts' else False)
+  refresh_summary();SUMMARY.update(userLibraryPreserved=True,userSettingsPreserved=True,completed=SUMMARY['attempted']>=500 if PHASE=='starts' else False)
   checkpoint({'action':'phase_end','result':dict(SUMMARY)})
  except Exception as e:
   (OUT/'cleanup-error.json').write_text(json.dumps({'error':str(e)[:160],'at':now()}))

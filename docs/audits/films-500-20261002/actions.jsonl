@@ -847,3 +847,4 @@
 {"seq": 847, "at": "2026-10-02T11:02:38.018638+00:00", "action": "internal_movie_result", "mediaId": "172", "actualDecoded": true, "voices": 12, "qualities": 2, "errorCategory": null}
 {"seq": 848, "at": "2026-10-02T11:02:38.172725+00:00", "action": "exact_provider_resolve", "mediaId": "8611", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 849, "at": "2026-10-02T11:02:38.328151+00:00", "action": "exact_provider_resolve", "mediaId": "12265", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 850, "at": "2026-10-02T11:02:38.572574+00:00", "action": "audit_harness_checkpoint", "result": "Publish corrected decoder probe, infrastructure-stop guard, real/technical voice distinction and preserved original cohort."}
