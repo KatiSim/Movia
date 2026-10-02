@@ -2248,3 +2248,4 @@
 {"seq": 2248, "at": "2026-10-02T11:15:30.780112+00:00", "action": "player.selectVoice", "mediaId": "203", "arguments": {"voice": "М. Чадов", "persist": false}, "accepted": true, "requestMs": 9}
 {"seq": 2249, "at": "2026-10-02T11:15:30.834563+00:00", "action": "exact_provider_resolve", "mediaId": "29742", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2250, "at": "2026-10-02T11:15:30.988943+00:00", "action": "movie_result", "mediaId": "203", "decoded": true, "voices": 5, "qualities": 4}
+{"seq": 2251, "at": "2026-10-02T11:15:31.067609+00:00", "action": "player.selectQuality", "mediaId": "203", "arguments": {"quality": "530p", "persist": false}, "accepted": true, "requestMs": 7}
