@@ -1,0 +1,51 @@
+{
+  "mediaId": "45230",
+  "title": "Банда «Белый фиат»",
+  "year": 2001,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:00.957376+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "5d3abd22c88c0679b7ca",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "c3735bc7c0deefc04367",
+      "videoFrameFingerprint": "044423641ad9c386ef18",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3562
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "bb7205f3e1b9788dea6b",
+  "preparedStreamIdFingerprint": "5b81aad1cd0a38c3caf2",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
