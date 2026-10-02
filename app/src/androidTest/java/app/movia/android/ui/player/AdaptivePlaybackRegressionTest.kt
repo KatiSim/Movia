@@ -106,13 +106,12 @@ class AdaptivePlaybackRegressionTest {
             main { session.pausePlayback();session.seekTo(3_000L) }
             assertTrue(main { session.selectVideoQuality("360p") })
             assertTrue(main { session.selectVoice("Studio B") })
-            waitFor { session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==360 }
             assertEquals("$base/master.m3u8",session.activeSourceUri)
             assertFalse(main { session.player.playWhenReady })
             assertTrue(kotlin.math.abs(main { session.player.currentPosition }-3_000L)<1000)
             main { session.playPlayback() }
             val baseline=main { session.probeFrames }
-            waitFor { session.probeFrames>baseline+2 && session.player.isPlaying }
+            waitFor { session.probeFrames>baseline+2 && session.player.isPlaying && session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==360 }
             assertEquals("Studio B",main { session.player.audioFormat?.label })
             assertEquals(360,main { session.player.videoFormat?.height })
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
