@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-10-02T10:24:42.183867+00:00",
+  "sourceVersionCode": 319,
+  "installedVersionCode": 318,
+  "status": "SOURCE_PREPARED_TEST_CORRECTED_RERUN_PENDING_ROLLED_BACK",
+  "unitTests": {
+    "tests": 139,
+    "failures": 0,
+    "errors": 0
+  },
+  "nativeTests": {
+    "tested": 9,
+    "passed": 8,
+    "failed": 1
+  },
+  "startupHandoverObserved": true,
+  "pauseAndPositionAssertionsPassed": true,
+  "failedAssertion": "Three frames after resuming at 12s; MP4 fixture duration from ffprobe is 12.010667s.",
+  "correction": "Changed regression test resume position from 12s to 3s. Corrected test has not yet been compiled or rerun.",
+  "rollback": {
+    "appAndTestApkRestored": true,
+    "coldLaunch": {
+      "screen": "Shower virtual display",
+      "launchMs": 117,
+      "displayId": 19,
+      "package": "app.movia.android",
+      "binderReady": true,
+      "uiStatus": "UNVERIFIED",
+      "uiError": "virtual_ui_display_mismatch",
+      "screenshotBytes": 796472,
+      "launchStatus": "PASS",
+      "sessionClosed": true,
+      "scriptVersionLabel": 319,
+      "observedInstalledVersionCode": 318
+    },
+    "libraryPreserved": true,
+    "settingsPreserved": true,
+    "counts": {
+      "favorites": 9,
+      "watchLater": 0,
+      "history": 3,
+      "downloads": 0,
+      "recentSearches": 0
+    },
+    "processLogs": [
+      {
+        "pid": "768",
+        "bytes": 38333,
+        "fatalExceptions": 0
+      }
+    ]
+  },
+  "remaining": "Rebuild Android tests, reinstall build 319, rerun all nine regressions and real startup measurements before retaining 319."
+}

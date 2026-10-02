@@ -102,7 +102,7 @@ class AdaptivePlaybackRegressionTest {
             main {
                 session.setFrameProbe(true)
                 session.start(ref, "Movia QA handover", sourceUri = "$base/stall.mp4",
-                    startPositionMs = 12_000L, recordHistory = false)
+                    startPositionMs = 3_000L, recordHistory = false)
                 session.pausePlayback()
             }
             val started = SystemClock.elapsedRealtime()
@@ -115,7 +115,7 @@ class AdaptivePlaybackRegressionTest {
                 session.activeSourceUri == "$base/fixture.mp4" }
             assertTrue("Startup must not wait for the ten-second watchdog", SystemClock.elapsedRealtime() - started < 5_000L)
             assertFalse(main { session.player.playWhenReady })
-            assertTrue(kotlin.math.abs(main { session.player.currentPosition } - 12_000L) < 500L)
+            assertTrue(kotlin.math.abs(main { session.player.currentPosition } - 3_000L) < 500L)
             main { session.playPlayback() }
             waitFor { session.probeFrames >= 3 }
             val playingUri = session.activeSourceUri
