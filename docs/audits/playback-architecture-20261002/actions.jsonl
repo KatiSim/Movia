@@ -2941,3 +2941,4 @@
 {"seq": 2941, "at": "2026-10-02T15:40:30.407105+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2942, "at": "2026-10-02T15:40:30.867461+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 40, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2943, "at": "2026-10-02T15:40:31.232954+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2944, "at": "2026-10-02T15:40:31.537613+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "В. Горчаков", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
