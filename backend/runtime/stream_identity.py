@@ -52,6 +52,13 @@ def filter_streams_for_content(
 
     for item in cleaned:
         url = str(item.get("url") or "").strip()
+        # Episode-bound rows are never movie sources, even without a release
+        # title. Zero/blank legacy placeholders carry no episode identity.
+        if media_type in {"movie", "movies", "film"} and any(
+            value is not None and str(value).strip() not in {"", "0"}
+            for value in (item.get("season"), item.get("episode"))
+        ):
+            continue
 
         # Runtime Zona results are bound to the canonical card before they
         # reach this boundary. If an identity annotation is present, every

@@ -41,3 +41,19 @@ print('READ_ONLY_IDENTITY_PASS')
         self.assertEqual("The.Matrix.1999.1080p.BluRay",_stream_identity_title(exact))
         kept=filter_streams_for_content([exact,wrong],{"id":7,"title":"Матрица","original_title":"The Matrix","year":1999,"media_type":"movie"})
         self.assertEqual([exact["url"]],[item["url"] for item in kept])
+
+    def test_movie_without_release_name_rejects_episode_bound_cached_sources(self):
+        from stream_identity import filter_streams_for_content
+        base={"source":"Collaps","voice":"Studio A","quality":"720p","url":"https://media.example/x.m3u8"}
+        rows=[base,dict(base,season=0,episode=0),dict(base,season=1,episode=1),
+              dict(base,season=1),dict(base,episode=2)]
+        kept=filter_streams_for_content(rows,{"id":7,"title":"Fixture","year":2020,"media_type":"movie"})
+        self.assertEqual(2,len(kept))
+        self.assertTrue(all(row.get("season",0)==0 and row.get("episode",0)==0 for row in kept))
+
+    def test_exact_series_episode_remains_available_after_movie_scope_filter(self):
+        from stream_identity import filter_streams_for_content
+        base={"source":"Collaps","voice":"Studio B","quality":"720p","url":"https://media.example/series.m3u8"}
+        rows=[dict(base,season=1,episode=2),dict(base,season=1,episode=1),base]
+        kept=filter_streams_for_content(rows,{"id":8,"title":"Fixture","year":2020,"media_type":"tv","season":1,"episode":2})
+        self.assertEqual(1,len(kept));self.assertEqual(2,kept[0]["episode"])
