@@ -1,0 +1,36 @@
+{
+  "mediaId": "39557",
+  "title": "С.С. и Компания",
+  "year": 1970,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:56.071636+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e9ec707b0d00d8ea22d5",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "c34dc59e11bb478457b8",
+      "videoFrameFingerprint": "01df8d0947a535806d46",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3553
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9b174e08f48863b27130",
+  "preparedStreamIdFingerprint": "fe61d151ca5f644980e2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
