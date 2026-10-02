@@ -1,0 +1,36 @@
+{
+  "mediaId": "56376",
+  "title": "Ноев ковчег",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:45.835422+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f3965187fa44501fc6d9",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "e1100380dd1f375d8044",
+      "videoFrameFingerprint": "d0626c2f5ef5574240aa",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4336
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "d0b0df20673809893d8e",
+  "preparedStreamIdFingerprint": "191e487d2e310bd98c12",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
