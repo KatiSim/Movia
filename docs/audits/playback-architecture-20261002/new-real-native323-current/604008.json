@@ -30,6 +30,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "ita1",
+      "expectedLanguage": "it",
+      "decoded": true,
+      "ms": 786,
+      "observed": {
+        "mediaId": "604008",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1953,
+        "selectedAudioLabel": "ita1",
+        "selectedAudioLanguage": "it",
+        "frames": 2242,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "512fd43a14e586202162",
+        "locatorFingerprint": "2cd4a538856a97aa3f6e"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
