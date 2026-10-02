@@ -1,0 +1,67 @@
+{
+  "versionCode": 317,
+  "versionName": "0.0.1",
+  "steps": [
+    {
+      "name": "install",
+      "exitCode": 0,
+      "source": "confirmed previous install log"
+    },
+    {
+      "name": "package",
+      "exitCode": 0
+    },
+    {
+      "name": "installed-apk",
+      "exitCode": 0
+    },
+    {
+      "name": "motion-tests",
+      "exitCode": 0
+    }
+  ],
+  "countsBefore": {
+    "favorites": 9,
+    "watchLater": 0,
+    "history": 2,
+    "downloads": 0,
+    "recentSearches": 0
+  },
+  "app.apk": {
+    "bytes": 37393323,
+    "sha256": "10569207d0778e85f4b2cae531b359993ffd2648afd59a06aba88a727c9f3674"
+  },
+  "test.apk": {
+    "bytes": 1257906,
+    "sha256": "f0cbdb3b0b45841b0d2a1fd1537522c9c54cacb60845e33d95da92d121770128"
+  },
+  "motionTests": {
+    "passed": 3,
+    "failed": 0
+  },
+  "unitTests": {
+    "tests": 131,
+    "failures": 0,
+    "errors": 0
+  },
+  "status": "PASS",
+  "userDataPreserved": null,
+  "crashLog": {
+    "exitCode": 0,
+    "fatalException": false
+  },
+  "systemAnimatorScale": "0",
+  "coldLaunch": {
+    "versionCode": 317,
+    "screen": "Shower virtual display",
+    "launchMs": 127,
+    "displayId": 13,
+    "package": "app.movia.android",
+    "binderReady": true,
+    "uiStatus": "PASS",
+    "screenshotBytes": 767929,
+    "launchStatus": "PASS",
+    "sessionClosed": true
+  },
+  "countsAfterStatus": "UNVERIFIED"
+}
