@@ -3734,3 +3734,4 @@
 {"seq": 3734, "at": "2026-10-02T11:25:06.198522+00:00", "action": "player.selectQuality", "mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 40}
 {"seq": 3735, "at": "2026-10-02T11:25:06.327974+00:00", "action": "player.selectVoice", "mediaId": "172", "arguments": {"voice": "Двухголосый (ДВО)", "persist": false}, "accepted": true, "requestMs": 11}
 {"seq": 3736, "at": "2026-10-02T11:25:14.683880+00:00", "action": "movie_result", "mediaId": "172", "decoded": true, "voices": 10, "qualities": 3}
+{"seq": 3737, "at": "2026-10-02T11:25:14.936730+00:00", "action": "player.selectQuality", "mediaId": "172", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 12}
