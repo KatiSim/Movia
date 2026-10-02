@@ -432,3 +432,4 @@
 {"seq": 432, "at": "2026-10-02T14:11:28.549110+00:00", "action": "native_player.stop", "details": {"mediaId": "322120", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 433, "at": "2026-10-02T14:11:28.928532+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "52218", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 434, "at": "2026-10-02T14:11:29.235946+00:00", "action": "native_media.play", "details": {"mediaId": "322120", "arguments": {"mediaId": "322120", "title": "22 мили", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "201b5e02ff46054b1fbb"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 435, "at": "2026-10-02T14:11:29.729502+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "416425", "quality": 360, "voice": "default"}, "sourcePaths": []}
