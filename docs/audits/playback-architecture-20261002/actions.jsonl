@@ -1301,3 +1301,4 @@
 {"seq": 1301, "at": "2026-10-02T14:31:56.737201+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "57322", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1302, "at": "2026-10-02T14:31:57.223425+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "57322", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1303, "at": "2026-10-02T14:31:57.452353+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "57322", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 1304, "at": "2026-10-02T14:31:57.753904+00:00", "action": "native_player.stop", "details": {"mediaId": "41000", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
