@@ -1,0 +1,36 @@
+{
+  "mediaId": "39313",
+  "title": "Пулемет Гатлинга",
+  "year": 1971,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:28.504682+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ec665ac7fc9baadd3646",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "0d8635b63e6716ba162d",
+      "videoFrameFingerprint": "c8bb71c6dc400d032137",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12393
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "888827bd91fe108bcc03",
+  "preparedStreamIdFingerprint": "2293bba2e9920e305152",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
