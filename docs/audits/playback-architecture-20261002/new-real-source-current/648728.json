@@ -1,0 +1,52 @@
+{
+  "mediaId": "648728",
+  "title": "My Love",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:58.020844+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 268,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "643b030ca97fdb008bb4",
+      "decoded": true,
+      "actualHeight": 268,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "fc237952b2800f13f23c",
+      "videoFrameFingerprint": "b1920be6a49beba429a3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3264
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3b4d82c169c70251d2c0",
+  "preparedStreamIdFingerprint": "a5c707b07e0c5df1aade",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    268,
+    536
+  ],
+  "advertisedCompatiblePairs": 2
+}
