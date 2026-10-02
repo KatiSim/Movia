@@ -1,0 +1,29 @@
+{
+  "mediaId": "55870",
+  "title": "Рождение нации",
+  "year": 1915,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:29:10.282869+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 6064,
+    "observed": {
+      "mediaId": "55870",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 129,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 997,
+      "voice": "Original",
+      "streamFingerprint": "dbf2c57f33d750cfac5a",
+      "locatorFingerprint": "370a08931ec218d1f545"
+    },
+    "commandToReadyMs": 6314
+  }
+}
