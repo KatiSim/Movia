@@ -1,0 +1,146 @@
+{
+  "mediaId": "8645",
+  "title": "Хеллбой",
+  "year": 2019,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:27:45.208933+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 4055.75,
+    "observed": {
+      "mediaId": "8645",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 147,
+      "frames": 12922,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "e881de5db1bdc3878b6c",
+      "locatorFingerprint": "a5d150a659060d096d48",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 4290
+  },
+  "inventory": {
+    "voiceLabels": [
+      "AAA Sound",
+      "Original (с субтитрами)",
+      "Дубляж",
+      "СВ Студия",
+      "Укр. Дубльований"
+    ],
+    "technicalTrackLabels": [
+      "delete",
+      "eng2",
+      "eng5",
+      "rus0",
+      "rus1",
+      "ukr3",
+      "ukr4",
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "AAA Sound"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "СВ Студия"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "270p",
+        "AAA Sound"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "СВ Студия"
+      ],
+      [
+        "270p",
+        "Укр. Дубльований"
+      ],
+      [
+        "540p",
+        "AAA Sound"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "СВ Студия"
+      ],
+      [
+        "540p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "AAA Sound"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "СВ Студия"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ]
+    ],
+    "sourceRows": 18,
+    "inventoryComplete": false
+  }
+}
