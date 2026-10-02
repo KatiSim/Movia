@@ -342,6 +342,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "eng5",
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 343,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 23167,
+        "selectedAudioLabel": "eng5",
+        "selectedAudioLanguage": "en",
+        "frames": 2751,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "1e60226e2803e5bec821",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
