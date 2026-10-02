@@ -1,0 +1,60 @@
+{
+  "mediaId": "47966",
+  "title": "Знаки",
+  "year": 2008,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 270,
+      "actualHeight": 270,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "1e009b359567f824a7e5",
+      "ms": 2217,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "delete",
+    "М. Чадов"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    270
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:10:27.880583+00:00"
+}
