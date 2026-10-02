@@ -1,0 +1,52 @@
+{
+  "mediaId": "506914",
+  "title": "Миры разделённые",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:48:53.892035+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 322,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "1565ad7d4667a5e1a5ee",
+      "decoded": true,
+      "actualHeight": 322,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "2599e2b3e5f00ab95825",
+      "videoFrameFingerprint": "4b5e13759545924330bb",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2822
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2841865efe024cca75c2",
+  "preparedStreamIdFingerprint": "6fd51097baa7c1f959a6",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    322,
+    598
+  ],
+  "advertisedCompatiblePairs": 2
+}
