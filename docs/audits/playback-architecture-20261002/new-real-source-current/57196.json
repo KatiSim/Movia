@@ -1,0 +1,36 @@
+{
+  "mediaId": "57196",
+  "title": "Сердце побережья Бэрбери",
+  "year": 1945,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:21.137947+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "2ef8c55d16601c0524a6",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "9bb8f21308025c6dba3f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4759
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "958f2276cff4bfb0a41f",
+  "preparedStreamIdFingerprint": "fe2d500ba84e2421514d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
