@@ -1974,3 +1974,4 @@
 {"seq": 1974, "at": "2026-10-02T11:14:23.805305+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "requestMs": 38}
 {"seq": 1975, "at": "2026-10-02T11:14:24.032910+00:00", "action": "exact_provider_resolve", "mediaId": "1267", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1976, "at": "2026-10-02T11:14:24.254793+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}
+{"seq": 1977, "at": "2026-10-02T11:14:24.335569+00:00", "action": "internal_movie_result", "mediaId": "5468", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
