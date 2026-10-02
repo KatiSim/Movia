@@ -3923,3 +3923,4 @@
 {"seq": 3923, "at": "2026-10-02T11:27:44.714917+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
 {"seq": 3924, "at": "2026-10-02T11:27:44.965509+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
 {"seq": 3925, "at": "2026-10-02T11:27:45.271029+00:00", "action": "player.stop", "mediaId": "8645", "arguments": {}, "accepted": true, "requestMs": 48}
+{"seq": 3926, "at": "2026-10-02T11:27:45.543595+00:00", "action": "media.play", "mediaId": "8645", "arguments": {"mediaId": "8645", "title": "Хеллбой", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "e881de5db1bdc3878b6c"}, "accepted": true, "requestMs": 11}
