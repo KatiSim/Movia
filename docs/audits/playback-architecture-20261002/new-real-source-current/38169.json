@@ -1,0 +1,36 @@
+{
+  "mediaId": "38169",
+  "title": "Супружество",
+  "year": 1974,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:18.946620+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5dc55d2abc9be001aa6a",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "06b028db55447c05a28c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5301
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "448982c92d3462f2ce14",
+  "preparedStreamIdFingerprint": "75932a24d7b34e144d61",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
