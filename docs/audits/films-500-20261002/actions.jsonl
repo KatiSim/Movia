@@ -3308,3 +3308,4 @@
 {"seq": 3308, "at": "2026-10-02T11:21:23.320210+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
 {"seq": 3309, "at": "2026-10-02T11:21:23.431462+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "requestMs": 21}
 {"seq": 3310, "at": "2026-10-02T11:21:23.533773+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "Невафильм", "persist": false}, "accepted": true, "requestMs": 10}
+{"seq": 3311, "at": "2026-10-02T11:21:23.734849+00:00", "action": "internal_movie_result", "mediaId": "15166", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
