@@ -780,6 +780,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Eng. Orig. with Commentary",
+      "expectedAudioLabel": "eng10",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 404,
+      "observed": {
+        "mediaId": "23912",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 27906,
+        "frames": 5779,
+        "quality": "720p",
+        "voice": "Eng. Orig. with Commentary",
+        "streamFingerprint": "c617453d345949e06ac5",
+        "locatorFingerprint": "458fc51828a8316b3918",
+        "selectedAudioLabel": "eng10",
+        "selectedAudioLanguage": "en",
+        "selectedAudio": [
+          [
+            "track:1:11:0",
+            "eng10",
+            "en"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:19:33.989001+00:00",
