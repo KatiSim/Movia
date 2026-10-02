@@ -1,0 +1,13 @@
+{
+  "mediaId": "30934",
+  "title": "Мой отец - мой герой",
+  "year": 1991,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:16.524134+00:00"
+}
