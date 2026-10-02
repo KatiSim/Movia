@@ -156,5 +156,9 @@
     406,
     720
   ],
-  "advertisedCompatiblePairs": 20
+  "advertisedCompatiblePairs": 20,
+  "allPreparedPairsTested": false,
+  "allPreparedPairsPassed": false,
+  "distinctManifestVoices": 10,
+  "distinctManifestQualities": 2
 }
