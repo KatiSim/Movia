@@ -2880,3 +2880,4 @@
 {"seq": 2880, "at": "2026-10-02T15:39:48.944205+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2881, "at": "2026-10-02T15:39:49.279474+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "В. Дохалов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2882, "at": "2026-10-02T15:39:50.241826+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 20, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2883, "at": "2026-10-02T15:39:50.684264+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
