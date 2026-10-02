@@ -1,0 +1,52 @@
+{
+  "mediaId": "524308",
+  "title": "Inside the Rain",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:15.114018+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "923c87b009195cc6b556",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "8baee4ce047f03cdb503",
+      "videoFrameFingerprint": "5bc608b3fe25684c8fe7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7269
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e5354e218ef31aebfae4",
+  "preparedStreamIdFingerprint": "c67a66a22047b88121e6",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
