@@ -1,0 +1,52 @@
+{
+  "mediaId": "321563",
+  "title": "Гайонг 2",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:26.038755+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "9d5490f70d6cab96fe7e",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "253a041cd9179598e5c3",
+      "videoFrameFingerprint": "5104f1ff1721593649c8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2581
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "257b78e6039f89433f0f",
+  "preparedStreamIdFingerprint": "6a7acf5bbfc6a9b54ef8",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    530
+  ],
+  "advertisedCompatiblePairs": 2
+}
