@@ -1284,3 +1284,4 @@
 {"seq": 1284, "at": "2026-10-02T14:31:47.638549+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "45232", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1285, "at": "2026-10-02T14:31:47.858330+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "27336", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1286, "at": "2026-10-02T14:31:48.153946+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "45232", "arguments": {"voice": "Синема УС", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1287, "at": "2026-10-02T14:31:48.319703+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "44341", "quality": 0, "voice": null}, "sourcePaths": []}
