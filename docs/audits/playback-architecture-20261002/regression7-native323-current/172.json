@@ -368,6 +368,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Двухголосый (ДВО) · дорожка 3",
+      "expectedAudioLabel": "rus2",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 297,
+      "observed": {
+        "mediaId": "172",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 20154,
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "frames": 1869,
+        "voice": "Двухголосый (ДВО) · дорожка 3",
+        "streamFingerprint": "ac73d137ed82a4835237",
+        "locatorFingerprint": "ac5c7031cfa6a006e7bc"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
