@@ -1,7 +1,7 @@
 {
-  "checked": 339,
+  "checked": 340,
   "selected": 500,
-  "identityValidated": 338,
+  "identityValidated": 339,
   "withHttpSource": 248,
   "moviesDecoded": 246,
   "withAtLeastThreeManifestVoices": 106,
@@ -10,5 +10,5 @@
   "componentDecodesFailed": 0,
   "nativeSwitchingVerified": false,
   "allMatrixCombinationsVerified": false,
-  "updatedAt": "2026-10-02T11:13:06.508296+00:00"
+  "updatedAt": "2026-10-02T11:13:07.242781+00:00"
 }
