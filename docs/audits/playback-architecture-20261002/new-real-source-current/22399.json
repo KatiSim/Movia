@@ -1,0 +1,36 @@
+{
+  "mediaId": "22399",
+  "title": "Пришли дожди",
+  "year": 1939,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:09.275023+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "227e65184d0ab2bb7d9c",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "94440ee9832e72275d00",
+      "videoFrameFingerprint": "689cf3c060452f40228a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4263
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3b7ee9a02e3d33999636",
+  "preparedStreamIdFingerprint": "6e51b03fc0184a21c1bb",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
