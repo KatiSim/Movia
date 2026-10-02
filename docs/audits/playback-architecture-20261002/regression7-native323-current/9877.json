@@ -186,6 +186,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "delete",
+      "expectedAudioLabel": "eng7",
+      "expectedLanguage": "en",
+      "decoded": true,
+      "ms": 626,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 10685,
+        "selectedAudioLabel": "eng7",
+        "selectedAudioLanguage": "en",
+        "frames": 2472,
+        "voice": "delete",
+        "streamFingerprint": "a9ee62093b65d488fb6f",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
