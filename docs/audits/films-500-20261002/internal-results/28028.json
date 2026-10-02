@@ -1,0 +1,137 @@
+{
+  "mediaId": "28028",
+  "title": "Король-рыбак",
+  "year": 1991,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3195,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 9,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "R5",
+    "delete",
+    "А. Михалев",
+    "Дубляж",
+    "Первый Канал",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "Так Треба Продакшн"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng8",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 9,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 18,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:06:21.960004+00:00"
+}
