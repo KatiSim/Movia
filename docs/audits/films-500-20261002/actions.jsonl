@@ -2845,3 +2845,4 @@
 {"seq": 2845, "at": "2026-10-02T11:18:43.062138+00:00", "action": "internal_movie_result", "mediaId": "11086", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2846, "at": "2026-10-02T11:18:43.373295+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Карповский", "persist": false}, "accepted": true, "requestMs": 107}
 {"seq": 2847, "at": "2026-10-02T11:18:43.625842+00:00", "action": "exact_provider_resolve", "mediaId": "9847", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2848, "at": "2026-10-02T11:18:44.071348+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
