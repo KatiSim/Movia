@@ -1,0 +1,36 @@
+{
+  "mediaId": "44108",
+  "title": "Сын Синдбада",
+  "year": 1955,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:19.505773+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ad5d8f4d83cadb94c635",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "a98ef3b58997e869a114",
+      "videoFrameFingerprint": "5bc608b3fe25684c8fe7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3987
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ca6376cd15cf6af3ab86",
+  "preparedStreamIdFingerprint": "45c6973a321ef7041bd5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
