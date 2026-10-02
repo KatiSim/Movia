@@ -1,0 +1,29 @@
+{
+  "mediaId": "40627",
+  "title": "Они прибыли из другого пространства",
+  "year": 1967,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:32:28.450597+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 4404,
+    "observed": {
+      "mediaId": "40627",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 1024,
+      "positionMs": 111,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 1653,
+      "voice": "Original",
+      "streamFingerprint": "c8d4db9f5d799c533952",
+      "locatorFingerprint": "976b5723e725e1d51306"
+    },
+    "commandToReadyMs": 4904
+  }
+}
