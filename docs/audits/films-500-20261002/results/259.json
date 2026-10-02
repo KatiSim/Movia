@@ -1,0 +1,117 @@
+{
+  "mediaId": "259",
+  "title": "Начало",
+  "year": 2010,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:13:49.232178+00:00",
+  "startup": {
+    "decoded": false,
+    "ms": 10150.01,
+    "observed": {
+      "mediaId": "259",
+      "state": "BUFFERING",
+      "switchState": "PREBUFFERING",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "542ce562b0c1631fe01d",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 10355
+  },
+  "inventory": {
+    "voiceLabels": [
+      "BBC Saint-Petersburg & LHS",
+      "ICTV (укр.)",
+      "Original (с субтитрами)",
+      "А. Гаврилов",
+      "Дубляж",
+      "Кубик в Кубе",
+      "Укр. Дубльований",
+      "Ю. Сербин"
+    ],
+    "technicalTrackLabels": [
+      "Не указано"
+    ],
+    "qualityLabels": [
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "BBC Saint-Petersburg & LHS"
+      ],
+      [
+        "1080p",
+        "ICTV (укр.)"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "А. Гаврилов"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "Кубик в Кубе"
+      ],
+      [
+        "1080p",
+        "Укр. Дубльований"
+      ],
+      [
+        "1080p",
+        "Ю. Сербин"
+      ],
+      [
+        "720p",
+        "BBC Saint-Petersburg & LHS"
+      ],
+      [
+        "720p",
+        "ICTV (укр.)"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "А. Гаврилов"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "Кубик в Кубе"
+      ],
+      [
+        "720p",
+        "Укр. Дубльований"
+      ],
+      [
+        "720p",
+        "Ю. Сербин"
+      ]
+    ],
+    "sourceRows": 29,
+    "inventoryComplete": false
+  }
+}
