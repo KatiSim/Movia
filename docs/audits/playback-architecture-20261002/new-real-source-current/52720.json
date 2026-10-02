@@ -1,0 +1,36 @@
+{
+  "mediaId": "52720",
+  "title": "Дух времени: За пределами",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:06.751000+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d5984affdd8c088e6058",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "47fc63500f835b4a1c6c",
+      "videoFrameFingerprint": "78fd802f23e12e9a58ff",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5112
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ce185df4b6cc8d099805",
+  "preparedStreamIdFingerprint": "56bb66f36b4c8afb9c52",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
