@@ -1,0 +1,72 @@
+{
+  "mediaId": "573807",
+  "title": "El verano que vivimos",
+  "year": 2020,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 320,
+      "actualHeight": 320,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ed80ff3d4ad241374097",
+      "ms": 3269,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 3,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Viasat Kino",
+    "Профессиональный (МВО)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    320,
+    640
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "spa2",
+      "language": "es",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr1",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "spa2",
+      "language": "es",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 3,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 6,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:57.676790+00:00"
+}
