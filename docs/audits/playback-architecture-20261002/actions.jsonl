@@ -1395,3 +1395,4 @@
 {"seq": 1395, "at": "2026-10-02T14:33:22.820226+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "57953", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1396, "at": "2026-10-02T14:33:26.458635+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "3195", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1397, "at": "2026-10-02T14:33:26.824724+00:00", "action": "native_player.stop", "details": {"mediaId": "192998", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1398, "at": "2026-10-02T14:33:27.197418+00:00", "action": "native_media.play", "details": {"mediaId": "192998", "arguments": {"mediaId": "192998", "title": "Erased", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "1dfcbc7dcc6022b0eec4"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
