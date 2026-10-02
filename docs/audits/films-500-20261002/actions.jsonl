@@ -3658,3 +3658,4 @@
 {"seq": 3658, "at": "2026-10-02T11:24:03.778936+00:00", "action": "player.selectQuality", "mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 16}
 {"seq": 3659, "at": "2026-10-02T11:24:04.076372+00:00", "action": "player.selectVoice", "mediaId": "375", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3660, "at": "2026-10-02T11:24:04.903102+00:00", "action": "movie_result", "mediaId": "375", "decoded": true, "voices": 10, "qualities": 4}
+{"seq": 3661, "at": "2026-10-02T11:24:05.221620+00:00", "action": "player.selectQuality", "mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 29}
