@@ -1,0 +1,36 @@
+{
+  "mediaId": "57323",
+  "title": "Капкан на мужчину",
+  "year": 1926,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:16.139601+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1be5b460996e3f589e8e",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "6a9f98b81c8d5ef65bd2",
+      "videoFrameFingerprint": "e53168e70e7be8baae7d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4143
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3fd2240af7edd7331c00",
+  "preparedStreamIdFingerprint": "22c8475c1948ad58200c",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
