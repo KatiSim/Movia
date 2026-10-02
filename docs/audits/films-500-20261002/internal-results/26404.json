@@ -1,0 +1,13 @@
+{
+  "mediaId": "26404",
+  "title": "История игрушек 2",
+  "year": 1999,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:17:26.866376+00:00"
+}
