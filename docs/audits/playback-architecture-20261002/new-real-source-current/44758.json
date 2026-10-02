@@ -32,5 +32,9 @@
   "preparedStreamIdFingerprint": "6c0735510ce9c7dd0f99",
   "manifestVoices": [],
   "manifestQualities": [],
-  "advertisedCompatiblePairs": 1
+  "advertisedCompatiblePairs": 1,
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "distinctManifestVoices": 0,
+  "distinctManifestQualities": 0
 }
