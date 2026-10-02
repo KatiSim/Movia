@@ -1,0 +1,36 @@
+{
+  "mediaId": "46394",
+  "title": "Соблюдайте тишину",
+  "year": 1945,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:23.192359+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d01bbc125a764b9f17e2",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "af11378529968028f87a",
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4103
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "7fe8f04bca6ec9d63bc2",
+  "preparedStreamIdFingerprint": "3a4685dc3ec6fb76b12b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
