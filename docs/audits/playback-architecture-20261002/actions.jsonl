@@ -95,3 +95,4 @@
 {"seq": 95, "at": "2026-10-02T14:07:48.550349+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 10, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 96, "at": "2026-10-02T14:07:48.887028+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 97, "at": "2026-10-02T14:07:49.160371+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Е. Рудой", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 98, "at": "2026-10-02T14:07:49.946984+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 11, "fullPreparedMatrixPassed": false}, "sourcePaths": []}

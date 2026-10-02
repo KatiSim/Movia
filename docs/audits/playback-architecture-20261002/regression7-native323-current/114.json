@@ -264,6 +264,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Е. Рудой",
+      "expectedAudioLabel": "rus10",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 577,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 10190,
+        "selectedAudioLabel": "rus10",
+        "selectedAudioLanguage": "ru",
+        "frames": 250,
+        "voice": "Е. Рудой",
+        "streamFingerprint": "af668c0d5a54da0b4f66",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
