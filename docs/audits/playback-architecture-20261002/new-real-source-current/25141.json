@@ -1,0 +1,36 @@
+{
+  "mediaId": "25141",
+  "title": "Bolero",
+  "year": 1983,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:29.208463+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "441a4d164c80bad3b722",
+      "decoded": true,
+      "actualHeight": 540,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "77a2eba794b18196af42",
+      "videoFrameFingerprint": "6811b02e63185ef6f36f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5261
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "36b053dccf3cb7548073",
+  "preparedStreamIdFingerprint": "32b7282bf20f858238f9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
