@@ -1,0 +1,36 @@
+{
+  "mediaId": "57293",
+  "title": "Микки Маус: Галопом на страусе",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:45:27.503299+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a18d36463598b5854264",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1338f9d9392878a79b97",
+      "videoFrameFingerprint": "6e7cb7af97fafe37c348",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4470
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fb5ec41a2fffa19ee515",
+  "preparedStreamIdFingerprint": "2169841552d21bdb96e0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
