@@ -1,0 +1,36 @@
+{
+  "mediaId": "56222",
+  "title": "Железная маска",
+  "year": 1929,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:08.866259+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6d129ee852016a767e63",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "1e1e6a32392e719401a8",
+      "videoFrameFingerprint": "5768b000136033cb5656",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4039
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "91643318554147219ee0",
+  "preparedStreamIdFingerprint": "f0e6bb8f58daf75d3c9d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
