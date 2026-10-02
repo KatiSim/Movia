@@ -1140,3 +1140,4 @@
 {"seq": 1140, "at": "2026-10-02T14:29:18.627077+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "56314", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1141, "at": "2026-10-02T14:29:18.878933+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "55870", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 1142, "at": "2026-10-02T14:29:19.194964+00:00", "action": "native_player.stop", "details": {"mediaId": "3005", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1143, "at": "2026-10-02T14:29:19.526098+00:00", "action": "native_media.play", "details": {"mediaId": "3005", "arguments": {"mediaId": "3005", "title": "Ship A-Hooey", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "f5f0997460a451524b37"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
