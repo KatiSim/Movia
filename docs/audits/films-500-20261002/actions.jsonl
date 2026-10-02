@@ -2103,3 +2103,4 @@
 {"seq": 2103, "at": "2026-10-02T11:14:57.703713+00:00", "action": "movie_result", "mediaId": "12245", "decoded": true, "voices": 10, "qualities": 3}
 {"seq": 2104, "at": "2026-10-02T11:14:58.127632+00:00", "action": "player.selectQuality", "mediaId": "12245", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 45}
 {"seq": 2105, "at": "2026-10-02T11:14:58.421384+00:00", "action": "player.selectVoice", "mediaId": "12245", "arguments": {"voice": "Профессиональный (МВО)", "persist": false}, "accepted": true, "requestMs": 68}
+{"seq": 2106, "at": "2026-10-02T11:14:58.924804+00:00", "action": "internal_movie_result", "mediaId": "8947", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
