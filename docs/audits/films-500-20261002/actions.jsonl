@@ -3618,3 +3618,4 @@
 {"seq": 3618, "at": "2026-10-02T11:23:36.217129+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 27}
 {"seq": 3619, "at": "2026-10-02T11:23:36.377568+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 22}
 {"seq": 3620, "at": "2026-10-02T11:23:37.392394+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
+{"seq": 3621, "at": "2026-10-02T11:23:37.641269+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 12}
