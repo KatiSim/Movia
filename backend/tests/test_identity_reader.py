@@ -29,3 +29,15 @@ print('READ_ONLY_IDENTITY_PASS')
             result = subprocess.run([sys.executable,'-c',code],env=dict(os.environ,MOVIA_DATA_DIR=folder),capture_output=True,text=True,timeout=15)
             self.assertEqual(0,result.returncode,result.stderr)
             self.assertIn('READ_ONLY_IDENTITY_PASS',result.stdout)
+
+    def test_magnet_display_name_survives_reader_extraction_and_wrong_film_is_rejected(self):
+        from stream_identity import _stream_identity_title, filter_streams_for_content
+        from urllib.parse import quote
+        def source(title):
+            return {"source":"Fixture","voice":"Studio A","quality":"1080p",
+                "url":"magnet:?xt=urn:btih:"+"a"*40+"&dn="+quote(title)}
+        exact=source("The.Matrix.1999.1080p.BluRay")
+        wrong=source("Alien.1979.1080p.BluRay")
+        self.assertEqual("The.Matrix.1999.1080p.BluRay",_stream_identity_title(exact))
+        kept=filter_streams_for_content([exact,wrong],{"id":7,"title":"Матрица","original_title":"The Matrix","year":1999,"media_type":"movie"})
+        self.assertEqual([exact["url"]],[item["url"] for item in kept])

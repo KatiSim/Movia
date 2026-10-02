@@ -1,7 +1,7 @@
 """Catalog identity checks without database initialization or schema writes."""
 import re
 from typing import Any, Dict, List
-from urllib.parse import parse_qs, unquote
+from urllib.parse import parse_qs, unquote, urlparse
 from catalog_localization import russian_alternative_titles
 from catalog_schema_v2 import normalize_ru_text
 from stream_validation import sanitize_streams
