@@ -50,3 +50,4 @@
 {"seq": 50, "at": "2026-10-02T10:41:14.413036+00:00", "action": "player.stop", "mediaId": "4042", "arguments": {}, "accepted": true, "requestMs": 68}
 {"seq": 51, "at": "2026-10-02T10:41:14.521183+00:00", "action": "media.play", "mediaId": "4042", "arguments": {"mediaId": "4042", "title": "Единственная девушка в оркестре", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 12}
 {"seq": 52, "at": "2026-10-02T10:41:28.833519+00:00", "action": "movie_result", "mediaId": "4042", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 53, "at": "2026-10-02T10:41:29.121078+00:00", "action": "player.stop", "mediaId": "12582", "arguments": {}, "accepted": true, "requestMs": 92}
