@@ -1,0 +1,36 @@
+{
+  "mediaId": "39154",
+  "title": "Умри, крича, Марианна",
+  "year": 1971,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:50.251844+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "75886ad1fe690ba2d472",
+      "decoded": false,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "8fba48b3767d9e61f5f5",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 4606
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "340c7a0e0fb173a1bcb7",
+  "preparedStreamIdFingerprint": "d18e57de8feeb816f3b9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
