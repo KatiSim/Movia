@@ -1,0 +1,29 @@
+{
+  "mediaId": "604008",
+  "title": "Джулия",
+  "year": 1999,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:37:46.679560+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 8582,
+    "observed": {
+      "mediaId": "604008",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 346,
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "frames": 2202,
+      "voice": "Авторский (Одноголосый)",
+      "streamFingerprint": "fbd470cf531e1024e56d",
+      "locatorFingerprint": "2cd4a538856a97aa3f6e"
+    },
+    "commandToReadyMs": 8784
+  }
+}
