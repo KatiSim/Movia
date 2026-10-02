@@ -30,6 +30,32 @@
       "audioTrackIdentityChanged": false,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "Original (с субтитрами)",
+      "expectedAudioLabel": "hin1",
+      "expectedLanguage": "hi",
+      "decoded": true,
+      "ms": 361,
+      "observed": {
+        "mediaId": "45563",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 2221,
+        "selectedAudioLabel": "hin1",
+        "selectedAudioLanguage": "hi",
+        "frames": 2344,
+        "voice": "Original (с субтитрами)",
+        "streamFingerprint": "820cc61b1fbaa0cc4708",
+        "locatorFingerprint": "b7ad7e7f2d1d8bd524d5"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
