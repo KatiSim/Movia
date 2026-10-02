@@ -1,0 +1,13 @@
+{
+  "mediaId": "20904",
+  "title": "Зодиак",
+  "year": 2007,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:20:48.579090+00:00"
+}
