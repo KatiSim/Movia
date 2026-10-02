@@ -3594,3 +3594,4 @@
 {"seq": 3594, "at": "2026-10-02T11:23:24.093216+00:00", "action": "player.stop", "mediaId": "11100", "arguments": {}, "accepted": true, "requestMs": 23}
 {"seq": 3595, "at": "2026-10-02T11:23:24.292204+00:00", "action": "media.play", "mediaId": "11100", "arguments": {"mediaId": "11100", "title": "Сплит", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "c276627ed467bca99a74"}, "accepted": true, "requestMs": 14}
 {"seq": 3596, "at": "2026-10-02T11:23:26.605956+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
+{"seq": 3597, "at": "2026-10-02T11:23:26.813136+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 27}
