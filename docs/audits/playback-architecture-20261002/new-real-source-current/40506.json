@@ -1,0 +1,36 @@
+{
+  "mediaId": "40506",
+  "title": "Сад пыток",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:07.746403+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "46db5c2dc9feebead07f",
+      "decoded": true,
+      "actualHeight": 1040,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "9a79bad28c6bba0fe452",
+      "videoFrameFingerprint": "13687acfb102f23acc3d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3786
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "aa2153051df00a690b83",
+  "preparedStreamIdFingerprint": "d4079ccfede87966985d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
