@@ -1,0 +1,36 @@
+{
+  "mediaId": "51330",
+  "title": "Убийцы поневоле",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:05.849198+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "aaf07bf04b7d71d4adae",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "d2901f4117c2240b2972",
+      "videoFrameFingerprint": "007a62996c7c75b6867c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3044
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a73bcd5d4df5d0f987a0",
+  "preparedStreamIdFingerprint": "546de4879cfc0ff3a937",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
