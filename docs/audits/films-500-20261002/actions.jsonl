@@ -781,3 +781,4 @@
 {"seq": 781, "at": "2026-10-02T11:01:44.813091+00:00", "action": "internal_decoder_harness_correction", "reason": "Removed premature audio frame limit that stopped the muxer before video output; previous zero-video observations are rechecked."}
 {"seq": 782, "at": "2026-10-02T11:01:45.132196+00:00", "action": "internal_500_begin", "scope": "Exact owned-provider resolution, real combined video+audio decoder per movie. Does not replace native Media3 switching tests."}
 {"seq": 783, "at": "2026-10-02T11:01:45.376388+00:00", "action": "exact_provider_resolve", "mediaId": "259", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 784, "at": "2026-10-02T11:01:45.517184+00:00", "action": "exact_provider_resolve", "mediaId": "169", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
