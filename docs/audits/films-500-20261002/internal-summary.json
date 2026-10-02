@@ -3,12 +3,12 @@
   "selected": 500,
   "identityValidated": 26,
   "withHttpSource": 26,
-  "moviesDecoded": 24,
+  "moviesDecoded": 25,
   "withAtLeastThreeManifestVoices": 25,
   "withAtLeastTwoManifestQualities": 25,
-  "componentDecodesPassed": 24,
-  "componentDecodesFailed": 1,
+  "componentDecodesPassed": 25,
+  "componentDecodesFailed": 0,
   "nativeSwitchingVerified": false,
   "allMatrixCombinationsVerified": false,
-  "updatedAt": "2026-10-02T11:02:46.269777+00:00"
+  "updatedAt": "2026-10-02T11:02:46.465121+00:00"
 }
