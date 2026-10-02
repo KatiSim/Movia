@@ -1,0 +1,36 @@
+{
+  "mediaId": "39533",
+  "title": "Алекс в стране чудес",
+  "year": 1970,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:49:50.163883+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "d8e72e2fbbbf73611aa7",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "e61c6b952327e6140877",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2994
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a26c1118ad6ba0609cdb",
+  "preparedStreamIdFingerprint": "cf834017e523b6773931",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
