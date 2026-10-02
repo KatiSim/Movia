@@ -6,14 +6,14 @@
   "withThreeVoiceLabels": 5,
   "withTwoQualityLabels": 5,
   "qualitySwitchConfirmed": 1,
-  "audioTrackSwitchConfirmed": 0,
+  "audioTrackSwitchConfirmed": 1,
   "voiceLocatorOnly": 0,
-  "variantPassed": 1,
+  "variantPassed": 2,
   "variantFailed": 0,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:14:04.806110+00:00",
-  "actionsRecorded": 1885,
+  "updatedAt": "2026-10-02T11:14:05.331172+00:00",
+  "actionsRecorded": 1889,
   "lastPublishedAction": 1837,
   "githubSyncError": null
 }
