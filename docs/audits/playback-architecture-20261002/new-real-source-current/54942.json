@@ -1,0 +1,36 @@
+{
+  "mediaId": "54942",
+  "title": "Чудесный подарок снеговика",
+  "year": 1995,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:06.522479+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "123307fe74cf623a8c44",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "950ce8f4696010882650",
+      "videoFrameFingerprint": "80002e63113eb6553666",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3966
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "630acb523b9d7e0f6d85",
+  "preparedStreamIdFingerprint": "b021c3cdcb425ef697bc",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
