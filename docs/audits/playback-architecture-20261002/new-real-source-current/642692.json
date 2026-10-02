@@ -1,0 +1,52 @@
+{
+  "mediaId": "642692",
+  "title": "Dorothea",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:10:39.534616+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "7a5e33a694fe93589f7b",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5ef141add58a3f7b26a4",
+      "videoFrameFingerprint": "b6e35d4dc0c4019e28a1",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4849
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fbe446bbe7ea9811ddba",
+  "preparedStreamIdFingerprint": "f9a68bf1d8043875480b",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 2
+}
