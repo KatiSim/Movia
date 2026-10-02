@@ -1530,3 +1530,4 @@
 {"seq": 1530, "at": "2026-10-02T14:36:39.451064+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "43596", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1531, "at": "2026-10-02T14:36:39.640777+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "57779", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1532, "at": "2026-10-02T14:36:52.323506+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "44948", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1533, "at": "2026-10-02T14:36:54.219739+00:00", "action": "real_source_decode_result", "details": {"mediaId": "57779", "requestedHeight": 0, "voice": null, "language": null, "sourceFingerprint": "aff284359d9055dea8fe", "decoded": false, "status": "FAIL", "errorCategory": "DECODER_TIMEOUT", "ms": 14202}, "sourcePaths": []}

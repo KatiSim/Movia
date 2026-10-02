@@ -1,0 +1,30 @@
+{
+  "mediaId": "57779",
+  "title": "Мадам Сатана",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:36:39.615594+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "aff284359d9055dea8fe",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14202
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "3447ca9a056d07742c51",
+  "preparedStreamIdFingerprint": "a8b7e7010bdaa56bae01",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
