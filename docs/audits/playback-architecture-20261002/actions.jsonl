@@ -1031,3 +1031,4 @@
 {"seq": 1031, "at": "2026-10-02T14:28:03.037391+00:00", "action": "native_player.stop", "details": {"mediaId": "215809", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1032, "at": "2026-10-02T14:28:03.202715+00:00", "action": "native_media.play", "details": {"mediaId": "215809", "arguments": {"mediaId": "215809", "title": "Кот в шляпе", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "c9a5cdc5a5ac1ddf9244"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1033, "at": "2026-10-02T14:28:04.853739+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "438603", "quality": 360, "voice": "def0"}, "sourcePaths": []}
+{"seq": 1034, "at": "2026-10-02T14:28:06.651535+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "215809", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}

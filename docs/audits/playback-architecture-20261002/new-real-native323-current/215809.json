@@ -1,0 +1,29 @@
+{
+  "mediaId": "215809",
+  "title": "Кот в шляпе",
+  "year": 2026,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:28:03.014543+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 3280,
+    "observed": {
+      "mediaId": "215809",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 1080,
+      "positionMs": 208,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "en",
+      "frames": 719,
+      "voice": "Original",
+      "streamFingerprint": "c9a5cdc5a5ac1ddf9244",
+      "locatorFingerprint": "ba52764546690335c7f9"
+    },
+    "commandToReadyMs": 3450
+  }
+}
