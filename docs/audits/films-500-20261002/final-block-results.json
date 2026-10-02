@@ -1,7 +1,7 @@
 {
   "sourceRowsRecorded": 826,
   "moviesWithDecodedVideoAndAudio": 263,
-  "moviesWithThreeManifestVoices": 0,
+  "moviesWithThreeManifestVoices": 118,
   "native321MoviesStarted": 25,
   "native321FullMatricesPassed": 18,
   "native321VariantPairsPassed": 393,
@@ -11,5 +11,8 @@
   "serverAudioIdentityTestsPassed": 132,
   "activeParserReloadedWithNewIdentityFix": false,
   "uiUsed": false,
-  "temporaryAuditServiceStopped": true
+  "temporaryAuditServiceStopped": true,
+  "moviesWithTwoManifestQualities": 228,
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true
 }
