@@ -1,0 +1,36 @@
+{
+  "mediaId": "50659",
+  "title": "Зачарованное королевство",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:16.051793+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e6e741738962d97d9fba",
+      "decoded": true,
+      "actualHeight": 358,
+      "videoFrames": 3,
+      "audioFrames": 9,
+      "audioPcmFingerprint": "652a8abff138293ed829",
+      "videoFrameFingerprint": "aaafb56d881af2e7dbc5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4443
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1711256a010f3700b8aa",
+  "preparedStreamIdFingerprint": "0fc9d3d7c92134d7b1c8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
