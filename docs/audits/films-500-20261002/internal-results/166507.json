@@ -1,0 +1,13 @@
+{
+  "mediaId": "166507",
+  "title": "Лабиринт Фавна",
+  "year": 2006,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:46.066895+00:00"
+}
