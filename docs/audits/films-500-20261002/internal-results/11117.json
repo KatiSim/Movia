@@ -1,0 +1,13 @@
+{
+  "mediaId": "11117",
+  "title": "Убийство в «Восточном экспрессе»",
+  "year": 2017,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:22:52.183646+00:00"
+}
