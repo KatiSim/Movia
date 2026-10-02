@@ -1,0 +1,36 @@
+{
+  "mediaId": "56314",
+  "title": "Венские вальсы",
+  "year": 1934,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:29:18.488782+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4e0e0a23601464d87348",
+      "decoded": true,
+      "actualHeight": 432,
+      "videoFrames": 3,
+      "audioFrames": 10,
+      "audioPcmFingerprint": "39f389bd3fd0902a77d4",
+      "videoFrameFingerprint": "88d7823c957a6f9050f3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12277
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "694e2b3aaa3d7a818f2d",
+  "preparedStreamIdFingerprint": "683a32ad0873ea770fad",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
