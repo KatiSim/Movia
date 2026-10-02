@@ -1401,3 +1401,4 @@
 {"seq": 1401, "at": "2026-10-02T11:09:41.273753+00:00", "action": "internal_movie_result", "mediaId": "579570", "actualDecoded": true, "voices": 1, "qualities": 1, "errorCategory": null}
 {"seq": 1402, "at": "2026-10-02T11:09:41.487176+00:00", "action": "exact_provider_resolve", "mediaId": "32051", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1403, "at": "2026-10-02T11:09:42.607657+00:00", "action": "internal_movie_result", "mediaId": "32051", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 1404, "at": "2026-10-02T11:09:42.810125+00:00", "action": "exact_provider_resolve", "mediaId": "446262", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
