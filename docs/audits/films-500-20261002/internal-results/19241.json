@@ -1,0 +1,116 @@
+{
+  "mediaId": "19241",
+  "title": "Гарри Поттер и Принц-полукровка",
+  "year": 2009,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 5885,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 7,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Дубляж",
+    "Е. Солодухин",
+    "Новий канал",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "Укр. Дубльований",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr5",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng6",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 7,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 14,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:00:30.124366+00:00"
+}
