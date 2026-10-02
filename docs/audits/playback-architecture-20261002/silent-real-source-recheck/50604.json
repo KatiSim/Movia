@@ -1,0 +1,50 @@
+{
+  "mediaId": "50604",
+  "title": "Искатель приключений",
+  "year": 1917,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:17:28.336884+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f4a4306090811994d57a",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "708888ef857829461452",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8136,
+      "profileFingerprint": "9ca281b902799ddd04da",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "profileChecks": [
+    {
+      "profileFingerprint": "9ca281b902799ddd04da",
+      "status": "PREPARED"
+    },
+    {
+      "profileFingerprint": "ad3ffeccc577014905c9",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "401f6036afe233bdedb5",
+  "preparedStreamIdFingerprint": "cfb7e0c57489211aff72",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
