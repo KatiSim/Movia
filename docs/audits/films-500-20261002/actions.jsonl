@@ -3255,3 +3255,4 @@
 {"seq": 3255, "at": "2026-10-02T11:21:04.741581+00:00", "action": "media.play", "mediaId": "12237", "arguments": {"mediaId": "12237", "title": "Прибытие", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "a88e3c354dd18103055d"}, "accepted": true, "requestMs": 3}
 {"seq": 3256, "at": "2026-10-02T11:21:04.915733+00:00", "action": "internal_movie_result", "mediaId": "538", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3257, "at": "2026-10-02T11:21:05.289815+00:00", "action": "exact_provider_resolve", "mediaId": "632", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 3258, "at": "2026-10-02T11:21:06.297059+00:00", "action": "internal_movie_result", "mediaId": "632", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
