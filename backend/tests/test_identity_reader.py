@@ -57,3 +57,22 @@ print('READ_ONLY_IDENTITY_PASS')
         rows=[dict(base,season=1,episode=2),dict(base,season=1,episode=1),base]
         kept=filter_streams_for_content(rows,{"id":8,"title":"Fixture","year":2020,"media_type":"tv","season":1,"episode":2})
         self.assertEqual(1,len(kept));self.assertEqual(2,kept[0]["episode"])
+
+    def test_exact_playback_id_is_not_hidden_by_localization_or_rebound_to_tmdb(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/"catalog.db"
+            with sqlite3.connect(path) as conn:
+                conn.execute("CREATE TABLE movies(id INTEGER,title TEXT,localized_ru_title TEXT,original_title TEXT,year INTEGER,media_type TEXT,tmdb_id INTEGER,poster_url TEXT,streams TEXT)")
+                conn.execute("INSERT INTO movies VALUES(9,'Pencil Test','','Pencil Test',2013,'movie',1234,'',?)",
+                    (json.dumps([{"source":"Provider","voice":"Original","quality":"720p","url":"https://media.example/x.mp4"}]),))
+            code='''
+import catalog_api,sys
+card=catalog_api.get_movie_playback_card('9')
+assert card and card['id']=='9'
+assert card['streams'][0]['voice']=='Original'
+assert catalog_api.get_movie_playback_card('1234') is None, 'TMDB fallback rebound internal ID'
+assert catalog_api.get_movie_playback_card('Pencil Test') is None
+assert 'database' not in sys.modules
+'''
+            result=subprocess.run([sys.executable,'-c',code],env=dict(os.environ,MOVIA_DATA_DIR=folder),capture_output=True,text=True,timeout=15)
+            self.assertEqual(0,result.returncode,result.stderr)

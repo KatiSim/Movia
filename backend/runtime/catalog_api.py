@@ -946,11 +946,17 @@ def _lookup_movie_row(conn: sqlite3.Connection, movie_id: str) -> Optional[sqlit
 
 
 def get_movie_playback_card(movie_id: str) -> Optional[Dict[str, Any]]:
-    """Return persisted playback data only; never run remote/detail enrichment."""
+    """Read an exact internal ID without localization, lookup or enrichment side effects."""
+    value = str(movie_id).strip()
+    if not re.fullmatch(r"(?:m_)?[0-9]{1,12}", value):
+        return None
+    internal_id = int(value.removeprefix("m_"))
     with closing(get_db()) as conn, conn:
-        row = _lookup_movie_row(conn, movie_id)
+        row = conn.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (internal_id,)).fetchone()
         if row is None:
             return None
+        # Feed visibility/localization is independent from playing an exact,
+        # existing catalog identity. No TMDB/title fallback may rebind the ID.
         return map_row_to_media(row, compact=False)
 
 
