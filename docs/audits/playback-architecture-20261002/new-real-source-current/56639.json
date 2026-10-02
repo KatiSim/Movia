@@ -1,0 +1,36 @@
+{
+  "mediaId": "56639",
+  "title": "Это армия",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:51.066034+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c562e2bd39562f81f948",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "0efba753313f4e8d2eb2",
+      "videoFrameFingerprint": "7e2bfc3752700ab8c099",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4076
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "574fafef5bc96bed0430",
+  "preparedStreamIdFingerprint": "142008dbb799891368d7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
