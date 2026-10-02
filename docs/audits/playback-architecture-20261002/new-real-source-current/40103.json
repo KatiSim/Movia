@@ -1,0 +1,36 @@
+{
+  "mediaId": "40103",
+  "title": "Зеленые береты",
+  "year": 1968,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:14.704751+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c6f889738b3a1f55a95c",
+      "decoded": true,
+      "actualHeight": 106,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "10c830b8c23809a2005f",
+      "videoFrameFingerprint": "971eb1f6a1e2b090f021",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5033
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "71e034ed5704b67f3b7f",
+  "preparedStreamIdFingerprint": "5d7800e8f468d25c3a61",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
