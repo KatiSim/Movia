@@ -1,0 +1,36 @@
+{
+  "mediaId": "48419",
+  "title": "Замок дьявола",
+  "year": 1896,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:41.049838+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cc1d3e2189a5a6eecb57",
+      "decoded": false,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "b8a72cbedd43a01f7c2a",
+      "status": "FAIL",
+      "exitCode": 0,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 3231
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c8e9b5f54c6e17a4c233",
+  "preparedStreamIdFingerprint": "0a00ec89b3399ed1543b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
