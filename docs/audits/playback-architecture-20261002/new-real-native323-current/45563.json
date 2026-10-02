@@ -147,5 +147,7 @@
       "actualName": "hin1",
       "language": "hi"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
