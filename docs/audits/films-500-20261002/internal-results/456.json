@@ -1,0 +1,11 @@
+{
+  "mediaId": "456",
+  "title": "Дороро",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": false,
+  "errorCategory": "EXACT_IMDB_UNAVAILABLE",
+  "checkedAt": "2026-10-02T11:13:56.363111+00:00"
+}
