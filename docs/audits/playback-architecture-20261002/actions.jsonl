@@ -1725,3 +1725,4 @@
 {"seq": 1725, "at": "2026-10-02T14:39:56.197911+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "46447", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 1726, "at": "2026-10-02T14:39:56.393475+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "44880", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1727, "at": "2026-10-02T14:39:56.571277+00:00", "action": "native_player.stop", "details": {"mediaId": "9465", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1728, "at": "2026-10-02T14:39:56.745252+00:00", "action": "native_media.play", "details": {"mediaId": "9465", "arguments": {"mediaId": "9465", "title": "Unnatural Selection", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "12078f0f30b1d392eb09"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
