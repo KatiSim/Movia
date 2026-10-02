@@ -1,0 +1,5 @@
+{"at": "2026-10-02T10:27:34Z", "action": "scope", "result": "User authorized 500 new movies, quality/voice matrix, internal playback only, and GitHub action history."}
+{"at": "2026-10-02T10:29:22Z", "action": "parser_state", "result": {"activeApi": "projects/media-parser/streamer.py", "activeDatabase": "projects/media-parser/catalog.db", "cards": 96779, "heavySeparateEnrichersActive": 0, "standaloneSource": "backend/runtime", "remoteCodeBranch": "movia-owned-backend-20261001", "externalServerDeployed": false}}
+{"at": "2026-10-02T10:29:48Z", "action": "build319", "result": "Build successful after corrected regression fixture position; visible version 0.0.1."}
+{"at": "2026-10-02T10:32:08Z", "action": "native_regression319", "result": {"unitTestsPassed": 139, "nativeTestsPassed": 9, "nativeTestsFailed": 0, "startupHandoverLogConfirmed": true}}
+{"at": "2026-10-02T10:33:32.413329+00:00", "action": "sampling", "result": {"selected": 500, "decodedTested": 0, "note": "Manifest selection is not playback verification."}}
