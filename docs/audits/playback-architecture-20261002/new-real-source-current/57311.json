@@ -1,0 +1,36 @@
+{
+  "mediaId": "57311",
+  "title": "Зеленая трава Вайоминга",
+  "year": 1948,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:23.837561+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c470aedacf8af7525a0e",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "b36fb64dcad4c280a35b",
+      "videoFrameFingerprint": "1587a5ab181d0618fece",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7096
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "67b4b91e745940091014",
+  "preparedStreamIdFingerprint": "04b17cc2523f116e8625",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
