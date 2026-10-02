@@ -968,6 +968,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Е. Рудой",
+      "expectedAudioLabel": "rus10",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 376,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 53036,
+        "frames": 7953,
+        "quality": "720p",
+        "voice": "Е. Рудой",
+        "streamFingerprint": "af668c0d5a54da0b4f66",
+        "locatorFingerprint": "583e025774f838c7d603",
+        "selectedAudioLabel": "rus10",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:11:0",
+            "rus10",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:21:20.623644+00:00",
