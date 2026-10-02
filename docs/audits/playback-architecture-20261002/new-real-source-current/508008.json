@@ -1,0 +1,52 @@
+{
+  "mediaId": "508008",
+  "title": "Проклятие Малены",
+  "year": 2024,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:40:48.222401+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 252,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "5dbf2a6d484562210f39",
+      "decoded": true,
+      "actualHeight": 252,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "27c63775fc21fef55dce",
+      "videoFrameFingerprint": "207bfbfcd5107652ea30",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2749
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "83279f144d9adb8d1147",
+  "preparedStreamIdFingerprint": "1104a568af3399151238",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    252,
+    486
+  ],
+  "advertisedCompatiblePairs": 2
+}
