@@ -16,6 +16,18 @@
       "ms": 14032,
       "profileFingerprint": "9d9364f79d3a129dae77",
       "audioPresence": "UNDETERMINED"
+    },
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5a6c0c902180c8dc2d1f",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14024,
+      "profileFingerprint": "7b0769f55bbf4416a16f",
+      "audioPresence": "UNDETERMINED"
     }
   ],
   "actualDecoded": false,
