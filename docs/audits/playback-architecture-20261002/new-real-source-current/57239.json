@@ -1,0 +1,36 @@
+{
+  "mediaId": "57239",
+  "title": "Одинокий всадник Рэнди",
+  "year": 1934,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:24.427913+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6cda8bb3925bb7dd4dc2",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "55eab3c7b04eef4309a9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3810
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 3,
+  "preparedSourceFingerprint": "f0775e1e910fa7d22246",
+  "preparedStreamIdFingerprint": "40894c573243fc21d318",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
