@@ -1,0 +1,36 @@
+{
+  "mediaId": "39586",
+  "title": "Джен Эйр",
+  "year": 1970,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:03:44.386207+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "08181db3ac5e4f218e04",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "56520ed2a86663f46ae9",
+      "videoFrameFingerprint": "a7dcedf01d19c1011f58",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3337
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "19ebf76db2294dc44f09",
+  "preparedStreamIdFingerprint": "1d714559c848e1e8fee8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
