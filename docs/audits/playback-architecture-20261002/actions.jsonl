@@ -206,3 +206,4 @@
 {"seq": 206, "at": "2026-10-02T14:08:50.257063+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 207, "at": "2026-10-02T14:08:50.899898+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 14, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 208, "at": "2026-10-02T14:08:51.296091+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 209, "at": "2026-10-02T14:08:51.600422+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "Авторский (Одноголосый) · дорожка 4", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
