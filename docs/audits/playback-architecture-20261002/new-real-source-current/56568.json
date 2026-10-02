@@ -1,0 +1,36 @@
+{
+  "mediaId": "56568",
+  "title": "... в котором мы служим",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:10:59.154755+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c695481fafd1de884308",
+      "decoded": true,
+      "actualHeight": 352,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "5207081f9b8ab0a243fd",
+      "videoFrameFingerprint": "9ba59f0c4377485ddd1a",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5654
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "90ab3113abe6ee79dcb9",
+  "preparedStreamIdFingerprint": "2bfce1d0bfff16544e6b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
