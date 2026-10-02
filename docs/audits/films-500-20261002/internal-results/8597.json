@@ -1,0 +1,13 @@
+{
+  "mediaId": "8597",
+  "title": "Звёздные войны: Эпизод 9 - Скайуокер. Восход",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:22:14.314328+00:00"
+}
