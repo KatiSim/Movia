@@ -1,0 +1,36 @@
+{
+  "mediaId": "303007",
+  "title": "Wowsabout!",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:29:50.208603+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1676f382b524610c29c6",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "96bf0a49aeab8086e3e1",
+      "videoFrameFingerprint": "af7bff175691d6445790",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3525
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6e1476504aec4ce98295",
+  "preparedStreamIdFingerprint": "7bead69546f92e5437a2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
