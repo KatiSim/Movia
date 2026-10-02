@@ -1274,7 +1274,12 @@ class PlaybackSession(context: Context) {
         // voices continues in parallel, with the usual failure/reload policy.
         val cachedStartup = DomainPlaybackResolver.cachedStartupCandidates(request, seeds)
         if (cachedStartup.isNotEmpty()) {
-            candidates = StreamRanker.rankCandidates(cachedStartup, context = requestContext(request))
+            // Keep every validated cached voice visible before asynchronous discovery.
+            // The explicit startup ID only chooses which candidate is prepared first.
+            candidates = StreamRanker.rankCandidates(
+                DomainPlaybackResolver.cachedPlaybackCandidates(request, seeds),
+                context = requestContext(request),
+            )
             publishCandidateOptions()
             selectInitialCandidate(request)?.let { candidate ->
                 if (!prepareCandidate(candidate, request, request.startPositionMs, generation)) {

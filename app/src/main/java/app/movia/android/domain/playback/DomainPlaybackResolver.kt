@@ -105,6 +105,15 @@ object DomainPlaybackResolver {
         return lower.startsWith("file://") && value.substringAfter("://", "").isNotBlank()
     }
 
+    internal fun isBackendPlayableUrl(url: String): Boolean {
+        if (!isStructurallyPlayableUrl(url)) return false
+        val host = runCatching { java.net.URI(url.trim()).host?.lowercase().orEmpty() }.getOrNull() ?: return false
+        // TMDB URLs are catalog images/metadata. A real media provider is not
+        // excluded merely because its hostname or signed query mentions it.
+        return host != "themoviedb.org" && !host.endsWith(".themoviedb.org") &&
+            host != "tmdb.org" && !host.endsWith(".tmdb.org")
+    }
+
     private fun parseHeaders(value: JSONObject?): Map<String, String> {
         if (value == null) return emptyMap()
         val allowed = setOf(
@@ -251,8 +260,7 @@ object DomainPlaybackResolver {
             val sObj = arr.optJSONObject(i) ?: continue
             val url = firstString(sObj, "url", "playback_url", "stream_url").orEmpty()
             val source = sObj.optString("source").takeIf { it.isNotBlank() } ?: "resolver"
-            if (!isStructurallyPlayableUrl(url)) continue
-            if (url.contains("archive.org") || url.contains("themoviedb.org")) continue
+            if (!isBackendPlayableUrl(url)) continue
             val subtitles = parseSubtitles(
                 sObj.optJSONArray("subtitle_list")
                     ?: sObj.optJSONArray("subtitleList")
@@ -584,15 +592,22 @@ object DomainPlaybackResolver {
     internal fun validatedCandidates(request: PlaybackRequest, candidates: List<StreamCandidate>): List<StreamCandidate> =
         usableCandidates(request, candidates)
 
-    /** Start a validated cached HTTP candidate while fresh discovery proceeds. */
-    internal fun cachedStartupCandidates(
+    /** Validated cached HTTP inventory, independent of the selected startup voice. */
+    internal fun cachedPlaybackCandidates(
         request: PlaybackRequest,
         candidates: List<StreamCandidate>,
     ): List<StreamCandidate> = usableCandidates(request, candidates).filter {
         !it.isProblematic &&
             (it.url.startsWith("https://", true) || it.url.startsWith("http://", true)) &&
-            it.transport.trim().lowercase() !in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway") &&
-            (request.requestedStreamId.isNullOrBlank() || it.stableStreamId == request.requestedStreamId)
+            it.transport.trim().lowercase() !in setOf("torrent", "p2p", "torrent_p2p", "magnet", "local_gateway")
+    }
+
+    /** A pinned startup variant constrains preparation, not the voice/quality menu. */
+    internal fun cachedStartupCandidates(
+        request: PlaybackRequest,
+        candidates: List<StreamCandidate>,
+    ): List<StreamCandidate> = cachedPlaybackCandidates(request, candidates).filter {
+        request.requestedStreamId.isNullOrBlank() || it.stableStreamId == request.requestedStreamId
     }
 
     /**

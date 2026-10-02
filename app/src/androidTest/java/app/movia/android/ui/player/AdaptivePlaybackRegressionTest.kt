@@ -60,6 +60,30 @@ class AdaptivePlaybackRegressionTest {
             waitFor { session.probeFrames>frames+2 && session.player.isPlaying && session.player.audioFormat?.label=="Studio B" }
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
     }
+    @Test fun pinnedCachedStartupPublishesAllVoicesBeforeDiscoveryRuns() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val first=StreamOption("Studio A","Auto",url="$base/master.m3u8",streamId="qa:pinned:a",audioTrackIndex=0)
+        val other=first.copy(voice="Studio B",streamId="qa:pinned:b",audioTrackIndex=1)
+        try {
+            main {
+                session.setFrameProbe(true)
+                session.start("movia_qa_pinned_inventory","Movia QA",candidateStreamOptions=listOf(first,other),
+                    preferredStreamId=first.streamId,preferredVoice=first.voice,recordHistory=false)
+                // The discovery coroutine cannot run until this main block returns.
+                assertEquals(setOf("Studio A","Studio B"),session.streamOptions.value.map { it.voice }.toSet())
+                assertEquals(first.streamId,session.state.value.activeStreamSelection?.requestedStreamId)
+            }
+            waitFor { session.probeFrames>2 && session.player.audioFormat?.label=="Studio A" }
+            assertTrue(main { session.selectVideoQuality("360p") })
+            val position=main { session.player.currentPosition }
+            val frames=main { session.probeFrames }
+            assertTrue(main { session.selectVoice("Studio B") })
+            waitFor { session.probeFrames>frames+2 && session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==360 }
+            assertTrue(main { session.player.currentPosition }>=position-1200L)
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
+
     @Test fun hlsQualityAndVoiceChangeActualTracksWhilePositionIsPreserved() {
         control("/__control?mode=online")
         val session = main { MoviaPlaybackRegistry.obtain(context) }

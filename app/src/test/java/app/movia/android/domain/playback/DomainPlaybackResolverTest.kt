@@ -35,6 +35,14 @@ class DomainPlaybackResolverTest {
         canonicalMediaType = "movie",
     )
 
+    @Test fun realArchiveMediaIsAcceptedAndMetadataHostsAreRejectedExactly() {
+        assertTrue(DomainPlaybackResolver.isBackendPlayableUrl("https://ia801600.us.archive.org/film.mp4"))
+        assertTrue(DomainPlaybackResolver.isBackendPlayableUrl("https://cdn.example/film.m3u8?ref=themoviedb.org"))
+        assertFalse(DomainPlaybackResolver.isBackendPlayableUrl("https://image.tmdb.org/t/p/w500/poster.jpg"))
+        assertFalse(DomainPlaybackResolver.isBackendPlayableUrl("https://api.themoviedb.org/3/movie/7"))
+        assertFalse(DomainPlaybackResolver.isBackendPlayableUrl("https://"))
+    }
+
     @Test
     fun testPlaybackRequestCanonicalEpisodeKey() {
         val seriesRequest = PlaybackRequest(
@@ -523,6 +531,17 @@ class DomainPlaybackResolverTest {
             exact.copy(stableStreamId="series",seasonNumber=null,episodeNumber=null))
         assertEquals(listOf("exact"),DomainPlaybackResolver.cachedStartupCandidates(request,rows).map { it.stableStreamId })
     }
+    @Test fun pinningStartupDoesNotDiscardOtherCachedVoicesFromTheInventory() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year=2025, requestedStreamId="a")
+        val first = resolvedCandidate("a").copy(voice="Studio A",audioTrackIndex=0)
+        val other = first.copy(stableStreamId="b",voice="Studio B",audioTrackIndex=1)
+        val rows = listOf(first,other,other.copy(stableStreamId="foreign",catalogMediaId="43"),
+            other.copy(stableStreamId="failed",isProblematic=true))
+        assertEquals(listOf("a","b"),DomainPlaybackResolver.cachedPlaybackCandidates(request,rows).map { it.stableStreamId })
+        assertEquals(listOf("a"),DomainPlaybackResolver.cachedStartupCandidates(request,rows).map { it.stableStreamId })
+        assertTrue(DomainPlaybackResolver.cachedStartupCandidates(request.copy(requestedStreamId="missing"),rows).isEmpty())
+    }
+
     @Test fun cachedStartupHonorsExplicitStreamIdentity() {
         val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year=2025, requestedStreamId="selected")
         assertEquals(listOf("selected"),DomainPlaybackResolver.cachedStartupCandidates(request,
