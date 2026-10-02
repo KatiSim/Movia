@@ -1,0 +1,13 @@
+{
+  "mediaId": "35228",
+  "title": "Индиана Джонс: В поисках утраченного ковчега",
+  "year": 1981,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:18:40.738862+00:00"
+}
