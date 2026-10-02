@@ -9,8 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.MotionDurationScale
-import kotlinx.coroutines.currentCoroutineContext
 import androidx.compose.ui.graphics.TransformOrigin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -30,8 +28,8 @@ class MoviaIconMotionState internal constructor(
  * App-owned micro-interactions for Movia's semantic favorite and waiting-release icons.
  *
  * Important: timing is advanced from the frame clock manually rather than through
- * Compose animation specs. This keeps these short 150–280 ms feedback motions
- * responsive to Android's global Animator duration scale while still only
+ * Compose animation specs. This keeps these short 180–500 ms feedback motions
+ * independent of Android's global Animator duration scale while still only
  * transforming the glyph layer (no layout animation).
  */
 @Composable
@@ -151,15 +149,12 @@ private suspend fun animateMoviaKeyframes(
     }
 
     val durationMs = keyframes.last().timeMs.coerceAtLeast(1)
-    val durationScale = currentCoroutineContext()[MotionDurationScale]
-    if (durationScale?.scaleFactor == 0f) { onValue(keyframes.first().value); return }
     val startNanos = withFrameNanos { it }
     onValue(keyframes.first().value)
 
     while (true) {
-        if (durationScale?.scaleFactor == 0f) { onValue(keyframes.first().value); return }
         val frameNanos = withFrameNanos { it }
-        val elapsedMs = ((frameNanos - startNanos) / (1_000_000f * (durationScale?.scaleFactor ?: 1f).coerceAtLeast(0.01f)))
+        val elapsedMs = ((frameNanos - startNanos) / 1_000_000f)
             .coerceIn(0f, durationMs.toFloat())
 
         val upperIndex = keyframes.indexOfFirst { elapsedMs <= it.timeMs }

@@ -11,8 +11,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.MotionDurationScale
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,7 +49,7 @@ fun rememberMoviaActionTriggerState(): MoviaActionTriggerState =
 
 /**
  * Starts the local motion synchronously from the real onClick, then lets the source composable
- * runs the action immediately. [delayMs] remains for source compatibility.
+ * stay on-screen for [delayMs] before navigation/playback changes the screen.
  */
 @Composable
 fun rememberMoviaAnimatedAction(
@@ -68,10 +66,10 @@ fun rememberMoviaAnimatedAction(
             if (!pending) {
                 triggerState.trigger()
                 pending = true
-                try { latestOnClick() } catch (error: Throwable) { pending = false; throw error }
                 scope.launch {
                     try {
-                        delay(80L)
+                        if (delayMs > 0) delay(delayMs)
+                        latestOnClick()
                     } finally {
                         pending = false
                     }
@@ -86,7 +84,7 @@ fun rememberMoviaAnimatedAction(
  * The whole button reacts as one object; the play glyph never scales/translates independently:
  * 0..70 ms: 1 -> .96; 70..145 ms: .96 -> 1.03; 145..220 ms: settle to 1.
  *
- * Manual frame-clock timing respects Android animator scale, including disabled motion.
+ * Manual frame-clock timing restores the original app-owned interaction feedback.
  */
 @Composable
 fun rememberMoviaPlaybackActionMotion(
@@ -215,7 +213,7 @@ fun rememberMoviaCompactActionMotion(
 
 /**
  * Short amber neon flash for navigational affordances. This is an app-owned frame-clock
- * animation that respects Android's global Animator duration scale.
+ * animation remains visible independently of Android's global Animator duration scale.
  */
 @Composable
 fun rememberMoviaNeonFeedbackAlpha(
@@ -302,21 +300,12 @@ private suspend fun animateMoviaActionKeyframes(
     }
 
     val durationMs = keyframes.last().timeMs.coerceAtLeast(1)
-    val durationScale = currentCoroutineContext()[MotionDurationScale]
-    if (durationScale?.scaleFactor == 0f) {
-        onValue(keyframes.first().value)
-        return
-    }
     val startNanos = withFrameNanos { it }
     onValue(keyframes.first().value)
 
     while (true) {
-        if (durationScale?.scaleFactor == 0f) {
-            onValue(keyframes.first().value)
-            return
-        }
         val frameNanos = withFrameNanos { it }
-        val elapsedMs = ((frameNanos - startNanos) / (1_000_000f * (durationScale?.scaleFactor ?: 1f).coerceAtLeast(0.01f)))
+        val elapsedMs = ((frameNanos - startNanos) / 1_000_000f)
             .coerceIn(0f, durationMs.toFloat())
         val upperIndex = keyframes.indexOfFirst { elapsedMs <= it.timeMs }
             .let { if (it == -1) keyframes.lastIndex else it }
