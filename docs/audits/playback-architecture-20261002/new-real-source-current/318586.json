@@ -1,0 +1,36 @@
+{
+  "mediaId": "318586",
+  "title": "3 Noches",
+  "year": 2001,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:40.061175+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5f061140645a82fb437c",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "ca0116a3e16ab959b3a2",
+      "videoFrameFingerprint": "1a71b0c6821e1cdff8cd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4015
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9a55923cccf62b343d1a",
+  "preparedStreamIdFingerprint": "0f97ffc278f8590aadbc",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
