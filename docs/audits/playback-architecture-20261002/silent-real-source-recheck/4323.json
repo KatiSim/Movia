@@ -1,0 +1,46 @@
+{
+  "mediaId": "4323",
+  "title": "The Seven Ages",
+  "year": 1905,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:18:47.910628+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "f2eef09652207d754d26",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "cea35ccaccac82c92fab",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2906,
+      "profileFingerprint": "46b873c355626e7b7ce4",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "46b873c355626e7b7ce4",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "433aa3f5b27f99f47a45",
+  "preparedStreamIdFingerprint": "bf11ca3c83abb1f18274",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
