@@ -1,0 +1,36 @@
+{
+  "mediaId": "50533",
+  "title": "Таинственная дама",
+  "year": 1928,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:05:32.818646+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6b35d52c6bf121712f45",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "c9905f2f03c4379a2fcf",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3849
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4a83e40826746887c25c",
+  "preparedStreamIdFingerprint": "a8e5dc4cf00ca3646b79",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
