@@ -1,0 +1,52 @@
+{
+  "mediaId": "447368",
+  "title": "Penjagal Iblis: Dosa Turunan",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:36.621677+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 268,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "6b22d1e7de4ee405af75",
+      "decoded": true,
+      "actualHeight": 268,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "68ed1d627682e629937e",
+      "videoFrameFingerprint": "35fa6d56de3987c93138",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3025
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8753ab921e2a37d3bab6",
+  "preparedStreamIdFingerprint": "dcabdac7b4194035ea3a",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    268,
+    536
+  ],
+  "advertisedCompatiblePairs": 2
+}
