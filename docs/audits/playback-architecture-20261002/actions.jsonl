@@ -1516,3 +1516,4 @@
 {"seq": 1516, "at": "2026-10-02T14:36:08.934840+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "46394", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1517, "at": "2026-10-02T14:36:10.702785+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "5630", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1518, "at": "2026-10-02T14:36:13.772296+00:00", "action": "native_player.stop", "details": {"mediaId": "49546", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1519, "at": "2026-10-02T14:36:15.526688+00:00", "action": "native_media.play", "details": {"mediaId": "49546", "arguments": {"mediaId": "49546", "title": "Дикая лошадь", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "6f8e61af39851b6b7da8"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
