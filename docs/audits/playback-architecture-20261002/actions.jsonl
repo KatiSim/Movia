@@ -353,3 +353,4 @@
 {"seq": 353, "at": "2026-10-02T14:10:35.436140+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 354, "at": "2026-10-02T14:10:35.980605+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 355, "at": "2026-10-02T14:10:36.850369+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 14, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 356, "at": "2026-10-02T14:10:37.405905+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
