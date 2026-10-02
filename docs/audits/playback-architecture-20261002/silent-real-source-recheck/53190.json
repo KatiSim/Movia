@@ -1,0 +1,46 @@
+{
+  "mediaId": "53190",
+  "title": "Прожарка",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:17:08.508565+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7ece08cc8815a79af341",
+      "decoded": true,
+      "actualHeight": 540,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "377ecc3055685e622e28",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 6132,
+      "profileFingerprint": "cc1ba3ef3d254560d5e9",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "cc1ba3ef3d254560d5e9",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "45f247e984f00e9fc88e",
+  "preparedStreamIdFingerprint": "353758272f0adc6faf20",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
