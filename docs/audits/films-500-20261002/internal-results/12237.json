@@ -5,21 +5,21 @@
   "engine": "FFmpeg source verification",
   "componentDecodes": [
     {
-      "decoded": false,
+      "decoded": true,
       "requestedHeight": 270,
       "actualHeight": 270,
       "qualityMatches": true,
       "voice": "rus0",
       "voiceLanguage": "ru",
-      "videoFrames": 0,
-      "audioFrames": 1,
-      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
-      "ms": 3173,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "9248610325a347270a1a",
+      "ms": 2888,
       "errorCategory": null,
       "exitCode": 0
     }
   ],
-  "actualDecoded": false,
+  "actualDecoded": true,
   "identityValidated": true,
   "httpSources": 4,
   "providerVoiceLabels": [
@@ -79,5 +79,5 @@
   "distinctManifestQualities": 2,
   "advertisedCompatiblePairs": 8,
   "allMatrixCombinationsVerified": false,
-  "checkedAt": "2026-10-02T11:00:55.537818+00:00"
+  "checkedAt": "2026-10-02T11:02:21.998729+00:00"
 }
