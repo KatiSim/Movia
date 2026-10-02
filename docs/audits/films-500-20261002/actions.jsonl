@@ -3830,3 +3830,4 @@
 {"seq": 3830, "at": "2026-10-02T11:26:50.441376+00:00", "action": "media.play", "mediaId": "8611", "arguments": {"mediaId": "8611", "title": "Оно 2", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "717f2bfe05ee6d102fe8"}, "accepted": true, "requestMs": 19}
 {"seq": 3831, "at": "2026-10-02T11:26:55.752545+00:00", "action": "movie_result", "mediaId": "8611", "decoded": true, "voices": 4, "qualities": 4}
 {"seq": 3832, "at": "2026-10-02T11:26:56.058857+00:00", "action": "player.selectQuality", "mediaId": "8611", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 32}
+{"seq": 3833, "at": "2026-10-02T11:26:56.259521+00:00", "action": "player.selectVoice", "mediaId": "8611", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 30}
