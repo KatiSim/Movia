@@ -63,5 +63,7 @@
       "actualName": null,
       "language": "en"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
