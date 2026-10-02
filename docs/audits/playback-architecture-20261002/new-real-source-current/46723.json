@@ -1,0 +1,36 @@
+{
+  "mediaId": "46723",
+  "title": "Победа через мощь в воздухе",
+  "year": 1943,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:00:25.492180+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fb800fc4f0e102f05c24",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "ab9d091f567c9fa3b392",
+      "videoFrameFingerprint": "b96e7c0b49ee424cc94f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4581
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "93a1c21d97ebdea4a5d8",
+  "preparedStreamIdFingerprint": "d24337bd99faac8f7fe0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
