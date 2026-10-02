@@ -1,0 +1,52 @@
+{
+  "mediaId": "648726",
+  "title": "Sand",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:59.289478+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "und0",
+      "language": "ru",
+      "sourceFingerprint": "5c49a7be6ac79de42b9e",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "90acbaa49d46b87573cc",
+      "videoFrameFingerprint": "18a89a74172755fb7076",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3600
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2f8ed3f397dc00f7f835",
+  "preparedStreamIdFingerprint": "530ee2335d1bc7783626",
+  "manifestVoices": [
+    {
+      "name": "und0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "und0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 2
+}
