@@ -1,0 +1,36 @@
+{
+  "mediaId": "45343",
+  "title": "Агент 327: Операция «Парикмахерская»",
+  "year": 2017,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:38.604643+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c9b0084e948f9484c54d",
+      "decoded": true,
+      "actualHeight": 806,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1b5a2111b9b4343c6dce",
+      "videoFrameFingerprint": "5712e9ee4acd29a9ad62",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3360
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "59515036b6e79c1be246",
+  "preparedStreamIdFingerprint": "a8d0a464ccedf7e004e7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
