@@ -1,0 +1,36 @@
+{
+  "mediaId": "44140",
+  "title": "Мышонок на продажу",
+  "year": 1955,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:08.319013+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8e882835a7b9c20a576c",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "5aafcfc2217d6f00d6c6",
+      "videoFrameFingerprint": "df2fa6810d73b5356738",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3595
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ead65de133b7aafa5d37",
+  "preparedStreamIdFingerprint": "753864b8e852fe98389d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
