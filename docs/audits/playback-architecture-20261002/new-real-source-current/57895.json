@@ -1,0 +1,36 @@
+{
+  "mediaId": "57895",
+  "title": "Транзит Венеры",
+  "year": 1874,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:43:27.661325+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5599a7957c2b403bbdea",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "b81e64a2702fc9c242a3",
+      "videoFrameFingerprint": "8bd8acfaf6b35b07bac3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3591
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "438bbe365ed91e8bf0d6",
+  "preparedStreamIdFingerprint": "7cd449fc94146be17eb2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
