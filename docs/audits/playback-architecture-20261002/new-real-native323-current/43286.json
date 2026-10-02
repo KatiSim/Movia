@@ -1,0 +1,29 @@
+{
+  "mediaId": "43286",
+  "title": "Китайская кукла",
+  "year": 1958,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:39:32.569850+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 9866,
+    "observed": {
+      "mediaId": "43286",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 960,
+      "positionMs": 180,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 2474,
+      "voice": "Original",
+      "streamFingerprint": "a6bf1016a65250762532",
+      "locatorFingerprint": "2e6a74a9c4aa20d5a6c4"
+    },
+    "commandToReadyMs": 10041
+  }
+}
