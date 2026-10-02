@@ -607,5 +607,8 @@
     ],
     "sourceRows": 22,
     "inventoryComplete": false
-  }
+  },
+  "allAdvertisedPreparedPairsTested": true,
+  "allAdvertisedPreparedPairsPassed": true,
+  "meetsVoiceAndQualityVariety": true
 }
