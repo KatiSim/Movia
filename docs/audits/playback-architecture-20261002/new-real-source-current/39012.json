@@ -1,0 +1,30 @@
+{
+  "mediaId": "39012",
+  "title": "Дом ужасов",
+  "year": 1972,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:14:00.855269+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "54977d86191620b4b4b2",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14097
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "f75f3c4bde7e32f8cef7",
+  "preparedStreamIdFingerprint": "b33b96d77eb52ff77583",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
