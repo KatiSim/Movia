@@ -1,0 +1,166 @@
+{
+  "mediaId": "75",
+  "title": "Паразиты",
+  "year": 2019,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:18:51.729029+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 2621.18,
+    "observed": {
+      "mediaId": "75",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 540,
+      "positionMs": 188,
+      "frames": 4548,
+      "quality": "540p",
+      "voice": "Дубляж",
+      "streamFingerprint": "d02e471289bdffe5de32",
+      "locatorFingerprint": "3a0b56582f4d9faef5c7",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 2842
+  },
+  "inventory": {
+    "voiceLabels": [
+      "HDRezka",
+      "Mallorn",
+      "Original (с субтитрами)",
+      "Авторский (Одноголосый)",
+      "Дубляж",
+      "Колобок",
+      "Ю. Сербин"
+    ],
+    "technicalTrackLabels": [
+      "rus0",
+      "rus1",
+      "rus2",
+      "rus3",
+      "rus4",
+      "rus5"
+    ],
+    "qualityLabels": [
+      "270p",
+      "540p",
+      "720p",
+      "1080p"
+    ],
+    "advertisedPairs": [
+      [
+        "1080p",
+        "HDRezka"
+      ],
+      [
+        "1080p",
+        "Mallorn"
+      ],
+      [
+        "1080p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "1080p",
+        "Дубляж"
+      ],
+      [
+        "1080p",
+        "Колобок"
+      ],
+      [
+        "1080p",
+        "Ю. Сербин"
+      ],
+      [
+        "270p",
+        "HDRezka"
+      ],
+      [
+        "270p",
+        "Mallorn"
+      ],
+      [
+        "270p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "270p",
+        "Дубляж"
+      ],
+      [
+        "270p",
+        "Колобок"
+      ],
+      [
+        "270p",
+        "Ю. Сербин"
+      ],
+      [
+        "540p",
+        "HDRezka"
+      ],
+      [
+        "540p",
+        "Mallorn"
+      ],
+      [
+        "540p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "540p",
+        "Дубляж"
+      ],
+      [
+        "540p",
+        "Колобок"
+      ],
+      [
+        "540p",
+        "Ю. Сербин"
+      ],
+      [
+        "720p",
+        "HDRezka"
+      ],
+      [
+        "720p",
+        "Mallorn"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Авторский (Одноголосый)"
+      ],
+      [
+        "720p",
+        "Дубляж"
+      ],
+      [
+        "720p",
+        "Колобок"
+      ],
+      [
+        "720p",
+        "Ю. Сербин"
+      ]
+    ],
+    "sourceRows": 22,
+    "inventoryComplete": false
+  }
+}
