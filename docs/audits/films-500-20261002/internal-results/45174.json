@@ -1,0 +1,60 @@
+{
+  "mediaId": "45174",
+  "title": "Единство семи магов: Небесная библиотека и Багровый повелитель",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "e28a15db9776f486653e",
+      "ms": 2999,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 2,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Профессиональный (МВО)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 1,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:05:53.454616+00:00"
+}
