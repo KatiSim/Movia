@@ -1,0 +1,36 @@
+{
+  "mediaId": "54153",
+  "title": "Шерлок Холмс: Прелюдия к убийству",
+  "year": 1946,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:37:35.141336+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e070534ae05ea70c1da7",
+      "decoded": true,
+      "actualHeight": 576,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "6837e6109964eeea9e33",
+      "videoFrameFingerprint": "ad4d10f4fd894697dc44",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 11954
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "9398a0505625e0bb7f08",
+  "preparedStreamIdFingerprint": "1bcd18178369020e3a5e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
