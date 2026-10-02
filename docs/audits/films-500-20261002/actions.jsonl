@@ -2826,3 +2826,4 @@
 {"seq": 2826, "at": "2026-10-02T11:18:36.454348+00:00", "action": "player.selectQuality", "mediaId": "23911", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 68}
 {"seq": 2827, "at": "2026-10-02T11:18:36.777915+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "requestMs": 51}
 {"seq": 2828, "at": "2026-10-02T11:18:37.216742+00:00", "action": "internal_movie_result", "mediaId": "17497", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2829, "at": "2026-10-02T11:18:37.533767+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
