@@ -1,0 +1,36 @@
+{
+  "mediaId": "57209",
+  "title": "Город Эйбилен",
+  "year": 1946,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:12:07.306602+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "dd5cf7542bbb71f79222",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "992b7b001af94fcd238e",
+      "videoFrameFingerprint": "e1118981d7a684b3afdd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 12276
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "a429aa00b533448f5898",
+  "preparedStreamIdFingerprint": "d87310a985f25d605fda",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
