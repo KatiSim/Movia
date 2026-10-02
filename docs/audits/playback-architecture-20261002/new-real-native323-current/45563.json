@@ -1,0 +1,29 @@
+{
+  "mediaId": "45563",
+  "title": "Старик и мальчик",
+  "year": 2025,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:38:37.641829+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 12300,
+    "observed": {
+      "mediaId": "45563",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 264,
+      "selectedAudioLabel": "def0",
+      "selectedAudioLanguage": "ru",
+      "frames": 2295,
+      "voice": "Профессиональный (МВО)",
+      "streamFingerprint": "b568365bdf5b836b2e7b",
+      "locatorFingerprint": "b7ad7e7f2d1d8bd524d5"
+    },
+    "commandToReadyMs": 12680
+  }
+}
