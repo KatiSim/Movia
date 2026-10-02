@@ -1,0 +1,36 @@
+{
+  "mediaId": "44842",
+  "title": "На свадьбе",
+  "year": 1952,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:50:55.943997+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b34501d1b209002447a4",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "bb6f3ed473f2e4f8d066",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3817
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "1a4f353c58636a44daa7",
+  "preparedStreamIdFingerprint": "13f00314c9eb8c85d313",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
