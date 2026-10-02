@@ -3138,3 +3138,4 @@
 {"seq": 3138, "at": "2026-10-02T15:42:43.731692+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "1+1", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3139, "at": "2026-10-02T15:42:44.208450+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 21, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3140, "at": "2026-10-02T15:42:47.177636+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3141, "at": "2026-10-02T15:42:47.483753+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "delete", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
