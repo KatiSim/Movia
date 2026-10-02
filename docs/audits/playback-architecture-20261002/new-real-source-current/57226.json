@@ -1,0 +1,36 @@
+{
+  "mediaId": "57226",
+  "title": "Раскрашенная долина",
+  "year": 1931,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:37.754589+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "119c385bee5867ef3a12",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "bcc4d608f36e9f3d286a",
+      "videoFrameFingerprint": "529c590489e40b22be6e",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4023
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0cf48d005b46d381a54c",
+  "preparedStreamIdFingerprint": "d1e3ac37f24cbbe110b7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
