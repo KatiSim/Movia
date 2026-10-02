@@ -1,0 +1,167 @@
+{
+  "mediaId": "172",
+  "title": "Твоё имя",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": false,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 0,
+      "audioFrames": 1,
+      "audioPcmFingerprint": "40a6c1ec2f8262f85da0",
+      "ms": 2628,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 12,
+  "providerVoiceLabels": [
+    "LE-Production",
+    "Original (с субтитрами)",
+    "STEPonee",
+    "delete",
+    "Двухголосый (ДВО)",
+    "Дубляж",
+    "Профессиональный (МВО), Двухголосый (ДВО)",
+    "Укр. Дубльований"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn6",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn11",
+      "language": "ja",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn6",
+      "language": "ja",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr7",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr8",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr9",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr10",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn11",
+      "language": "ja",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 12,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 24,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:01:08.585472+00:00"
+}
