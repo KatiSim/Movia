@@ -1,0 +1,36 @@
+{
+  "mediaId": "25032",
+  "title": "Сага о «Чужих»",
+  "year": 2002,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:17.786038+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "01c6b2a43916c84a34d9",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "3cbcb0f72a042db52981",
+      "videoFrameFingerprint": "ce5c6506a659bee9b570",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5519
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e8827f8ab8a5ddc1ae2e",
+  "preparedStreamIdFingerprint": "9bef3ea432fc968e58c7",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
