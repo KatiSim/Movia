@@ -2596,3 +2596,4 @@
 {"seq": 2596, "at": "2026-10-02T11:17:10.269000+00:00", "action": "internal_movie_result", "mediaId": "20901", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2597, "at": "2026-10-02T11:17:10.569963+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "requestMs": 70}
 {"seq": 2598, "at": "2026-10-02T11:17:10.851029+00:00", "action": "exact_provider_resolve", "mediaId": "14462", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2599, "at": "2026-10-02T11:17:11.331863+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
