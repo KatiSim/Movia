@@ -1,0 +1,52 @@
+{
+  "mediaId": "45527",
+  "title": "Чихаяфуру. Финал",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:12:38.086790+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 306,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "2160ebc2ec02c937a09f",
+      "decoded": true,
+      "actualHeight": 306,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ae0d9044ea17f9d0db3a",
+      "videoFrameFingerprint": "f4a58315db80cbb5f120",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5569
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "263ad320d34775647a3e",
+  "preparedStreamIdFingerprint": "d6c83fd14beefb9bf5b4",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    306,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
