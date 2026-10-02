@@ -1,0 +1,36 @@
+{
+  "mediaId": "43312",
+  "title": "Я хороню живого",
+  "year": 1958,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:51:06.802912+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1d708d9b4f416eea5b11",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "71dfd041619f38e08f32",
+      "videoFrameFingerprint": "cd08c0d1fb4158cf3099",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4101
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "06ec5e12999bdd8a1fbc",
+  "preparedStreamIdFingerprint": "d60ddf9c52f2d6838fb6",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
