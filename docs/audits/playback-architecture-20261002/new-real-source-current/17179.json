@@ -1,0 +1,36 @@
+{
+  "mediaId": "17179",
+  "title": "Fat Girls",
+  "year": 2006,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:16.717415+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "07369beab54624789bba",
+      "decoded": true,
+      "actualHeight": 486,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "cb2d6b078e5a255e8e83",
+      "videoFrameFingerprint": "65d81b050658b5f4bdbe",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3658
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "71d8279f41519c51b9b9",
+  "preparedStreamIdFingerprint": "a86a26f12ed5a6775aa9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
