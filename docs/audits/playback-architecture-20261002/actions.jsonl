@@ -126,3 +126,4 @@
 {"seq": 126, "at": "2026-10-02T14:08:01.743078+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 127, "at": "2026-10-02T14:08:01.921362+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "114", "arguments": {"voice": "Профессиональный (МВО) · дорожка 5", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 128, "at": "2026-10-02T14:08:02.399482+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "114", "started": true, "pairs": 21, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 129, "at": "2026-10-02T14:08:02.633016+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
