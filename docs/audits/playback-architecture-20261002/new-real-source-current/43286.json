@@ -1,0 +1,36 @@
+{
+  "mediaId": "43286",
+  "title": "Китайская кукла",
+  "year": 1958,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:19:59.048348+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "10b4e792e8d0e4a002d8",
+      "decoded": true,
+      "actualHeight": 960,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "ec4c55dec0e010860376",
+      "videoFrameFingerprint": "0f932188ad31203f761b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4078
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "49b14eb0d3b997bcd83b",
+  "preparedStreamIdFingerprint": "a6bf1016a65250762532",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
