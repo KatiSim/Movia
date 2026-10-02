@@ -1,0 +1,36 @@
+{
+  "mediaId": "52687",
+  "title": "Познание",
+  "year": 2020,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:58:53.315499+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e22ae13127df48ad45df",
+      "decoded": true,
+      "actualHeight": 1280,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "897d758045a2344e48ff",
+      "videoFrameFingerprint": "76b8634d1b2b7b5c2850",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2918
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "21e72746a8d7a335c7f5",
+  "preparedStreamIdFingerprint": "449a944eee043f6fb69f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
