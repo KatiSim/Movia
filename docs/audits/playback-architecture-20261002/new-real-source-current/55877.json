@@ -1,0 +1,36 @@
+{
+  "mediaId": "55877",
+  "title": "Странная женщина",
+  "year": 1946,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:09.775742+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "730586fba5df612fc1c7",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "c2b75ba39d94d8cb55b9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5244
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "c5d80341ed065bbd772e",
+  "preparedStreamIdFingerprint": "99bbbb8857253ae1eb37",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
