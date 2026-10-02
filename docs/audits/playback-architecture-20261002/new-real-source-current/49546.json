@@ -1,0 +1,36 @@
+{
+  "mediaId": "49546",
+  "title": "Дикая лошадь",
+  "year": 2011,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:28.553003+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1691d7303546a17ba431",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "201a38a2fd7180101056",
+      "videoFrameFingerprint": "18b956b80f5f56a21f4c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3874
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "922a80699cd5de640728",
+  "preparedStreamIdFingerprint": "6f8e61af39851b6b7da8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
