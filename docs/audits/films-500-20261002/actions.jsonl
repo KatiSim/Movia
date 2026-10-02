@@ -2860,3 +2860,4 @@
 {"seq": 2860, "at": "2026-10-02T11:18:48.297864+00:00", "action": "player.selectVoice", "mediaId": "23911", "arguments": {"voice": "Новий канал", "persist": false}, "accepted": true, "requestMs": 74}
 {"seq": 2861, "at": "2026-10-02T11:18:48.798630+00:00", "action": "internal_movie_result", "mediaId": "14489", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2862, "at": "2026-10-02T11:18:49.166526+00:00", "action": "movie_result", "mediaId": "23911", "decoded": true, "voices": 14, "qualities": 3}
+{"seq": 2863, "at": "2026-10-02T11:18:49.412877+00:00", "action": "exact_provider_resolve", "mediaId": "14486", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
