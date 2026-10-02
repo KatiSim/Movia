@@ -992,6 +992,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Ю. Сербин",
+      "expectedAudioLabel": "rus13",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 292,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 65816,
+        "selectedAudioLabel": "rus13",
+        "selectedAudioLanguage": "ru",
+        "frames": 1571,
+        "voice": "Ю. Сербин",
+        "streamFingerprint": "b753a2a28e2e5cecb568",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
