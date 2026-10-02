@@ -1,0 +1,50 @@
+{
+  "mediaId": "54275",
+  "title": "Исчезновение дамы в театре Робера Удена",
+  "year": 1896,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:17:39.186936+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "60183a98866774c81363",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": "5b12e1f14c13df8039f8",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2665,
+      "profileFingerprint": "b2ffa83f81fe166b7106",
+      "audioPresence": "NO_AUDIO_STREAM_DETECTED"
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "profileChecks": [
+    {
+      "profileFingerprint": "b2ffa83f81fe166b7106",
+      "status": "PREPARED"
+    },
+    {
+      "profileFingerprint": "14575eebca79f2b2cf2b",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "9432614df95ebe9ec45e",
+  "preparedStreamIdFingerprint": "e9db0160679a27112585",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
