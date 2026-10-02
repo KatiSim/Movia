@@ -1,0 +1,36 @@
+{
+  "mediaId": "43877",
+  "title": "Джеральд МакБойнг-Бойнг! на планете Му",
+  "year": 1956,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:32:05.734859+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c386904734a3593f9edb",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "873c0a67dd4ebfdef088",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4087
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "55317dba1afc58bcf23a",
+  "preparedStreamIdFingerprint": "7c3efc198e0249c3aa09",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
