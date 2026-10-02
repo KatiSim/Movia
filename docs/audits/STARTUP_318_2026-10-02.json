@@ -1,0 +1,144 @@
+{
+  "versionCode": 318,
+  "versionName": "0.0.1",
+  "steps": [
+    {
+      "name": "install",
+      "exitCode": 0
+    },
+    {
+      "name": "package",
+      "exitCode": 0
+    },
+    {
+      "name": "installed-apk",
+      "exitCode": 0
+    },
+    {
+      "name": "native-tests",
+      "exitCode": 0
+    },
+    {
+      "name": "bootstrap",
+      "exitCode": 0
+    }
+  ],
+  "app.apk": {
+    "bytes": 37409713,
+    "sha256": "1f3906c8bd40463e9d294521fc839d38da78bbda5a792a9a18fac91bf843cf62"
+  },
+  "test.apk": {
+    "bytes": 1257906,
+    "sha256": "f0cbdb3b0b45841b0d2a1fd1537522c9c54cacb60845e33d95da92d121770128"
+  },
+  "nativeTests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "unitTests": {
+    "tests": 134,
+    "failures": 0,
+    "errors": 0
+  },
+  "countsBefore": {
+    "favorites": 9,
+    "watchLater": 0,
+    "history": 3,
+    "downloads": 0,
+    "recentSearches": 0
+  },
+  "countsAfter": {
+    "favorites": 9,
+    "watchLater": 0,
+    "history": 3,
+    "downloads": 0,
+    "recentSearches": 0
+  },
+  "userLibraryPreserved": true,
+  "settingsPreserved": true,
+  "status": "FUNCTIONAL_PASS_PERFORMANCE_GOAL_PENDING",
+  "coldLaunch": {
+    "versionCode": 318,
+    "screen": "Shower virtual display",
+    "launchMs": 70,
+    "displayId": 15,
+    "package": "app.movia.android",
+    "binderReady": true,
+    "uiStatus": "PASS",
+    "screenshotBytes": 829463,
+    "launchStatus": "PASS",
+    "sessionClosed": true
+  },
+  "realPlayback": {
+    "versionCode": 318,
+    "measurement": "command to READY and three newly decoded frames",
+    "results": [
+      {
+        "mediaId": "158",
+        "kind": "movie",
+        "status": "PASS",
+        "startupMs": 14713.95,
+        "videoHeight": 720,
+        "framesAdded": 4,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "withinFiveSeconds": false
+      },
+      {
+        "mediaId": "159",
+        "kind": "episode",
+        "status": "PASS",
+        "startupMs": 16906.06,
+        "videoHeight": 720,
+        "framesAdded": 6,
+        "voice": "Дубляж",
+        "quality": "720p",
+        "withinFiveSeconds": false
+      }
+    ],
+    "userLibraryPreserved": true,
+    "settingsPreserved": true,
+    "tested": 2,
+    "passed": 2
+  },
+  "prior316UserData": {
+    "oldCounts": {
+      "favorites": 9,
+      "watchLater": 0,
+      "history": 2,
+      "downloads": 0,
+      "recentSearches": 0
+    },
+    "currentCounts": {
+      "favorites": 9,
+      "watchLater": 0,
+      "history": 3,
+      "downloads": 0,
+      "recentSearches": 0
+    },
+    "oldFavoritesCount": 9,
+    "oldHistoryCount": 2,
+    "favoritesAllPresent": true,
+    "historyAllPresent": true
+  },
+  "crashLog": {
+    "exitCode": 0,
+    "fatalException": false
+  },
+  "fiveSecondGoalMet": false,
+  "sourceCheckpoint": {
+    "branch": "movia-progressive-startup-318-device-20261002",
+    "commit": "e4ce86fa0ed96f41fd09fd34afa7ca93ecb06e76",
+    "parent": "26736832a7dbcf4a9f9ebe401434040df90e9bb6",
+    "changedFiles": [
+      "app/build.gradle.kts",
+      "app/src/main/java/app/movia/android/ui/player/ZonaMediaProbe.kt",
+      "app/src/main/java/app/movia/android/ui/player/PlaybackSession.kt",
+      "app/src/main/java/app/movia/android/ui/player/ProgressiveCandidateProbe.kt",
+      "app/src/test/java/app/movia/android/ui/player/ProgressiveCandidateProbeTest.kt"
+    ],
+    "mainHeadPreserved": true,
+    "userIndexPreserved": true
+  },
+  "fixtureServerStopped": true
+}
