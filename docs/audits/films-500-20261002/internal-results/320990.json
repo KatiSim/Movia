@@ -1,0 +1,191 @@
+{
+  "mediaId": "320990",
+  "title": "Близнецы-драконы",
+  "year": 1992,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 2567,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 14,
+  "providerVoiceLabels": [
+    "C. Визгунов",
+    "Eng. Orig. with Commentary",
+    "Original (с субтитрами)",
+    "delete",
+    "А. Дольский",
+    "Авторский (Одноголосый)",
+    "В. Котов",
+    "Двухголосый (ДВО)",
+    "Дубляж",
+    "Екатеринбург Арт",
+    "НТН (укр)",
+    "ОРТ"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "chi7",
+      "language": "zh",
+      "group": "audio0"
+    },
+    {
+      "name": "chi8",
+      "language": "zh",
+      "group": "audio0"
+    },
+    {
+      "name": "chi9",
+      "language": "zh",
+      "group": "audio0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "eng11",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "chi13",
+      "language": "zh",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "chi7",
+      "language": "zh",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "chi8",
+      "language": "zh",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "chi9",
+      "language": "zh",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng10",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng11",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr12",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "chi13",
+      "language": "zh",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 14,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 28,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:22.783790+00:00"
+}
