@@ -1,0 +1,52 @@
+{
+  "mediaId": "439695",
+  "title": "搖籃凡世",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:58:57.343006+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 346,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "22789d1ba5d5b58f01e8",
+      "decoded": true,
+      "actualHeight": 346,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "94c2b4453bd59cd02878",
+      "videoFrameFingerprint": "3a4bdab0f272c8c757e7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3416
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "4ad2e73bda3252b2e810",
+  "preparedStreamIdFingerprint": "76ffc678a54c5ebbfe56",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    346,
+    690
+  ],
+  "advertisedCompatiblePairs": 2
+}
