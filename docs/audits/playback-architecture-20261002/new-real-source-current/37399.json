@@ -1,0 +1,36 @@
+{
+  "mediaId": "37399",
+  "title": "Надежно как в Швейцарском банке",
+  "year": 1976,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:06.758592+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4d606b46d9200ee5b4f4",
+      "decoded": true,
+      "actualHeight": 384,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "ffe927b077f9d420ef64",
+      "videoFrameFingerprint": "4b9419578458766fb222",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3962
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ea2deb7c01f26ddfd3e5",
+  "preparedStreamIdFingerprint": "7fceb4a8c1b205675fba",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
