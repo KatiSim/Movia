@@ -1,0 +1,314 @@
+{
+  "mediaId": "61",
+  "title": "Криминальное чтиво",
+  "year": 1994,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5174cd8d438793d88b7c",
+      "ms": 3114,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 25,
+  "providerVoiceLabels": [
+    "AMC",
+    "C. Визгунов",
+    "FDV",
+    "ICTV (укр.)",
+    "Jaskier",
+    "Original (с субтитрами)",
+    "R5",
+    "А. Гаврилов",
+    "А.Кашкин",
+    "Авторский (Одноголосый)",
+    "В. Горчаков",
+    "Дубляж",
+    "Е. Гаевский",
+    "Кубик в Кубе",
+    "М. Иванов",
+    "НЛО-ТВ (укр)",
+    "НТВ",
+    "Невафильм",
+    "ОРТ",
+    "Омикрон (укр)",
+    "Премьер Видео Фильм",
+    "ТВЦ",
+    "Укр. Дубльований",
+    "Ю. Живов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus14",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus18",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr20",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr21",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr22",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "rus23",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng24",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus14",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus18",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr20",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr21",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr22",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus23",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng24",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 25,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 50,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:12:16.525522+00:00"
+}
