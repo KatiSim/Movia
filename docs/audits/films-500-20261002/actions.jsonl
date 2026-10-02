@@ -2610,3 +2610,4 @@
 {"seq": 2610, "at": "2026-10-02T11:17:14.057467+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 42}
 {"seq": 2611, "at": "2026-10-02T11:17:14.427392+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "В. Дохалов", "persist": false}, "accepted": true, "requestMs": 67}
 {"seq": 2612, "at": "2026-10-02T11:17:14.726775+00:00", "action": "internal_movie_result", "mediaId": "646", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2613, "at": "2026-10-02T11:17:15.078280+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
