@@ -1,0 +1,36 @@
+{
+  "mediaId": "56170",
+  "title": "Анна Болейн",
+  "year": 1920,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:01:01.968734+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "27e12fe25d816cc6c3a8",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "4d000500a37a90bbe939",
+      "videoFrameFingerprint": "0145ba51a3fac9777184",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5077
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "ab41a59ccde19da4ce25",
+  "preparedStreamIdFingerprint": "28bc6f6019aae2afd71e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
