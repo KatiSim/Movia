@@ -1300,6 +1300,43 @@
       "positionPreserved": false,
       "locatorChanged": false,
       "status": "FAIL"
+    },
+    {
+      "quality": "720p",
+      "voice": "Екатеринбург Арт",
+      "expectedAudioLabel": "rus10",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 314,
+      "observed": {
+        "mediaId": "164",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 69115,
+        "frames": 3012,
+        "quality": "720p",
+        "voice": "Екатеринбург Арт",
+        "streamFingerprint": "a9ed7535cd8db849042f",
+        "locatorFingerprint": "6dd64a8931b8fdbb5f50",
+        "selectedAudioLabel": "rus10",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:11:0",
+            "rus10",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:15:32.114059+00:00",
