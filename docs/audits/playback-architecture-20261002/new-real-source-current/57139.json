@@ -1,0 +1,36 @@
+{
+  "mediaId": "57139",
+  "title": "Большая слежка",
+  "year": 1930,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:11.926243+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "504082e28afd95eef9bc",
+      "decoded": true,
+      "actualHeight": 916,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1338f9d9392878a79b97",
+      "videoFrameFingerprint": "38cb61ce6ffaf08a80e6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9063
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5eca9698a48797e6926d",
+  "preparedStreamIdFingerprint": "b18773214303442c92bd",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
