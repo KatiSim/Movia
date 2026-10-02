@@ -1,0 +1,36 @@
+{
+  "mediaId": "55885",
+  "title": "Найти «Красную ведьму»",
+  "year": 1948,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:41:36.118039+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3deb1c2ca045a3dcb05a",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "34fc6929e82497ed30fc",
+      "videoFrameFingerprint": "d703f5d2ea5dfb4fffe6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9322
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0955f9229c5795c2bf45",
+  "preparedStreamIdFingerprint": "718cb80a90127d261e5b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
