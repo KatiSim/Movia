@@ -147,5 +147,7 @@
       "actualName": "ita1",
       "language": "it"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": true
 }
