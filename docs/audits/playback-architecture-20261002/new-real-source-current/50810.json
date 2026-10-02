@@ -1,0 +1,36 @@
+{
+  "mediaId": "50810",
+  "title": "Разбойник:Легенда о Дике Тёрпине",
+  "year": 2022,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:37.872775+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "43d1e9b52e81756810da",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "6837e6109964eeea9e33",
+      "videoFrameFingerprint": "2b0a7f56ca12b9962177",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3441
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "30cc43e49e09f2d4c9ba",
+  "preparedStreamIdFingerprint": "64d08a46ef177f18409d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
