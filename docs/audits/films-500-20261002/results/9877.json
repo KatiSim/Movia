@@ -1,0 +1,114 @@
+{
+  "mediaId": "9877",
+  "title": "Ужасающий",
+  "year": 2018,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:28:07.149593+00:00",
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 4088.13,
+    "observed": {
+      "mediaId": "9877",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 333,
+      "frames": 13214,
+      "quality": "720p",
+      "voice": "GoLTFilm",
+      "streamFingerprint": "a8ead739b86745114114",
+      "locatorFingerprint": "48685269b1bf490fd348",
+      "selectedAudioLabel": "rus0",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:1:0",
+          "rus0",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 4332
+  },
+  "inventory": {
+    "voiceLabels": [
+      "GoLTFilm",
+      "Original (с субтитрами)",
+      "Plan B",
+      "М. Яроцкий",
+      "Профессиональный (МВО)",
+      "Хихикающий доктор"
+    ],
+    "technicalTrackLabels": [
+      "delete",
+      "eng5",
+      "eng7",
+      "rus0",
+      "rus1",
+      "rus2",
+      "rus3",
+      "rus4",
+      "ukr6"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p"
+    ],
+    "advertisedPairs": [
+      [
+        "360p",
+        "GoLTFilm"
+      ],
+      [
+        "360p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "360p",
+        "Plan B"
+      ],
+      [
+        "360p",
+        "М. Яроцкий"
+      ],
+      [
+        "360p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "360p",
+        "Хихикающий доктор"
+      ],
+      [
+        "720p",
+        "GoLTFilm"
+      ],
+      [
+        "720p",
+        "Original (с субтитрами)"
+      ],
+      [
+        "720p",
+        "Plan B"
+      ],
+      [
+        "720p",
+        "М. Яроцкий"
+      ],
+      [
+        "720p",
+        "Профессиональный (МВО)"
+      ],
+      [
+        "720p",
+        "Хихикающий доктор"
+      ]
+    ],
+    "sourceRows": 8,
+    "inventoryComplete": false
+  }
+}

@@ -3964,3 +3964,4 @@
 {"seq": 3964, "at": "2026-10-02T11:28:06.922408+00:00", "action": "movie_result", "mediaId": "8645", "decoded": true, "voices": 5, "qualities": 4}
 {"seq": 3965, "at": "2026-10-02T11:28:07.212106+00:00", "action": "player.stop", "mediaId": "9877", "arguments": {}, "accepted": true, "requestMs": 60}
 {"seq": 3966, "at": "2026-10-02T11:28:07.467127+00:00", "action": "media.play", "mediaId": "9877", "arguments": {"mediaId": "9877", "title": "Ужасающий", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "a8ead739b86745114114"}, "accepted": true, "requestMs": 16}
+{"seq": 3967, "at": "2026-10-02T11:28:11.862350+00:00", "action": "movie_result", "mediaId": "9877", "decoded": true, "voices": 6, "qualities": 2}
