@@ -1,0 +1,21 @@
+{
+  "versionCode": 324,
+  "versionName": "0.0.1",
+  "steps": [
+    {
+      "name": "install",
+      "exitCode": 0
+    }
+  ],
+  "uiInteraction": false,
+  "app.apk": {
+    "bytes": 37426288,
+    "sha256": "bb3f63b64ab2be899c310efd83407a4023caa8865a936a5605b8e7c0a86f9f02"
+  },
+  "test.apk": {
+    "bytes": 1318470,
+    "sha256": "1bc6ab0d1583560e59ea1a94eedf7fbfafd31fe1192b9ddc7aa26206e12983eb"
+  },
+  "status": "FAIL",
+  "error": ""
+}
