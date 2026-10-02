@@ -2971,3 +2971,4 @@
 {"seq": 2971, "at": "2026-10-02T15:40:51.298911+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Eng. Orig. with Commentary", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2972, "at": "2026-10-02T15:40:51.977271+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 50, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2973, "at": "2026-10-02T15:40:52.232456+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 50, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
+{"seq": 2974, "at": "2026-10-02T15:40:52.557029+00:00", "action": "native_player.stop", "details": {"mediaId": "114", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
