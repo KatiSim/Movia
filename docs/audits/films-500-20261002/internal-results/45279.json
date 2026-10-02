@@ -1,0 +1,13 @@
+{
+  "mediaId": "45279",
+  "title": "Чистое сердце, или Киллеры на колёсах",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:12:56.694261+00:00"
+}
