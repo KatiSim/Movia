@@ -1013,3 +1013,4 @@
 {"seq": 1013, "at": "2026-10-02T11:04:38.819269+00:00", "action": "internal_combined_decode", "mediaId": "541180", "qualityHeight": 306, "voice": "Рус. Дублированный", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1014, "at": "2026-10-02T11:04:39.044091+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Кравец", "persist": false}, "accepted": true, "requestMs": 43}
 {"seq": 1015, "at": "2026-10-02T11:04:39.925995+00:00", "action": "internal_movie_result", "mediaId": "10315", "actualDecoded": true, "voices": 2, "qualities": 2, "errorCategory": null}
+{"seq": 1016, "at": "2026-10-02T11:04:40.163642+00:00", "action": "movie_result", "mediaId": "169", "decoded": true, "voices": 9, "qualities": 3}

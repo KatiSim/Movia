@@ -32,6 +32,36 @@
           ]
         ]
       }
+    },
+    {
+      "quality": "360p",
+      "voice": "Кравец",
+      "decoded": true,
+      "qualityMatches": true,
+      "voiceReportedMatches": true,
+      "ms": 824.85,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1157,
+        "frames": 30,
+        "quality": "360p",
+        "voice": "Кравец",
+        "streamFingerprint": "cb2081e1bf300337611f",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:1",
+            "rus0 · 2",
+            "ru"
+          ]
+        ]
+      }
     }
   ],
   "startup": {
