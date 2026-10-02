@@ -1,0 +1,36 @@
+{
+  "mediaId": "56991",
+  "title": "Фронтовые подруги",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:54:17.240868+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "729f94b5b94ca90c97e9",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ab369eea04729c819cfa",
+      "videoFrameFingerprint": "b6418c422f1de047bd78",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4732
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "b6c5a510104067627224",
+  "preparedStreamIdFingerprint": "7d724857c8e78c8e44f0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
