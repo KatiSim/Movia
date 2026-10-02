@@ -1,0 +1,36 @@
+{
+  "mediaId": "41630",
+  "title": "Два гладиатора",
+  "year": 1964,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:47:17.472770+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4650b8323b2b59cc74d4",
+      "decoded": true,
+      "actualHeight": 304,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "046aa78ca485adc4ca2c",
+      "videoFrameFingerprint": "43e8041bf770a3beffa9",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4847
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "e7ef9a3dd29748404d3c",
+  "preparedStreamIdFingerprint": "0aca8ed22d3720fcf09e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
