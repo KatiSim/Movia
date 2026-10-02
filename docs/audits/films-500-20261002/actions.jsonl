@@ -4032,3 +4032,4 @@
 {"seq": 4032, "at": "2026-10-02T11:28:57.087949+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 29}
 {"seq": 4033, "at": "2026-10-02T11:28:57.417732+00:00", "action": "player.selectVoice", "mediaId": "322124", "arguments": {"voice": "C. Визгунов", "persist": false}, "accepted": true, "requestMs": 42}
 {"seq": 4034, "at": "2026-10-02T11:28:58.459675+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
+{"seq": 4035, "at": "2026-10-02T11:28:58.786883+00:00", "action": "player.selectQuality", "mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "requestMs": 23}
