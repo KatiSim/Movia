@@ -2842,3 +2842,4 @@
 {"seq": 2842, "at": "2026-10-02T15:39:19.268428+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "ОРТ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2843, "at": "2026-10-02T15:39:20.034196+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 7, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2844, "at": "2026-10-02T15:39:20.399739+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2845, "at": "2026-10-02T15:39:20.820075+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "ТВЦ", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
