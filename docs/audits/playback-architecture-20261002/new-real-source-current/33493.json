@@ -1,0 +1,36 @@
+{
+  "mediaId": "33493",
+  "title": "Ниндзя-защитник",
+  "year": 1986,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:16.015778+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3c4950ae5f5ff4a9db7d",
+      "decoded": true,
+      "actualHeight": 352,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "6802fa569a6239325999",
+      "videoFrameFingerprint": "a462ce49d64fd1cbcefd",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4037
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "87b986f60d1281861968",
+  "preparedStreamIdFingerprint": "4d111a0648b3e6eb5d41",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
