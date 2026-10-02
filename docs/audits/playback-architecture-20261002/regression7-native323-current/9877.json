@@ -238,6 +238,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": true,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Профессиональный (МВО) · дорожка 2",
+      "expectedAudioLabel": "rus1",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 310,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 14440,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "frames": 2558,
+        "voice": "Профессиональный (МВО) · дорожка 2",
+        "streamFingerprint": "571d3ffbc705a90bdf03",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
