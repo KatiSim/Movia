@@ -1,0 +1,36 @@
+{
+  "mediaId": "52870",
+  "title": "У человека несколько голов",
+  "year": 1898,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:12:21.149645+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5d7592bb75648cc56fe7",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "64bd302f5016fd5c95aa",
+      "videoFrameFingerprint": "76f830c8af7dab9752b6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8636
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "708efae2bf5488826457",
+  "preparedStreamIdFingerprint": "96d17d2d0d157338b65e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
