@@ -1,0 +1,36 @@
+{
+  "mediaId": "54919",
+  "title": "Взлёт",
+  "year": 2010,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:20.868341+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "4fc16bcd87615b211d0c",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "392bbd93aef6aa574917",
+      "videoFrameFingerprint": "5ee87bd58b4c21aa80de",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3351
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "47aa3201fae945483b23",
+  "preparedStreamIdFingerprint": "bb112097c90a82a3ab33",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
