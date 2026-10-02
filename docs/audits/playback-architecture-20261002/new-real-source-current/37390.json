@@ -1,0 +1,36 @@
+{
+  "mediaId": "37390",
+  "title": "Отшельник",
+  "year": 1976,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:46:21.818344+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "7d517673dbd7529e64e5",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "afb36770d7d4956d6f27",
+      "videoFrameFingerprint": "6c58ddf11e8929dd9abf",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5676
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "99f715bf93133572b7ec",
+  "preparedStreamIdFingerprint": "4c0e755f5710c9fbbff5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
