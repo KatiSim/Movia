@@ -1,0 +1,36 @@
+{
+  "mediaId": "29703",
+  "title": "Siberia",
+  "year": 1998,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:13.650306+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "6d0f48f0d77288fa3f7a",
+      "decoded": true,
+      "actualHeight": 358,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "1a19a6552357a127479b",
+      "videoFrameFingerprint": "12a7b672d037c32ffd4b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3640
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "87b1a4e15d6ceb573f12",
+  "preparedStreamIdFingerprint": "e471be097c2c0973c16b",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
