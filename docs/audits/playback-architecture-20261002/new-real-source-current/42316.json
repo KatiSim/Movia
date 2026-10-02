@@ -1,0 +1,36 @@
+{
+  "mediaId": "42316",
+  "title": "Завтра премьера",
+  "year": 1962,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:38:15.589321+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3bf8bd4e2a46ed16d52d",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "9a12d67110d48c51d60c",
+      "videoFrameFingerprint": "2cebc5a50fd24d4ed358",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3148
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "355fbae5354f8d64fccb",
+  "preparedStreamIdFingerprint": "6756ca1ee1ac7bc36786",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
