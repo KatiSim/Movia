@@ -2518,3 +2518,4 @@
 {"seq": 2518, "at": "2026-10-02T11:16:42.603797+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
 {"seq": 2519, "at": "2026-10-02T11:16:42.814503+00:00", "action": "internal_movie_result", "mediaId": "45751", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2520, "at": "2026-10-02T11:16:43.102603+00:00", "action": "internal_movie_result", "mediaId": "145278", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2521, "at": "2026-10-02T11:16:43.447919+00:00", "action": "player.selectQuality", "mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 99}
