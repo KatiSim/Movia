@@ -1,0 +1,52 @@
+{
+  "mediaId": "447364",
+  "title": "The Baby in the Basket",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:42:21.012526+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "98db978e5f68c8a2dd12",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "9e58adf11a56097ebb16",
+      "videoFrameFingerprint": "2d31287826cce4421e83",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5598
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "bbd679a9836632383162",
+  "preparedStreamIdFingerprint": "7dd9ce6646f3fcfb61c4",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
