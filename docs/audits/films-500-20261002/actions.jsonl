@@ -3881,3 +3881,4 @@
 {"seq": 3881, "at": "2026-10-02T11:27:25.635062+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
 {"seq": 3882, "at": "2026-10-02T11:27:25.960522+00:00", "action": "player.selectQuality", "mediaId": "11085", "arguments": {"quality": "268p", "persist": false}, "accepted": true, "requestMs": 36}
 {"seq": 3883, "at": "2026-10-02T11:27:26.232937+00:00", "action": "player.selectVoice", "mediaId": "11085", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 34}
+{"seq": 3884, "at": "2026-10-02T11:27:26.755656+00:00", "action": "movie_result", "mediaId": "11085", "decoded": true, "voices": 7, "qualities": 2}
