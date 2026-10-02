@@ -1,0 +1,36 @@
+{
+  "mediaId": "32615",
+  "title": "Ловкие пальчики",
+  "year": 1988,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:57:38.507018+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "43ae3761e7caead33729",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 8,
+      "audioPcmFingerprint": "dbf216fa14a0055a9d71",
+      "videoFrameFingerprint": "26d1699e6167898ddb94",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3784
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "7212432f69986b55cac9",
+  "preparedStreamIdFingerprint": "77799ade7f53ba2f0280",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
