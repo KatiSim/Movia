@@ -134,5 +134,7 @@
       "actualName": "jpn1",
       "language": "ja"
     }
-  ]
+  ],
+  "fullPreparedMatrixTested": true,
+  "fullPreparedMatrixPassed": false
 }
