@@ -4,7 +4,34 @@
   "year": 2018,
   "build": 323,
   "checkedAt": "2026-10-02T14:09:58.533048+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "360p",
+      "voice": "GoLTFilm",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 389,
+      "observed": {
+        "mediaId": "9877",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 1039,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 2251,
+        "voice": "GoLTFilm",
+        "streamFingerprint": "a8ead739b86745114114",
+        "locatorFingerprint": "48685269b1bf490fd348"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,52 @@
       "locatorFingerprint": "48685269b1bf490fd348"
     },
     "commandToReadyMs": 1669
-  }
+  },
+  "preparedSupportedPairs": 16,
+  "preparedQualities": [
+    360,
+    720
+  ],
+  "preparedVoices": [
+    {
+      "choice": "GoLTFilm",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 2",
+      "actualName": "rus1",
+      "language": "ru"
+    },
+    {
+      "choice": "Хихикающий доктор",
+      "actualName": "rus2",
+      "language": "ru"
+    },
+    {
+      "choice": "Plan B",
+      "actualName": "rus3",
+      "language": "ru"
+    },
+    {
+      "choice": "М. Яроцкий",
+      "actualName": "rus4",
+      "language": "ru"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "eng5",
+      "language": "en"
+    },
+    {
+      "choice": "Профессиональный (МВО) · дорожка 7",
+      "actualName": "ukr6",
+      "language": "uk"
+    },
+    {
+      "choice": "delete",
+      "actualName": "eng7",
+      "language": "en"
+    }
+  ]
 }
