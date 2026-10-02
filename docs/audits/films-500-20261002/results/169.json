@@ -558,6 +558,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "М. Чадов",
+      "expectedAudioLabel": "rus6",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 964,
+      "observed": {
+        "mediaId": "169",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 15951,
+        "frames": 383,
+        "quality": "720p",
+        "voice": "М. Чадов",
+        "streamFingerprint": "997f2dda427ddd614e9c",
+        "locatorFingerprint": "b5f0ef9c7fe6c606ab81",
+        "selectedAudioLabel": "rus6",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:7:0",
+            "rus6",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:14:00.486861+00:00",
