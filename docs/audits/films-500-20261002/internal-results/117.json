@@ -1,0 +1,13 @@
+{
+  "mediaId": "117",
+  "title": "Гарри Поттер и Дары Смерти: Часть II",
+  "year": 2011,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:14:00.231679+00:00"
+}
