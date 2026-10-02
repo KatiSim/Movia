@@ -1,0 +1,50 @@
+{
+  "mediaId": "22372",
+  "title": "Брат 2",
+  "year": 2000,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "def0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "56ed47fa6f37da10e3b0",
+      "ms": 2771,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 1,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 1,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 2,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:07:53.654126+00:00"
+}
