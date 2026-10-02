@@ -1,0 +1,52 @@
+{
+  "mediaId": "447361",
+  "title": "Gangland",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:53.740094+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "a97fc04ad90d6df7d12c",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "a4c1ec9a2550998ec952",
+      "videoFrameFingerprint": "263fc3b404f733e84e8d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2965
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "96176017ed9dc3084b04",
+  "preparedStreamIdFingerprint": "c7739ed00f844d241750",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    530
+  ],
+  "advertisedCompatiblePairs": 2
+}
