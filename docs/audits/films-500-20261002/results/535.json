@@ -1,0 +1,38 @@
+{
+  "mediaId": "535",
+  "title": "Мементо",
+  "year": 2000,
+  "build": 321,
+  "variants": [],
+  "checkedAt": "2026-10-02T11:23:47.107405+00:00",
+  "startup": {
+    "decoded": false,
+    "ms": 10052.59,
+    "observed": {
+      "mediaId": "",
+      "state": "IDLE",
+      "switchState": "IDLE",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 9095,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 10244
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "technicalTrackLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  }
+}
