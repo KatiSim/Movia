@@ -1,0 +1,52 @@
+{
+  "mediaId": "45232",
+  "title": "Внимание, опасная жена!",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:16:30.819798+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "fba67650182e60cccde2",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "f02a88972088e1b99e54",
+      "videoFrameFingerprint": "5bc608b3fe25684c8fe7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3771
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "94ffd4708dabd384efc2",
+  "preparedStreamIdFingerprint": "d9f3733550a5976dcdfb",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270,
+    540
+  ],
+  "advertisedCompatiblePairs": 2
+}
