@@ -99,6 +99,6 @@ finally:
         except subprocess.TimeoutExpired: fixture.kill(); fixture.wait(5)
     artifacts = [(OUT/'verification322.json','build322-verification.json')]
     native_log = OUT/'native-tests-322.log'
-    if native_log.exists(): artifacts.append((native_log,'build322-native-tests.log'))
+    if native_log.exists(): artifacts.append((native_log,'build322-native-tests.txt'))
     print(json.dumps(record('build322_headless_native_verification', result, artifacts=artifacts), ensure_ascii=False), flush=True)
     print(json.dumps(result, ensure_ascii=False), flush=True)
