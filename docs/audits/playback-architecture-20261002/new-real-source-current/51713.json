@@ -1,0 +1,36 @@
+{
+  "mediaId": "51713",
+  "title": "Звуковик",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:59:25.146438+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ac64ea35d5c3605b5a81",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "7e32f20aaf66bb31ac34",
+      "videoFrameFingerprint": "b33ffb4861eafab26dfc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3442
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8fcdb382f77c9be8af82",
+  "preparedStreamIdFingerprint": "0748a62ac6c69f9bad5e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
