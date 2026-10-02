@@ -2372,3 +2372,4 @@
 {"seq": 2372, "at": "2026-10-02T11:16:01.793272+00:00", "action": "internal_movie_result", "mediaId": "5329", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2373, "at": "2026-10-02T11:16:02.014598+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "А. Гаврилов", "persist": false}, "accepted": true, "requestMs": 89}
 {"seq": 2374, "at": "2026-10-02T11:16:02.270932+00:00", "action": "exact_provider_resolve", "mediaId": "53173", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2375, "at": "2026-10-02T11:16:02.520495+00:00", "action": "exact_provider_resolve", "mediaId": "14627", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
