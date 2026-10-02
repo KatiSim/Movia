@@ -1,0 +1,867 @@
+{
+  "samples": [
+    {
+      "step": "started",
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 534,
+          "currentPositionMs": 125,
+          "selectedAudioLabel": "rus0",
+          "selectedAudioLanguage": "ru"
+        },
+        "requestedQuality": "Auto",
+        "activeStreamFingerprint": "2644c9a9f32520e30130",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": true
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": false
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": true
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": false
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "before original 266p",
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 266,
+          "currentPositionMs": 623,
+          "selectedAudioLabel": "rus0",
+          "selectedAudioLanguage": "ru"
+        },
+        "requestedQuality": "266p",
+        "activeStreamFingerprint": "2644c9a9f32520e30130",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": false
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": true
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": true
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": false
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "after original 266p",
+      "action": {
+        "http": 400,
+        "code": "VOICE_NOT_FOUND",
+        "status": "failed"
+      },
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 266,
+          "currentPositionMs": 1861,
+          "selectedAudioLabel": "rus0",
+          "selectedAudioLanguage": "ru"
+        },
+        "requestedQuality": "266p",
+        "activeStreamFingerprint": "2644c9a9f32520e30130",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": false
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": true
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": true
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": false
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          },
+          {
+            "voice": "Original (с субтитрами)",
+            "quality": "Auto",
+            "audioTrackIndex": 1,
+            "transport": "hls",
+            "active": false,
+            "requested": false,
+            "source": "Collaps",
+            "identityFingerprint": "cef8e872ab4d2d36a4be",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "before original 534p",
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 534,
+          "currentPositionMs": 3276,
+          "selectedAudioLabel": "rus0",
+          "selectedAudioLanguage": "ru"
+        },
+        "requestedQuality": "534p",
+        "activeStreamFingerprint": "2644c9a9f32520e30130",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": true
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": false
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": true
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": false
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          },
+          {
+            "voice": "Original (с субтитрами)",
+            "quality": "Auto",
+            "audioTrackIndex": 1,
+            "transport": "hls",
+            "active": false,
+            "requested": false,
+            "source": "Collaps",
+            "identityFingerprint": "cef8e872ab4d2d36a4be",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "after original 534p",
+      "action": {
+        "status": "completed"
+      },
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 534,
+          "currentPositionMs": 4410,
+          "selectedAudioLabel": "jpn1",
+          "selectedAudioLanguage": "ja"
+        },
+        "requestedQuality": "534p",
+        "activeStreamFingerprint": "cef8e872ab4d2d36a4be",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": true
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": false
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": false
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": true
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": false,
+            "requested": false,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          },
+          {
+            "voice": "Original (с субтитрами)",
+            "quality": "Auto",
+            "audioTrackIndex": 1,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "cef8e872ab4d2d36a4be",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "before original 266p",
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 266,
+          "currentPositionMs": 5085,
+          "selectedAudioLabel": "rus0",
+          "selectedAudioLanguage": "ru"
+        },
+        "requestedQuality": "266p",
+        "activeStreamFingerprint": "2644c9a9f32520e30130",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": false
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": true
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": true
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": false
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          },
+          {
+            "voice": "Original (с субтитрами)",
+            "quality": "Auto",
+            "audioTrackIndex": 1,
+            "transport": "hls",
+            "active": false,
+            "requested": false,
+            "source": "Collaps",
+            "identityFingerprint": "cef8e872ab4d2d36a4be",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "step": "after original 266p",
+      "action": {
+        "status": "completed"
+      },
+      "inventory": {
+        "media": {
+          "playbackState": "READY",
+          "switchState": "READY",
+          "isPlaying": true,
+          "videoHeight": 266,
+          "currentPositionMs": 5467,
+          "selectedAudioLabel": "jpn1",
+          "selectedAudioLanguage": "ja"
+        },
+        "requestedQuality": "266p",
+        "activeStreamFingerprint": "cef8e872ab4d2d36a4be",
+        "videoTracks": [
+          {
+            "id": "track:2:0:0",
+            "quality": "534p",
+            "height": 534,
+            "selected": false
+          },
+          {
+            "id": "track:2:0:2",
+            "quality": "266p",
+            "height": 266,
+            "selected": true
+          }
+        ],
+        "audioTracks": [
+          {
+            "id": "track:1:1:0",
+            "voice": "rus0",
+            "language": "ru",
+            "selected": false
+          },
+          {
+            "id": "track:1:2:0",
+            "voice": "jpn1",
+            "language": "ja",
+            "selected": true
+          }
+        ],
+        "voices": [
+          {
+            "voice": "AlphaProject",
+            "quality": "Auto",
+            "audioTrackIndex": 0,
+            "transport": "hls",
+            "active": false,
+            "requested": false,
+            "source": "Collaps",
+            "identityFingerprint": "2644c9a9f32520e30130",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          },
+          {
+            "voice": "Original (с субтитрами)",
+            "quality": "Auto",
+            "audioTrackIndex": 1,
+            "transport": "hls",
+            "active": true,
+            "requested": true,
+            "source": "Collaps",
+            "identityFingerprint": "cef8e872ab4d2d36a4be",
+            "keys": [
+              "streamId",
+              "voice",
+              "translation",
+              "language",
+              "quality",
+              "source",
+              "sourceId",
+              "transport",
+              "transportMetadata",
+              "seeders",
+              "unavailableQuality",
+              "internalSubtitles",
+              "subtitleList",
+              "userAgentPresent",
+              "headersPresent",
+              "headerNames",
+              "downloadUrlPresent",
+              "downloadHeadersPresent",
+              "downloadHeaderNames",
+              "skipIntervals",
+              "audioTrackIndex",
+              "advertisementPresent",
+              "reloadSupported",
+              "reloadDataPresent",
+              "catalogMediaId",
+              "canonicalTitle",
+              "canonicalYear",
+              "canonicalMediaType",
+              "healthScore",
+              "recentFailureCount",
+              "requested",
+              "active"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true
+}

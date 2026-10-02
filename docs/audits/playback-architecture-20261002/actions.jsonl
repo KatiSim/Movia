@@ -2376,3 +2376,4 @@
 {"seq": 2376, "at": "2026-10-02T15:02:02.732114+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "166", "quality": 360, "voice": "eng2"}, "sourcePaths": []}
 {"seq": 2377, "at": "2026-10-02T15:02:03.881916+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.stop", "quality": null, "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
 {"seq": 2378, "at": "2026-10-02T15:02:04.147230+00:00", "action": "voice_selection_trace_action", "details": {"action": "player.probeSurface", "quality": null, "voice": null, "status": "completed", "code": null}, "sourcePaths": []}
+{"seq": 2379, "at": "2026-10-02T15:02:04.435358+00:00", "action": "voice_selection_trace_inventory", "details": {"samples": 7, "userLibraryPreserved": true, "userSettingsPreserved": true}, "sourcePaths": []}
