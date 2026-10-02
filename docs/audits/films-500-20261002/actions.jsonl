@@ -3117,3 +3117,4 @@
 {"seq": 3117, "at": "2026-10-02T11:20:18.355583+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
 {"seq": 3118, "at": "2026-10-02T11:20:18.587832+00:00", "action": "exact_provider_resolve", "mediaId": "42", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 3119, "at": "2026-10-02T11:20:18.925117+00:00", "action": "movie_result", "mediaId": "23912", "decoded": true, "voices": 10, "qualities": 4}
+{"seq": 3120, "at": "2026-10-02T11:20:19.195091+00:00", "action": "player.stop", "mediaId": "627", "arguments": {}, "accepted": true, "requestMs": 50}
