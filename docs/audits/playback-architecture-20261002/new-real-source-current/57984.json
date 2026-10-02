@@ -1,0 +1,36 @@
+{
+  "mediaId": "57984",
+  "title": "Слушайте Британию",
+  "year": 1942,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:03.400267+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "af66c2d444b045f930bf",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "ec15804535120b64dce4",
+      "videoFrameFingerprint": "4248cabc28dee6995568",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3324
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ceb02af3953c9bdfdd3d",
+  "preparedStreamIdFingerprint": "a32ad9cf3165e646c6a1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
