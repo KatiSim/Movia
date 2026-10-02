@@ -344,3 +344,4 @@
 {"seq": 344, "at": "2026-10-02T14:10:30.359263+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "9877", "started": true, "pairs": 11, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 345, "at": "2026-10-02T14:10:31.145493+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "9877", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 346, "at": "2026-10-02T14:10:31.609206+00:00", "action": "real_source_matrix_audit_begin", "details": {"selected": 540, "workers": 1, "allPairsRequested": false, "phoneUiInteraction": false, "priorMovieResultsIncluded": false}, "sourcePaths": []}
+{"seq": 347, "at": "2026-10-02T14:10:32.156484+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "9877", "arguments": {"voice": "Plan B", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
