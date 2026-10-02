@@ -2014,3 +2014,4 @@
 {"seq": 2014, "at": "2026-10-02T11:14:32.300051+00:00", "action": "internal_movie_result", "mediaId": "87", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 2015, "at": "2026-10-02T11:14:32.659194+00:00", "action": "media.play", "mediaId": "12245", "arguments": {"mediaId": "12245", "title": "Дэдпул", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "68f56127b05ffa1daba2"}, "accepted": true, "requestMs": 6}
 {"seq": 2016, "at": "2026-10-02T11:14:32.842314+00:00", "action": "exact_provider_resolve", "mediaId": "7656", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 2017, "at": "2026-10-02T11:14:33.095178+00:00", "action": "exact_provider_resolve", "mediaId": "62", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
