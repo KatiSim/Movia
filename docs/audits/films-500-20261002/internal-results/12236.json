@@ -1,0 +1,138 @@
+{
+  "mediaId": "12236",
+  "title": "Доктор Стрэндж",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "5d28fd7272e12983e48a",
+      "ms": 2545,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 9,
+  "providerVoiceLabels": [
+    "Eng. Orig. with Commentary",
+    "FocusStudio",
+    "Original (с субтитрами)",
+    "А. Гаврилов",
+    "Дубляж",
+    "Л. Володарский",
+    "Укр. Дубльований",
+    "Ю. Живов",
+    "Ю. Сербин"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 9,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 18,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:18.986061+00:00"
+}
