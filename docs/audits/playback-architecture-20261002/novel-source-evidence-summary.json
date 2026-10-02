@@ -1,0 +1,53 @@
+{
+  "updatedAt": "2026-10-02T15:45:09.358074+00:00",
+  "status": "SOURCE_EVIDENCE_COMPLETE_NATIVE_UPDATE_BLOCKED",
+  "selectedCatalogIds": 540,
+  "distinctNewFilmIdentities": 539,
+  "excludedPreviouslyUsedIds": [
+    "158"
+  ],
+  "newFilmsDecodedAtLeastOnce": 504,
+  "newFilmsWithoutSuccessfulDecode": 35,
+  "all500VoiceQualityMatricesVerified": false,
+  "allProviderSourcesVerified": false,
+  "movieIdentityIndependentlyVerified": false,
+  "nativeSwitchingVerifiedFor504Movies": false,
+  "sourceRichMoviesWithAtLeastThreeVoicesAndTwoQualities": 7,
+  "sourceRichCompatiblePairsTested": 70,
+  "sourceRichCompatiblePairsPassed": 70,
+  "nativeRegressionsPending": true,
+  "phases": {
+    "new-real-source-current": {
+      "attempted": 540,
+      "decodedMovies": 486,
+      "completed": true
+    },
+    "silent-real-source-recheck": {
+      "attempted": 16,
+      "decodedMovies": 14,
+      "completed": true
+    },
+    "rich-new-source-full-matrices": {
+      "attempted": 8,
+      "decodedMovies": 8,
+      "completed": true
+    },
+    "failed-real-source-recheck": {
+      "attempted": 38,
+      "decodedMovies": 5,
+      "completed": true
+    }
+  },
+  "installedVersionCode": 323,
+  "builtVersionCode": 327,
+  "jvmTests": {
+    "tests": 172,
+    "failures": 0,
+    "errors": 0
+  },
+  "backendTests": 199,
+  "osInstallationBlock": "INSTALL_FAILED_USER_RESTRICTED",
+  "sourceBindingEvidence": "Exact catalog ID, release identity and year validation; real decoded video frames and PCM when the decoder detects audio",
+  "silentEvidence": "Fourteen rechecked videos had no audio stream detected, not additional voice variants",
+  "oldManifestAuditIds": 961
+}
