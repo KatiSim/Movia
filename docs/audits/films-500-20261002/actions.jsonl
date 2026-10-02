@@ -4061,3 +4061,4 @@
 {"seq": 4061, "at": "2026-10-02T11:29:24.903283+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4062, "at": "2026-10-02T11:29:25.118645+00:00", "action": "movie_result", "mediaId": "322124", "decoded": true, "voices": 6, "qualities": 2}
 {"seq": 4063, "at": "2026-10-02T11:29:25.380709+00:00", "action": "player.stop", "mediaId": "322120", "arguments": {}, "accepted": true, "requestMs": 61}
+{"seq": 4064, "at": "2026-10-02T11:29:25.593258+00:00", "action": "media.play", "mediaId": "322120", "arguments": {"mediaId": "322120", "title": "22 мили", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "201b5e02ff46054b1fbb"}, "accepted": true, "requestMs": 9}
