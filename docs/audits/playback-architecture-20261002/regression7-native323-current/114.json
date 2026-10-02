@@ -472,6 +472,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Reanimedia",
+      "expectedAudioLabel": "rus2",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 396,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 16870,
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "frames": 413,
+        "voice": "Reanimedia",
+        "streamFingerprint": "7656d3faf1a5b2775b70",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
