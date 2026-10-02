@@ -1,0 +1,36 @@
+{
+  "mediaId": "57308",
+  "title": "На диком западе",
+  "year": 1920,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:54:38.653934+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "1ad114134fc72f4197a3",
+      "decoded": true,
+      "actualHeight": 1072,
+      "videoFrames": 3,
+      "audioFrames": 7,
+      "audioPcmFingerprint": "ab6cc4698977d807bcc3",
+      "videoFrameFingerprint": "1aaca6c7c9fabca500ad",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4285
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "67c9a319bd23afbbde43",
+  "preparedStreamIdFingerprint": "e4d030f8f284793b9f00",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
