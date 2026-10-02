@@ -1,0 +1,36 @@
+{
+  "mediaId": "3013",
+  "title": "Small Fry",
+  "year": 1939,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:17:09.011285+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a965a59cbd1b681c69d1",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "ef2210a370693db6aacc",
+      "videoFrameFingerprint": "6cb1f18af813b171f6a1",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3661
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3f6e1925966985c7d08d",
+  "preparedStreamIdFingerprint": "e53becd2af2e58f794aa",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
