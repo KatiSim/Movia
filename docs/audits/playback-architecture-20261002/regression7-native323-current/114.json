@@ -160,6 +160,32 @@
       "audioTrackIdentityChanged": true,
       "videoQualityChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "360p",
+      "voice": "П.Гланц и И.Королёва",
+      "expectedAudioLabel": "rus6",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 583,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 6400,
+        "selectedAudioLabel": "rus6",
+        "selectedAudioLanguage": "ru",
+        "frames": 161,
+        "voice": "П.Гланц и И.Королёва",
+        "streamFingerprint": "518266c4abaa14541f8f",
+        "locatorFingerprint": "583e025774f838c7d603"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": true,
+      "videoQualityChanged": false,
+      "status": "PASS"
     }
   ],
   "allProviderSourcesVerified": false,
