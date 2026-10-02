@@ -3948,3 +3948,4 @@
 {"seq": 3948, "at": "2026-10-02T11:28:00.430879+00:00", "action": "movie_result", "mediaId": "8645", "decoded": true, "voices": 5, "qualities": 4}
 {"seq": 3949, "at": "2026-10-02T11:28:00.801672+00:00", "action": "player.selectQuality", "mediaId": "8645", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "requestMs": 45}
 {"seq": 3950, "at": "2026-10-02T11:28:01.089792+00:00", "action": "player.selectVoice", "mediaId": "8645", "arguments": {"voice": "СВ Студия", "persist": false}, "accepted": true, "requestMs": 49}
+{"seq": 3951, "at": "2026-10-02T11:28:01.797499+00:00", "action": "movie_result", "mediaId": "8645", "decoded": true, "voices": 5, "qualities": 4}
