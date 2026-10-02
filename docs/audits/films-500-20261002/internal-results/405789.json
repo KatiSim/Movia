@@ -1,0 +1,94 @@
+{
+  "mediaId": "405789",
+  "title": "Девять жизней",
+  "year": 2016,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "ef4f70e7e58dfa4a5de9",
+      "ms": 2402,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 5,
+  "providerVoiceLabels": [
+    "Original (с субтитрами)",
+    "Tretyakoff production (укр)",
+    "delete",
+    "Дубляж",
+    "ТЕТ (укр)"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def3",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "def4",
+      "language": "ru",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 5,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 10,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:13:50.586532+00:00"
+}
