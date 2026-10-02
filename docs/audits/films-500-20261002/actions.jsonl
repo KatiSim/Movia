@@ -877,3 +877,4 @@
 {"seq": 877, "at": "2026-10-02T11:02:57.940217+00:00", "action": "internal_movie_result", "mediaId": "529340", "actualDecoded": true, "voices": 9, "qualities": 2, "errorCategory": null}
 {"seq": 878, "at": "2026-10-02T11:02:58.044237+00:00", "action": "exact_provider_resolve", "mediaId": "10635", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 879, "at": "2026-10-02T11:02:58.579776+00:00", "action": "internal_movie_result", "mediaId": "577839", "actualDecoded": true, "voices": 4, "qualities": 2, "errorCategory": null}
+{"seq": 880, "at": "2026-10-02T11:02:58.854065+00:00", "action": "exact_provider_resolve", "mediaId": "8955", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
