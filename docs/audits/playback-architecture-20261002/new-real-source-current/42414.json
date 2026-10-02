@@ -1,0 +1,30 @@
+{
+  "mediaId": "42414",
+  "title": "Янко",
+  "year": 1961,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:12.892032+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ee2ff3d4e6a8f4b43ddd",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14034
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "d9b56ca9fd87fb19cf5e",
+  "preparedStreamIdFingerprint": "c132b6871f083f5b6f66",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
