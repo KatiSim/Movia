@@ -4,7 +4,34 @@
   "year": 2025,
   "build": 323,
   "checkedAt": "2026-10-02T14:58:28.951244+00:00",
-  "variants": [],
+  "variants": [
+    {
+      "quality": "266p",
+      "voice": "AlphaProject",
+      "expectedAudioLabel": "rus0",
+      "expectedLanguage": "ru",
+      "decoded": true,
+      "ms": 614,
+      "observed": {
+        "mediaId": "45220",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 266,
+        "positionMs": 1011,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "frames": 26,
+        "voice": "AlphaProject",
+        "streamFingerprint": "2644c9a9f32520e30130",
+        "locatorFingerprint": "d4b3305990bd9f57f243"
+      },
+      "positionPreserved": true,
+      "audioTrackIdentityChanged": false,
+      "videoQualityChanged": true,
+      "status": "PASS"
+    }
+  ],
   "allProviderSourcesVerified": false,
   "studioNamesIndependentlyVerified": false,
   "startup": {
@@ -25,5 +52,22 @@
       "locatorFingerprint": "d4b3305990bd9f57f243"
     },
     "commandToReadyMs": 2294
-  }
+  },
+  "preparedSupportedPairs": 4,
+  "preparedQualities": [
+    266,
+    534
+  ],
+  "preparedVoices": [
+    {
+      "choice": "AlphaProject",
+      "actualName": "rus0",
+      "language": "ru"
+    },
+    {
+      "choice": "Original (с субтитрами)",
+      "actualName": "jpn1",
+      "language": "ja"
+    }
+  ]
 }

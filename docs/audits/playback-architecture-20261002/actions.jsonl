@@ -2233,3 +2233,4 @@
 {"seq": 2233, "at": "2026-10-02T14:58:31.812962+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2234, "at": "2026-10-02T14:58:32.047953+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "45220", "arguments": {"quality": "266p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2235, "at": "2026-10-02T14:58:32.263217+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "45220", "arguments": {"voice": "AlphaProject", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2236, "at": "2026-10-02T14:58:33.173010+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
