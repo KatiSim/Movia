@@ -1,0 +1,36 @@
+{
+  "mediaId": "59460",
+  "title": "Грозовые ворота",
+  "year": 2008,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:58:31.528506+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "cac52e78d6c61bfa5a05",
+      "decoded": true,
+      "actualHeight": 576,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "a30e05c235f3ffa819b2",
+      "videoFrameFingerprint": "ce0d42fce07660fb8ccc",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9387
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "78f7bc422707cd0da8ae",
+  "preparedStreamIdFingerprint": "d9573f6519dcff75fd9d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
