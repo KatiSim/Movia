@@ -1,0 +1,42 @@
+{
+  "index": 20,
+  "mediaId": "29807",
+  "title": "Драконий жемчуг Зет: Стойкие бойцы — Гохан и Транкс",
+  "year": 1993,
+  "rating": 7.5,
+  "voteCount": 627,
+  "genres": "[\"мультфильм\",\"боевик\",\"фантастика\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14063.13,
+    "observed": {
+      "mediaId": "29807",
+      "state": "IDLE",
+      "switchState": "FAILED",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 53,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14261.42,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:42:32.830075+00:00"
+}
