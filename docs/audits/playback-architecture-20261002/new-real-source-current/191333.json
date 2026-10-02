@@ -1,0 +1,36 @@
+{
+  "mediaId": "191333",
+  "title": "Breaking the ICE",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:03.808778+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "77216935a494258f96b9",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "416af492374a48d954e3",
+      "videoFrameFingerprint": "13f56cdca9bf8c68f621",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4164
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "460284cd5b6bf2662c9e",
+  "preparedStreamIdFingerprint": "620774fc51c84ae43bde",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
