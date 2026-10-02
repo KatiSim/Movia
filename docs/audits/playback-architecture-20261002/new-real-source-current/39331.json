@@ -1,0 +1,36 @@
+{
+  "mediaId": "39331",
+  "title": "Бабий бунт",
+  "year": 1971,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:54:23.009885+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "ce834ff3a8332031fed8",
+      "decoded": true,
+      "actualHeight": 432,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "cc0ce0e169d91a6256b4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 5017
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "eea2b5891c04f656b249",
+  "preparedStreamIdFingerprint": "f57e2abdd24b5985feb2",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
