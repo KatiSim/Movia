@@ -1,0 +1,36 @@
+{
+  "mediaId": "31418",
+  "title": "День Земли, специальный выпуск",
+  "year": 1990,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:51.151569+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "8c7305453d2f2738d531",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "b1205c72523d6d5acb92",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4109
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "0a986ce2a701a83ec628",
+  "preparedStreamIdFingerprint": "43401124eb40cba9d330",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
