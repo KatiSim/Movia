@@ -175,6 +175,57 @@ class AdaptivePlaybackRegressionTest {
             assertNull(OfflineMediaStore.request(context,ref))
         } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
     }
+    @Test fun selectingAutoThenTheSameProviderVoiceRestoresItsActualRendition() {
+        control("/__control?mode=online")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val streams=listOf(0,1).map { StreamOption("Studio ${if(it==0) "A" else "B"}","Auto",url="$base/master.m3u8",streamId="qa:auto:$it",audioTrackIndex=it) }
+        try {
+            main { session.setFrameProbe(true);session.start("movia_qa_auto_restore","Movia QA",candidateStreamOptions=streams,preferredVoice="Studio B",recordHistory=false) }
+            waitFor { session.player.audioFormat?.label=="Studio B" && session.probeFrames>2 }
+            assertTrue(main { session.selectVideoQuality("720p") })
+            assertTrue(main { session.selectVoice("Auto") })
+            waitFor { session.player.audioFormat?.label=="Studio A" }
+            assertEquals("Studio A",main { session.state.value.activeStreamSelection?.activeVoice })
+            assertTrue(main { session.selectVoice("Studio B") })
+            waitFor { session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==720 }
+            assertEquals("720p",main { session.state.value.activeStreamSelection?.requestedQuality })
+            assertEquals(1,main { session.selectedDownloadAudio()?.first })
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
+    }
+    @Test fun explicitUnavailableOfflineQualityIsRejectedBeforeAnyCompletedMarker() {
+        control("/__control?mode=online")
+        val ref=MediaRef("movia_qa_unavailable_download")
+        try {
+            try {
+                runBlocking { AdaptiveOfflineDownloader.download(context,ref,StreamCandidate("qa:unavailable",provider="QA",url="$base/master.m3u8",transport="hls"),"1080p") }
+                fail("A missing 1080p rendition was silently replaced by another quality")
+            } catch(error: app.movia.android.data.download.OfflineSelectionException) { assertEquals("QUALITY_UNAVAILABLE",error.code) }
+            assertNull(OfflineMediaStore.request(context,ref))
+        } finally { OfflineMediaStore.delete(context,ref) }
+    }
+    @Test fun duplicateCodecGroupsKeepTheSameVoiceInOnlineAndOfflinePlayback() {
+        control("/__control?mode=online")
+        val ref=MediaRef("movia_qa_duplicate_codecs")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        val streams=listOf(0,1).map { StreamOption("Studio ${if(it==0) "A" else "B"}","Auto",url="$base/duplicate-master.m3u8",streamId="qa:codecs:$it",audioTrackIndex=it,transport="hls") }
+        try {
+            main { session.setFrameProbe(true);session.start(ref.contentId,"Movia QA codecs",candidateStreamOptions=streams,recordHistory=false) }
+            waitFor { session.player.playbackState==androidx.media3.common.Player.STATE_READY && session.probeFrames>2 }
+            val physical=main { session.player.currentTracks.groups.filter { it.type==C.TRACK_TYPE_AUDIO }.sumOf { it.length } }
+            assertTrue("Fixture did not produce duplicate codec/group renditions: $physical",physical>=4)
+            assertEquals(2,main { session.choices.value.audio.size })
+            assertTrue(main { session.selectVoice("Studio B") })
+            assertTrue(main { session.selectVideoQuality("720p") })
+            waitFor { session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==720 }
+            main { session.stopAndClear() }
+            runBlocking { AdaptiveOfflineDownloader.download(context,ref,StreamCandidate.fromStreamOption(streams[1]),"720p") }
+            assertEquals("Studio B",OfflineMediaStore.selection(context,ref)?.audioLabel)
+            control("/__control?mode=offline")
+            main { session.start(ref.contentId,"Movia QA codecs offline",recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.player.audioFormat?.label=="Studio B" && session.player.videoFormat?.height==720 }
+            assertEquals(0,control("/__stats").getInt("mediaRequests"))
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
+    }
     @Test fun progressiveOfflineIsDecodedFromCacheWithoutNetwork() {
         control("/__control?mode=online")
         val ref=MediaRef("movia_qa_progressive")

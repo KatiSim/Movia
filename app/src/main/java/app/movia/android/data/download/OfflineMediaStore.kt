@@ -17,6 +17,7 @@ import org.json.JSONObject
 
 /** A completed adaptive download is a cache and track keys, never a fake MP4. */
 object OfflineMediaStore {
+    data class Selection(val voice: String, val quality: String, val audioIndex: Int?, val audioLabel: String?)
     private val caches = linkedMapOf<String, SimpleCache>()
     private var database: StandaloneDatabaseProvider? = null
     fun key(ref: MediaRef): String = OfflineDownloadWorker.fileNameFor(ref, "").removeSuffix(".mp4")
@@ -45,12 +46,21 @@ object OfflineMediaStore {
             } }).build()
     }.getOrNull()
 
-    fun complete(context: Context, ref: MediaRef, request: DownloadRequest, voice: String, quality: String): File {
+    fun selection(context: Context, ref: MediaRef): Selection? = runCatching {
+        val file = marker(context, ref)
+        if (!file.isFile || file.length() > 128_000L) return null
+        val json = JSONObject(file.readText())
+        if (json.getString("mediaKey") != ref.storageKey || !json.getBoolean("complete")) return null
+        Selection(json.optString("voice", "Офлайн"), json.optString("quality", "Auto"),
+            json.optInt("audioIndex", -1).takeIf { it >= 0 }, json.optString("audioLabel").takeIf { it.isNotBlank() })
+    }.getOrNull()
+
+    fun complete(context: Context, ref: MediaRef, request: DownloadRequest, voice: String, quality: String, audioIndex: Int? = null, audioLabel: String? = null): File {
         val file = marker(context, ref)
         file.parentFile?.mkdirs()
-        val data = JSONObject().put("version", 1).put("complete", true).put("mediaKey", ref.storageKey)
+        val data = JSONObject().put("version", 2).put("complete", true).put("mediaKey", ref.storageKey)
             .put("uri", request.uri.toString()).put("mimeType", request.mimeType ?: "")
-            .put("voice", voice).put("quality", quality).put("streamKeys", JSONArray().apply {
+            .put("voice", voice).put("quality", quality).put("audioIndex", audioIndex).put("audioLabel", audioLabel).put("streamKeys", JSONArray().apply {
                 request.streamKeys.forEach { put(JSONArray(listOf(it.periodIndex, it.groupIndex, it.streamIndex))) }
             })
         val temporary = File(file.parentFile, file.name + ".part")

@@ -49,8 +49,10 @@ object DownloadScheduler {
         mediaRef: MediaRef?,
     ) {
         val networkType = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
-        val active = app.movia.android.ui.player.MoviaPlaybackRegistry.current?.state?.value
+        val session = app.movia.android.ui.player.MoviaPlaybackRegistry.current
+        val active = session?.state?.value
         val selection = active?.takeIf { MediaRef(it.mediaId, it.seasonNumber, it.episodeNumber) == mediaRef }?.activeStreamSelection
+        val audio = if (selection != null) session?.selectedDownloadAudio() else null
         val input = workDataOf(
             OfflineDownloadWorker.KEY_TITLE to title,
             OfflineDownloadWorker.KEY_CONTENT_ID to mediaRef?.contentId,
@@ -59,6 +61,8 @@ object DownloadScheduler {
             OfflineDownloadWorker.KEY_QUALITY to selection?.requestedQuality,
             OfflineDownloadWorker.KEY_VOICE to selection?.activeVoice,
             OfflineDownloadWorker.KEY_STREAM_ID to selection?.activeStreamId,
+            OfflineDownloadWorker.KEY_AUDIO_INDEX to (audio?.first ?: -1),
+            OfflineDownloadWorker.KEY_AUDIO_LABEL to audio?.second,
         )
         val request = OneTimeWorkRequestBuilder<OfflineDownloadWorker>()
             .setInputData(input)

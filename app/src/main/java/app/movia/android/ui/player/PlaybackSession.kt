@@ -455,6 +455,7 @@ class PlaybackSession(context: Context) {
         val wantedHeight = qualityHeight(quality)
         if (quality.equals("Auto", true) || tracks.video.any { it.height == wantedHeight }) {
             requestedVideoQuality = if (quality.equals("Auto", true)) "Auto" else quality
+            playbackRequest = playbackRequest?.copy(requestedQuality = requestedVideoQuality)
             _state.value = _state.value.copy(activeStreamSelection =
                 (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedQuality = requestedVideoQuality, fallbackReason = null))
             applyUserTrackPreferences(player.currentTracks)
@@ -475,6 +476,7 @@ class PlaybackSession(context: Context) {
         userSelectedAutoAudio = voice.equals("Auto", true)
         if (voice.equals("Auto", true)) {
             requestedAudioTrack = null
+            playbackRequest = playbackRequest?.copy(requestedVoice = "Auto", requestedStreamId = null)
             _state.value = _state.value.copy(activeStreamSelection =
                 (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = "Auto"))
             applyUserTrackPreferences(player.currentTracks)
@@ -493,6 +495,13 @@ class PlaybackSession(context: Context) {
         if (option != null && option.voice.equals(voice, true)) {
             requestedAudioTrack = null
             if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option)
+            else {
+                // Selecting the same voice after Auto still has to restore its override.
+                appliedTrackSelectionKey = null
+                applyCandidateTrackOverrides(player.currentTracks)
+                applyUserTrackPreferences(player.currentTracks)
+            }
+            playbackRequest = playbackRequest?.copy(requestedVoice = voice, requestedQuality = requestedVideoQuality)
             _state.value = _state.value.copy(activeStreamSelection =
                 (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = voice, requestedQuality = requestedVideoQuality))
             publishSnapshot()
@@ -500,12 +509,23 @@ class PlaybackSession(context: Context) {
         }
         val choice = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0).audio
             .firstOrNull { it.id == voice || it.label.equals(voice, true) } ?: return false
-        requestedAudioTrack = choice.id
+        requestedAudioTrack = choice.label
+        playbackRequest = playbackRequest?.copy(requestedVoice = choice.label, requestedStreamId = activeCandidate?.stableStreamId)
         _state.value = _state.value.copy(audioTrackId = choice.id, activeStreamSelection =
             (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedVoice = choice.label))
         applyUserTrackPreferences(player.currentTracks)
         publishSnapshot()
         return true
+    }
+
+    /** Persist the logical rendition, rather than a codec-dependent group offset. */
+    internal fun selectedDownloadAudio(): Pair<Int, String?>? {
+        val audio = playbackChoices(player.currentTracks, 0).audio
+        val index = audio.indexOfFirst { it.selected }
+        if (index < 0) return null
+        val selected = audio[index]
+        val format = selected.override.mediaTrackGroup.getFormat(selected.override.trackIndices.first())
+        return index to format.label?.takeIf { it.isNotBlank() }
     }
 
     private fun applyUserTrackPreferences(tracks: Tracks) {
@@ -758,75 +778,17 @@ class PlaybackSession(context: Context) {
         ).joinToString("|")
         if (appliedTrackSelectionKey == key) return true
 
-        fun groupAndTrackFor(
-            type: Int,
-            preferredId: String?,
-            preferredIndex: Int?,
-            providerTrackIndex: Int,
-        ): Pair<Tracks.Group, Int>? {
-            preferredId?.let { id ->
-                tracks.groups.firstOrNull { group ->
-                    group.type == type && group.mediaTrackGroup.id == id
-                }?.takeIf { providerTrackIndex in 0 until it.length }
-                    ?.let { return it to providerTrackIndex }
-            }
-            preferredIndex?.let { index ->
-                tracks.groups.getOrNull(index)
-                    ?.takeIf { it.type == type && providerTrackIndex in 0 until it.length }
-                    ?.let { return it to providerTrackIndex }
-            }
-
-            // Provider indexes describe the logical rendition order. Media3 may
-            // expose that order as one multi-track group or as several one-track
-            // groups. Flatten audio/video groups so both representations map to
-            // the same provider index. If duplicate failover groups exist, the
-            // primary group set is encountered first.
-            val typedGroups = tracks.groups.filter { it.type == type }
-            val location = if (type == C.TRACK_TYPE_AUDIO) {
-                logicalAudioTrackLocations(typedGroups.map { group ->
-                    (0 until group.length).map { index ->
-                        val format = group.getTrackFormat(index)
-                        AudioRenditionIdentity(format.label, format.language, format.roleFlags, group.isTrackSupported(index))
-                    }
-                }).getOrNull(providerTrackIndex)
-            } else locateProviderTrackIndex(typedGroups.map { it.length }, providerTrackIndex)
-            location ?: return null
-            val group = typedGroups[location.groupOrdinal]
-            return if (group.isTrackSupported(location.trackIndex)) group to location.trackIndex else null
-        }
-
+        val videoOverride = videoTrackIndex?.let { providerTrackOverride(tracks, C.TRACK_TYPE_VIDEO, it, candidate.transportMetadata) }
+        val audioOverride = audioTrackIndex?.let { providerTrackOverride(tracks, C.TRACK_TYPE_AUDIO, it, candidate.transportMetadata) }
+        if ((videoTrackIndex != null && videoOverride == null) || (audioTrackIndex != null && audioOverride == null)) return false
         val builder = player.trackSelectionParameters.buildUpon()
             .clearOverridesOfType(C.TRACK_TYPE_VIDEO)
             .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
-        var applied = false
-        if (videoTrackIndex != null) {
-            groupAndTrackFor(C.TRACK_TYPE_VIDEO, videoGroupId, videoGroupIndex, videoTrackIndex)?.let { (group, trackIndex) ->
-                builder.setOverrideForType(
-                    TrackSelectionOverride(group.mediaTrackGroup, trackIndex),
-                )
-                Log.i(TAG, "Applied video track override id=${candidate.stableStreamId} providerIndex=$videoTrackIndex group=${group.mediaTrackGroup.id} track=$trackIndex")
-                applied = true
-            }
-        }
-        if (audioTrackIndex != null) {
-            groupAndTrackFor(C.TRACK_TYPE_AUDIO, audioGroupId, audioGroupIndex, audioTrackIndex)?.let { (group, trackIndex) ->
-                builder.setOverrideForType(
-                    TrackSelectionOverride(group.mediaTrackGroup, trackIndex),
-                )
-                val format = group.mediaTrackGroup.getFormat(trackIndex)
-                Log.i(
-                    TAG,
-                    "Applied audio track override id=${candidate.stableStreamId} providerIndex=$audioTrackIndex group=${group.mediaTrackGroup.id} track=$trackIndex label=${format.label.orEmpty()} language=${format.language.orEmpty()}",
-                )
-                applied = true
-            }
-        }
-        if (applied) {
-            appliedTrackSelectionKey = key
-            player.trackSelectionParameters = builder.build()
-            return true
-        }
-        return false
+        videoOverride?.let(builder::setOverrideForType)
+        audioOverride?.let(builder::setOverrideForType)
+        appliedTrackSelectionKey = key
+        player.trackSelectionParameters = builder.build()
+        return true
     }
 
     private fun consumedUri(candidate: StreamCandidate, request: PlaybackRequest? = null): String? {
@@ -1279,9 +1241,12 @@ class PlaybackSession(context: Context) {
         val ref = MediaRef(request.mediaId, request.seasonNumber, request.episodeNumber)
         val downloaded = OfflineMediaStore.request(appContext, ref)
         if (downloaded != null) {
+            val storedSelection = OfflineMediaStore.selection(appContext, ref)
             val candidate = StreamCandidate(stableStreamId = "offline:" + ref.storageKey,
                 provider = "offline", url = downloaded.uri.toString(), mimeType = downloaded.mimeType,
-                voice = "Офлайн", quality = preferredQuality ?: "Auto", transport = "local_storage",
+                voice = storedSelection?.voice ?: "Офлайн", quality = storedSelection?.quality ?: "Auto", transport = "local_storage",
+                audioTrackIndex = storedSelection?.audioIndex,
+                transportMetadata = storedSelection?.audioLabel?.let { mapOf("movia_audio_label" to it) }.orEmpty(),
                 seasonNumber = ref.season, episodeNumber = ref.episode, catalogMediaId = ref.contentId)
             candidates = listOf(candidate)
             publishCandidateOptions()
@@ -1468,7 +1433,7 @@ class PlaybackSession(context: Context) {
         publishCandidateOptions()
         val request = requestBase.copy(
             requestedVoice = stream.voice.trim().takeIf { it.isNotBlank() && !it.equals("Auto", true) },
-            requestedQuality = stream.quality.trim().takeIf { it.isNotBlank() && !it.equals("Auto", true) },
+            requestedQuality = requestedVideoQuality.takeIf { !it.equals("Auto", true) },
             requestedStreamId = candidate.stableStreamId,
             startPositionMs = position,
             generationId = generation,
@@ -1674,12 +1639,22 @@ class PlaybackSession(context: Context) {
         } else {
             transportStatus
         }
+        val observedChoices = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
+        val selectedOrdinal = observedChoices.audio.indexOfFirst { it.selected }
+        val automaticAudioSource = activeCandidate?.let { active ->
+            candidates.firstOrNull { it.url == active.url && it.headers == active.headers &&
+                it.userAgent == active.userAgent && it.audioTrackIndex == selectedOrdinal }
+        }
         val selection = if (status == PlaybackStatus.READY && activeCandidate != null) {
             val selected = activeCandidate ?: return
             (current.activeStreamSelection ?: ActiveStreamSelection()).copy(
-                activeStreamId = selected.stableStreamId,
+                activeStreamId = if (userSelectedAutoAudio) automaticAudioSource?.stableStreamId ?: selected.stableStreamId else selected.stableStreamId,
                 activeQuality = player.videoFormat?.height?.takeIf { it > 0 }?.let { if (it >= 2160) "4K" else "${it}p" } ?: selected.quality,
-                activeVoice = if (requestedAudioTrack != null) playbackChoices(player.currentTracks, 0).audio.firstOrNull { it.selected }?.label ?: selected.voice else selected.voice,
+                activeVoice = when {
+                    requestedAudioTrack != null -> observedChoices.audio.firstOrNull { it.selected }?.label ?: selected.voice
+                    userSelectedAutoAudio -> automaticAudioSource?.voice ?: observedChoices.audio.firstOrNull { it.selected }?.label ?: selected.voice
+                    else -> selected.voice
+                },
                 source = selected.provider,
             )
         } else {
@@ -1707,7 +1682,7 @@ class PlaybackSession(context: Context) {
             PlaybackSwitchState.FAILED -> current.statusMessage ?: "Не удалось найти стабильный источник."
             else -> current.statusMessage
         }
-        _choices.value = playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0)
+        _choices.value = observedChoices
         _state.value = current.copy(
             currentPositionMs = position,
             bufferedPositionMs = player.bufferedPosition.coerceAtLeast(0L),

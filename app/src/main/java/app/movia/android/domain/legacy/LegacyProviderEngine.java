@@ -355,11 +355,11 @@ public final class LegacyProviderEngine {
     private JSONArray flatten(Object root,int provider,String title,Integer year,Integer season,Integer episode,
         Integer listedSeason,Map<String,String> headers,String articleUrl,long deadline)throws Exception {
         JSONArray result=new JSONArray();Set<Object> visited=Collections.newSetFromMap(new IdentityHashMap<>());
-        walk(root,provider,title,year,season,episode,listedSeason,null,"",headers,articleUrl,deadline,0,visited,result);
+        walk(root,provider,title,year,season,episode,listedSeason,null,"","","root",headers,articleUrl,deadline,0,visited,result);
         return result;
     }
     private void walk(Object node,int provider,String title,Integer year,Integer wantedSeason,Integer wantedEpisode,
-        Integer season,Integer episode,String voice,Map<String,String> inherited,String articleUrl,long deadline,int depth,
+        Integer season,Integer episode,String voice,String inheritedQuality,String branchPath,Map<String,String> inherited,String articleUrl,long deadline,int depth,
         Set<Object> visited,JSONArray result)throws Exception {
         if(node==null||depth>12||visited.size()>=4096||result.length()>=512||!visited.add(node))return;
         if(Thread.currentThread().isInterrupted()||SystemClock.elapsedRealtime()>=deadline)throw new TimeoutException();
@@ -368,19 +368,22 @@ public final class LegacyProviderEngine {
         if(s!=null){if(wantedSeason!=null&&!wantedSeason.equals(s))return;season=s;}
         if(e!=null){if(wantedEpisode!=null&&!wantedEpisode.equals(e))return;episode=e;}
         if(folders.isInstance(node)) {
-            if(s==null&&e==null&&!label.isEmpty()&&!qualityLabel(label).matches("\\d+p")&&
-                !label.matches("(?iu).*(?:видео|video|качество|quality|источники|плейлист).*"))voice=label;
+            String folderQuality=qualityLabel(label);
+            if(!folderQuality.isEmpty())inheritedQuality=folderQuality;
+            if(s==null&&e==null&&!label.isEmpty()&&folderQuality.isEmpty()&&
+                !matchesTitle(title,label)&&
+                !label.matches("(?iu)^(?:видео|video|качество|quality|источники|плейлист|playlist|streams|mirrors?|зеркала)(?:\\s*\\d+)?$"))voice=label;
             Object lazy=call(node,"OooOoo");
             if(lazy!=null) {
                 // Only expand the requested season/episode branch, never the entire serial.
                 Object loaded=call(lazy,"OooO00o",node);
                 if(loaded!=null&&loaded!=node) {
-                    walk(loaded,provider,title,year,wantedSeason,wantedEpisode,season,episode,voice,inherited,articleUrl,deadline,depth+1,visited,result);
+                    walk(loaded,provider,title,year,wantedSeason,wantedEpisode,season,episode,voice,inheritedQuality,branchPath+"/lazy",inherited,articleUrl,deadline,depth+1,visited,result);
                     return;
                 }
             }
             List<?> children=(List<?>)call(node,"OooOo0o");
-            for(Object child:children)walk(child,provider,title,year,wantedSeason,wantedEpisode,season,episode,voice,inherited,articleUrl,deadline,depth+1,visited,result);
+            for(int childIndex=0;childIndex<children.size();childIndex++)walk(children.get(childIndex),provider,title,year,wantedSeason,wantedEpisode,season,episode,voice,inheritedQuality,branchPath+"/"+childIndex,inherited,articleUrl,deadline,depth+1,visited,result);
             return;
         }
         if(!files.isInstance(node))return;
@@ -395,11 +398,12 @@ public final class LegacyProviderEngine {
         Map<String,String> requestHeaders=new LinkedHashMap<>(inherited);mergeHeaders(requestHeaders,headers(call(node,"OooOOo0")));
         String quality=qualityLabel(string(call(call(node,"OooOoO"),"OooO0o")));
         if(quality.isEmpty())quality=qualityLabel(string(call(node,"getFormat"))+" "+label);
+        if(quality.isEmpty())quality=inheritedQuality;
         if(quality.isEmpty())quality="Не указано";
         String actualVoice=voice.isEmpty()?"Не указано":voice;
-        String itemIdentity=articleUrl+"|"+(season==null?"":season)+"|"+(episode==null?"":episode)+"|"+actualVoice+"|"+quality+"|"+label;
+        String itemIdentity=articleUrl+"|"+(season==null?"":season)+"|"+(episode==null?"":episode)+"|"+actualVoice+"|"+quality+"|"+label+"|"+branchPath;
         JSONObject row=new JSONObject().put("providerOrdinal",provider).put("provider",call(providers[provider],"OooO0oo"))
-            .put("providerItemId",digest(itemIdentity)).put("articleUrl",articleUrl).put("url",url).put("voice",actualVoice)
+            .put("providerItemId",digest(itemIdentity)).put("providerSourceId",digest(articleUrl+"|"+season+"|"+episode)).put("articleUrl",articleUrl).put("url",url).put("voice",actualVoice)
             .put("quality",quality).put("headers",new JSONObject(requestHeaders)).put("title",title).put("year",year)
             .put("season",season).put("episode",episode).put("kind",type).put("label",label);
         JSONArray subtitles=new JSONArray();String subtitle=string(call(node,"OooOo"));

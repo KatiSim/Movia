@@ -101,6 +101,36 @@ class LegacyEngineRegressionTest {
         val voice=folder("Studio B");val q=folder("1080p");child(voice,q);video(q,"1080p")
         assertEquals("Studio B",flatten(voice).getJSONObject(0).getString("voice"))
     }
+    @Test fun qualityIsInheritedWhenTheLeafDoesNotRepeatTheFolderFormat() {
+        val root=folder("Studio B");val quality=folder("1080p");child(root,quality);video(quality,"Видео")
+        val row=flatten(root).getJSONObject(0)
+        assertEquals("1080p",row.getString("quality"));assertEquals("Studio B",row.getString("voice"))
+    }
+    @Test fun movieTitleIsNotFabricatedAsAVoice() {
+        val root=folder("Fixture");video(root,"720p")
+        assertEquals("Не указано",flatten(root).getJSONObject(0).getString("voice"))
+    }
+    @Test fun identicallyLabelledMirrorFilesAreRetained() {
+        val root=folder("Studio A")
+        video(root,"720p","https://a.example/movie.mp4");video(root,"720p","https://b.example/movie.mp4")
+        val rows=flatten(root)
+        assertEquals(2,rows.length())
+        assertNotEquals(rows.getJSONObject(0).getString("providerItemId"),rows.getJSONObject(1).getString("providerItemId"))
+        assertEquals(rows.getJSONObject(0).getString("providerSourceId"),rows.getJSONObject(1).getString("providerSourceId"))
+        val decoded=LegacyPlaybackResolver.decode(rows,PlaybackRequest("158","Fixture"))
+        assertEquals(2,decoded.size)
+    }
+    @Test fun bothQualityVoiceFolderOrdersHaveTheSameSemanticVariants() {
+        val root=folder("Fixture")
+        for(q in listOf("360p","720p","1080p")) {
+            val quality=folder(q);child(root,quality)
+            for(name in listOf("Studio A","Studio B")) {val voice=folder(name);child(quality,voice);video(voice,"Видео")}
+        }
+        val rows=flatten(root)
+        assertEquals(6,rows.length())
+        assertEquals(setOf("360p","720p","1080p"),(0 until rows.length()).map { rows.getJSONObject(it).getString("quality") }.toSet())
+        assertEquals(setOf("Studio A","Studio B"),(0 until rows.length()).map { rows.getJSONObject(it).getString("voice") }.toSet())
+    }
     @Test fun headersKeepSourceCookiesAndRejectCredentialAndLineInjection() {
         val options=loader.loadClass("obf.is0").getConstructor().newInstance()
         for((key,value) in mapOf("Cookie" to "source=ok","Referer" to "https://provider.example/",

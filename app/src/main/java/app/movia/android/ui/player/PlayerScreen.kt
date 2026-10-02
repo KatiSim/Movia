@@ -1230,7 +1230,8 @@ fun PlayerScreen(
             val contentStreams = sessionStreams
             val selection = playback.activeStreamSelection
             val currentVoice = selection?.requestedVoice ?: "Auto"
-            val streamVoices = voiceMenu(contentStreams, playbackChoices)
+            val preparedStream = contentStreams.firstOrNull { it.streamId == selection?.activeStreamId }
+            val streamVoices = voiceMenu(contentStreams, playbackChoices, selection?.requestedQuality, preparedStream)
             val streamQualitiesForVoice = qualityMenu(contentStreams, playbackChoices, selection?.activeVoice)
             val currentQuality = selection?.requestedQuality ?: "Auto"
 

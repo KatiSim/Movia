@@ -47,6 +47,12 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
         if ((season == null) != (episode == null)) return failed("INCOMPLETE_EPISODE_IDENTITY")
         val ref = MediaRef(contentId, season, episode)
         OfflineMediaStore.request(applicationContext, ref)?.let {
+            val previous = OfflineMediaStore.selection(applicationContext, ref)
+            val voice = inputData.getString(KEY_VOICE)?.takeUnless { value -> value.equals("Auto", true) }
+            val quality = inputData.getString(KEY_QUALITY)?.takeUnless { value -> value.equals("Auto", true) }
+            if ((voice != null && previous?.voice != voice) || (quality != null &&
+                    app.movia.android.domain.model.videoQualityHeight(previous?.quality) != app.movia.android.domain.model.videoQualityHeight(quality)))
+                return failed("DIFFERENT_VARIANT_ALREADY_DOWNLOADED")
             return Result.success(Data.Builder().putString(KEY_FILE_PATH, OfflineMediaStore.marker(applicationContext, ref).absolutePath).build())
         }
         return try {
@@ -77,9 +83,18 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
                 } else emptyList()
                 val candidates = app.movia.android.domain.playback.StreamDeduplicator.deduplicate(backendCandidates + nativeCandidates)
                 if (candidates.isEmpty()) return failed("NO_SOURCE")
-                val source = request.requestedStreamId?.let { id -> candidates.firstOrNull { it.stableStreamId == id } }
+                val selectedSource = request.requestedStreamId?.let { id -> candidates.firstOrNull { it.stableStreamId == id } }
                     ?: StreamRanker.selectBest(candidates, request.requestedVoice, request.requestedQuality)
                     ?: return failed("NO_SOURCE")
+                val selectedAudioIndex = inputData.getInt(KEY_AUDIO_INDEX, -1).takeIf { it >= 0 }
+                val selectedAudioLabel = inputData.getString(KEY_AUDIO_LABEL)?.takeIf { it.isNotBlank() }
+                // A track selected in the player may differ from its provider row's default audio.
+                // Apply the captured rendition only to the same requested logical source.
+                val sameSource = selectedSource.stableStreamId == request.requestedStreamId
+                val source = if (sameSource && selectedAudioIndex != null) selectedSource.copy(
+                    audioTrackIndex = selectedAudioIndex, voice = request.requestedVoice ?: selectedSource.voice,
+                    transportMetadata = selectedSource.transportMetadata + (selectedAudioLabel?.let { mapOf("movia_audio_label" to it) } ?: emptyMap()),
+                ) else selectedSource
                 if (source.drmScheme != null) return failed("OFFLINE_LICENSE_REQUIRED")
                 val playable = app.movia.android.domain.legacy.LegacyPlaybackResolver.playable(applicationContext, source)
                     ?: return failed("NO_PLAYABLE_SOURCE")
@@ -107,6 +122,7 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
             }
             @Suppress("UNREACHABLE_CODE") Result.failure()
         } catch (cancelled: CancellationException) { throw cancelled
+        } catch (selection: OfflineSelectionException) { failed(selection.code)
         } catch (_: IOException) {
             if (runAttemptCount < 2) Result.retry() else failed("NETWORK_RETRIES_EXHAUSTED")
         } catch (_: Exception) { failed("DOWNLOAD_FAILED") }
@@ -130,6 +146,8 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
         const val KEY_QUALITY = "quality"
         const val KEY_VOICE = "voice"
         const val KEY_STREAM_ID = "stream_id"
+        const val KEY_AUDIO_INDEX = "audio_index"
+        const val KEY_AUDIO_LABEL = "audio_label"
         const val KEY_ERROR = "error_code"
         const val KEY_PROGRESS = "progress"
         const val KEY_FILE_PATH = "file_path"

@@ -49,9 +49,11 @@ object LegacyPlaybackResolver {
                 LegacyProviderEngine.get(context).resolveArticle(id, article, previous.transportMetadata["legacy_content_url"].orEmpty(), request.title, request.year,
                     request.seasonNumber, request.episodeNumber, 20_000)
             }
-            resolveRows(context, rows, request).firstOrNull {
+            val candidates = resolveRows(context, rows, request)
+            val sameVariant = candidates.filter { it.voice == previous.voice && it.quality == previous.quality }
+            (sameVariant.firstOrNull {
                 (it.providerItemId == previous.providerItemId || previous.transportMetadata["legacy_web"] == "true") && it.voice == previous.voice && it.quality == previous.quality
-            }?.copy(stableStreamId = previous.stableStreamId, logicalSourceId = previous.logicalSourceId)
+            } ?: sameVariant.firstOrNull())?.copy(stableStreamId = previous.stableStreamId, logicalSourceId = previous.logicalSourceId)
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (_: Exception) { null }
@@ -106,7 +108,7 @@ object LegacyPlaybackResolver {
             val subtitles = row.optJSONArray("subtitles") ?: JSONArray()
             add(StreamCandidate(
                 stableStreamId = "legacy:$id:${request.canonicalEpisodeKey}:$providerItemId",
-                logicalSourceId = "legacy:$id:${request.canonicalEpisodeKey}:$providerItemId",
+                logicalSourceId = "legacy:$id:${request.canonicalEpisodeKey}:${row.optString("providerSourceId").ifBlank { providerItemId }}",
                 providerItemId = providerItemId,
                 provider = row.optString("provider"), providerId = "lazy:$id", url = url,
                 voice = row.optString("voice", "Не указано"), language = "und", quality = quality,

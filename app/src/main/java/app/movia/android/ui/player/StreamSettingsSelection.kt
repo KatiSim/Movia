@@ -14,21 +14,20 @@ internal object StreamSettingsSelection {
             .map { it.quality.trim().ifBlank { "Не указано" } }
             .distinct()
             .toList()
-        val atLeast360 = all.filter { (qualityHeight(it) ?: 0) >= 360 }
-        val visible = atLeast360.ifEmpty { all }
-        return visible.sortedWith(
+        return all.sortedWith(
             compareBy<String> { qualityHeight(it) ?: Int.MAX_VALUE }
                 .thenBy { it.lowercase() },
         )
     }
 
-    fun voiceOptions(streams: List<StreamOption>, quality: String?): List<String> {
+    fun voiceOptions(streams: List<StreamOption>, quality: String?, preparedUrl: String? = null, preparedHeights: Set<Int> = emptySet()): List<String> {
         val usable = streams.filter { it.url.isNotBlank() }
         val requestedQuality = quality?.trim()?.takeIf { it.isNotBlank() && !it.equals("Auto", true) }
         val qualityScoped = requestedQuality?.let { requested ->
-            usable.filter { sameQuality(it.quality, requested) }
+            usable.filter { sameQuality(it.quality, requested) ||
+                (it.url == preparedUrl && qualityHeight(requested) in preparedHeights) || isAdaptive(it) }
         }.orEmpty()
-        val pool = qualityScoped.ifEmpty { usable }
+        val pool = if (requestedQuality == null) usable else qualityScoped
         return pool
             .map { it.voice.trim().ifBlank { "Не указано" } }
             .distinct()
@@ -48,6 +47,8 @@ internal object StreamSettingsSelection {
                 stream.voice.equals(requestedVoice, ignoreCase = true) &&
                 sameQuality(stream.quality, requestedQuality)
         } ?: usable.firstOrNull { stream ->
+            requestedVoice != null && stream.voice.equals(requestedVoice, true) && isAdaptive(stream)
+        } ?: usable.firstOrNull { stream ->
             (requestedVoice == null || usable.none { it.voice.equals(requestedVoice, true) }) && requestedQuality != null && sameQuality(stream.quality, requestedQuality)
         } ?: usable.firstOrNull { stream ->
             requestedVoice != null && stream.voice.equals(requestedVoice, ignoreCase = true)
@@ -61,20 +62,11 @@ internal object StreamSettingsSelection {
             (leftHeight != null && rightHeight != null && leftHeight == rightHeight)
     }
 
-    private fun qualityHeight(value: String): Int? {
-        val low = value.trim().lowercase()
-        return when {
-            low.contains("2160") || low.contains("4k") || low.contains("uhd") -> 2160
-            low.contains("1440") || low.contains("2k") -> 1440
-            low.contains("1080") || low.contains("fullhd") || low.contains("fhd") -> 1080
-            low.contains("720") || low == "hd" -> 720
-            low.contains("480") || low == "sd" -> 480
-            low.contains("360") -> 360
-            low.contains("240") -> 240
-            low.contains("144") -> 144
-            else -> Regex("""(?<!\d)(\d{3,4})p?(?!\d)""").find(low)?.groupValues?.getOrNull(1)?.toIntOrNull()
-        }
-    }
+    private fun qualityHeight(value: String): Int? = app.movia.android.domain.model.videoQualityHeight(value)
+
+    private fun isAdaptive(stream: StreamOption): Boolean = qualityHeight(stream.quality) == null &&
+        (stream.transport.lowercase() in setOf("hls", "dash") ||
+            stream.url.substringBefore('?').endsWith(".m3u8", true) || stream.url.substringBefore('?').endsWith(".mpd", true))
 
     private fun voiceRank(value: String): Int {
         val low = value.lowercase()

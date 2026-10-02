@@ -32,6 +32,8 @@ import app.movia.android.domain.playback.StreamCandidate
 import app.movia.android.domain.playback.StreamRanker
 import app.movia.android.domain.playback.StreamRequestProfile
 import app.movia.android.ui.player.DynamicHeaderDataSourceFactory
+import app.movia.android.ui.player.providerTrackOverride
+import app.movia.android.domain.model.videoQualityHeight
 import java.io.IOException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicInteger
@@ -55,16 +57,23 @@ object AdaptiveOfflineDownloader {
             setRequestProfile(StreamRequestProfile.from(candidate, uri))
         }
         val clean = uri.substringBefore('?').lowercase()
-        val mime = source.mimeType ?: when {
-            clean.contains(".m3u8") || source.transport == "hls" -> MimeTypes.APPLICATION_M3U8
-            clean.contains(".mpd") || source.transport == "dash" -> MimeTypes.APPLICATION_MPD
-            else -> null
+        val mime = when {
+            clean.endsWith(".m3u8") -> MimeTypes.APPLICATION_M3U8
+            clean.endsWith(".mpd") -> MimeTypes.APPLICATION_MPD
+            clean.endsWith(".mp4") || clean.endsWith(".m4v") -> MimeTypes.VIDEO_MP4
+            else -> source.mimeType ?: when (source.transport) {
+                "hls" -> MimeTypes.APPLICATION_M3U8
+                "dash" -> MimeTypes.APPLICATION_MPD
+                else -> null
+            }
         }
         val item = MediaItem.Builder().setUri(uri).setMimeType(mime).build()
         val selection = TrackSelectionParameters.Builder(context.applicationContext)
-            .setMaxVideoSize(Int.MAX_VALUE, qualityHeight(selectedQuality) ?: 1080)
+            .setMaxVideoSize(Int.MAX_VALUE, videoQualityHeight(selectedQuality) ?: Int.MAX_VALUE)
             .setForceHighestSupportedBitrate(true).setPreferredAudioLanguage(source.language).build()
         var helper: DownloadHelper? = null
+        var offlineAudioIndex: Int? = source.audioTrackIndex
+        var offlineAudioLabel: String? = source.transportMetadata["movia_audio_label"]
         val downloadRequest = try {
             withTimeout(20_000L) { withContext(Dispatchers.Main) {
                 suspendCancellableCoroutine<DownloadRequest> { continuation ->
@@ -76,20 +85,30 @@ object AdaptiveOfflineDownloader {
                             try {
                             if (tracksInformationAvailable) for (period in 0 until prepared.periodCount) {
                                 val params = selection.buildUpon()
-                                val groups = prepared.getTracks(period).groups
+                                val tracks = prepared.getTracks(period)
+                                val groups = tracks.groups
                                 fun overrideIndex(type: Int, wanted: Int?) {
                                     if (wanted == null || wanted < 0) return
-                                    var offset = wanted
-                                    for (group in groups.filter { it.type == type }) {
-                                        if (offset < group.length) {
-                                            if (group.isTrackSupported(offset)) params.setOverrideForType(androidx.media3.common.TrackSelectionOverride(group.mediaTrackGroup, offset))
-                                            return
-                                        }
-                                        offset -= group.length
+                                    val override = providerTrackOverride(tracks, type, wanted, source.transportMetadata)
+                                        ?: throw OfflineSelectionException(if (type == androidx.media3.common.C.TRACK_TYPE_AUDIO) "AUDIO_RENDITION_UNAVAILABLE" else "VIDEO_RENDITION_UNAVAILABLE")
+                                    params.setOverrideForType(override)
+                                    if (type == androidx.media3.common.C.TRACK_TYPE_AUDIO) {
+                                        // The filtered offline manifest has one selected logical voice.
+                                        offlineAudioIndex = 0
+                                        offlineAudioLabel = override.mediaTrackGroup.getFormat(override.trackIndices.first()).label?.takeIf { it.isNotBlank() }
                                     }
                                 }
                                 overrideIndex(androidx.media3.common.C.TRACK_TYPE_AUDIO, source.audioTrackIndex)
-                                if (qualityHeight(selectedQuality) == null) overrideIndex(androidx.media3.common.C.TRACK_TYPE_VIDEO, source.videoTrackIndex)
+                                val height = videoQualityHeight(selectedQuality)
+                                if (height == null) overrideIndex(androidx.media3.common.C.TRACK_TYPE_VIDEO, source.videoTrackIndex)
+                                else {
+                                    val chosen = groups.filter { it.type == androidx.media3.common.C.TRACK_TYPE_VIDEO }
+                                        .flatMap { group -> (0 until group.length).filter { group.isTrackSupported(it) && group.getTrackFormat(it).height == height }
+                                            .map { index -> group to index } }
+                                        .maxByOrNull { (group,index) -> group.getTrackFormat(index).averageBitrate }
+                                    if (chosen == null) throw OfflineSelectionException("QUALITY_UNAVAILABLE")
+                                    params.setOverrideForType(androidx.media3.common.TrackSelectionOverride(chosen.first.mediaTrackGroup, chosen.second))
+                                }
                                 prepared.replaceTrackSelections(period, params.build())
                             }
                             if (continuation.isActive) continuation.resume(prepared.getDownloadRequest(ref.storageKey, null))
@@ -118,11 +137,13 @@ object AdaptiveOfflineDownloader {
                 } finally { reporter.cancel() }
             }
             check(OfflineMediaStore.cache(context.applicationContext, ref).cacheSpace > 0L) { "Empty offline media" }
-            OfflineMediaStore.complete(context.applicationContext, ref, downloadRequest, source.voice, selectedQuality)
+            OfflineMediaStore.complete(context.applicationContext, ref, downloadRequest, source.voice, selectedQuality, offlineAudioIndex, offlineAudioLabel)
             onProgress(100)
         } finally { if (isCancelled()) downloader.cancel() }
         } finally { inFlight.remove(ref.storageKey) }
     }
 
-    private fun qualityHeight(value: String): Int? = if (value.equals("4K", true)) 2160 else Regex("\\d{3,4}").find(value)?.value?.toIntOrNull()
 }
+
+/** An impossible explicit variant is permanent, so WorkManager must not retry it. */
+internal class OfflineSelectionException(val code: String) : IOException(code)

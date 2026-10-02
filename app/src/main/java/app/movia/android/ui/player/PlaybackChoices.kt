@@ -20,14 +20,7 @@ data class PlaybackChoices(
     val video: List<PlaybackTrackChoice> = emptyList(),
 )
 
-internal fun qualityHeight(value: String): Int? = when {
-    value.equals("4K", true) || value.equals("UHD", true) -> 2160
-    value.equals("2K", true) -> 1440
-    value.equals("HD", true) -> 720
-    value.equals("FullHD", true) || value.equals("FHD", true) -> 1080
-    else -> Regex("(?<!\\d)(\\d{3,4})p?(?!\\d)", RegexOption.IGNORE_CASE)
-        .find(value)?.groupValues?.get(1)?.toIntOrNull()
-}
+internal fun qualityHeight(value: String): Int? = app.movia.android.domain.model.videoQualityHeight(value)
 
 internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices {
     val audio = mutableListOf<PlaybackTrackChoice>()
@@ -39,7 +32,7 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
             val format = group.getTrackFormat(index)
             val id = "track:${group.type}:$groupOrdinal:$index"
             if (group.type == C.TRACK_TYPE_VIDEO && format.height > 0) {
-                video += PlaybackTrackChoice(id, if (format.height >= 2160) "4K" else "${format.height}p",
+                video += PlaybackTrackChoice(id, when(format.height) { 4320 -> "8K"; 2160 -> "4K"; else -> "${format.height}p" },
                     height = format.height, selected = actualHeight == format.height,
                     override = TrackSelectionOverride(group.mediaTrackGroup, index))
             } else if (group.type == C.TRACK_TYPE_AUDIO) {
@@ -69,13 +62,17 @@ internal fun playbackChoices(tracks: Tracks, actualHeight: Int): PlaybackChoices
 internal fun qualityMenu(streams: List<StreamOption>, tracks: PlaybackChoices, voice: String?): List<String> {
     val scoped = streams.filter { voice.isNullOrBlank() || voice == "Auto" || it.voice.equals(voice, true) }
     val options = scoped.mapNotNull { qualityHeight(it.quality) }.plus(tracks.video.map { it.height })
-        .distinct().sortedDescending().map { if (it >= 2160) "4K" else "${it}p" }
+        .distinct().sortedDescending().map { when(it) { 4320 -> "8K"; 2160 -> "4K"; else -> "${it}p" } }
     return listOf("Auto") + options
 }
 
-internal fun voiceMenu(streams: List<StreamOption>, tracks: PlaybackChoices): List<String> {
-    val providers = StreamSettingsSelection.voiceOptions(streams, null)
+internal fun voiceMenu(streams: List<StreamOption>, tracks: PlaybackChoices, quality: String? = null, prepared: StreamOption? = null): List<String> {
+    val providers = StreamSettingsSelection.voiceOptions(streams, quality, prepared?.url, tracks.video.map { it.height }.toSet())
         .filterNot { it.equals("Auto", true) || it == "Не указано" }
-    val internal = if (tracks.audio.size > 1 || providers.isEmpty()) tracks.audio.map { it.label } else emptyList()
+    val mappedOrdinals = streams.filter { prepared != null && it.url == prepared.url &&
+        it.headers == prepared.headers && it.userAgent == prepared.userAgent }
+        .mapNotNull { it.audioTrackIndex }.toSet()
+    val internal = tracks.audio.filterIndexed { index, _ -> index !in mappedOrdinals }
+        .takeIf { tracks.audio.size > 1 || providers.isEmpty() }.orEmpty().map { it.label }
     return (listOf("Auto") + providers + internal).distinct()
 }
