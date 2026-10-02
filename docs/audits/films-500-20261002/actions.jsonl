@@ -59,3 +59,4 @@
 {"seq": 59, "at": "2026-10-02T10:41:48.956995+00:00", "action": "player.stop", "mediaId": "5156", "arguments": {}, "accepted": true, "requestMs": 89}
 {"seq": 60, "at": "2026-10-02T10:41:49.126730+00:00", "action": "media.play", "mediaId": "5156", "arguments": {"mediaId": "5156", "title": "Уэнделл и Уайлд", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 10}
 {"seq": 61, "at": "2026-10-02T10:42:03.442176+00:00", "action": "movie_result", "mediaId": "5156", "decoded": false, "voices": 0, "qualities": 0}
+{"seq": 62, "at": "2026-10-02T10:42:03.667973+00:00", "action": "player.stop", "mediaId": "2361", "arguments": {}, "accepted": true, "requestMs": 47}
