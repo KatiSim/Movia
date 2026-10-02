@@ -3098,3 +3098,4 @@
 {"seq": 3098, "at": "2026-10-02T15:42:19.300030+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3099, "at": "2026-10-02T15:42:19.648819+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "ICTV (укр.)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3100, "at": "2026-10-02T15:42:20.543805+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 8, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 3101, "at": "2026-10-02T15:42:20.919560+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
