@@ -1,0 +1,13 @@
+{
+  "mediaId": "282",
+  "title": "Человек-паук: Вдали от дома",
+  "year": 2019,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:48.094077+00:00"
+}
