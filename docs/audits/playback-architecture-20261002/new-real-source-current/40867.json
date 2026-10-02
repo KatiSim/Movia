@@ -1,0 +1,36 @@
+{
+  "mediaId": "40867",
+  "title": "Винни Пух и Медовое дерево",
+  "year": 1966,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:39:25.265801+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "01ea9738e787dce7811b",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "9ca6b4b1692a4e12566e",
+      "videoFrameFingerprint": "da4c38b826d83c540a36",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3541
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "17b4000650f6fd94b77c",
+  "preparedStreamIdFingerprint": "72891db287021d0fa34e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
