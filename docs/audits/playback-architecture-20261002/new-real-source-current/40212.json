@@ -1,0 +1,36 @@
+{
+  "mediaId": "40212",
+  "title": "Винни Пух и ненастный день",
+  "year": 1968,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:26:34.063736+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "b33cf47257c4a9a86e98",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "d8a29ff5123001a0bc56",
+      "videoFrameFingerprint": "2d738347c9a0a824f7d3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3732
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "07592834dbb48d207e3f",
+  "preparedStreamIdFingerprint": "99d5f00c14dd7df8c95d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
