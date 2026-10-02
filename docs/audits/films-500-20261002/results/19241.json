@@ -373,6 +373,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "720p",
+      "voice": "Е. Солодухин",
+      "expectedAudioLabel": "rus3",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 396,
+      "observed": {
+        "mediaId": "19241",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 720,
+        "positionMs": 8599,
+        "frames": 5016,
+        "quality": "720p",
+        "voice": "Е. Солодухин",
+        "streamFingerprint": "dd6a5732cc1c9ea19dde",
+        "locatorFingerprint": "e25f32bc9f3c73e124c4",
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:4:0",
+            "rus3",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:19:12.210331+00:00",
