@@ -1,0 +1,340 @@
+{
+  "mediaId": "164",
+  "title": "Побег из Шоушенка",
+  "year": 1994,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:04:36.494310+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "eng26",
+      "language": "en",
+      "sourceFingerprint": "90618ee242c4bc82f947",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "c2391616ba3380a8c812",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3736
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 26,
+  "preparedSourceFingerprint": "2ab0e374603aa8475268",
+  "preparedStreamIdFingerprint": "44d63c105ea70f535a79",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus20",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus21",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr23",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr24",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr25",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng26",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng27",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus5",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus6",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus7",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus8",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus9",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus10",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus11",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus12",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus13",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus15",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus16",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus17",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus19",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus20",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus21",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr23",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr24",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr25",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng26",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng27",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 50
+}
