@@ -2433,3 +2433,4 @@
 {"seq": 2433, "at": "2026-10-02T11:16:17.799971+00:00", "action": "exact_provider_resolve", "mediaId": "26431", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2434, "at": "2026-10-02T11:16:18.014000+00:00", "action": "player.selectVoice", "mediaId": "164", "arguments": {"voice": "В. Дохалов", "persist": false}, "accepted": true, "requestMs": 87}
 {"seq": 2435, "at": "2026-10-02T11:16:18.125575+00:00", "action": "internal_movie_result", "mediaId": "14469", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 2436, "at": "2026-10-02T11:16:18.287840+00:00", "action": "movie_result", "mediaId": "164", "decoded": true, "voices": 25, "qualities": 4}
