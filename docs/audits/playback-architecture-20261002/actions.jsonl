@@ -2937,3 +2937,4 @@
 {"seq": 2937, "at": "2026-10-02T15:40:28.752508+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2938, "at": "2026-10-02T15:40:29.069832+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Ю. Сербин", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2939, "at": "2026-10-02T15:40:29.587506+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 39, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 2940, "at": "2026-10-02T15:40:30.066136+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
