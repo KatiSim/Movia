@@ -27,3 +27,4 @@
 {"seq": 27, "at": "2026-10-02T10:39:36.747722+00:00", "action": "media.play", "mediaId": "50559", "arguments": {"mediaId": "50559", "title": "Караван", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 18}
 {"seq": 28, "at": "2026-10-02T10:39:41.211771+00:00", "action": "movie_result", "mediaId": "50559", "decoded": true, "voices": 3, "qualities": 2}
 {"seq": 29, "at": "2026-10-02T10:39:41.422107+00:00", "action": "player.stop", "mediaId": "36089", "arguments": {}, "accepted": true, "requestMs": 93}
+{"seq": 30, "at": "2026-10-02T10:39:41.563130+00:00", "action": "media.play", "mediaId": "36089", "arguments": {"mediaId": "36089", "title": "Пожиратели плоти", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false}, "accepted": true, "requestMs": 12}
