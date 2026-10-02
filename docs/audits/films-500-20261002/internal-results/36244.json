@@ -1,0 +1,13 @@
+{
+  "mediaId": "36244",
+  "title": "Лев, колдунья и платяной шкаф",
+  "year": 1979,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:12:59.246810+00:00"
+}
