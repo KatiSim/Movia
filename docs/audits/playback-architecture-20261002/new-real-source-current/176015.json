@@ -1,0 +1,36 @@
+{
+  "mediaId": "176015",
+  "title": "Девять жизней кота Нерона",
+  "year": 2027,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:53:29.907945+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "0c5122349d3ad10a9617",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "c56b0b1a87829bec1458",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3786
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "6ea8bfe737609840aa8c",
+  "preparedStreamIdFingerprint": "d35fc3a46535c5b6f8fd",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
