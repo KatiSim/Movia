@@ -1,0 +1,64 @@
+{
+  "mediaId": "488011",
+  "title": "Истории любви Долины подсолнухов",
+  "year": 2021,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:20:48.552804+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "eng1",
+      "language": "en",
+      "sourceFingerprint": "9422ba46c25da3628afe",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "78c12ddc8268bed277d5",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3798
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "12895feaf74f2cc7d788",
+  "preparedStreamIdFingerprint": "e4b0d65e9eed3de2a107",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng1",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 4
+}
