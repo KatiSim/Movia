@@ -1212,3 +1212,4 @@
 {"seq": 1212, "at": "2026-10-02T14:30:46.626476+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "56591", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1213, "at": "2026-10-02T14:30:46.972183+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "321556", "quality": 360, "voice": "def0"}, "sourcePaths": []}
 {"seq": 1214, "at": "2026-10-02T14:30:47.202174+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56591", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1215, "at": "2026-10-02T14:30:47.467616+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "56591", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
