@@ -1,0 +1,36 @@
+{
+  "mediaId": "53596",
+  "title": "Где-то в ночи",
+  "year": 1946,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:43.558289+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3e2089acae8dbbe912a1",
+      "decoded": true,
+      "actualHeight": 1080,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "60317b2ee5816cf995c6",
+      "videoFrameFingerprint": "cf1df68334d1dba50d69",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4181
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8f7bc38f419a5b283b01",
+  "preparedStreamIdFingerprint": "928e5e3511e607b74105",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
