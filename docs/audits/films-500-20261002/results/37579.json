@@ -1,0 +1,62 @@
+{
+  "index": 9,
+  "mediaId": "37579",
+  "title": "Зверь",
+  "year": 1975,
+  "rating": 5.8,
+  "voteCount": 187,
+  "genres": "[\"драма\",\"фэнтези\",\"ужасы\",\"мелодрама\"]",
+  "variants": [],
+  "startup": {
+    "decoded": true,
+    "qualityMatches": true,
+    "voiceReportedMatches": true,
+    "ms": 4491.39,
+    "observed": {
+      "mediaId": "37579",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 373,
+      "frames": 33,
+      "quality": "720p",
+      "voice": "Original (с субтитрами)",
+      "streamFingerprint": "3229f91c1608e6c0551c",
+      "locatorFingerprint": "cfebf4f1c25895dbde82",
+      "selectedAudioLabel": "rus1",
+      "selectedAudioLanguage": "ru",
+      "selectedAudio": [
+        [
+          "track:1:2:0",
+          "rus1",
+          "ru"
+        ]
+      ]
+    },
+    "commandToReadyMs": 4652.33,
+    "withinFiveSeconds": true
+  },
+  "inventory": {
+    "voiceLabels": [
+      "Original (с субтитрами)",
+      "fre2",
+      "fre2 · 6",
+      "rus0",
+      "rus0 · 2",
+      "rus1",
+      "rus1 · 4",
+      "А.Алексеев",
+      "Авторский (Одноголосый)"
+    ],
+    "qualityLabels": [
+      "360p",
+      "720p"
+    ],
+    "advertisedPairs": [],
+    "sourceRows": 3,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:40:00.765527+00:00"
+}
