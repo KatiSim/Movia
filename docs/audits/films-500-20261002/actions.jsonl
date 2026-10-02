@@ -1577,3 +1577,4 @@
 {"seq": 1577, "at": "2026-10-02T11:11:41.444225+00:00", "action": "internal_combined_decode", "mediaId": "45717", "qualityHeight": 324, "voice": "default", "engine": "FFmpeg", "selection": "first compatible manifest video + audio"}
 {"seq": 1578, "at": "2026-10-02T11:11:43.026320+00:00", "action": "internal_movie_result", "mediaId": "585340", "actualDecoded": true, "voices": 1, "qualities": 2, "errorCategory": null}
 {"seq": 1579, "at": "2026-10-02T11:11:43.346156+00:00", "action": "exact_provider_resolve", "mediaId": "2523", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 1580, "at": "2026-10-02T11:11:43.560921+00:00", "action": "expand_playback_candidates", "reason": "A checked film without an HTTP result cannot count as successful playback. Additional distinct films may be needed to reach 500 actual decodes.", "maximumAdditionalCandidates": 650, "temporaryAuditWorkersTotal": 3}
