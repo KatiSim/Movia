@@ -1,0 +1,36 @@
+{
+  "mediaId": "43617",
+  "title": "Гамелинский крысолов",
+  "year": 1957,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:49:58.256221+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "fec410b0891213ff7673",
+      "decoded": true,
+      "actualHeight": 352,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "75b83c74b15e4d0f5bfc",
+      "videoFrameFingerprint": "248bda04c50f9c833a89",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4342
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "48623f46ce406d6d1352",
+  "preparedStreamIdFingerprint": "2a4594c78ba45f09261d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
