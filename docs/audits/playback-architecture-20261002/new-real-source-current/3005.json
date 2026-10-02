@@ -1,0 +1,36 @@
+{
+  "mediaId": "3005",
+  "title": "Ship A-Hooey",
+  "year": 1954,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:14:59.938278+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "da85ab27bc55ca284ad3",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "9ba8a2db4208d631b2f6",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3720
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "5a62eff46987f0911a5e",
+  "preparedStreamIdFingerprint": "f5f0997460a451524b37",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
