@@ -1,0 +1,64 @@
+{
+  "mediaId": "45220",
+  "title": "Призрачный киллер",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:11:56.672915+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 266,
+      "voice": "jpn1",
+      "language": "ja",
+      "sourceFingerprint": "f0dc9ef21ca418c141db",
+      "decoded": true,
+      "actualHeight": 266,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "60ca2ba89c2b429284d7",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 7102
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "9cfe74bc77c67b575493",
+  "preparedStreamIdFingerprint": "2644c9a9f32520e30130",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "jpn1",
+      "language": "ja",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    266,
+    534
+  ],
+  "advertisedCompatiblePairs": 4
+}
