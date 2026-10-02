@@ -1,0 +1,51 @@
+{
+  "mediaId": "44899",
+  "title": "Кавалер Золотой звезды",
+  "year": 1951,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:34:06.278083+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "f84999f42de2522843b4",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "7d6e03bf241360006d29",
+      "videoFrameFingerprint": "8463d80c5ceb4a617ca2",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3838
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "8a2709283d657da0a1bb",
+  "preparedStreamIdFingerprint": "2e40fbb66d769b68da22",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360
+  ],
+  "advertisedCompatiblePairs": 1
+}
