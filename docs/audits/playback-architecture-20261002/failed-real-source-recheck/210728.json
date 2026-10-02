@@ -1,0 +1,46 @@
+{
+  "mediaId": "210728",
+  "title": "Santidad",
+  "year": 2026,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:31:54.514633+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e3e3550e39b428d572e6",
+      "decoded": false,
+      "actualHeight": null,
+      "videoFrames": 0,
+      "audioFrames": 0,
+      "audioExpected": false,
+      "audioDecoded": false,
+      "audioPcmFingerprint": null,
+      "videoFrameFingerprint": null,
+      "status": "FAIL",
+      "exitCode": 234,
+      "errorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "ms": 9211,
+      "profileFingerprint": "33fdcb21222227260d90",
+      "audioPresence": "UNDETERMINED"
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "profileChecks": [
+    {
+      "profileFingerprint": "33fdcb21222227260d90",
+      "status": "PREPARED"
+    }
+  ],
+  "preparedSourceFingerprint": "be14683aec21da1bdf47",
+  "preparedStreamIdFingerprint": "b79db64ecee742ffe0c1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
