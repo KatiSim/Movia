@@ -1,0 +1,105 @@
+{
+  "mediaId": "10292",
+  "title": "Невидимка",
+  "year": 2018,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [
+    {
+      "decoded": true,
+      "requestedHeight": 360,
+      "actualHeight": 360,
+      "qualityMatches": true,
+      "voice": "rus0",
+      "voiceLanguage": "ru",
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "ms": 3246,
+      "errorCategory": null,
+      "exitCode": 0
+    }
+  ],
+  "actualDecoded": true,
+  "identityValidated": true,
+  "httpSources": 6,
+  "providerVoiceLabels": [
+    "HDRezka",
+    "Original (с субтитрами)",
+    "Tretyakoff production (укр)",
+    "delete",
+    "Важенин (BadBajo)",
+    "Дубляж"
+  ],
+  "catalogCached": true,
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "audio0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "audio0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng3",
+      "language": "en",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr4",
+      "language": "uk",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "group": "failover-audio-0"
+    }
+  ],
+  "distinctManifestVoices": 6,
+  "distinctManifestQualities": 2,
+  "advertisedCompatiblePairs": 12,
+  "allMatrixCombinationsVerified": false,
+  "checkedAt": "2026-10-02T11:03:19.935755+00:00"
+}
