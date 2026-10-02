@@ -234,5 +234,75 @@
     270,
     540
   ],
-  "advertisedCompatiblePairs": 8
+  "advertisedCompatiblePairs": 8,
+  "profiles": [
+    {
+      "profileFingerprint": "b55f2e102781a79fde06",
+      "advertisedCompatiblePairs": 8,
+      "testedPairs": 8,
+      "passedPairs": 8,
+      "manifestVoices": [
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "spa1",
+          "language": "es",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "def2",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "def3",
+          "language": "ru",
+          "role": "",
+          "group": "audio0"
+        },
+        {
+          "name": "rus0",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "spa1",
+          "language": "es",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "def2",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        },
+        {
+          "name": "def3",
+          "language": "ru",
+          "role": "",
+          "group": "failover-audio-0"
+        }
+      ],
+      "manifestQualities": [
+        270,
+        540
+      ],
+      "allPreparedPairsTested": true,
+      "allPreparedPairsPassed": true
+    }
+  ],
+  "allPreparedPairsTested": true,
+  "allPreparedPairsPassed": true,
+  "allCachedHttpProfilesTested": true,
+  "allCachedHttpProfilesPassed": true,
+  "distinctManifestVoices": 4,
+  "distinctManifestQualities": 2
 }
