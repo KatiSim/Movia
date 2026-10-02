@@ -1,0 +1,52 @@
+{
+  "mediaId": "439691",
+  "title": "Everything Fun You Could Possibly Do in Aledo, Illinois",
+  "year": 2025,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:55:22.224730+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 312,
+      "voice": "def0",
+      "language": "ru",
+      "sourceFingerprint": "7a8b0e6d1dd1d3dd1a5a",
+      "decoded": true,
+      "actualHeight": 312,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "2a77bafbfdfe2f688033",
+      "videoFrameFingerprint": "d3a4490b67627eceb11c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3539
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "59f936ac695765a7127d",
+  "preparedStreamIdFingerprint": "968645a6a054fa228960",
+  "manifestVoices": [
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "def0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    312,
+    702
+  ],
+  "advertisedCompatiblePairs": 2
+}
