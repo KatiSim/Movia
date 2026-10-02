@@ -3428,3 +3428,4 @@
 {"seq": 3428, "at": "2026-10-02T11:22:15.599456+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "Профессиональный (МВО)", "persist": false}, "accepted": true, "requestMs": 54}
 {"seq": 3429, "at": "2026-10-02T11:22:15.978138+00:00", "action": "internal_movie_result", "mediaId": "25485", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 3430, "at": "2026-10-02T11:22:16.253188+00:00", "action": "exact_provider_resolve", "mediaId": "6075", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
+{"seq": 3431, "at": "2026-10-02T11:22:16.500711+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
