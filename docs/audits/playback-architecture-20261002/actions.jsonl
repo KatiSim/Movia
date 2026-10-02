@@ -220,3 +220,4 @@
 {"seq": 220, "at": "2026-10-02T14:08:57.630702+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 221, "at": "2026-10-02T14:08:57.915994+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "375", "arguments": {"voice": "ICTV (укр.)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 222, "at": "2026-10-02T14:08:58.659258+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "375", "started": true, "pairs": 19, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 223, "at": "2026-10-02T14:08:59.176801+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "375", "arguments": {"quality": "540p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
