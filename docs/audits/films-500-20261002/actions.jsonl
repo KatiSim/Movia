@@ -3447,3 +3447,4 @@
 {"seq": 3447, "at": "2026-10-02T11:22:26.233181+00:00", "action": "player.selectVoice", "mediaId": "114", "arguments": {"voice": "П.Гланц и И.Королёва", "persist": false}, "accepted": true, "requestMs": 15}
 {"seq": 3448, "at": "2026-10-02T11:22:26.322704+00:00", "action": "exact_provider_resolve", "mediaId": "7362", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 3449, "at": "2026-10-02T11:22:26.772217+00:00", "action": "movie_result", "mediaId": "114", "decoded": true, "voices": 15, "qualities": 4}
+{"seq": 3450, "at": "2026-10-02T11:22:27.058666+00:00", "action": "player.selectQuality", "mediaId": "114", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "requestMs": 43}
