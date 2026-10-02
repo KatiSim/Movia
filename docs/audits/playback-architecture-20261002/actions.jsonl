@@ -1718,3 +1718,4 @@
 {"seq": 1718, "at": "2026-10-02T14:39:51.282214+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "31418", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1719, "at": "2026-10-02T14:39:54.752907+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "46447", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1720, "at": "2026-10-02T14:39:55.037367+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "46447", "arguments": {"quality": "536p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1721, "at": "2026-10-02T14:39:55.207470+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "46447", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
