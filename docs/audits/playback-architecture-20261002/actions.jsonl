@@ -935,3 +935,4 @@
 {"seq": 935, "at": "2026-10-02T14:26:33.875813+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "27956", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 936, "at": "2026-10-02T14:26:34.018706+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "52218", "started": true, "pairs": 1, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 937, "at": "2026-10-02T14:26:34.219764+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "40212", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 938, "at": "2026-10-02T14:26:34.515171+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "52218", "started": true, "pairs": 1, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
