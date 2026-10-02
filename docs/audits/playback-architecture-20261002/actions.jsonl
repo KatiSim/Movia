@@ -445,3 +445,4 @@
 {"seq": 445, "at": "2026-10-02T14:11:37.925152+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 2, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 446, "at": "2026-10-02T14:11:38.420937+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322120", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 447, "at": "2026-10-02T14:11:39.004105+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322120", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 448, "at": "2026-10-02T14:11:40.208613+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
