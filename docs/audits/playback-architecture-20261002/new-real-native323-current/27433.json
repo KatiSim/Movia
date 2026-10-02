@@ -1,0 +1,29 @@
+{
+  "mediaId": "27433",
+  "title": "Винни Пух и День благодарения",
+  "year": 1998,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:28:57.753747+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 10529,
+    "observed": {
+      "mediaId": "27433",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 480,
+      "positionMs": 142,
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": "und",
+      "frames": 941,
+      "voice": "Original",
+      "streamFingerprint": "b264187adb35b2cac0c7",
+      "locatorFingerprint": "903dcfbe3c99b0cdba5b"
+    },
+    "commandToReadyMs": 10707
+  }
+}
