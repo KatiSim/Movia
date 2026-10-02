@@ -3375,3 +3375,4 @@
 {"seq": 3375, "at": "2026-10-02T15:45:40.417486+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 12, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3376, "at": "2026-10-02T15:45:40.713598+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322120", "started": true, "pairs": 12, "fullPreparedMatrixPassed": true}, "sourcePaths": []}
 {"seq": 3377, "at": "2026-10-02T15:45:41.036946+00:00", "action": "native_player.stop", "details": {"mediaId": null, "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3378, "at": "2026-10-02T15:45:41.348078+00:00", "action": "native_player.probeSurface", "details": {"mediaId": null, "arguments": {"enabled": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
