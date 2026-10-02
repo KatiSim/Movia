@@ -1,0 +1,29 @@
+{
+  "mediaId": "322124",
+  "title": "Земля до начала времен",
+  "year": 1988,
+  "build": 323,
+  "checkedAt": "2026-10-02T14:10:44.888727+00:00",
+  "variants": [],
+  "allProviderSourcesVerified": false,
+  "studioNamesIndependentlyVerified": false,
+  "startup": {
+    "decoded": true,
+    "ms": 2831,
+    "observed": {
+      "mediaId": "322124",
+      "state": "READY",
+      "switchState": "READY",
+      "isPlaying": true,
+      "height": 720,
+      "positionMs": 538,
+      "selectedAudioLabel": "def0",
+      "selectedAudioLanguage": "ru",
+      "frames": 2921,
+      "voice": "Дубляж",
+      "streamFingerprint": "62057c9351b82ddc1329",
+      "locatorFingerprint": "18ecbfb721c28071cdda"
+    },
+    "commandToReadyMs": 3648
+  }
+}
