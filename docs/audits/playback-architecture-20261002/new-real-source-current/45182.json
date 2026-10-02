@@ -1,0 +1,36 @@
+{
+  "mediaId": "45182",
+  "title": "Езда с дробовиком",
+  "year": 2013,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:21:23.898857+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3db017f1e77f76a4d11a",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "9d5083f7ac426496569e",
+      "videoFrameFingerprint": "8171a1e04f95f9fa39d2",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2634
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3649e7f3df1ec84a1568",
+  "preparedStreamIdFingerprint": "ccef9d3c88a17f912bb5",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
