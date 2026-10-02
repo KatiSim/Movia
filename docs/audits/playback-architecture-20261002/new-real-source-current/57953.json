@@ -1,0 +1,36 @@
+{
+  "mediaId": "57953",
+  "title": "Манхеттен",
+  "year": 1921,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:22.768556+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "037b350ce8bcb19daf8b",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "0a6f311a4570037da54c",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 9002
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "aad8b2a1d3b0391b3740",
+  "preparedStreamIdFingerprint": "7924c41ca256e58d981f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
