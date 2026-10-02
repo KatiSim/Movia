@@ -1,0 +1,36 @@
+{
+  "mediaId": "35105",
+  "title": "Встреча выпускников",
+  "year": 1982,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:18:58.464368+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "c191ce6c1f0364929c31",
+      "decoded": true,
+      "actualHeight": 240,
+      "videoFrames": 3,
+      "audioFrames": 3,
+      "audioPcmFingerprint": "5f2f43d8f7d8151ef4a0",
+      "videoFrameFingerprint": "e76198609014d21e7d0d",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3376
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "cd28771c7ca6c1c3d754",
+  "preparedStreamIdFingerprint": "4af6e09a3b45f81ee418",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
