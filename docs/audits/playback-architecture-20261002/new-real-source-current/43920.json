@@ -1,0 +1,36 @@
+{
+  "mediaId": "43920",
+  "title": "Развалина мистера Магу",
+  "year": 1956,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:25:37.678439+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "9635271a7fdd288e6e73",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "02d59f9745d475beac9b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3558
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "2f73437a429fb9e1fda4",
+  "preparedStreamIdFingerprint": "37d8b996dafcdfb1b1b0",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
