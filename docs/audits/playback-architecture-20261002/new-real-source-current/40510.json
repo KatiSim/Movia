@@ -1,0 +1,36 @@
+{
+  "mediaId": "40510",
+  "title": "Тони Роум",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:24:41.367243+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e36336dbad71b9bd2280",
+      "decoded": true,
+      "actualHeight": 364,
+      "videoFrames": 3,
+      "audioFrames": 5,
+      "audioPcmFingerprint": "544249a14a73befb1851",
+      "videoFrameFingerprint": "a7689cc7976b5e6f75f0",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3809
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "364557f60163dbe07650",
+  "preparedStreamIdFingerprint": "62258cb8b39f8acd91f8",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
