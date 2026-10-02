@@ -381,3 +381,4 @@
 {"seq": 381, "at": "2026-10-02T14:11:00.519300+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 382, "at": "2026-10-02T14:11:01.020085+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Ю. Живов", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 383, "at": "2026-10-02T14:11:02.118274+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 384, "at": "2026-10-02T14:11:02.790862+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "406p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
