@@ -60,5 +60,9 @@
     266,
     534
   ],
-  "advertisedCompatiblePairs": 4
+  "advertisedCompatiblePairs": 4,
+  "allPreparedPairsTested": false,
+  "allPreparedPairsPassed": false,
+  "distinctManifestVoices": 2,
+  "distinctManifestQualities": 2
 }
