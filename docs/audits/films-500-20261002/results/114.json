@@ -523,6 +523,43 @@
       "positionPreserved": false,
       "locatorChanged": false,
       "status": "FAIL"
+    },
+    {
+      "quality": "360p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "eng14",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 1731,
+      "observed": {
+        "mediaId": "114",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 360,
+        "positionMs": 31850,
+        "frames": 7442,
+        "quality": "360p",
+        "voice": "Дубляж",
+        "streamFingerprint": "2987e6ad84306c1c439b",
+        "locatorFingerprint": "583e025774f838c7d603",
+        "selectedAudioLabel": "eng14",
+        "selectedAudioLanguage": "en",
+        "selectedAudio": [
+          [
+            "track:1:15:0",
+            "eng14",
+            "en"
+          ]
+        ]
+      },
+      "qualityActualChanged": false,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:21:20.623644+00:00",
