@@ -1,0 +1,13 @@
+{
+  "mediaId": "13369",
+  "title": "Kingsman: Секретная служба",
+  "year": 2015,
+  "engine": "FFmpeg source verification",
+  "componentDecodes": [],
+  "actualDecoded": false,
+  "identityValidated": true,
+  "httpSources": 0,
+  "providerVoiceLabels": [],
+  "errorCategory": "PROVIDER_NO_HTTP_RESULT",
+  "checkedAt": "2026-10-02T11:15:35.598167+00:00"
+}
