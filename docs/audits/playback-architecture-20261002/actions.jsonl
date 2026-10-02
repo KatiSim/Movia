@@ -1081,3 +1081,4 @@
 {"seq": 1081, "at": "2026-10-02T14:28:47.371828+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "309", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1082, "at": "2026-10-02T14:28:47.616882+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "309", "arguments": {"voice": "LeDoyen (укр)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1083, "at": "2026-10-02T14:28:48.559764+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "309", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 1084, "at": "2026-10-02T14:28:48.792655+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "309", "arguments": {"quality": "360p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
