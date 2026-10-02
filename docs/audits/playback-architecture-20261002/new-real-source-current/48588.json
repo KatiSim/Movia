@@ -1,0 +1,36 @@
+{
+  "mediaId": "48588",
+  "title": "Сцена в саду Роундхэй",
+  "year": 1888,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:33:18.943543+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "a13743595e64badc4d31",
+      "decoded": true,
+      "actualHeight": 720,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "2967e3e22c3cd9c93da4",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3043
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "2ef6382ad89214609785",
+  "preparedStreamIdFingerprint": "0b6a5d807780dbb09bf9",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
