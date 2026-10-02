@@ -3,15 +3,35 @@
   "versionName": "0.0.1",
   "steps": [
     {
-      "name": "install",
-      "exitCode": 0
-    },
-    {
       "name": "package",
       "exitCode": 0
     },
     {
       "name": "installed-apk",
+      "exitCode": 0
+    },
+    {
+      "name": "native-tests",
+      "exitCode": 0
+    },
+    {
+      "name": "cold-force-stop",
+      "exitCode": 0
+    },
+    {
+      "name": "foreground-start",
+      "exitCode": 0
+    },
+    {
+      "name": "foreground-state",
+      "exitCode": 0
+    },
+    {
+      "name": "pid",
+      "exitCode": 0
+    },
+    {
+      "name": "cold-process-log",
       "exitCode": 0
     }
   ],
@@ -24,6 +44,31 @@
     "bytes": 1262302,
     "sha256": "660b9eeffd3ab0e98917e9e9ab194f27cc6e72d65cf89afcf7531ca02a7feeaa"
   },
-  "status": "FAIL",
-  "error": "Fixture process exited"
+  "previousAttempt": {
+    "status": "FAIL",
+    "error": "Fixture process exited"
+  },
+  "reusedInstalledApk": true,
+  "nativeTests": {
+    "passed": 57,
+    "failed": 0,
+    "expectedByClass": {
+      "app.movia.android.domain.legacy.LegacyEngineRegressionTest": 41,
+      "app.movia.android.ui.MoviaInteractionMotionRegressionTest": 3,
+      "app.movia.android.ui.player.AdaptivePlaybackRegressionTest": 13
+    }
+  },
+  "unitTests": {
+    "tests": 156,
+    "failures": 0,
+    "errors": 0
+  },
+  "coldHeadlessReadyMs": 3235,
+  "foregroundServiceConfirmed": true,
+  "userLibraryPreserved": true,
+  "settingsPreserved": true,
+  "pid": "32031",
+  "fatalExceptionSeen": false,
+  "rootIndexPreserved": true,
+  "status": "BUILD_INSTALL_COLD_HEADLESS_NATIVE_PASS"
 }
