@@ -1525,3 +1525,4 @@
 {"seq": 1525, "at": "2026-10-02T14:36:34.930648+00:00", "action": "real_movie_source_matrix_result", "details": {"mediaId": "7174", "decoded": true, "allPreparedPairsPassed": true, "errorCategory": null}, "sourcePaths": []}
 {"seq": 1526, "at": "2026-10-02T14:36:35.137487+00:00", "action": "native_player.stop", "details": {"mediaId": "44948", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 1527, "at": "2026-10-02T14:36:35.387038+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "43596", "quality": 0, "voice": null}, "sourcePaths": []}
+{"seq": 1528, "at": "2026-10-02T14:36:35.759882+00:00", "action": "native_media.play", "details": {"mediaId": "44948", "arguments": {"mediaId": "44948", "title": "Бродяга", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "813d74b00ba1b09c308f"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
