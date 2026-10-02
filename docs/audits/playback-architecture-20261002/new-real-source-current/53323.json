@@ -1,0 +1,36 @@
+{
+  "mediaId": "53323",
+  "title": "Особый знак",
+  "year": 1921,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:27:42.230817+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "bfcd754de19d554534f6",
+      "decoded": true,
+      "actualHeight": 480,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "782c0b8e257a11043b11",
+      "videoFrameFingerprint": "31323afa9cfc738b248f",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 8356
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ac1b325752c73ffcf030",
+  "preparedStreamIdFingerprint": "01050d24392a2bac33c6",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
