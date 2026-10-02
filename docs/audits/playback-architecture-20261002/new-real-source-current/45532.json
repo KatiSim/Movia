@@ -1,0 +1,51 @@
+{
+  "mediaId": "45532",
+  "title": "Встретиться вновь",
+  "year": 2017,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:04:32.723649+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 270,
+      "voice": "default",
+      "language": "ru",
+      "sourceFingerprint": "3d84feb6fc048a9f2736",
+      "decoded": true,
+      "actualHeight": 270,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "cce69931fcbaaef21998",
+      "videoFrameFingerprint": "22da2c0285d544f7814b",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3483
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "fef6d5ae1eb11aeb2071",
+  "preparedStreamIdFingerprint": "54546934e24691100dcf",
+  "manifestVoices": [
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "default",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    270
+  ],
+  "advertisedCompatiblePairs": 1
+}
