@@ -3610,3 +3610,4 @@
 {"seq": 3610, "at": "2026-10-02T11:23:32.529536+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Д. Есарев", "persist": false}, "accepted": true, "requestMs": 39}
 {"seq": 3611, "at": "2026-10-02T11:23:33.536556+00:00", "action": "movie_result", "mediaId": "11100", "decoded": true, "voices": 8, "qualities": 2}
 {"seq": 3612, "at": "2026-10-02T11:23:33.652725+00:00", "action": "player.selectQuality", "mediaId": "11100", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 10}
+{"seq": 3613, "at": "2026-10-02T11:23:33.776527+00:00", "action": "player.selectVoice", "mediaId": "11100", "arguments": {"voice": "Укр. Дубльований", "persist": false}, "accepted": true, "requestMs": 15}
