@@ -1,7 +1,7 @@
 {
   "phase": "starts",
   "selected": 500,
-  "attempted": 0,
+  "attempted": 1,
   "decodedStarted": 0,
   "withThreeVoiceLabels": 0,
   "withTwoQualityLabels": 0,
@@ -12,8 +12,8 @@
   "variantFailed": 0,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T10:38:18.282550+00:00",
-  "actionsRecorded": 9,
-  "lastPublishedAction": 5,
+  "updatedAt": "2026-10-02T10:38:32.495263+00:00",
+  "actionsRecorded": 10,
+  "lastPublishedAction": 9,
   "githubSyncError": null
 }

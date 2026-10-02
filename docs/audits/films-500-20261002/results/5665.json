@@ -1,0 +1,42 @@
+{
+  "index": 1,
+  "mediaId": "5665",
+  "title": "Трансформеры: Земная Искра",
+  "year": 2022,
+  "rating": 7.9,
+  "voteCount": 1737,
+  "genres": "[\"мультфильм\", \"Детский\", \"НФ и Фэнтези\", \"комедия\", \"драма\"]",
+  "variants": [],
+  "startup": {
+    "decoded": false,
+    "ms": 14076.34,
+    "observed": {
+      "mediaId": "5665",
+      "state": "IDLE",
+      "switchState": "FAILED",
+      "isPlaying": false,
+      "height": 0,
+      "positionMs": 0,
+      "frames": 0,
+      "quality": null,
+      "voice": null,
+      "streamFingerprint": "dc937b59892604f5a86a",
+      "locatorFingerprint": "67c79a8faf1145d57a9b",
+      "selectedAudioLabel": null,
+      "selectedAudioLanguage": null,
+      "selectedAudio": []
+    },
+    "reason": "bounded frame observation timeout",
+    "commandToReadyMs": 14221.97,
+    "withinFiveSeconds": false
+  },
+  "inventory": {
+    "voiceLabels": [],
+    "qualityLabels": [],
+    "advertisedPairs": [],
+    "sourceRows": 0,
+    "inventoryComplete": false
+  },
+  "build": 319,
+  "checkedAt": "2026-10-02T10:38:32.470587+00:00"
+}
