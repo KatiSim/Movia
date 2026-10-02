@@ -1,0 +1,36 @@
+{
+  "mediaId": "37393",
+  "title": "Короткая встреча",
+  "year": 1976,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T15:02:47.542667+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "5340150840757f8e08f7",
+      "decoded": true,
+      "actualHeight": 810,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "a9f5af642a49ad47c1a2",
+      "videoFrameFingerprint": "f0c4e3493cf525dfa415",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 4055
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "ec9852dc7c2a2cc69666",
+  "preparedStreamIdFingerprint": "8a85d6c99ef32b7b8e84",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
