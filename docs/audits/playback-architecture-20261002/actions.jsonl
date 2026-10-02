@@ -861,3 +861,4 @@
 {"seq": 861, "at": "2026-10-02T14:25:37.708202+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "43920", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 862, "at": "2026-10-02T14:25:39.261101+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "642692", "started": false, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 863, "at": "2026-10-02T14:25:39.548279+00:00", "action": "native_player.stop", "details": {"mediaId": "23590", "arguments": {}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 864, "at": "2026-10-02T14:25:39.769550+00:00", "action": "native_media.play", "details": {"mediaId": "23590", "arguments": {"mediaId": "23590", "title": "Волосы дыбом", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "c1369def7a9aafc3c5cb"}, "accepted": true, "errorCode": null}, "sourcePaths": []}
