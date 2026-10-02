@@ -3120,3 +3120,4 @@
 {"seq": 3120, "at": "2026-10-02T11:20:19.195091+00:00", "action": "player.stop", "mediaId": "627", "arguments": {}, "accepted": true, "requestMs": 50}
 {"seq": 3121, "at": "2026-10-02T11:20:19.443810+00:00", "action": "media.play", "mediaId": "627", "arguments": {"mediaId": "627", "title": "ВАЛЛ·И", "quality": "Auto", "voice": "Auto", "recordHistory": false, "persist": false, "resume": false, "streamIdFingerprint": "9bd4ac324761bc19daef"}, "accepted": true, "requestMs": 15}
 {"seq": 3122, "at": "2026-10-02T11:20:19.759476+00:00", "action": "internal_movie_result", "mediaId": "42", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
+{"seq": 3123, "at": "2026-10-02T11:20:20.159813+00:00", "action": "exact_provider_resolve", "mediaId": "14465", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
