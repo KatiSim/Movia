@@ -1,0 +1,36 @@
+{
+  "mediaId": "52922",
+  "title": "Фантом",
+  "year": 1922,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:31:08.954597+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "e20d34e3b50354900267",
+      "decoded": true,
+      "actualHeight": 288,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "634b43122b97a4b8dba8",
+      "videoFrameFingerprint": "fff296a29daedaae58f3",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3144
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3db1406adcbe77702aed",
+  "preparedStreamIdFingerprint": "62a414c93ec407a52b8d",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
