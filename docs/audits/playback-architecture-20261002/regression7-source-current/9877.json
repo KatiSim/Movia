@@ -1,0 +1,136 @@
+{
+  "mediaId": "9877",
+  "title": "Ужасающий",
+  "year": 2018,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:04:53.947739+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 360,
+      "voice": "eng5",
+      "language": "en",
+      "sourceFingerprint": "0e7417402270df0763ba",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 6,
+      "audioPcmFingerprint": "138f9a80e507e7240427",
+      "videoFrameFingerprint": "044423641ad9c386ef18",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 2992
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 8,
+  "preparedSourceFingerprint": "1df25d1682072e715224",
+  "preparedStreamIdFingerprint": "a8ead739b86745114114",
+  "manifestVoices": [
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "role": "",
+      "group": "audio0"
+    },
+    {
+      "name": "rus0",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus1",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus2",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus3",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "rus4",
+      "language": "ru",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng5",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "ukr6",
+      "language": "uk",
+      "role": "",
+      "group": "failover-audio-0"
+    },
+    {
+      "name": "eng7",
+      "language": "en",
+      "role": "",
+      "group": "failover-audio-0"
+    }
+  ],
+  "manifestQualities": [
+    360,
+    720
+  ],
+  "advertisedCompatiblePairs": 16
+}
