@@ -2905,3 +2905,4 @@
 {"seq": 2905, "at": "2026-10-02T11:19:02.712214+00:00", "action": "player.selectQuality", "mediaId": "75", "arguments": {"quality": "270p", "persist": false}, "accepted": true, "requestMs": 32}
 {"seq": 2906, "at": "2026-10-02T11:19:02.914539+00:00", "action": "exact_provider_resolve", "mediaId": "13390", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 2907, "at": "2026-10-02T11:19:03.166310+00:00", "action": "player.selectVoice", "mediaId": "75", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "requestMs": 52}
+{"seq": 2908, "at": "2026-10-02T11:19:03.612713+00:00", "action": "movie_result", "mediaId": "75", "decoded": true, "voices": 7, "qualities": 4}
