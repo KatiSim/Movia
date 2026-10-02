@@ -114,6 +114,43 @@
       "positionPreserved": true,
       "locatorChanged": false,
       "status": "PASS"
+    },
+    {
+      "quality": "540p",
+      "voice": "Дубляж",
+      "expectedAudioLabel": "rus0",
+      "studioIndependentlyVerified": false,
+      "decoded": true,
+      "qualityMatches": true,
+      "audioTrackMappingMatches": true,
+      "ms": 370,
+      "observed": {
+        "mediaId": "12265",
+        "state": "READY",
+        "switchState": "READY",
+        "isPlaying": true,
+        "height": 540,
+        "positionMs": 3367,
+        "frames": 12537,
+        "quality": "540p",
+        "voice": "Дубляж",
+        "streamFingerprint": "75e7453590f5c4f7b842",
+        "locatorFingerprint": "653b5d47ad928ea63ba2",
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "selectedAudio": [
+          [
+            "track:1:1:0",
+            "rus0",
+            "ru"
+          ]
+        ]
+      },
+      "qualityActualChanged": true,
+      "audioTrackIdentityChanged": true,
+      "positionPreserved": true,
+      "locatorChanged": false,
+      "status": "PASS"
     }
   ],
   "checkedAt": "2026-10-02T11:27:08.064776+00:00",
