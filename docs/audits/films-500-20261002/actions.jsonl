@@ -1940,3 +1940,4 @@
 {"seq": 1940, "at": "2026-10-02T11:14:17.623065+00:00", "action": "internal_movie_result", "mediaId": "74", "actualDecoded": false, "voices": 0, "qualities": 0, "errorCategory": "PROVIDER_NO_HTTP_RESULT"}
 {"seq": 1941, "at": "2026-10-02T11:14:17.796658+00:00", "action": "exact_provider_resolve", "mediaId": "32758", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
 {"seq": 1942, "at": "2026-10-02T11:14:18.005092+00:00", "action": "player.selectVoice", "mediaId": "169", "arguments": {"voice": "Дубляж", "persist": false}, "accepted": true, "requestMs": 81}
+{"seq": 1943, "at": "2026-10-02T11:14:18.132014+00:00", "action": "exact_provider_resolve", "mediaId": "14481", "provider": "collaps", "identity": "catalog movie ID + exact IMDb"}
