@@ -1308,3 +1308,4 @@
 {"seq": 1308, "at": "2026-10-02T14:31:59.785805+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "56093", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 1309, "at": "2026-10-02T14:32:02.671627+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "41000", "started": true, "pairs": 0, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 1310, "at": "2026-10-02T14:32:03.021541+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "41000", "arguments": {"quality": "480p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 1311, "at": "2026-10-02T14:32:03.314229+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "41000", "arguments": {"voice": "track:1:1:0", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
