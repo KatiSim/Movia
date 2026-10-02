@@ -1,0 +1,30 @@
+{
+  "mediaId": "40424",
+  "title": "Ночь генералов",
+  "year": 1967,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:13:30.645059+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "3629844027d7b2b89cbb",
+      "decoded": false,
+      "status": "FAIL",
+      "errorCategory": "DECODER_TIMEOUT",
+      "ms": 14077
+    }
+  ],
+  "actualDecoded": false,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "745bf3abe74990f708de",
+  "preparedStreamIdFingerprint": "5ff9fa9b25333cef1b2f",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
