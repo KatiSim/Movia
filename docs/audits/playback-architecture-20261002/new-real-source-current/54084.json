@@ -1,0 +1,36 @@
+{
+  "mediaId": "54084",
+  "title": "Ночной кошмар",
+  "year": 1941,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:52:35.220576+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "110e69e63e91a746e199",
+      "decoded": true,
+      "actualHeight": 360,
+      "videoFrames": 3,
+      "audioFrames": 2,
+      "audioPcmFingerprint": "7cd4fe36534916ebf541",
+      "videoFrameFingerprint": "4f24c6348fb5dde70522",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 3802
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 2,
+  "preparedSourceFingerprint": "8d39e6aef7086f5faebd",
+  "preparedStreamIdFingerprint": "9881df94b5590b1bc11e",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
