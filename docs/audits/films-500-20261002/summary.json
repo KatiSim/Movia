@@ -12,8 +12,13 @@
   "variantFailed": 21,
   "variantUnverified": 0,
   "completed": false,
-  "updatedAt": "2026-10-02T11:29:31.108862+00:00",
-  "actionsRecorded": 4074,
+  "updatedAt": "2026-10-02T11:29:31.469933+00:00",
+  "actionsRecorded": 4075,
   "lastPublishedAction": 4065,
-  "githubSyncError": null
+  "githubSyncError": null,
+  "build321FilmsStarted": 25,
+  "build321FullPreparedMatricesPassed": 18,
+  "build321RichMatricesPassed": 18,
+  "userLibraryPreserved": true,
+  "userSettingsPreserved": true
 }
