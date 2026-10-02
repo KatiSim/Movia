@@ -967,3 +967,4 @@
 {"seq": 967, "at": "2026-10-02T14:26:54.758175+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "45220", "arguments": {"quality": "534p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 968, "at": "2026-10-02T14:26:55.128907+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "45220", "arguments": {"voice": "AlphaProject", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 969, "at": "2026-10-02T14:26:56.135872+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "45220", "started": true, "pairs": 3, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
+{"seq": 970, "at": "2026-10-02T14:26:56.366868+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "45220", "arguments": {"quality": "534p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
