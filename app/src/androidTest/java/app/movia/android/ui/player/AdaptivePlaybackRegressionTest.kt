@@ -359,6 +359,24 @@ class AdaptivePlaybackRegressionTest {
             assertEquals(360,main { session.player.videoFormat?.height })
         } finally { main { session.stopAndClear();session.setFrameProbe(false) } }
     }
+
+    @Test fun explicitOfflineQualityDoesNotUseAnAlternateProgressiveDownload() {
+        control("/__control?mode=online")
+        val ref=MediaRef("movia_qa_download_alias")
+        val session=main { MoviaPlaybackRegistry.obtain(context) }
+        try {
+            val source=StreamCandidate("qa:alias",provider="Movia QA",url="$base/master.m3u8",voice="Studio A",
+                quality="Auto",transport="hls",audioTrackIndex=0,downloadUrl="$base/fixture.mp4",
+                downloadHeaders=mapOf("Referer" to "https://unrelated.example/"))
+            runBlocking { AdaptiveOfflineDownloader.download(context,ref,source,"720p") }
+            control("/__control?mode=offline")
+            main { session.setFrameProbe(true);session.start(ref.contentId,"Movia QA alias",recordHistory=false) }
+            waitFor { session.probeFrames>2 && session.player.videoFormat?.height==720 && session.player.audioFormat?.label=="Studio A" }
+            assertEquals(0,control("/__stats").getInt("mediaRequests"))
+            assertTrue(session.isOffline)
+        } finally { main { session.stopAndClear();session.setFrameProbe(false) };OfflineMediaStore.delete(context,ref);control("/__control?mode=online") }
+    }
+
     @Test fun progressiveOfflineIsDecodedFromCacheWithoutNetwork() {
         control("/__control?mode=online")
         val ref=MediaRef("movia_qa_progressive")

@@ -83,10 +83,9 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
                 } else emptyList()
                 val candidates = app.movia.android.domain.playback.StreamDeduplicator.deduplicate(backendCandidates + nativeCandidates)
                 if (candidates.isEmpty()) return failed("NO_SOURCE")
-                val selectedSource = request.requestedStreamId?.let { id -> candidates.firstOrNull { it.stableStreamId == id } }
-                    ?: StreamRanker.selectBest(candidates, request.requestedVoice, request.requestedQuality)
-                    ?: return failed("NO_SOURCE")
                 val selectedAudioIndex = inputData.getInt(KEY_AUDIO_INDEX, -1).takeIf { it >= 0 }
+                val selectedSource = selectOfflineCandidate(request, candidates,
+                    inputData.getString(KEY_VOICE), inputData.getString(KEY_QUALITY), selectedAudioIndex)
                 val selectedAudioLabel = inputData.getString(KEY_AUDIO_LABEL)?.takeIf { it.isNotBlank() }
                 // A track selected in the player may differ from its provider row's default audio.
                 // Apply the captured rendition only to the same requested logical source.

@@ -50,9 +50,9 @@ object AdaptiveOfflineDownloader {
     suspend fun download(context: Context, ref: MediaRef, source: StreamCandidate, selectedQuality: String, isCancelled: () -> Boolean = { false }, onProgress: suspend (Int) -> Unit = {}) = permits.withPermit {
         check(inFlight.add(ref.storageKey)) { "Download already active" }
         try {
-        val uri = source.downloadUrl?.trim()?.takeIf { it.isNotBlank() } ?: source.url.trim()
+        val candidate = offlineRequestSource(source, selectedQuality)
+        val uri = candidate.url.trim()
         require(uri.startsWith("https://") || uri.startsWith("http://")) { "Unsupported offline transport" }
-        val candidate = source.copy(url = uri, headers = source.headers + source.downloadHeaders)
         val upstream = DynamicHeaderDataSourceFactory(context.applicationContext).apply {
             setRequestProfile(StreamRequestProfile.from(candidate, uri))
         }
@@ -145,5 +145,3 @@ object AdaptiveOfflineDownloader {
 
 }
 
-/** An impossible explicit variant is permanent, so WorkManager must not retry it. */
-internal class OfflineSelectionException(val code: String) : IOException(code)
