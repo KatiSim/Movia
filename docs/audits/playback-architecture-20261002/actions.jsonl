@@ -3319,3 +3319,4 @@
 {"seq": 3319, "at": "2026-10-02T15:44:57.191550+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 15, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 3320, "at": "2026-10-02T15:44:57.534537+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 3321, "at": "2026-10-02T15:44:57.798351+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО) · дорожка 6", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 3322, "at": "2026-10-02T15:45:00.888110+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 16, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
