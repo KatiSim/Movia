@@ -1,0 +1,36 @@
+{
+  "mediaId": "17226",
+  "title": "Не время быть молодым",
+  "year": 1957,
+  "engine": "FFmpeg",
+  "checkedAt": "2026-10-02T14:57:11.303997+00:00",
+  "componentDecodes": [
+    {
+      "requestedHeight": 0,
+      "voice": null,
+      "language": null,
+      "sourceFingerprint": "dd8c1a5f39e41a979af2",
+      "decoded": true,
+      "actualHeight": 464,
+      "videoFrames": 3,
+      "audioFrames": 4,
+      "audioPcmFingerprint": "581ca192e6f445407617",
+      "videoFrameFingerprint": "9db674e05f79ce9f1458",
+      "status": "PASS",
+      "exitCode": 0,
+      "errorCategory": null,
+      "ms": 11780
+    }
+  ],
+  "actualDecoded": true,
+  "nativeSwitchingVerified": false,
+  "allProviderSourcesVerified": false,
+  "catalogBindingValidated": true,
+  "movieIdentityIndependentlyVerified": false,
+  "sourceRows": 1,
+  "preparedSourceFingerprint": "3d236bb312e8d7c290dc",
+  "preparedStreamIdFingerprint": "d6a8b433397cd36a1dc1",
+  "manifestVoices": [],
+  "manifestQualities": [],
+  "advertisedCompatiblePairs": 1
+}
