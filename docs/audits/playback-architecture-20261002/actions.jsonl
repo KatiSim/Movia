@@ -2968,3 +2968,4 @@
 {"seq": 2968, "at": "2026-10-02T15:40:47.357375+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Original (с субтитрами)", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
 {"seq": 2969, "at": "2026-10-02T15:40:50.509626+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "164", "started": true, "pairs": 49, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 2970, "at": "2026-10-02T15:40:50.928809+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "164", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 2971, "at": "2026-10-02T15:40:51.298911+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "164", "arguments": {"voice": "Eng. Orig. with Commentary", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
