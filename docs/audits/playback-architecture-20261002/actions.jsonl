@@ -403,3 +403,4 @@
 {"seq": 403, "at": "2026-10-02T14:11:13.856558+00:00", "action": "real_source_decode_begin", "details": {"mediaId": "29703", "quality": 0, "voice": null}, "sourcePaths": []}
 {"seq": 404, "at": "2026-10-02T14:11:14.205950+00:00", "action": "native_movie_matrix_progress", "details": {"mediaId": "322124", "started": true, "pairs": 8, "fullPreparedMatrixPassed": false}, "sourcePaths": []}
 {"seq": 405, "at": "2026-10-02T14:11:14.639718+00:00", "action": "native_player.selectQuality", "details": {"mediaId": "322124", "arguments": {"quality": "720p", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
+{"seq": 406, "at": "2026-10-02T14:11:15.043661+00:00", "action": "native_player.selectVoice", "details": {"mediaId": "322124", "arguments": {"voice": "Профессиональный (МВО) · дорожка 2", "persist": false}, "accepted": true, "errorCode": null}, "sourcePaths": []}
