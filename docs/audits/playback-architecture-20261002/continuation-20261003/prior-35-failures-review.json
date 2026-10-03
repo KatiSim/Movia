@@ -1,0 +1,554 @@
+{
+  "reviewedAt": "2026-10-03T19:37:28.199399+00:00",
+  "evidenceType": "REANALYSIS_OF_2026_10_02_RECORDS_NOT_A_NEW_LIVE_TEST",
+  "newLiveRequests": 0,
+  "newMoviesTested": 0,
+  "phaseRecordCounts": {
+    "new-real-source-current": 540,
+    "silent-real-source-recheck": 16,
+    "rich-new-source-full-matrices": 8,
+    "failed-real-source-recheck": 38
+  },
+  "excludedPreviouslyUsedIds": [
+    "158"
+  ],
+  "distinctNewFilmIdentities": 539,
+  "decodedAtLeastOnce": 504,
+  "withoutSuccessfulDecode": 35,
+  "matchesPublishedCounts": true,
+  "observedCategories": {
+    "NO_ACCESSIBLE_CACHED_SOURCE": 26,
+    "DECODER_TIMEOUT": 5,
+    "CDN_DECODE_OR_FORMAT_MISMATCH": 4
+  },
+  "rootCausesVerified": false,
+  "inputEvidenceDigest": "fbc7b53ba10317593e7cdd2bbe30b06c7f99f50ba5f769890dce1bb9e851d9a3",
+  "all500VoiceQualityMatricesVerified": false,
+  "films": [
+    {
+      "mediaId": "463",
+      "title": "Человек-бензопила",
+      "year": 2022,
+      "lastEvidenceAt": "2026-10-02T15:29:37.515244+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/463.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/463.json",
+        "failed-real-source-recheck/463.json"
+      ]
+    },
+    {
+      "mediaId": "504",
+      "title": "ホリミヤ",
+      "year": 2021,
+      "lastEvidenceAt": "2026-10-02T15:31:37.058109+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/504.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/504.json",
+        "failed-real-source-recheck/504.json"
+      ]
+    },
+    {
+      "mediaId": "568",
+      "title": "Южный Парк",
+      "year": 1997,
+      "lastEvidenceAt": "2026-10-02T15:29:39.328257+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/568.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/568.json",
+        "failed-real-source-recheck/568.json"
+      ]
+    },
+    {
+      "mediaId": "3073",
+      "title": "Summarnátt",
+      "year": 2013,
+      "lastEvidenceAt": "2026-10-02T15:30:16.178724+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/3073.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/3073.json",
+        "failed-real-source-recheck/3073.json"
+      ]
+    },
+    {
+      "mediaId": "3109",
+      "title": "Naughty Boy's Toys",
+      "year": 2006,
+      "lastEvidenceAt": "2026-10-02T15:30:36.755789+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/3109.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/3109.json",
+        "failed-real-source-recheck/3109.json"
+      ]
+    },
+    {
+      "mediaId": "7153",
+      "title": "Tomorrow's Drivers",
+      "year": 1954,
+      "lastEvidenceAt": "2026-10-02T15:30:19.697145+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/7153.json",
+      "recordedErrorCategory": "DECODER_TIMEOUT",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/7153.json",
+        "failed-real-source-recheck/7153.json"
+      ]
+    },
+    {
+      "mediaId": "10531",
+      "title": "Tanzwut: Live",
+      "year": 2004,
+      "lastEvidenceAt": "2026-10-02T15:29:40.132032+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/10531.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/10531.json",
+        "failed-real-source-recheck/10531.json"
+      ]
+    },
+    {
+      "mediaId": "10546",
+      "title": "Убийца Гоблинов",
+      "year": 2018,
+      "lastEvidenceAt": "2026-10-02T15:29:18.856631+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/10546.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/10546.json",
+        "failed-real-source-recheck/10546.json"
+      ]
+    },
+    {
+      "mediaId": "14088",
+      "title": "I giorni dell'abbandono",
+      "year": 2005,
+      "lastEvidenceAt": "2026-10-02T15:29:17.752125+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/14088.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/14088.json",
+        "failed-real-source-recheck/14088.json"
+      ]
+    },
+    {
+      "mediaId": "15171",
+      "title": "7 гномов",
+      "year": 2014,
+      "lastEvidenceAt": "2026-10-02T15:30:15.878484+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/15171.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/15171.json",
+        "failed-real-source-recheck/15171.json"
+      ]
+    },
+    {
+      "mediaId": "16308",
+      "title": "Jaco Pastorius - Modern Electric Bass",
+      "year": 1992,
+      "lastEvidenceAt": "2026-10-02T15:29:39.829494+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/16308.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/16308.json",
+        "failed-real-source-recheck/16308.json"
+      ]
+    },
+    {
+      "mediaId": "20020",
+      "title": "Росомаха и Люди Икс. Судьба Будущего",
+      "year": 2010,
+      "lastEvidenceAt": "2026-10-02T15:29:18.455259+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/20020.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/20020.json",
+        "failed-real-source-recheck/20020.json"
+      ]
+    },
+    {
+      "mediaId": "32671",
+      "title": "Robot Wrecks",
+      "year": 1941,
+      "lastEvidenceAt": "2026-10-02T15:29:19.156897+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/32671.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/32671.json",
+        "failed-real-source-recheck/32671.json"
+      ]
+    },
+    {
+      "mediaId": "36782",
+      "title": "Iron Fist Pillage",
+      "year": 2001,
+      "lastEvidenceAt": "2026-10-02T15:18:40.258130+00:00",
+      "lastEvidenceFile": "silent-real-source-recheck/36782.json",
+      "recordedErrorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/36782.json",
+        "silent-real-source-recheck/36782.json"
+      ]
+    },
+    {
+      "mediaId": "39154",
+      "title": "Умри, крича, Марианна",
+      "year": 1971,
+      "lastEvidenceAt": "2026-10-02T15:18:02.438609+00:00",
+      "lastEvidenceFile": "silent-real-source-recheck/39154.json",
+      "recordedErrorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/39154.json",
+        "silent-real-source-recheck/39154.json"
+      ]
+    },
+    {
+      "mediaId": "41917",
+      "title": "Мороз по коже",
+      "year": 1963,
+      "lastEvidenceAt": "2026-10-02T15:30:37.357192+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/41917.json",
+      "recordedErrorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/41917.json",
+        "failed-real-source-recheck/41917.json"
+      ]
+    },
+    {
+      "mediaId": "42414",
+      "title": "Янко",
+      "year": 1961,
+      "lastEvidenceAt": "2026-10-02T15:31:00.925883+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/42414.json",
+      "recordedErrorCategory": "DECODER_TIMEOUT",
+      "lastRecordedSourceRows": 2,
+      "lastRecordedProfilesChecked": 2,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/42414.json",
+        "failed-real-source-recheck/42414.json"
+      ]
+    },
+    {
+      "mediaId": "45122",
+      "title": "EDGES with Mal Fletcher - Occult and Witchcraft",
+      "year": 2003,
+      "lastEvidenceAt": "2026-10-02T15:31:36.656403+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/45122.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/45122.json",
+        "failed-real-source-recheck/45122.json"
+      ]
+    },
+    {
+      "mediaId": "45125",
+      "title": "Mudhal Sabatham",
+      "year": 2008,
+      "lastEvidenceAt": "2026-10-02T15:29:39.026688+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/45125.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/45125.json",
+        "failed-real-source-recheck/45125.json"
+      ]
+    },
+    {
+      "mediaId": "45127",
+      "title": "Pencil Test",
+      "year": 2013,
+      "lastEvidenceAt": "2026-10-02T15:28:46.036181+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/45127.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/45127.json",
+        "failed-real-source-recheck/45127.json"
+      ]
+    },
+    {
+      "mediaId": "45518",
+      "title": "В космосе с Маркиплиером: Часть 2",
+      "year": 2022,
+      "lastEvidenceAt": "2026-10-02T15:29:20.160046+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/45518.json",
+      "recordedErrorCategory": "DECODER_TIMEOUT",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/45518.json",
+        "failed-real-source-recheck/45518.json"
+      ]
+    },
+    {
+      "mediaId": "51377",
+      "title": "Во все тяжкие",
+      "year": 2018,
+      "lastEvidenceAt": "2026-10-02T15:29:38.323611+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/51377.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/51377.json",
+        "failed-real-source-recheck/51377.json"
+      ]
+    },
+    {
+      "mediaId": "52398",
+      "title": "Playing for Keeeps",
+      "year": 2011,
+      "lastEvidenceAt": "2026-10-02T15:29:19.457728+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/52398.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/52398.json",
+        "failed-real-source-recheck/52398.json"
+      ]
+    },
+    {
+      "mediaId": "54865",
+      "title": "En på miljonen",
+      "year": 1995,
+      "lastEvidenceAt": "2026-10-02T15:30:45.082396+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/54865.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/54865.json",
+        "failed-real-source-recheck/54865.json"
+      ]
+    },
+    {
+      "mediaId": "55904",
+      "title": "Пятый битл",
+      "year": 2024,
+      "lastEvidenceAt": "2026-10-02T15:31:37.458802+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/55904.json",
+      "recordedErrorCategory": "DECODER_TIMEOUT",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/55904.json",
+        "failed-real-source-recheck/55904.json"
+      ]
+    },
+    {
+      "mediaId": "210728",
+      "title": "Santidad",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:31:54.514633+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/210728.json",
+      "recordedErrorCategory": "CDN_DECODE_OR_FORMAT_MISMATCH",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/210728.json",
+        "failed-real-source-recheck/210728.json"
+      ]
+    },
+    {
+      "mediaId": "236277",
+      "title": "The Day You Begin",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:30:45.685318+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/236277.json",
+      "recordedErrorCategory": "DECODER_TIMEOUT",
+      "lastRecordedSourceRows": 1,
+      "lastRecordedProfilesChecked": 1,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/236277.json",
+        "failed-real-source-recheck/236277.json"
+      ]
+    },
+    {
+      "mediaId": "288016",
+      "title": "幸福快樂的日子",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:29:37.921740+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/288016.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/288016.json",
+        "failed-real-source-recheck/288016.json"
+      ]
+    },
+    {
+      "mediaId": "416423",
+      "title": "Status Quo - The Party Ain't Over Yet",
+      "year": 0,
+      "lastEvidenceAt": "2026-10-02T15:29:19.859252+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/416423.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/416423.json",
+        "failed-real-source-recheck/416423.json"
+      ]
+    },
+    {
+      "mediaId": "416977",
+      "title": "Play Nice",
+      "year": 1992,
+      "lastEvidenceAt": "2026-10-02T15:29:18.054180+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/416977.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/416977.json",
+        "failed-real-source-recheck/416977.json"
+      ]
+    },
+    {
+      "mediaId": "484146",
+      "title": "Икигами: Извещение о смерти",
+      "year": 2008,
+      "lastEvidenceAt": "2026-10-02T15:30:19.296447+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/484146.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/484146.json",
+        "failed-real-source-recheck/484146.json"
+      ]
+    },
+    {
+      "mediaId": "596324",
+      "title": "Volver",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:29:38.624294+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/596324.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/596324.json",
+        "failed-real-source-recheck/596324.json"
+      ]
+    },
+    {
+      "mediaId": "642998",
+      "title": "LOTE",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:30:37.056273+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/642998.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/642998.json",
+        "failed-real-source-recheck/642998.json"
+      ]
+    },
+    {
+      "mediaId": "664657",
+      "title": "Showdown",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:30:45.384448+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/664657.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/664657.json",
+        "failed-real-source-recheck/664657.json"
+      ]
+    },
+    {
+      "mediaId": "665816",
+      "title": "The Real Wolf of Wall Street",
+      "year": 2026,
+      "lastEvidenceAt": "2026-10-02T15:30:18.894385+00:00",
+      "lastEvidenceFile": "failed-real-source-recheck/665816.json",
+      "recordedErrorCategory": "NO_ACCESSIBLE_CACHED_SOURCE",
+      "lastRecordedSourceRows": 0,
+      "lastRecordedProfilesChecked": 0,
+      "recordedAttempts": 2,
+      "evidenceFiles": [
+        "new-real-source-current/665816.json",
+        "failed-real-source-recheck/665816.json"
+      ]
+    }
+  ]
+}
