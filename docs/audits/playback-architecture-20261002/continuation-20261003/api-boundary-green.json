@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-03T19:41:01.492813+00:00",
+  "phase": "api-boundary-green",
+  "pattern": "test_*.py",
+  "tests": 229,
+  "exitCode": 1,
+  "status": "FAIL",
+  "failureCounts": "errors=6",
+  "failingTestMethods": [
+    "test_api_cannot_rebind_foreign_movie_sources_when_title_is_empty",
+    "test_api_keeps_only_exact_episode_without_waiting_for_title_enrichment",
+    "test_api_preserves_real_zero_separately_from_automatic_selection",
+    "test_cached_master_does_not_publish_fake_first_track_or_fixed_quality",
+    "test_discovery_cannot_persist_a_foreign_movie_as_the_requested_card",
+    "test_discovery_normalizes_unknown_selectors_before_cache_persistence"
+  ],
+  "durationSeconds": 13.297,
+  "sourceHeadBeforeCheckpoint": "4308b75a645272a2b2bdf0c7b106b748ebfbcbd4",
+  "sourceHashes": {
+    "backend/tests/test_playback_boundary_integration.py": "ee6c60c0b2e2bddca18dc41671d9cee0610fd142be9c879d53c27c053ff1f8a4"
+  },
+  "logSha256": "bef2658f1c5fb56835f7b800963ef0be461944794b37ce01cee2fcbe41ce597e",
+  "isolatedSourcePaths": [
+    "backend/tests/test_playback_boundary_integration.py"
+  ],
+  "productionRuntimeModified": false,
+  "androidSourcesModified": false,
+  "phoneUiUsed": false,
+  "realMoviesTested": 0
+}
