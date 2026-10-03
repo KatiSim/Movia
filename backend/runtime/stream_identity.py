@@ -35,8 +35,9 @@ def filter_streams_for_content(
         title for title in russian_alternative_titles(content.get("alternative_titles"))
         if title not in expected_titles
     )
-    if not expected_titles:
-        return cleaned
+    # A pending title/localization must not disable the independent catalog ID,
+    # year, media-type and exact-episode guards below. Only textual comparisons
+    # may be skipped when the card has no title to compare against.
     normalized_expected_titles = {normalize_ru_text(value) for value in expected_titles}
 
     try:
@@ -77,7 +78,7 @@ def filter_streams_for_content(
             item.get("canonical_original_title") or
             item.get("canonicalOriginalTitle") or ""
         ).strip()
-        if annotated_title or annotated_original:
+        if normalized_expected_titles and (annotated_title or annotated_original):
             if not any(
                 normalize_ru_text(value) in normalized_expected_titles
                 for value in (annotated_title, annotated_original)
@@ -144,7 +145,7 @@ def filter_streams_for_content(
         except (TypeError, ValueError):
             stream_episode = None
 
-        if not _release_matches_expected(
+        if expected_titles and not _release_matches_expected(
             release_title,
             expected_titles,
             year if year > 1900 else None,

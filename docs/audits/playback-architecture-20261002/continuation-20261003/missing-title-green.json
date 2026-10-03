@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-03T19:35:30.651014+00:00",
+  "phase": "missing-title-green",
+  "pattern": "test_*.py",
+  "tests": 223,
+  "exitCode": 0,
+  "status": "PASS",
+  "failureCounts": "",
+  "failingTestMethods": [],
+  "durationSeconds": 11.983,
+  "sourceHeadBeforeCheckpoint": "b2eca243ccc94b20050b227f854ca838da7f10cc",
+  "sourceHashes": {
+    "backend/runtime/stream_identity.py": "f98e350cf0ffa397d65939e1358b2956b48d7a20b28a851f080063052d0e2a28"
+  },
+  "logSha256": "6f68c6b09e4f81c54faa510639004fbe88807ac47fdcebea34fbeb107f713054",
+  "isolatedSourcePaths": [
+    "backend/runtime/stream_identity.py"
+  ],
+  "productionRuntimeModified": false,
+  "androidSourcesModified": false,
+  "phoneUiUsed": false,
+  "realMoviesTested": 0
+}
