@@ -13,6 +13,7 @@ clean adapter is ported.
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import re
 import threading
@@ -92,7 +93,7 @@ LEGACY_EXTRACTOR_REGISTRY: Dict[int, str] = {
 # and 8 additionally consume their live remote provider configuration rather
 # than copying stale hosts or credentials into Movia. Type 49 is the
 # deterministic LinkData adapter where download_link_key is directly playable.
-PORTED_EXTRACTOR_IDS = frozenset({1, 2, 3, 6, 7, 8, 9, 14, 33, 35, 36, 39, 42, 43, 45, 46, 49, 51})
+PORTED_EXTRACTOR_IDS = frozenset({1, 2, 3, 6, 7, 8, 9, 14, 26, 33, 35, 36, 39, 42, 43, 45, 46, 49, 51})
 
 LEGACY_ADAPTER_BLOCKERS: Dict[int, str] = {
     5: "RECAPTCHA_RSA_AES_TRANSFORMER_REQUIRED",
@@ -119,7 +120,6 @@ DOCUMENTED_BLOCKER_DETAILS: Dict[int, str] = {
     23: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     24: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     25: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
-    26: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     27: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
     28: "PROVIDER_SESSION_CONTRACT_UNAVAILABLE",
     29: "NO_SAFE_ADAPTER_CONTRACT_OR_FIXTURE",
@@ -311,6 +311,18 @@ KINOMANIA_BASE_URL = "https://www.kinomania.ru"
 FILMRU_BASE_URL = "https://www.film.ru"
 OK_BASE_URL = "https://ok.ru"
 KINOBADI_BASE_URL = "https://vip.kinobadi.im"
+KINOPLAY_BASE_URL = "https://21hd.freekinoplay4.online"
+KINOPLAY_PLAYER_PATH = "/iplayer/videodb.php?kp="
+KINOPLAY_CONFIG_MIRRORS = (
+    "https://vsr01.zonasearch.com",
+    "https://vsw01.zonasearch.com",
+)
+KINOPLAY_CONFIG_PATH = "/static/ext26.txt"
+KINOPLAY_DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Linux; Android 12.1; SM-G998U Build/RP1A.200720.012; wv) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 "
+    "Chrome/64.0.3282.116 Mobile Safari/537.36"
+)
 
 LINK_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -325,6 +337,10 @@ JsonFetcher = Callable[
 TextFetcher = Callable[
     [str, Dict[str, str]],
     Tuple[Optional[str], Optional[str]],
+]
+TextWithHeadersFetcher = Callable[
+    [str, Dict[str, str]],
+    Tuple[Optional[str], Dict[str, List[str]], Optional[str]],
 ]
 PostFormFetcher = Callable[
     [str, Dict[str, str], Dict[str, str]],
@@ -433,6 +449,355 @@ def _stream_metadata(
     if content_type_id is not None:
         stream["content_type_id"] = content_type_id
     return stream
+
+
+_KINOPLAY_TOKEN_RE = re.compile(
+    r'String\["fromCharCode"\]\(([^)]+)\);</script>',
+    re.IGNORECASE,
+)
+_KINOPLAY_ARRAY_RE = re.compile(
+    r"file:\s*?(\[.*?\]),\s+vast_",
+    re.IGNORECASE | re.DOTALL,
+)
+_KINOPLAY_DIRECT_FILE_RE = re.compile(
+    r"""file:\s*?['"]([^'"]+)""",
+    re.IGNORECASE,
+)
+
+
+def _kinoplay_cookie_header(response_headers: Dict[str, Any]) -> str:
+    values: Any = None
+    for name, raw_value in response_headers.items():
+        if str(name).lower() == "set-cookie":
+            values = raw_value
+            break
+    if values is None:
+        return ""
+    if isinstance(values, str):
+        values = [values]
+    if not isinstance(values, (list, tuple)):
+        return ""
+
+    cookies: List[str] = []
+    for raw_value in values:
+        first = str(raw_value or "").split(";", 1)[0].strip()
+        name, separator, value = first.partition("=")
+        if (
+            separator != "="
+            or not name.strip()
+            or not value.strip()
+            or value.strip().lower() == "deleted"
+            or len(first) > 2048
+            or "\r" in first
+            or "\n" in first
+        ):
+            continue
+        cookies.append(f"{name.strip()}={value.strip()}")
+    return "; ".join(cookies)
+
+
+def _kinoplay_user_agent(
+    fetch_text: Optional[TextFetcher],
+    fallback_user_agent: str,
+) -> str:
+    fallback = fallback_user_agent or KINOPLAY_DEFAULT_USER_AGENT
+    if fetch_text is None:
+        return fallback
+    headers = {"User-Agent": fallback}
+    for mirror in KINOPLAY_CONFIG_MIRRORS:
+        try:
+            config_text, error = fetch_text(
+                mirror + KINOPLAY_CONFIG_PATH,
+                headers,
+            )
+        except Exception:
+            continue
+        if error or not isinstance(config_text, str) or not config_text.strip():
+            continue
+        try:
+            payload = json.loads(config_text)
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        configured = str(payload.get("u") or "").strip()
+        if (
+            configured
+            and len(configured) <= 4096
+            and "\r" not in configured
+            and "\n" not in configured
+        ):
+            return configured
+    return fallback
+
+
+def _kinoplay_token(page: str) -> Optional[str]:
+    match = _KINOPLAY_TOKEN_RE.search(page or "")
+    if match is None:
+        return None
+    chars: List[str] = []
+    for raw_part in match.group(1).split(","):
+        part = raw_part.strip()
+        code_match = re.fullmatch(r"0[xX]([0-9A-Fa-f]{1,6})", part)
+        if code_match is None:
+            return None
+        value = int(code_match.group(1), 16)
+        if value > 0x10FFFF:
+            return None
+        chars.append(chr(value))
+    token = "".join(chars)
+    if not token or len(token) > 4096 or "\r" in token or "\n" in token:
+        return None
+    return token
+
+
+def _kinoplay_json_array(player_page: str) -> Optional[List[Any]]:
+    match = _KINOPLAY_ARRAY_RE.search(player_page or "")
+    if match is None:
+        return None
+    payload = re.sub(r",\s*?]", "]", match.group(1))
+    try:
+        decoded = json.loads(payload)
+    except (TypeError, ValueError):
+        repaired = payload
+        for field in ("file", "title", "subtitle"):
+            repaired = re.sub(
+                rf"([^a-z])({field})(:\s*?\")",
+                rf'\1"\2"\3',
+                repaired,
+            )
+        try:
+            decoded = json.loads(repaired)
+        except (TypeError, ValueError):
+            return None
+    return decoded if isinstance(decoded, list) else None
+
+
+def _kinoplay_streams_from_items(
+    source: Dict[str, Any],
+    items: Any,
+    *,
+    voice_key: str,
+    user_agent: str,
+) -> List[Dict[str, Any]]:
+    if not isinstance(items, list):
+        return []
+    streams: List[Dict[str, Any]] = []
+    seen = set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        voice = str(item.get(voice_key) or "").strip()
+        raw_files = item.get("file")
+        if not isinstance(raw_files, str):
+            continue
+        for raw_variant in raw_files.split(","):
+            variant = raw_variant.strip()
+            close = variant.find("]")
+            if close <= 1 or not variant.startswith("["):
+                continue
+            quality = variant[1:close].strip()
+            stream_url = variant[close + 1 :].strip()
+            key = (stream_url, voice, quality)
+            if (
+                not quality
+                or key in seen
+                or not is_valid_stream_url(stream_url)
+            ):
+                continue
+            seen.add(key)
+            streams.append(_stream_metadata(
+                source,
+                26,
+                stream_url,
+                voice=voice or "Не указано",
+                language="",
+                quality=quality,
+                user_agent=user_agent,
+            ))
+    return streams
+
+
+def _kinoplay_parse_player(
+    source: Dict[str, Any],
+    player_page: str,
+    *,
+    user_agent: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+    items = _kinoplay_json_array(player_page)
+    if items is not None:
+        has_season = season is not None
+        has_episode = episode is not None
+        if has_season != has_episode:
+            return [], "kinoplay:SEASON_EPISODE_REQUIRED"
+        if has_season and has_episode:
+            try:
+                season_number = int(season)
+                episode_number = int(episode)
+            except (TypeError, ValueError):
+                return [], "kinoplay:SEASON_EPISODE_INVALID"
+            if season_number <= 0 or episode_number <= 0:
+                return [], "kinoplay:SEASON_EPISODE_INVALID"
+
+            season_title = f"{season_number} сезон"
+            episode_title = f"{episode_number} серия"
+            season_item = next(
+                (
+                    item for item in items
+                    if isinstance(item, dict)
+                    and str(item.get("title") or "").strip() == season_title
+                ),
+                None,
+            )
+            if season_item is None:
+                return [], "kinoplay:SEASON_NOT_FOUND"
+            episodes = season_item.get("folder")
+            if not isinstance(episodes, list):
+                return [], "kinoplay:SEASON_NOT_FOUND"
+            episode_item = next(
+                (
+                    item for item in episodes
+                    if isinstance(item, dict)
+                    and str(item.get("title") or "").strip() == episode_title
+                ),
+                None,
+            )
+            if episode_item is None:
+                return [], "kinoplay:EPISODE_NOT_FOUND"
+            streams = _kinoplay_streams_from_items(
+                source,
+                episode_item.get("folder"),
+                voice_key="comment",
+                user_agent=user_agent,
+            )
+        else:
+            streams = _kinoplay_streams_from_items(
+                source,
+                items,
+                voice_key="title",
+                user_agent=user_agent,
+            )
+        if streams:
+            return streams, None
+        return [], "kinoplay:NO_PLAYABLE_URL"
+
+    direct_match = _KINOPLAY_DIRECT_FILE_RE.search(player_page or "")
+    if direct_match is None:
+        return [], "kinoplay:PLAYER_FORMAT_UNSUPPORTED"
+    stream_url = direct_match.group(1).strip()
+    if not is_valid_stream_url(stream_url):
+        return [], "kinoplay:INVALID_STREAM_URL"
+    return [
+        _stream_metadata(
+            source,
+            26,
+            stream_url,
+            voice="Не указано",
+            language="ru",
+            quality="480p",
+            user_agent=user_agent,
+        )
+    ], None
+
+
+def _resolve_kinoplay(
+    source: Dict[str, Any],
+    *,
+    fetch_text: Optional[TextFetcher],
+    fetch_text_with_headers: Optional[TextWithHeadersFetcher],
+    fetch_post_form_text: Optional[PostFormFetcher],
+    user_agent: str,
+    season: Optional[int],
+    episode: Optional[int],
+) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+    source_key = _source_key(source)
+    if not source_key:
+        return [], "SOURCE_REF_INCOMPLETE"
+    if len(source_key) > 256 or "\r" in source_key or "\n" in source_key:
+        return [], "SOURCE_REF_INVALID"
+    if (
+        fetch_text is None
+        or fetch_text_with_headers is None
+        or fetch_post_form_text is None
+    ):
+        return [], "ADAPTER_REQUEST_UNAVAILABLE"
+
+    user_agent = _kinoplay_user_agent(fetch_text, user_agent)
+    root_url = KINOPLAY_BASE_URL.rstrip("/") + "/"
+    request_headers = {
+        "User-Agent": user_agent,
+        "Referer": root_url,
+    }
+    try:
+        root_page, response_headers, root_error = fetch_text_with_headers(
+            root_url,
+            request_headers,
+        )
+    except Exception as exc:
+        return [], f"kinoplay:{type(exc).__name__}:{str(exc)[:120]}"
+    if root_error:
+        return [], f"kinoplay:{root_error}"
+    if not isinstance(root_page, str) or not root_page:
+        return [], "kinoplay:EMPTY_ROOT_PAGE"
+
+    token = _kinoplay_token(root_page)
+    if token is None:
+        return [], "kinoplay:TOKEN_NOT_FOUND"
+    host = urlparse(root_url).hostname or ""
+    signature_seed = f"{token};{host};{user_agent}"
+    md5_hex = hashlib.md5(signature_seed.encode("utf-8")).hexdigest()
+    signature = hashlib.sha1(md5_hex.encode("utf-8")).hexdigest()
+
+    cookie_header = _kinoplay_cookie_header(
+        response_headers if isinstance(response_headers, dict) else {}
+    )
+    post_headers = {
+        "User-Agent": user_agent,
+        "Authorization": f"Bearer {token}",
+        "Referer": root_url,
+    }
+    if cookie_header:
+        post_headers["Cookie"] = cookie_header
+    try:
+        _, post_error = fetch_post_form_text(
+            root_url,
+            post_headers,
+            {"hash": signature},
+        )
+    except Exception as exc:
+        return [], f"kinoplay:{type(exc).__name__}:{str(exc)[:120]}"
+    if post_error:
+        return [], f"kinoplay:{post_error}"
+
+    player_url = (
+        KINOPLAY_BASE_URL.rstrip("/")
+        + KINOPLAY_PLAYER_PATH
+        + quote(source_key, safe="")
+    )
+    player_headers = {
+        "User-Agent": user_agent,
+        "Referer": root_url,
+    }
+    if cookie_header:
+        player_headers["Cookie"] = cookie_header
+    try:
+        player_page, player_error = fetch_text(player_url, player_headers)
+    except Exception as exc:
+        return [], f"kinoplay:{type(exc).__name__}:{str(exc)[:120]}"
+    if player_error:
+        return [], f"kinoplay:{player_error}"
+    if not isinstance(player_page, str) or not player_page:
+        return [], "kinoplay:EMPTY_PLAYER_PAGE"
+
+    return _kinoplay_parse_player(
+        source,
+        player_page,
+        user_agent=user_agent,
+        season=season,
+        episode=episode,
+    )
 
 
 def _hdrezka_safe_headers(value: Any) -> Dict[str, str]:
@@ -3861,6 +4226,7 @@ def resolve_local_source(
     *,
     fetch_json: Optional[JsonFetcher] = None,
     fetch_text: Optional[TextFetcher] = None,
+    fetch_text_with_headers: Optional[TextWithHeadersFetcher] = None,
     fetch_post_text: Optional[TextFetcher] = None,
     fetch_post_form_text: Optional[PostFormFetcher] = None,
     client_time: Optional[str] = None,
@@ -3970,6 +4336,16 @@ def resolve_local_source(
             source,
             fetch_text=fetch_text,
             request_user_agent=request_user_agent or "Zona",
+        )
+    if extractor == 26:
+        return _resolve_kinoplay(
+            source,
+            fetch_text=fetch_text,
+            fetch_text_with_headers=fetch_text_with_headers,
+            fetch_post_form_text=fetch_post_form_text,
+            user_agent=KINOPLAY_DEFAULT_USER_AGENT,
+            season=season,
+            episode=episode,
         )
     if extractor == 39:
         return _resolve_sooplive(

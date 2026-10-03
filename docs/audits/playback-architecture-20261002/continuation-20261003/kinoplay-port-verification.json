@@ -1,0 +1,130 @@
+{
+  "checkedAt": "2026-10-03T20:20:53+00:00",
+  "baseHead": "62e729bb0c3e50af5b72908c961b76b16ff0ceff",
+  "action": "port_zona_type26_kinoplay_contract",
+  "reference": {
+    "apk": "/data/data/com.termux/files/home/projects/zona-reference-20260829-223618/apk/Zona-3.0.68-1068.apk",
+    "classes": [
+      "p610ic/C13484b.java",
+      "p610ic/C13483a.java",
+      "p210Lb/C3916b0.java",
+      "p174Jb/C3176a.java",
+      "p120Gb/C2348c.java",
+      "p596hh/C12400e.java",
+      "p210Lb/C3894G.java"
+    ],
+    "extractorId": 26,
+    "registryName": "kinoplay",
+    "fallbackBase": "https://21hd.freekinoplay4.online",
+    "playerPath": "/iplayer/videodb.php?kp=",
+    "configMirrors": [
+      "https://vsr01.zonasearch.com",
+      "https://vsw01.zonasearch.com"
+    ],
+    "configPath": "/static/ext26.txt",
+    "configField": "u",
+    "handshake": {
+      "runtimeTokenSource": "String[fromCharCode] data in provider root page",
+      "signature": "SHA1_HEX(MD5_HEX(token + ';' + host + ';' + userAgent))",
+      "postFormField": "hash",
+      "authorization": "runtime Bearer token from provider page",
+      "cookies": "Set-Cookie from initial GET -> Cookie on signed POST and player GET",
+      "deletedCookiesSkipped": true
+    },
+    "playerParsing": {
+      "movieVoiceField": "title",
+      "seriesSeasonTitle": "<season> сезон",
+      "seriesEpisodeTitle": "<episode> серия",
+      "seriesVoiceField": "comment",
+      "streamField": "file",
+      "variantShape": "[quality]URL",
+      "directFallbackLanguage": "ru",
+      "directFallbackQuality": "480p"
+    },
+    "credentialsCopiedFromReference": false
+  },
+  "implementation": {
+    "files": {
+      "backend/runtime/zona_legacy_adapters.py": "6bacb4ee246a4a1e57c93a1f1ab62112e559aec54e0224cccc266a56fd13d422",
+      "backend/runtime/zona_contract.py": "39ceeadd80cf990da4974897ade14f4efbd34a0493889e35a139a926eadc7b68",
+      "backend/tests/test_zona_kinoplay_adapter.py": "930dc02fbad97ba3fdbe51b57af891bd3e568c3f3977f73231ebd695c17d9d99"
+    },
+    "portedExtractorCountBefore": 18,
+    "portedExtractorCountAfter": 19,
+    "registryExtractorCount": 51,
+    "type26Status": "IMPLEMENTED",
+    "newFetcher": "body + repeated response headers",
+    "legacyFetchTextContractPreserved": true,
+    "exactSeasonEpisodeSelection": true,
+    "missingEpisodeSubstitution": false,
+    "dynamicUserAgentConfigSupported": true,
+    "fallbackUserAgentSupported": true
+  },
+  "tests": {
+    "redBeforeImplementation": {
+      "status": "FAIL_EXPECTED",
+      "reason": "ImportError: KINOPLAY_BASE_URL absent before implementation"
+    },
+    "kinoplayFocused": {
+      "tests": 7,
+      "status": "PASS"
+    },
+    "fullBackend": {
+      "tests": 236,
+      "status": "PASS"
+    },
+    "pyCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "knownWarnings": [
+      "pre-existing sqlite3 ResourceWarning messages remain in backend tests"
+    ]
+  },
+  "liveProbe": {
+    "catalogRawType26RefsFound": 0,
+    "localJsonRawType26RefsFound": 0,
+    "movie": "Интерстеллар",
+    "exactSuggestions": 1,
+    "suggestionErrors": 0,
+    "type26OnlyEnvelope": {
+      "sourceRefs": 0,
+      "sourceErrors": 5,
+      "adapterRun": false
+    },
+    "defaultSourceEnvelope": {
+      "sourceRows": 0,
+      "sourceErrors": 5,
+      "type26SourceRefs": 0,
+      "adapterRun": false
+    },
+    "realType26PlaybackConfirmed": false,
+    "interpretation": "Current Zona getVideoSources did not provide any raw source ref, so the live provider handshake was not executed. Fixture and contract tests must not be reported as a live provider success."
+  },
+  "preservation": {
+    "rootHead": "c5d1d3c882e07238c6f2a8fd308e8cec32f85936",
+    "rootIndexSha256": "0a6e8e0d5143d26ed257c1686d849ab9b4d92eb244fb4f1b8cbd843c0771ac7a",
+    "rootPorcelainStatusSha256": "6d3b0fcfe7e556ccb5cf0f07c927363eedf8df987f1a1c75cd73491fb0fdac1f",
+    "rootPreserved": true,
+    "androidInstallAttempted": false,
+    "phoneUiUsed": false,
+    "systemSettingsChanged": false
+  },
+  "scope": {
+    "activeParserType26Activated": false,
+    "newProvidersPortedInBranch": 1,
+    "newRealMoviesDecodedByType26": 0,
+    "all500NativeVoiceQualityMatricesComplete": false,
+    "externalHostingDeployed": false
+  },
+  "toolingFailures": [
+    {
+      "kind": "jarvis_safety_blocked_decode_batch",
+      "result": "blocked before execution",
+      "resolution": "decoded constants with smaller read-only commands"
+    },
+    {
+      "kind": "sqlite3_cli_missing",
+      "result": "command not found",
+      "resolution": "used Python sqlite3 in read-only URI mode"
+    }
+  ]
+}

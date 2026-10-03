@@ -907,13 +907,14 @@ def _fetch_provider_json(
 
 
 
-def _fetch_provider_text(
+
+def _fetch_provider_text_with_headers(
     url: str,
     headers: Optional[Dict[str, str]] = None,
-) -> Tuple[Optional[str], Optional[str]]:
+) -> Tuple[Optional[str], Dict[str, List[str]], Optional[str]]:
     parsed = urllib.parse.urlparse(str(url or "").strip())
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        return None, "INVALID_URL"
+        return None, {}, "INVALID_URL"
 
     request_headers = {
         "User-Agent": str((headers or {}).get("User-Agent") or zona_user_agent()),
@@ -937,31 +938,51 @@ def _fetch_provider_text(
         with _OPENER.open(request, timeout=_timeout()) as response:
             status = int(getattr(response, "status", 200))
             if status not in (200, 206):
-                return None, f"HTTP_ERROR:{status}"
+                return None, {}, f"HTTP_ERROR:{status}"
             raw = response.read(MAX_RESPONSE_BYTES + 1)
             if len(raw) > MAX_RESPONSE_BYTES:
-                return None, "RESPONSE_TOO_LARGE"
-            response_headers = {
-                str(key).lower(): str(value)
-                for key, value in response.headers.items()
-            }
-            if "gzip" in response_headers.get("content-encoding", "").lower():
+                return None, {}, "RESPONSE_TOO_LARGE"
+
+            response_headers: Dict[str, List[str]] = {}
+            for key in response.headers.keys():
+                clean_key = str(key).lower()
+                values = response.headers.get_all(key) or []
+                response_headers[clean_key] = [str(value) for value in values]
+
+            content_encoding = ",".join(
+                response_headers.get("content-encoding", [])
+            ).lower()
+            if "gzip" in content_encoding:
                 raw = gzip.decompress(raw)
                 if len(raw) > MAX_RESPONSE_BYTES:
-                    return None, "DECOMPRESSED_RESPONSE_TOO_LARGE"
+                    return None, response_headers, "DECOMPRESSED_RESPONSE_TOO_LARGE"
+
             charset = "utf-8"
+            content_type_values = response_headers.get("content-type", [])
+            content_type = content_type_values[-1] if content_type_values else ""
             match = re.search(
                 r"charset=([A-Za-z0-9._-]+)",
-                response_headers.get("content-type", ""),
+                content_type,
                 re.IGNORECASE,
             )
             if match:
                 charset = match.group(1)
-            return raw.decode(charset, errors="replace"), None
+            return raw.decode(charset, errors="replace"), response_headers, None
     except urllib.error.HTTPError as exc:
-        return None, f"HTTP_ERROR:{int(exc.code)}"
+        return None, {}, f"HTTP_ERROR:{int(exc.code)}"
     except Exception as exc:
-        return None, f"{type(exc).__name__}:{str(exc)[:120]}"
+        return None, {}, f"{type(exc).__name__}:{str(exc)[:120]}"
+
+
+def _fetch_provider_text(
+    url: str,
+    headers: Optional[Dict[str, str]] = None,
+) -> Tuple[Optional[str], Optional[str]]:
+    text, _response_headers, error = _fetch_provider_text_with_headers(
+        url,
+        headers,
+    )
+    return text, error
 
 def _fetch_provider_post_text(
     url: str,
@@ -1112,6 +1133,7 @@ def _fetch_streams_for_source(
         source,
         fetch_json=_fetch_provider_json,
         fetch_text=_fetch_provider_text,
+        fetch_text_with_headers=_fetch_provider_text_with_headers,
         fetch_post_text=_fetch_provider_post_text,
         fetch_post_form_text=_fetch_provider_post_form_text,
         client_time=_client_time(),
