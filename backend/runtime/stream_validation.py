@@ -165,8 +165,8 @@ def stream_variant_key(raw: Dict[str, Any], url: Optional[str] = None) -> tuple:
         _variant_text(_first_text(raw, "episode")),
         _variant_text(_first_text(raw, "file_index", "fileIndex")),
         _variant_text(_first_text(raw, "file_path", "filePath")),
-        _variant_text(_first_text(raw, "video_track_index", "videoTrackIndex")),
-        _variant_text(_first_text(raw, "audio_track_index", "audioTrackIndex")),
+        _track_index_key(raw, "video_track_index", "videoTrackIndex"),
+        _track_index_key(raw, "audio_track_index", "audioTrackIndex"),
         _http_request_profile(raw) if clean_url.lower().startswith(("http://", "https://")) else (),
     )
 
@@ -449,6 +449,34 @@ def _safe_int(value: Any) -> Optional[int]:
     return max(0, parsed)
 
 
+def _safe_track_index(value: Any) -> Optional[int]:
+    """Unknown/sentinel values must never select the first real audio/video track.
+
+    Selectors are non-negative Android Int values, unlike sizes/durations which
+    intentionally retain the separate clamping policy in ``_safe_int``.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        return None
+    if isinstance(value, float) and (not math.isfinite(value) or not value.is_integer()):
+        return None
+    if isinstance(value, str) and not re.fullmatch(r"\+?[0-9]+", value.strip()):
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return parsed if 0 <= parsed <= 2_147_483_647 else None
+
+
+def _track_index_key(raw: Dict[str, Any], *aliases: str) -> str:
+    """Use the same normalized selector for deduplication and public IDs."""
+    for alias in aliases:
+        if raw.get(alias) is not None:
+            value = _safe_track_index(raw[alias])
+            return str(value) if value is not None else ""
+    return ""
+
+
 def _normalize_unverified_adaptive_manifest_claim(raw: Dict[str, Any]) -> Dict[str, Any]:
     """Do not persist a guessed fixed quality for an adaptive HLS master.
 
@@ -466,7 +494,7 @@ def _normalize_unverified_adaptive_manifest_claim(raw: Dict[str, Any]) -> Dict[s
     transport = str(result.get("transport") or "").strip().casefold()
     is_master = basename == "master.m3u8"
     is_hls = is_master or transport == "hls"
-    has_concrete_video_track = result.get("video_track_index") is not None or result.get("videoTrackIndex") is not None
+    has_concrete_video_track = bool(_track_index_key(result, "video_track_index", "videoTrackIndex"))
     quality = str(result.get("quality") or "").strip()
     metadata = result.get("transport_metadata") or result.get("transportMetadata") or {}
     metadata = dict(metadata) if isinstance(metadata, dict) else {}
@@ -629,9 +657,10 @@ def sanitize_streams(
                     value = min(max(float(value), 0.0), 1.0)
                 except (TypeError, ValueError, OverflowError):
                     value = None
+            elif canonical in {"video_track_index", "audio_track_index"}:
+                value = _safe_track_index(value)
             elif canonical in {
-                "source_type_id", "content_type_id", "video_track_index",
-                "audio_track_index", "duration", "size", "startup_latency_ms",
+                "source_type_id", "content_type_id", "duration", "size", "startup_latency_ms",
                 "recent_failure_count", "discovery_failure_count",
             }:
                 value = _safe_int(value)
