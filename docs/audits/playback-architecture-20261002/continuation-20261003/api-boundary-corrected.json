@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-03T19:42:11.322112+00:00",
+  "phase": "api-boundary-corrected",
+  "pattern": "test_*.py",
+  "tests": 229,
+  "exitCode": 0,
+  "status": "PASS",
+  "failureCounts": "",
+  "failingTestMethods": [],
+  "durationSeconds": 11.74,
+  "sourceHeadBeforeCheckpoint": "05d7da3f25a14ed405a5e0601b54caf481e38610",
+  "sourceHashes": {
+    "backend/tests/test_playback_boundary_integration.py": "626abb0ad95c7d3b9613c79e3834e60b95791c7d90d12c5120160df34bd8abfd"
+  },
+  "logSha256": "66b89643bfc7e3eaa38c4e4db7a430fddef3654211b990ec11123422072a34a1",
+  "isolatedSourcePaths": [
+    "backend/tests/test_playback_boundary_integration.py"
+  ],
+  "productionRuntimeModified": false,
+  "androidSourcesModified": false,
+  "phoneUiUsed": false,
+  "realMoviesTested": 0
+}

@@ -57,7 +57,7 @@ class PlaybackBoundaryIntegrationTests(unittest.TestCase):
         }, **changes)
 
     def response(self, query=""):
-        code, data = self.api.response("/api/movie/7/stream" + query)
+        code, data, _etag = self.api.response("/api/movie/7/stream" + query)
         self.assertEqual(200, code)
         return json.loads(data)
 
