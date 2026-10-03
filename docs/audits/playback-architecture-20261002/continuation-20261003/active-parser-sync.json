@@ -1,0 +1,149 @@
+{
+  "checkedAt": "2026-10-03T19:57:10+00:00",
+  "sourceHead": "eec1a5b50ac16df2e3e17714b0a77d5f386e9444",
+  "action": "activate_20261003_track_identity_guards_on_active_parser",
+  "activeParser": {
+    "path": "/data/data/com.termux/files/home/projects/media-parser",
+    "streamValidation": {
+      "beforeSha256": "b2d485aca9680de76edcb39afc8b329f56173df0c3ff59da71342132830ff7cd",
+      "afterSha256": "29c70c2b6baa77970ca0994a45f7c6a414900b6b410b6f3c2b84c402d6a59e01"
+    },
+    "streamIdentity": {
+      "beforeSha256": "2144e3427ff0ca91d1673f0218f51a8a26cc7a2b8cd6640357965554d21814b1",
+      "afterSha256": "f98e350cf0ffa397d65939e1358b2956b48d7a20b28a851f080063052d0e2a28"
+    },
+    "backupDirectory": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/active-parser-backup-20261003-1949",
+    "pyCompilePassed": true,
+    "coreContractTests": {
+      "tests": 24,
+      "status": "PASS",
+      "scope": [
+        "track index normalization",
+        "missing-title content identity"
+      ]
+    },
+    "isolatedRepositoryBackendTests": {
+      "tests": 229,
+      "status": "PASS"
+    },
+    "legacyActiveNonNetworkSuite": {
+      "before": {"tests": 248, "failures": 5, "errors": 7},
+      "patchedOverlay": {"tests": 248, "failures": 5, "errors": 7},
+      "afterActivation": {"tests": 248, "failures": 5, "errors": 7},
+      "newFailuresVsBaseline": 0,
+      "excludedLiveNetworkTests": [
+        "test_zona_query.py",
+        "test_tmdb_connection.py"
+      ],
+      "existingFailureCategories": [
+        "three background-service policy tests reference paths outside the active parser layout",
+        "legacy voice-label expectations differ from current normalized labels",
+        "three legacy native-feedback tests expect sourceId that the current active path does not expose",
+        "one stale-fast-path test expects an older revalidation-thread behavior"
+      ]
+    },
+    "apiPlaybackChecks": [
+      {
+        "mediaId": "45127",
+        "http": 200,
+        "latencyMs": 48,
+        "catalogIdMatches": true,
+        "sourceRows": 0,
+        "negativeTrackSelectors": 0,
+        "nonIntegerTrackSelectors": 0,
+        "distinctVoices": 0,
+        "distinctQualities": 0
+      },
+      {
+        "mediaId": "164",
+        "http": 200,
+        "latencyMs": 172,
+        "catalogIdMatches": true,
+        "sourceRows": 75,
+        "negativeTrackSelectors": 0,
+        "nonIntegerTrackSelectors": 0,
+        "distinctVoices": 28,
+        "distinctQualities": 8
+      },
+      {
+        "mediaId": "375",
+        "http": 200,
+        "latencyMs": 95,
+        "catalogIdMatches": true,
+        "sourceRows": 30,
+        "negativeTrackSelectors": 0,
+        "nonIntegerTrackSelectors": 0,
+        "distinctVoices": 13,
+        "distinctQualities": 7
+      },
+      {
+        "mediaId": "39012",
+        "http": 200,
+        "latencyMs": 19,
+        "catalogIdMatches": true,
+        "sourceRows": 1,
+        "negativeTrackSelectors": 0,
+        "nonIntegerTrackSelectors": 0,
+        "distinctVoices": 1,
+        "distinctQualities": 1
+      }
+    ]
+  },
+  "runtime": {
+    "oldStreamerPid": 14432,
+    "supervisor": "runsv movia-media-parser",
+    "supervisedStreamerPidAfterRestart": 20440,
+    "singleLiveStreamerVerified": true,
+    "streamerCheck": "RUNNING",
+    "helperDuplicatePid": 20580,
+    "helperDuplicateResult": "EADDRINUSE_then_exited",
+    "comment": "runit restarted the service before start_streamer.sh completed; the helper's second process exited and only the supervised process remained"
+  },
+  "preservation": {
+    "rootHead": "c5d1d3c882e07238c6f2a8fd308e8cec32f85936",
+    "rootIndexSha256": "0a6e8e0d5143d26ed257c1686d849ab9b4d92eb244fb4f1b8cbd843c0771ac7a",
+    "rootPorcelainStatusSha256": "6d3b0fcfe7e556ccb5cf0f07c927363eedf8df987f1a1c75cd73491fb0fdac1f",
+    "rootHeadPreserved": true,
+    "rootIndexPreserved": true,
+    "rootPorcelainStatusPreserved": true,
+    "androidInstallAttempted": false,
+    "phoneUiUsed": false,
+    "systemSettingsChanged": false,
+    "androidSourcesModifiedByThisContinuation": false,
+    "userRootGitIndexModified": false
+  },
+  "apk": {
+    "versionCode": 327,
+    "currentGeneratedSha256": "3cd1f970e3047c3e0ff6c91b5669d76a5f0ebe450b07911bf5f1f03130ae3d3d",
+    "previouslyVerifiedSha256": "e656b4de4ac1a0192766450c73b3c3764f823eac2541be7086e7b617a521d890",
+    "sameArtifactAsPreviouslyVerified": false,
+    "installed": false
+  },
+  "toolingFailures": [
+    {
+      "kind": "runit_restart_race",
+      "result": "helper duplicate bind failed with EADDRINUSE",
+      "resolution": "verified exactly one supervised streamer process and RUNNING health"
+    },
+    {
+      "kind": "jarvis_filesystem_root_denial",
+      "operation": "read runit service directory",
+      "result": "blocked because the service directory is outside Jarvis permitted filesystem roots",
+      "resolution": "verified supervisor identity through /proc"
+    },
+    {
+      "kind": "jarvis_safety_blocked_combined_evidence_builder",
+      "result": "blocked before execution",
+      "resolution": "used narrower read-only snapshots and explicit evidence writing"
+    }
+  ],
+  "limitations": {
+    "activeApiBoundaryIntegrationTests": "Six integration tests depend on cloud_api.py, which is not present in the active parser copy; the same six tests pass in the isolated repository as part of 229/229.",
+    "sqliteResourceWarningsRemain": true,
+    "newRealMoviesTested": 0,
+    "newProvidersPorted": 0,
+    "externalHostingDeployed": false,
+    "all500NativeVoiceQualityMatricesComplete": false,
+    "nativeBuild327PlaybackTested": false
+  }
+}
