@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-03T19:26:43.379034+00:00",
+  "tests": 199,
+  "exitCode": 0,
+  "durationSeconds": 17.441,
+  "status": "PASS",
+  "scope": "isolated_worktree_backend_baseline",
+  "productionRuntimeModified": false,
+  "summary": "termux/files/usr/lib/python3.14/unittest/mock.py:2259: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6f6e7ef2e0>\n  def __init__(self, name, parent):\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n................\n----------------------------------------------------------------------\nRan 199 tests in 14.731s\n\nOK\nTorrent resolve error or timeout: \n"
+}
