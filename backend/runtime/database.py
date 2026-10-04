@@ -248,7 +248,14 @@ def _direct_stream_variant_identity(raw: Dict[str, Any]) -> Optional[tuple[str, 
                 return re.sub(r"\s+", " ", str(value).strip()).casefold()
         return ""
 
-    # A provider/public stream ID is the strongest URL-independent identity.
+    # An explicit logical source ID is the strongest URL-independent identity.
+    # It survives signed/CDN locator rotation and is produced by the clean-room
+    # provider boundary as well as understood by the Android playback model.
+    logical_source_id = text("logical_source_id", "logicalSourceId")
+    if logical_source_id:
+        return ("logical-source", logical_source_id, "", "", "", "", "")
+
+    # A provider/public stream ID is the next strongest URL-independent identity.
     # Prefer it before provider metadata because source_type/provider annotations
     # can be enriched over time while the logical stream remains the same.
     stable_id = text("stream_id", "streamId")

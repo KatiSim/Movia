@@ -1,0 +1,86 @@
+{
+  "checkedAt": "2026-10-04T06:55:00Z",
+  "action": "add_clean_room_provider_variant_contract",
+  "architectureSource": {
+    "providerParser": "LazyMedia Deluxe 3.466 concepts",
+    "playbackBoundary": "Movia/Zona StreamCandidate semantics"
+  },
+  "isolatedChanges": [
+    "backend/runtime/provider_contract.py",
+    "backend/tests/test_provider_contract.py",
+    "backend/runtime/stream_validation.py",
+    "backend/runtime/database.py"
+  ],
+  "providerContract": {
+    "types": [
+      "ProviderRequest",
+      "ProviderRequestProfile",
+      "ProviderDefinition",
+      "ProviderSearchResult",
+      "ProviderArticle",
+      "DeferredVariantLoader",
+      "VariantFolder",
+      "VariantStream"
+    ],
+    "invariants": [
+      "season and episode must be provided together",
+      "series leaf must match exact requested season and episode",
+      "movie request cannot fall back to episodic branch",
+      "deferred loader is not invoked for a branch already known to mismatch",
+      "voice and quality inherit structurally from folders",
+      "leaf metadata overrides inherited folder metadata",
+      "provider discovery request headers are not implicitly copied to playback headers",
+      "logical source identity is URL-independent"
+    ]
+  },
+  "discoveredBoundaryBug": {
+    "issue": "sanitize_streams dropped logical_source_id even though Android DomainPlaybackResolver understands it",
+    "fixed": true,
+    "persistenceReloadIdentity": "database direct-stream reload identity now prefers explicit logical_source_id before weaker heuristics"
+  },
+  "tests": {
+    "initialRed": "ModuleNotFoundError: provider_contract",
+    "boundaryRed": {
+      "failures": 1,
+      "errors": 1,
+      "reason": "logical_source_id dropped and reload identity ignored it"
+    },
+    "focusedGreen": {
+      "tests": 21,
+      "status": "PASS"
+    },
+    "fullBackend": {
+      "tests": 246,
+      "status": "PASS"
+    },
+    "pyCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "knownWarnings": [
+      "pre-existing sqlite3 ResourceWarning messages remain"
+    ]
+  },
+  "runtime": {
+    "activeParserModified": false,
+    "streamerPid": 23603,
+    "streamerCheck": "RUNNING",
+    "activeZonaAdapterSha256": "6bacb4ee246a4a1e57c93a1f1ab62112e559aec54e0224cccc266a56fd13d422",
+    "activeZonaContractSha256": "e0752b0c5fa23f351cb7ce0d2bb6a75ecbccdbb7ea79a1b8a70fe0233c9ca58e"
+  },
+  "preservation": {
+    "androidUiUsed": false,
+    "androidInstallAttempted": false,
+    "systemSettingsChanged": false,
+    "rootWorktreeWrittenByThisBlock": false,
+    "rootHead": "c5d1d3c882e07238c6f2a8fd308e8cec32f85936",
+    "rootIndexSha256": "0a6e8e0d5143d26ed257c1686d849ab9b4d92eb244fb4f1b8cbd843c0771ac7a",
+    "rootStatusSha256": "065a8153e9a074e097e7d0465c68a6da153d33bef67e7a9c4ee648790729e48f",
+    "rootStatusLines": 114
+  },
+  "limitations": {
+    "providerAdaptersMigratedThisBlock": 0,
+    "productionProviderPathSwitched": false,
+    "newRealMoviesTested": 0,
+    "all500NativeVoiceQualityMatricesComplete": false,
+    "nativeBuild327PlaybackTested": false
+  }
+}

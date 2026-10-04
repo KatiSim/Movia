@@ -599,6 +599,7 @@ def sanitize_streams(
             ("language", ("language", "lang")),
             ("source_type_id", ("source_type_id", "video_source_type_id", "videoSourceTypeId")),
             ("content_type_id", ("content_type_id", "video_content_type_id", "videoContentTypeId")),
+            ("logical_source_id", ("logical_source_id", "logicalSourceId")),
             ("resolution", ("resolution", "video_resolution", "videoResolution")),
             ("codec", ("codec", "video_codec", "videoCodec")),
             ("subtitle_list", ("subtitle_list", "subtitleList", "subtitles")),
