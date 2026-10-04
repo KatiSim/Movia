@@ -15,7 +15,7 @@ import logging
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from collections import Counter
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
@@ -27,6 +27,7 @@ sys.path.insert(0, str(DIR))
 
 from database import filter_streams_for_content, get_db, save_content
 from stream_validation import sanitize_streams
+from variant_coverage import variant_coverage
 from torrent_resolver import resolve_torrent
 from balancer_integration import (
     get_last_resolution_diagnostics,
@@ -45,12 +46,24 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "content_filler.log"
 STATE_FILE = DIR / "state.json"
 STATE_VERSION = 2
-STREAM_CLEANUP_VERSION = 3
+STREAM_CLEANUP_VERSION = 4
 PROVIDER_ERROR_RETRY_BASE_SECONDS = 2 * 60 * 60
 PROVIDER_ERROR_RETRY_MAX_SECONDS = 24 * 60 * 60
 NO_SOURCE_RETRY_SECONDS = 7 * 24 * 60 * 60
+RECENT_NO_SOURCE_RETRY_SECONDS = 30 * 60
+PARTIAL_COVERAGE_RETRY_SECONDS = 30 * 60
+COMPLETE_COVERAGE_REFRESH_SECONDS = 24 * 60 * 60
 IDENTITY_RETRY_SECONDS = 30 * 24 * 60 * 60
 PERSISTENCE_RETRY_SECONDS = 60 * 60
+BACKGROUND_DIRECT_PROVIDER_BUDGET_SECONDS = 4.0
+
+
+def _background_direct_provider_budget_seconds() -> float:
+    try:
+        value = float(os.environ.get("MOVIA_BACKGROUND_DIRECT_PROVIDER_BUDGET_SECONDS", BACKGROUND_DIRECT_PROVIDER_BUDGET_SECONDS))
+    except (TypeError, ValueError):
+        value = BACKGROUND_DIRECT_PROVIDER_BUDGET_SECONDS
+    return min(8.0, max(0.05, value))
 
 
 _FILL_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-provider")
@@ -342,6 +355,18 @@ def _record_retry_outcome(
         schedule.pop(key, None)
         streaks.pop(key, None)
         return
+    if status == "coverage_complete":
+        streaks.pop(key, None)
+        schedule[key] = int(now + COMPLETE_COVERAGE_REFRESH_SECONDS)
+        return
+    if status == "partial_coverage":
+        streaks.pop(key, None)
+        schedule[key] = int(now + PARTIAL_COVERAGE_RETRY_SECONDS)
+        return
+    if status == "no_source_recent":
+        streaks.pop(key, None)
+        schedule[key] = int(now + RECENT_NO_SOURCE_RETRY_SECONDS)
+        return
     if status == "provider_error":
         failures = max(1, _as_int(streaks.get(key), 0) + 1)
         streaks[key] = failures
@@ -365,18 +390,64 @@ def _record_retry_outcome(
 def _fetch_rows(db: Any, last_id: int, state: Optional[Dict[str, Any]] = None) -> List[Any]:
     # New releases get a reserved budget on every pass; the remaining budget advances old coverage.
     # Never read the whole catalog into RAM just to slice it afterwards.
-    columns="id,tmdb_id,media_type,title,original_title,year,category,rating,streams,playback_url,link_verified,link_updated_at"
+    columns="id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at"
     needs="(COALESCE(playback_url,'')='' OR COALESCE(streams,'') IN ('','[]') OR COALESCE(link_verified,0)=0 OR COALESCE(link_updated_at,'')<?)"
     now_epoch=time.time();cutoff=datetime.fromtimestamp(now_epoch-1800,timezone.utc).isoformat()
     recent_year=datetime.now(timezone.utc).year-1
-    recent=db.execute("SELECT "+columns+" FROM movies WHERE year>=? AND "+needs+" ORDER BY id DESC LIMIT 200",(recent_year,cutoff)).fetchall()
+    recent=db.execute(
+        "SELECT "+columns+" FROM movies WHERE year>=? AND "+needs+
+        " ORDER BY COALESCE(vote_count,0) DESC, COALESCE(rating,0) DESC, id DESC LIMIT 300",
+        (recent_year,cutoff),
+    ).fetchall()
+    popular_older=db.execute(
+        "SELECT "+columns+" FROM movies WHERE COALESCE(year,0)<? AND "+needs+
+        " ORDER BY COALESCE(vote_count,0) DESC, COALESCE(rating,0) DESC, id DESC LIMIT 300",
+        (recent_year,cutoff),
+    ).fetchall()
     cursor=_as_int((state or {}).get("cloud_backfill_id"))
-    older=db.execute("SELECT "+columns+" FROM movies WHERE id>? AND COALESCE(year,0)<? AND "+needs+" ORDER BY id ASC LIMIT 200",(cursor,recent_year,cutoff)).fetchall()
+    older=db.execute(
+        "SELECT "+columns+" FROM movies WHERE id>? AND COALESCE(year,0)<? AND "+needs+
+        " ORDER BY id ASC LIMIT 300",
+        (cursor,recent_year,cutoff),
+    ).fetchall()
     if not older and state is not None:
         state["cloud_backfill_id"]=0
-    def due(rows):return [row for row in rows if not state or _retry_due(state,_as_int(row["id"]),now_epoch)]
-    newest=due(recent)[:20];backfill=due(older)[:max(10,30-len(newest))]
-    return newest+backfill
+    def coverage_priority(row):
+        try:
+            raw = json.loads(row["streams"] or "[]")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            raw = []
+        coverage = variant_coverage(raw, media_type=str(row["media_type"] or "movie"))
+        # Generic TV card rows cannot prove episode identity. Keep them behind
+        # movie enrichment until the episode-specific background queue exists.
+        if coverage.requires_episode_identity:
+            return 2
+        return 1 if coverage.complete else 0
+    def due(rows):
+        eligible=[row for row in rows if not state or _retry_due(state,_as_int(row["id"]),now_epoch)]
+        return sorted(eligible, key=coverage_priority)
+    selected=[];seen=set()
+    def take(rows,limit):
+        for row in due(rows):
+            key=_as_int(row["id"])
+            if key in seen: continue
+            selected.append(row);seen.add(key)
+            if sum(1 for _ in selected) >= limit: break
+    # Reserve one third of every pass for each cohort: recent demand, proven
+    # popular catalog, and deterministic long-tail progress.
+    take(recent,10)
+    target=20
+    for row in due(popular_older):
+        key=_as_int(row["id"])
+        if key in seen: continue
+        selected.append(row);seen.add(key)
+        if len(selected)>=target: break
+    for row in due(older):
+        key=_as_int(row["id"])
+        if key in seen: continue
+        selected.append(row);seen.add(key)
+        if len(selected)>=30: break
+    return selected
 
 
 def _valid_persisted_row(content_id: int) -> bool:
@@ -395,6 +466,24 @@ def _valid_persisted_row(content_id: int) -> bool:
         return bool(sanitize_streams(raw, require_source=True))
     except Exception:
         return False
+
+
+def _persisted_variant_coverage(content_id: int):
+    try:
+        with closing(get_db()) as db, db:
+            row = db.execute(
+                "SELECT streams, media_type FROM movies WHERE id = ?",
+                (content_id,),
+            ).fetchone()
+        if not row:
+            return None
+        try:
+            raw = json.loads(row["streams"] or "[]")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            raw = []
+        return variant_coverage(raw, media_type=str(row["media_type"] or "movie"))
+    except Exception:
+        return None
 
 
 def _candidate_streams(found_stream: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -453,22 +542,69 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     )
 
     resolved_streams: List[Dict[str, Any]] = []
-    try:
-        provider_outcome = provider_future.result()
-        resolved_streams.extend(provider_outcome.streams)
-        row_provider_errors += _as_int(provider_outcome.error_count)
-    except Exception as exc:
-        row_provider_errors += 1
-        logger.debug("Provider registry error for %s: %s", title, exc)
+    direct_futures = {provider_future, balancer_future}
+    done, pending = wait(
+        direct_futures,
+        timeout=_background_direct_provider_budget_seconds(),
+    )
 
-    try:
-        balancer_result = balancer_future.result()
-        diagnostics = get_last_resolution_diagnostics()
-        row_provider_errors += _as_int(diagnostics.get("error_count"))
-        resolved_streams.extend(_candidate_streams(balancer_result))
-    except Exception as exc:
+    if provider_future in done:
+        try:
+            provider_outcome = provider_future.result()
+            resolved_streams.extend(provider_outcome.streams)
+            row_provider_errors += _as_int(provider_outcome.error_count)
+        except Exception as exc:
+            row_provider_errors += 1
+            logger.debug("Provider registry error for %s: %s", title, exc)
+    else:
         row_provider_errors += 1
-        logger.debug("Balancer error for %s: %s", title, exc)
+        provider_future.cancel()
+        logger.debug("Provider registry budget exceeded for %s", title)
+
+    if balancer_future in done:
+        try:
+            balancer_result = balancer_future.result()
+            diagnostics = get_last_resolution_diagnostics()
+            row_provider_errors += _as_int(diagnostics.get("error_count"))
+            resolved_streams.extend(_candidate_streams(balancer_result))
+        except Exception as exc:
+            row_provider_errors += 1
+            logger.debug("Balancer error for %s: %s", title, exc)
+    else:
+        row_provider_errors += 1
+        balancer_future.cancel()
+        logger.debug("Balancer budget exceeded for %s", title)
+
+    # Pending direct-provider work must never block the additive torrent path.
+    # Running calls may finish in the shared executor, but their late result is
+    # intentionally ignored for this background row and can be discovered on a
+    # later retry cycle.
+    for future in pending:
+        future.cancel()
+
+    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+    background_bulk = (
+        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+        or cloud_mode
+    )
+    allow_background_torrent = (
+        not cloud_mode
+        and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
+    )
+    # Torrent providers are an additive family, not a last-resort replacement.
+    # If Collaps/Zona already returned a direct stream we still need Rutor/YTS/
+    # Apibay variants to build the real voice x quality inventory.
+    if not background_bulk or allow_background_torrent:
+        try:
+            torrent_result = resolve_torrent(
+                title=search_title,
+                year=year,
+                category=category,
+            )
+            resolved_streams.extend(_candidate_streams(torrent_result))
+        except Exception as exc:
+            row_provider_errors += 1
+            logger.debug("Torrent error for %s: %s", title, exc)
 
     resolved_streams = sanitize_streams(resolved_streams, require_source=True)
     if resolved_streams:
@@ -480,30 +616,6 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             "seeders": primary.get("seeders", 0),
             "streams": resolved_streams,
         }
-
-    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
-    background_bulk = (
-        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
-        or cloud_mode
-    )
-    allow_background_torrent = (
-        not cloud_mode
-        and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
-    )
-    if not found_stream and (not background_bulk or allow_background_torrent):
-        try:
-            torrent_result = resolve_torrent(
-                title=search_title,
-                year=year,
-                category=category,
-            )
-            if isinstance(torrent_result, dict) and torrent_result.get("playback_url"):
-                found_stream = torrent_result
-        except Exception as exc:
-            row_provider_errors += 1
-            logger.debug("Torrent error for %s: %s", title, exc)
-
-    resolved_streams = _candidate_streams(found_stream)
     # The fetched row includes media_type, so this pre-filter is identical to
     # the persistence-boundary identity check in database.save_content().
     clean_streams = filter_streams_for_content(resolved_streams, dict(row))
@@ -565,7 +677,10 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
                 content_id,
             )
 
-    if persisted_ok:
+    coverage = _persisted_variant_coverage(content_id) if persisted_ok else None
+    if persisted_ok and coverage is not None:
+        status = "coverage_complete" if coverage.complete else "partial_coverage"
+    elif persisted_ok:
         status = "duplicate" if duplicate_candidate else "persisted"
     elif clean_streams:
         status = "persistence_error"
@@ -573,6 +688,8 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         status = "rejected_by_identity"
     elif row_provider_errors:
         status = "provider_error"
+    elif year >= datetime.now(timezone.utc).year - 1:
+        status = "no_source_recent"
     else:
         status = "no_source"
 
@@ -585,6 +702,9 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         "invalid_result": status == "rejected_by_identity",
         "persist_failure": status == "persistence_error",
         "provider_errors": row_provider_errors,
+        "coverage_complete": bool(coverage.complete) if coverage is not None else False,
+        "coverage_voices": int(coverage.voices) if coverage is not None else 0,
+        "coverage_qualities": int(coverage.qualities) if coverage is not None else 0,
     }
 
 

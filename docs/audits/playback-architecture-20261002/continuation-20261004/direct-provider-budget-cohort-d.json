@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "bound_background_direct_provider_wait_and_audit_cohort_d",
+  "completionDefinition": [
+    "catalog enrichment runs continuously without blocking on dead providers",
+    "catalog identity prevents cross-title/year contamination",
+    "fresh 1000-movie cohorts show stable coverage growth rather than architectural failure",
+    "playback candidates are real and switchable without fabricated voice/quality combinations"
+  ],
+  "performance": {
+    "case": "Невероятная жизнь Уолтера Митти",
+    "beforeMs": 34511,
+    "afterMs": 10244,
+    "reductionMs": 24267,
+    "reductionPct": 70.3,
+    "directProviderBudgetSeconds": 4,
+    "directProviderWaitMode": "provider registry + balancer share one concurrent budget via futures.wait"
+  },
+  "tests": {
+    "focused": "14/14 PASS",
+    "fullBackend": "294/294 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "activeContentFillerUpdated": true,
+    "activeContentFillerSha256": "67327899907119fb56ece9ddbb5c8f972fc9074e8c7a4484a6c630eec3f33636",
+    "enricherRestarted": true
+  },
+  "cohortD": {
+    "seed": 3413,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 3001,
+    "baseline": {
+      "complete": 18,
+      "voicesGe3": 21,
+      "qualitiesGe3": 84,
+      "anyStream": 441,
+      "nearComplete": 24
+    },
+    "targetedCompleted": [
+      {
+        "id": 172102,
+        "title": "Восстание планеты обезьян",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 5,
+          "complete": true
+        },
+        "elapsedMs": 4988
+      },
+      {
+        "id": 590,
+        "title": "Головокружение",
+        "before": {
+          "voices": 2,
+          "qualities": 5,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 5,
+          "complete": true
+        },
+        "elapsedMs": 4263
+      }
+    ],
+    "final": {
+      "complete": 20,
+      "voicesGe3": 23,
+      "qualitiesGe3": 84,
+      "anyStream": 441,
+      "nearComplete": 22
+    },
+    "deltaComplete": 2
+  },
+  "next": [
+    "start torrent resolution concurrently with the four-second direct-provider budget",
+    "use a dedicated bounded torrent executor so dead direct-provider workers cannot starve torrent work",
+    "create cohort-E from another fresh 1000 movie IDs excluding saved B/C/D and conservative A exclusions",
+    "continue targeting near-complete cards only when the live resolver proves the missing real voice/quality"
+  ]
+}
