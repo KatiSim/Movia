@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-04T06:44:00Z",
+  "action": "choose_hybrid_lazy_provider_zona_playback_architecture",
+  "lazyMedia": {
+    "version": "3.466",
+    "providerEnumCount": 34,
+    "previouslyObservedActiveProviders": 12,
+    "articleClasses": 38,
+    "articleClassesWithBadDecompileMarker": 4,
+    "listArticleClasses": 39,
+    "listArticleClassesWithBadDecompileMarker": 0,
+    "verifiedConcepts": [
+      "central Services registry",
+      "gs0 provider capability descriptor",
+      "vq0 parser-class/config descriptor",
+      "OooO00o common Article contract",
+      "k30 hierarchical folder tree",
+      "j30 concrete media leaf",
+      "h30 deferred folder parser",
+      "provider headers/cookies in parser layer",
+      "task cancellation"
+    ]
+  },
+  "zona": {
+    "version": "3.0.68",
+    "sourceTypeRegistrations": 51,
+    "distinctExtractorClasses": 50,
+    "registryEntriesWithHighLevelBadMethodWarning": 27,
+    "verifiedConcepts": [
+      "VideoSource vs StreamInfo separation",
+      "rich concrete stream contract",
+      "parallel provider failure isolation",
+      "provider-aware dedupe",
+      "BEST/BETTER ranking",
+      "problem-stream memory",
+      "same-logical-stream reload before fallback",
+      "DataSource URI transform and one retry",
+      "exact voice/quality concrete stream reselection",
+      "episode identity and stale callback cancellation"
+    ]
+  },
+  "decision": {
+    "providerParserArchitecture": "LazyMedia Deluxe 3.466",
+    "playbackStateMachineArchitecture": "Zona 3.0.68",
+    "dexEngineRole": "transition/reference only; not permanent runtime dependency",
+    "nextImplementation": "clean-room ProviderDefinition + VariantTree + adapter boundary"
+  },
+  "productionModified": false,
+  "androidUiUsed": false,
+  "androidInstallAttempted": false,
+  "newRealMoviesTested": 0
+}
