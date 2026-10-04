@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "activate_hdrezka_safe_fallback_improvement",
+  "fullBackendTests": "290/290 PASS",
+  "focusedTests": "14/14 PASS",
+  "activeParser": {
+    "modified": true,
+    "zonaAdapterSha256": "51f924a387cb7ccae204a67c63e479524027fa1151b7a7c7da16e7ee18cf62fe",
+    "streamerStatus": "RUNNING",
+    "streamerPid": 19348,
+    "healthHttpStatus": 200,
+    "healthSeconds": 0.006259
+  },
+  "liveHdrezka": {
+    "title": "Интерстеллар",
+    "resolveMs": 1701,
+    "streams": 10,
+    "voices": [
+      "Дубляж"
+    ],
+    "qualities": [
+      "240p",
+      "360p",
+      "480p",
+      "720p"
+    ],
+    "error": null
+  },
+  "diagnostics": {
+    "transport": "hdrzk.org",
+    "hostAliasesTested": [
+      "rezka.ag",
+      "hdrezka.me"
+    ],
+    "articleGetThroughTransport": "OK",
+    "guestCookieNames": [
+      "PHPSESSID",
+      "dle_user_taken",
+      "dle_user_token"
+    ],
+    "translatorPostThroughTransport": "HTTP 403",
+    "directPublicHttpsPost": "HTTP 200 anti-bot HTML",
+    "directPublicPostMeaning": "not API JSON; challenge page",
+    "antiBotBypassAttempted": false,
+    "currentSafeBehavior": "fast fallback to embedded active translation"
+  },
+  "remaining": [
+    "obtain current legitimate HDRezka translator AJAX transport that returns JSON rather than anti-bot challenge",
+    "only then expose 10-22 translation choices",
+    "measure random coverage delta after multi-voice activation"
+  ]
+}
