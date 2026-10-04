@@ -10,6 +10,30 @@ class ProviderDiscoveryTests(unittest.TestCase):
         with patch.dict("os.environ", {"MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "1"}, clear=False):
             return discover_provider_streams(**kwargs)
 
+    def test_hdrezka_contract_is_gated_and_returns_variant_tree_rows_when_enabled(self):
+        from hdrezka_provider_adapter import HDRezkaProviderAdapter
+        from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream
+        selected = ProviderSearchResult(HDRezkaProviderAdapter.definition, "films/fiction/1-example-2024", "Example", 2024, "https://rezka.ag/films/fiction/1-example-2024.html", "films/fiction/1-example-2024")
+        article = ProviderArticle(HDRezkaProviderAdapter.definition, selected.item_id, "Example", 2024, selected.article_ref, selected.content_ref)
+        tree = VariantFolder(children=(VariantFolder(voice="Dub", children=(VariantStream(
+            url="https://cdn.example/720.m3u8", stream_key="rezka|dub|720", voice="Dub", quality="720p", transport="hls",
+        ),)),))
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT": "1",
+            "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT": "0",
+            "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT": "0",
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "0",
+        }, clear=False), \
+                patch.object(HDRezkaProviderAdapter, "search", return_value=([selected], None)), \
+                patch.object(HDRezkaProviderAdapter, "resolve_source", return_value=(tree, article, None)):
+            outcome = discover_provider_streams(title="Example", year=2024, media_id="77", media_type="movie")
+        self.assertEqual("OK", outcome.status)
+        self.assertEqual(("hdrezka",), outcome.providers)
+        self.assertEqual(1, len(outcome.streams))
+        self.assertEqual("77", outcome.streams[0]["catalog_media_id"])
+        self.assertTrue(outcome.streams[0].get("logical_source_id"))
+
     def test_collaps_contract_is_gated_and_returns_variant_tree_rows_when_enabled(self):
         from collaps_provider_adapter import CollapsProviderAdapter
         from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream

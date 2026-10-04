@@ -19,6 +19,7 @@ from typing import Callable, Dict, Optional, Sequence, Tuple
 from catalog_schema_v2 import normalize_ru_text
 from collaps_provider_adapter import CollapsProviderAdapter
 from filmix_provider_adapter import FilmixProviderAdapter
+from hdrezka_provider_adapter import HDRezkaProviderAdapter
 from octopus_provider_adapter import OctopusProviderAdapter
 from zona_provider_adapter import ZonaProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
@@ -111,6 +112,40 @@ def discover_provider_streams(
     attempted: list[str] = []
     error_count = 0
     terminal_statuses: list[str] = []
+
+    if os.environ.get("MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT", "0") == "1":
+        attempted.append("hdrezka")
+        try:
+            request = ProviderRequest(
+                media_id=str(media_id), title=clean_title,
+                year=int(year) if int(year or 0) > 0 else None,
+                season=season, episode=episode,
+                media_type="tv" if is_series else "movie",
+            )
+            adapter = HDRezkaProviderAdapter()
+            results, search_error = adapter.search(request)
+            if search_error:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            elif len(results) > 1:
+                terminal_statuses.append("AMBIGUOUS")
+            elif not results:
+                terminal_statuses.append("NO_MATCH")
+            else:
+                tree, article, resolve_error = adapter.resolve_source(results[0], request)
+                if resolve_error or tree is None or article is None:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
+                else:
+                    rows = sanitize_streams(
+                        flatten_variant_tree(article, tree, request), require_source=True
+                    )
+                    if rows:
+                        return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                    terminal_statuses.append("NO_RESULTS")
+        except Exception:
+            error_count += 1
+            terminal_statuses.append("PROVIDER_ERROR")
 
     # Collaps is the first working provider rewritten natively onto the shared
     # ProviderContract. Keep activation gated until a live non-zero differential

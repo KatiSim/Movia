@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "activate_movia_native_hdrezka_and_audit_cohort_m",
+  "rewritePolicy": {
+    "copiedLazyMediaCode": false,
+    "studiedBehavior": [
+      "search result -> exact article",
+      "translator branches",
+      "movie/series leaf structure",
+      "provider payload quality alternatives"
+    ],
+    "implementation": "Movia-native ProviderContract adapter with Movia logging; legacy HDRezka transport reused only as HTTP/provider decoder"
+  },
+  "hdrezka": {
+    "newModule": "backend/runtime/hdrezka_provider_adapter.py",
+    "logger": "hdrezka_provider_adapter",
+    "providerId": "movia:hdrezka",
+    "searchContract": ".b-content__inline_item-link a for title + sibling metadata div for year",
+    "exactMatch": true,
+    "featureFlag": "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT=1",
+    "parserEnabled": true,
+    "enricherEnabled": true,
+    "adapterSha256": "ce7fe5545e69b0583975ac73f958400ab11e28f9621cffa09f93835ee9ca9a01",
+    "liveStandalone": {
+      "Interstellar2014": {
+        "matches": 1,
+        "searchMs": 1160,
+        "resolveMs": 1614,
+        "rows": 10,
+        "voices": [
+          "Дубляж"
+        ],
+        "qualities": [
+          "240p",
+          "360p",
+          "480p",
+          "720p"
+        ]
+      },
+      "Matrix1999": {
+        "matches": 1,
+        "searchMs": 1037,
+        "resolveMs": 983,
+        "rows": 10,
+        "voices": [
+          "Дубляж"
+        ],
+        "qualities": [
+          "240p",
+          "360p",
+          "480p",
+          "720p"
+        ]
+      }
+    },
+    "liveProviderRegistry": {
+      "Interstellar2014": {
+        "status": "OK",
+        "provider": "hdrezka",
+        "rows": 10,
+        "catalogMediaId": "158",
+        "logicalIds": 10,
+        "providerItemIds": 10
+      },
+      "Matrix1999": {
+        "status": "OK",
+        "provider": "hdrezka",
+        "rows": 10,
+        "catalogMediaId": "43",
+        "logicalIds": 10,
+        "providerItemIds": 10
+      }
+    },
+    "translatorAjax": "not fabricated; embedded/default safe fallback remains honest when legacy translator POST is blocked",
+    "removedLegacyFlatModules": [
+      "rezka_provider.py",
+      "rezka_parser.py"
+    ],
+    "removalBackup": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/active-parser-backup-20261004-remove-old-rezka-flat"
+  },
+  "tests": {
+    "focused": "22/22 PASS",
+    "fullBackend": "319/319 PASS",
+    "activePyCompile": "PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "cohortM": {
+    "seed": 3423,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughL": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 12001,
+    "baseline": {
+      "complete": 13,
+      "voicesGe3": 15,
+      "qualitiesGe3": 89,
+      "anyStream": 425,
+      "nearComplete": 32
+    },
+    "targetedCompleted": [
+      {
+        "id": 12286,
+        "title": "Основатель",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 4,
+          "qualities": 4,
+          "complete": true
+        }
+      },
+      {
+        "id": 29217,
+        "title": "Тупой и ещё тупее",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4,
+          "complete": true
+        }
+      }
+    ],
+    "final": {
+      "complete": 15,
+      "voicesGe3": 17,
+      "qualitiesGe3": 89,
+      "anyStream": 425,
+      "nearComplete": 30
+    },
+    "deltaComplete": 2
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200
+  },
+  "next": [
+    "create fresh cohort-N excluding exact B-M IDs plus conservative A exclusions",
+    "measure HDRezka contribution across a fresh sample separately from torrent contribution",
+    "rewrite the next actually reachable provider behavior natively for Movia and remove its obsolete flat path only after live parity"
+  ]
+}
