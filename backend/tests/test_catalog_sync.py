@@ -195,6 +195,39 @@ class CatalogSyncTests(unittest.TestCase):
             classify_voice_and_quality("Example Movie 2030 WEB release"),
             ("Не указано", "Не указано"),
         )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) BDRip 1080p | Лицензия"),
+            ("Дубляж", "1080p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie 1080p | MVO | Лицензия"),
+            ("Профессиональный (МВО)", "1080p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie 1080p | Original | Лицензия"),
+            ("Original (с субтитрами)", "1080p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) BDRip 1080p | P"),
+            ("Профессиональный (МВО)", "1080p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) BDRip 720p | P2"),
+            ("Двухголосый (ДВО)", "720p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) DVDRip | A"),
+            ("Авторский (Одноголосый)", "480p"),
+        )
+        from torrent_resolver import _release_matches_expected
+        self.assertTrue(_release_matches_expected(
+            "Гладиатор / Gladiator (2000) BDRip 1080p | P",
+            ["Гладиатор", "Gladiator"], 2000, None, None,
+        ))
+        self.assertFalse(_release_matches_expected(
+            "Амазонки и гладиаторы / Amazons and Gladiators (2001) DVDRip | P2",
+            ["Гладиатор", "Gladiator"], 2000, None, None,
+        ))
 
     def test_detail_call_does_not_retry_unless_requested(self):
         client = TMDbClient(api_key="test")

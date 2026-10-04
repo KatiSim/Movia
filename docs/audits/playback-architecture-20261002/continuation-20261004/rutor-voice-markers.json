@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "expand_verified_rutor_voice_markers",
+  "verifiedRutorMarkers": {
+    "P": "Профессиональный (МВО)",
+    "P2": "Двухголосый (ДВО)",
+    "A": "Авторский (Одноголосый)",
+    "Лицензия": "Дубляж fallback only after explicit studio/type/original markers"
+  },
+  "proof": {
+    "source": "live Rutor detail metadata pages",
+    "examplesChecked": 8,
+    "details": [
+      "P pages explicitly said professional multi-voice",
+      "P2 pages explicitly said professional two-voice",
+      "A page explicitly said author one-voice"
+    ]
+  },
+  "sample10": {
+    "totalRutorRows": 514,
+    "unknownBefore": 214,
+    "unknownAfter": 84,
+    "knownBefore": 300,
+    "knownAfter": 430,
+    "knownPctBefore": 58.4,
+    "knownPctAfter": 83.7,
+    "unknownReduction": 130
+  },
+  "identity": {
+    "testCase": "Гладиатор 2000 vs Амазонки и гладиаторы 2001",
+    "wrongSimilarTitlesAfterFullResolver": 0
+  },
+  "liveProduction": {
+    "Марсианин": {
+      "rutorRows": 126,
+      "unknown": 16,
+      "voices": [
+        "Авторский (Одноголосый)",
+        "Дубляж",
+        "Не указано"
+      ]
+    },
+    "Матрица": {
+      "rutorRows": 42,
+      "unknown": 0,
+      "voices": [
+        "Jaskier",
+        "Двухголосый (ДВО)",
+        "Дубляж",
+        "Профессиональный (МВО)"
+      ]
+    },
+    "Гладиатор": {
+      "resolvedRows": 19,
+      "wrongSimilarTitles": 0,
+      "voices": [
+        "Original (с субтитрами)",
+        "Дубляж",
+        "Не указано"
+      ]
+    }
+  },
+  "tests": {
+    "focused": "3/3 PASS active",
+    "fullBackend": "292/292 PASS isolated",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "streamerStatus": "RUNNING",
+    "streamerPid": 19894,
+    "enricherStatus": "RUNNING",
+    "enricherPid": 19898,
+    "healthHttpStatus": 200,
+    "healthSeconds": 0.004804
+  },
+  "remaining": [
+    "verify additional Rutor short markers only from detail-page metadata before mapping",
+    "measure random-1000 voice coverage after enrichment cycles",
+    "continue improving partial titles with fewer than 3 real voices"
+  ]
+}

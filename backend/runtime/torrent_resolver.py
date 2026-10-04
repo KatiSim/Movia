@@ -498,18 +498,42 @@ def classify_voice_and_quality(raw_name: str) -> tuple[str, str]:
     elif any(k in lower for k in ["чистый звук", "line", "line audio", "звук с ts"]):
         voice = "Чистый звук (Line)"
     elif (
-        any(k in lower for k in ["дубляж", "дублированный", "dub", "полное дублирование", "bdrip dub", "web-dl dub"])
+        any(k in lower for k in [
+            "дубляж", "дублированный", "dub", "полное дублирование",
+            "bdrip dub", "web-dl dub",
+        ])
         or re.search(r"(?:^|\|)\s*d\s*(?:[,|]|$)", lower)
     ):
         voice = "Дубляж"
-    elif any(k in lower for k in ["многоголосый", "профессиональный", "проф.", "мво", "mvo"]):
+    elif (
+        any(k in lower for k in ["многоголосый", "профессиональный", "проф.", "мво", "mvo"])
+        or re.search(r"(?:^|\|)\s*p\s*(?:\||$)", lower)
+    ):
+        # Verified against Rutor detail pages: ``| P`` denotes a
+        # professional multi-voice translation.
         voice = "Профессиональный (МВО)"
-    elif any(k in lower for k in ["двухголосый", "дво", "dvo"]):
+    elif (
+        any(k in lower for k in ["двухголосый", "дво", "dvo"])
+        or re.search(r"(?:^|\|)\s*p2\s*(?:\||$)", lower)
+    ):
+        # Verified against Rutor detail pages: ``| P2`` denotes a
+        # professional two-voice translation.
         voice = "Двухголосый (ДВО)"
-    elif any(k in lower for k in ["авторский", "одноголосый", "пво", "головин", "сербин", "живов", "пучков", "гоблин", "гаврилов"]):
+    elif (
+        any(k in lower for k in ["авторский", "одноголосый", "пво", "головин", "сербин", "живов", "пучков", "гоблин", "гаврилов"])
+        or re.search(r"(?:^|\|)\s*a\s*(?:\||$)", lower)
+    ):
+        # Verified against Rutor detail pages: ``| A`` denotes an
+        # author/one-voice translation.
         voice = "Авторский (Одноголосый)"
     elif any(k in lower for k in ["original", "english", "eng", "оригинал", "субтитры", "sub"]):
         voice = "Original (с субтитрами)"
+    elif "лицензи" in lower:
+        # Existing Movia release classifier treats an otherwise-unqualified
+        # licensed Russian release as the official dub. Keep this strictly
+        # after every explicit studio/type/original marker so it cannot mask
+        # more specific audio metadata.
+        voice = "Дубляж"
     else:
         # Do not invent a Russian dub when the release title contains no
         # language/translation marker. Unknown metadata stays unknown.
