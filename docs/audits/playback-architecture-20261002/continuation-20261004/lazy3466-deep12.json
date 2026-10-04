@@ -1,0 +1,918 @@
+[
+  {
+    "runId": "deep-158",
+    "title": "Интерстеллар",
+    "year": 2014,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 15534,
+    "firstCandidateMs": 1913,
+    "candidateCount": 5,
+    "providerCount": 2,
+    "voiceCount": 0,
+    "qualityCount": 2,
+    "pairCount": 3,
+    "providers": [
+      "filmix",
+      "zona.mobi"
+    ],
+    "voices": [],
+    "qualities": [
+      "1080p",
+      "720p"
+    ],
+    "providerVariantCounts": {
+      "filmix": 3,
+      "zona.mobi": 2
+    },
+    "pairs": [
+      {
+        "voice": "Не указано",
+        "quality": "1080p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "720p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "Не указано"
+      }
+    ],
+    "variants": [
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "720p",
+        "kind": "torrent",
+        "label": "BDRip 720p"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "1080p",
+        "kind": "torrent",
+        "label": "BDRip 1080p"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "torrent",
+        "label": "BDRip"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • LQ"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • HQ"
+      }
+    ],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "RESOLVED",
+        "searchHits": 3,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 2,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 0,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 2,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "searchHits": 2,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 2,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 158,
+    "catalogTitle": "Интерстеллар",
+    "catalogYear": 2014
+  },
+  {
+    "probeStatus": "PROCESS_ERROR",
+    "exitCode": 0,
+    "catalogId": 43,
+    "catalogTitle": "Матрица",
+    "catalogYear": 1999
+  },
+  {
+    "runId": "deep-42",
+    "title": "Оппенгеймер",
+    "year": 2023,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 13467,
+    "firstCandidateMs": 2415,
+    "candidateCount": 5,
+    "providerCount": 2,
+    "voiceCount": 0,
+    "qualityCount": 2,
+    "pairCount": 3,
+    "providers": [
+      "filmix",
+      "zona.mobi"
+    ],
+    "voices": [],
+    "qualities": [
+      "1080p",
+      "720p"
+    ],
+    "providerVariantCounts": {
+      "filmix": 3,
+      "zona.mobi": 2
+    },
+    "pairs": [
+      {
+        "voice": "Не указано",
+        "quality": "1080p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "720p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "Не указано"
+      }
+    ],
+    "variants": [
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "720p",
+        "kind": "torrent",
+        "label": "BDRip 720p"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "torrent",
+        "label": "BDRip"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "1080p",
+        "kind": "torrent",
+        "label": "BDRip 1080р"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • LQ"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • HQ"
+      }
+    ],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "RESOLVED",
+        "searchHits": 5,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "searchHits": 2,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 5,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 1,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 4,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 8,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 42,
+    "catalogTitle": "Оппенгеймер",
+    "catalogYear": 2023
+  },
+  {
+    "runId": "deep-221",
+    "title": "Мстители",
+    "year": 2012,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 18001,
+    "firstCandidateMs": 4146,
+    "candidateCount": 1,
+    "providerCount": 1,
+    "voiceCount": 0,
+    "qualityCount": 0,
+    "pairCount": 1,
+    "providers": [
+      "zona.mobi"
+    ],
+    "voices": [],
+    "qualities": [],
+    "providerVariantCounts": {
+      "zona.mobi": 1
+    },
+    "pairs": [
+      {
+        "voice": "Не указано",
+        "quality": "Не указано"
+      }
+    ],
+    "variants": [
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • HQ"
+      }
+    ],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 28,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "searchHits": 60,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 36,
+        "matchedItems": 3
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 0,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 20,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 221,
+    "catalogTitle": "Мстители",
+    "catalogYear": 2012
+  },
+  {
+    "probeStatus": "PROCESS_ERROR",
+    "exitCode": 0,
+    "catalogId": 6,
+    "catalogTitle": "Человек-паук: Нет пути домой",
+    "catalogYear": 2021
+  },
+  {
+    "runId": "deep-90",
+    "title": "Дюна",
+    "year": 2021,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 16589,
+    "firstCandidateMs": 4297,
+    "candidateCount": 2,
+    "providerCount": 1,
+    "voiceCount": 0,
+    "qualityCount": 0,
+    "pairCount": 1,
+    "providers": [
+      "zona.mobi"
+    ],
+    "voices": [],
+    "qualities": [],
+    "providerVariantCounts": {
+      "zona.mobi": 2
+    },
+    "pairs": [
+      {
+        "voice": "Не указано",
+        "quality": "Не указано"
+      }
+    ],
+    "variants": [
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • LQ"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • HQ"
+      }
+    ],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "searchHits": 13,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 15,
+        "matchedItems": 3
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 20,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 6,
+        "matchedItems": 2
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 90,
+    "catalogTitle": "Дюна",
+    "catalogYear": 2021
+  },
+  {
+    "probeStatus": "PROCESS_ERROR",
+    "exitCode": 0,
+    "catalogId": 169,
+    "catalogTitle": "Тёмный рыцарь",
+    "catalogYear": 2008
+  },
+  {
+    "probeStatus": "PROCESS_ERROR",
+    "exitCode": 0,
+    "catalogId": 12245,
+    "catalogTitle": "Дэдпул",
+    "catalogYear": 2016
+  },
+  {
+    "probeStatus": "PROCESS_ERROR",
+    "exitCode": 0,
+    "catalogId": 164,
+    "catalogTitle": "Побег из Шоушенка",
+    "catalogYear": 1994
+  },
+  {
+    "runId": "deep-259",
+    "title": "Начало",
+    "year": 2010,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 15267,
+    "firstCandidateMs": -1,
+    "candidateCount": 0,
+    "providerCount": 0,
+    "voiceCount": 0,
+    "qualityCount": 0,
+    "pairCount": 0,
+    "providers": [],
+    "voices": [],
+    "qualities": [],
+    "providerVariantCounts": {},
+    "pairs": [],
+    "variants": [],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 38,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 36,
+        "matchedItems": 4
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 0,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 20,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_EXACT_MATCH",
+        "searchHits": 20,
+        "matchedItems": 0
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 259,
+    "catalogTitle": "Начало",
+    "catalogYear": 2010
+  },
+  {
+    "runId": "deep-597",
+    "title": "Аватар",
+    "year": 2009,
+    "engineVersion": "3.466",
+    "activeProviders": 12,
+    "configurationStatus": "UPDATED",
+    "elapsedMs": 17293,
+    "firstCandidateMs": 1875,
+    "candidateCount": 5,
+    "providerCount": 2,
+    "voiceCount": 0,
+    "qualityCount": 2,
+    "pairCount": 3,
+    "providers": [
+      "filmix",
+      "zona.mobi"
+    ],
+    "voices": [],
+    "qualities": [
+      "1080p",
+      "720p"
+    ],
+    "providerVariantCounts": {
+      "filmix": 4,
+      "zona.mobi": 1
+    },
+    "pairs": [
+      {
+        "voice": "Не указано",
+        "quality": "1080p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "720p"
+      },
+      {
+        "voice": "Не указано",
+        "quality": "Не указано"
+      }
+    ],
+    "variants": [
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "torrent",
+        "label": "BDRip"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "720p",
+        "kind": "torrent",
+        "label": "BDRip 720p"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "1080p",
+        "kind": "torrent",
+        "label": "BDRip 1080p"
+      },
+      {
+        "provider": "filmix",
+        "voice": "Не указано",
+        "quality": "1080p",
+        "kind": "torrent",
+        "label": "BDRip 1080p 3D Версия"
+      },
+      {
+        "provider": "zona.mobi",
+        "voice": "Не указано",
+        "quality": "Не указано",
+        "kind": "video",
+        "label": "MP4 • HQ"
+      }
+    ],
+    "providerStatuses": [
+      {
+        "providerId": 1,
+        "provider": "filmix",
+        "status": "RESOLVED",
+        "searchHits": 8,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 17,
+        "provider": "octopus",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 21,
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 17,
+        "matchedItems": 2
+      },
+      {
+        "providerId": 4,
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "searchHits": 9,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 23,
+        "provider": "eneyida(ua)",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 11,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 16,
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 31,
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 32,
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 33,
+        "provider": "kinodb",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 20,
+        "matchedItems": 1
+      },
+      {
+        "providerId": 28,
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 29,
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "searchHits": -1,
+        "matchedItems": -1
+      },
+      {
+        "providerId": 13,
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "searchHits": 11,
+        "matchedItems": 2
+      }
+    ],
+    "probeStatus": "OK",
+    "catalogId": 597,
+    "catalogTitle": "Аватар",
+    "catalogYear": 2009
+  }
+]

@@ -1,0 +1,1280 @@
+{
+  "engineVersion": "3.466",
+  "randomTotal": 200,
+  "validRandom": 190,
+  "remainingHarnessFailures": 10,
+  "metrics": {
+    "withAnyCandidate": 71,
+    "withAnyCandidatePct": 37.4,
+    "voiceGe1": 0,
+    "voiceGe2": 0,
+    "voiceGe3": 0,
+    "qualityGe1": 22,
+    "qualityGe2": 10,
+    "qualityGe3": 0,
+    "voiceGe3AndQualityGe3": 0,
+    "providerGe2": 21,
+    "firstCandidateUnder5s": 61
+  },
+  "providerResolvedTitles": {
+    "zona.mobi": 52,
+    "filmix": 40
+  },
+  "providerPresenceTitles": {
+    "zona.mobi": 52,
+    "filmix": 40
+  },
+  "providerStatuses": [
+    {
+      "provider": "octopus",
+      "status": "IOException",
+      "count": 190
+    },
+    {
+      "provider": "eneyida(ua)",
+      "status": "NO_EXACT_MATCH",
+      "count": 186
+    },
+    {
+      "provider": "id:29",
+      "status": "TIMEOUT",
+      "count": 158
+    },
+    {
+      "provider": "id:28",
+      "status": "TIMEOUT",
+      "count": 157
+    },
+    {
+      "provider": "id:16",
+      "status": "TIMEOUT",
+      "count": 150
+    },
+    {
+      "provider": "id:33",
+      "status": "TIMEOUT",
+      "count": 115
+    },
+    {
+      "provider": "filmix",
+      "status": "IOException",
+      "count": 111
+    },
+    {
+      "provider": "id:32",
+      "status": "TIMEOUT",
+      "count": 109
+    },
+    {
+      "provider": "id:31",
+      "status": "TIMEOUT",
+      "count": 107
+    },
+    {
+      "provider": "zona.mobi",
+      "status": "NO_EXACT_MATCH",
+      "count": 101
+    },
+    {
+      "provider": "hdrezka",
+      "status": "NO_EXACT_MATCH",
+      "count": 93
+    },
+    {
+      "provider": "hdrezka",
+      "status": "NO_PLAYABLE_EPISODE",
+      "count": 93
+    },
+    {
+      "provider": "anilibria(v1)",
+      "status": "IOException",
+      "count": 83
+    },
+    {
+      "provider": "anilibria(v3)",
+      "status": "IOException",
+      "count": 81
+    },
+    {
+      "provider": "id:13",
+      "status": "TIMEOUT",
+      "count": 77
+    },
+    {
+      "provider": "encyclopedia",
+      "status": "NO_EXACT_MATCH",
+      "count": 71
+    },
+    {
+      "provider": "zona.mobi",
+      "status": "RESOLVED",
+      "count": 52
+    },
+    {
+      "provider": "kinodb",
+      "status": "IOException",
+      "count": 40
+    },
+    {
+      "provider": "filmix",
+      "status": "RESOLVED",
+      "count": 40
+    },
+    {
+      "provider": "zombie",
+      "status": "TIMEOUT",
+      "count": 40
+    },
+    {
+      "provider": "id:4",
+      "status": "TIMEOUT",
+      "count": 33
+    },
+    {
+      "provider": "zetflix",
+      "status": "TIMEOUT",
+      "count": 33
+    },
+    {
+      "provider": "seasonvar",
+      "status": "TIMEOUT",
+      "count": 32
+    },
+    {
+      "provider": "encyclopedia",
+      "status": "IOException",
+      "count": 28
+    },
+    {
+      "provider": "filmix",
+      "status": "NO_EXACT_MATCH",
+      "count": 23
+    },
+    {
+      "provider": "kinodb",
+      "status": "NO_EXACT_MATCH",
+      "count": 18
+    },
+    {
+      "provider": "filmix",
+      "status": "NO_PLAYABLE_EPISODE",
+      "count": 16
+    },
+    {
+      "provider": "kinodb",
+      "status": "NO_PLAYABLE_EPISODE",
+      "count": 15
+    },
+    {
+      "provider": "encyclopedia",
+      "status": "NO_PLAYABLE_EPISODE",
+      "count": 8
+    },
+    {
+      "provider": "encyclopedia",
+      "status": "TIMEOUT",
+      "count": 6
+    },
+    {
+      "provider": "id:21",
+      "status": "TIMEOUT",
+      "count": 4
+    },
+    {
+      "provider": "zona.mobi",
+      "status": "TIMEOUT",
+      "count": 3
+    },
+    {
+      "provider": "kinodb",
+      "status": "TIMEOUT",
+      "count": 2
+    },
+    {
+      "provider": "id:23",
+      "status": "TIMEOUT",
+      "count": 2
+    },
+    {
+      "provider": "zona.mobi",
+      "status": "NO_PLAYABLE_EPISODE",
+      "count": 1
+    },
+    {
+      "provider": "eneyida(ua)",
+      "status": "IOException",
+      "count": 1
+    },
+    {
+      "provider": "eneyida(ua)",
+      "status": "TIMEOUT",
+      "count": 1
+    }
+  ],
+  "collisionCases": [
+    {
+      "probeStatus": "PROCESS_ERROR_RETRY",
+      "exitCode": 0,
+      "stderrType": "nonempty",
+      "catalogId": 226,
+      "catalogTitle": "Человек-паук",
+      "catalogOriginalTitle": "Spider-Man",
+      "catalogYear": 2002,
+      "catalogRating": 7.4,
+      "catalogVoteCount": 21506,
+      "cohort": "collision",
+      "wallMs": 9717
+    },
+    {
+      "runId": "collision-2-262",
+      "title": "Новый Человек-паук",
+      "year": 2012,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6502,
+      "firstCandidateMs": 1779,
+      "candidateCount": 4,
+      "providerCount": 2,
+      "voiceCount": 0,
+      "qualityCount": 2,
+      "pairCount": 3,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "providerVariantCounts": {
+        "filmix": 3,
+        "zona.mobi": 1
+      },
+      "pairs": [
+        {
+          "voice": "Не указано",
+          "quality": "1080p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "720p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "Не указано"
+        }
+      ],
+      "variants": [
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "torrent",
+          "label": "BDRip"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "720p",
+          "kind": "torrent",
+          "label": "BDRip 720p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "1080p",
+          "kind": "torrent",
+          "label": "BDRip 1080p "
+        },
+        {
+          "provider": "zona.mobi",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "video",
+          "label": "MP4 • HQ"
+        }
+      ],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 2,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 4,
+          "matchedItems": 2
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 3,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 262,
+      "catalogTitle": "Новый Человек-паук",
+      "catalogOriginalTitle": "The Amazing Spider-Man",
+      "catalogYear": 2012,
+      "catalogRating": 6.8,
+      "catalogVoteCount": 19165,
+      "cohort": "collision",
+      "wallMs": 10236
+    },
+    {
+      "runId": "collision-3-38",
+      "title": "Новый Человек-паук: Высокое напряжение",
+      "year": 2014,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6502,
+      "firstCandidateMs": 1780,
+      "candidateCount": 5,
+      "providerCount": 2,
+      "voiceCount": 0,
+      "qualityCount": 2,
+      "pairCount": 3,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "providerVariantCounts": {
+        "filmix": 3,
+        "zona.mobi": 2
+      },
+      "pairs": [
+        {
+          "voice": "Не указано",
+          "quality": "1080p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "720p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "Не указано"
+        }
+      ],
+      "variants": [
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "720p",
+          "kind": "torrent",
+          "label": "BDRip 720p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "torrent",
+          "label": "BDRip "
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "1080p",
+          "kind": "torrent",
+          "label": "BDRip 1080p"
+        },
+        {
+          "provider": "zona.mobi",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "video",
+          "label": "MP4 • LQ"
+        },
+        {
+          "provider": "zona.mobi",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "video",
+          "label": "MP4 • HQ"
+        }
+      ],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 38,
+      "catalogTitle": "Новый Человек-паук: Высокое напряжение",
+      "catalogOriginalTitle": "The Amazing Spider-Man 2",
+      "catalogYear": 2014,
+      "catalogRating": 6.6,
+      "catalogVoteCount": 14780,
+      "cohort": "collision",
+      "wallMs": 10302
+    },
+    {
+      "runId": "collision-4-202",
+      "title": "Человек-паук: Возвращение домой",
+      "year": 2017,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6501,
+      "firstCandidateMs": 1846,
+      "candidateCount": 6,
+      "providerCount": 1,
+      "voiceCount": 0,
+      "qualityCount": 2,
+      "pairCount": 3,
+      "providers": [
+        "filmix"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "providerVariantCounts": {
+        "filmix": 6
+      },
+      "pairs": [
+        {
+          "voice": "Не указано",
+          "quality": "1080p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "720p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "Не указано"
+        }
+      ],
+      "variants": [
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "1080p",
+          "kind": "torrent",
+          "label": "WEB-DL 1080p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "720p",
+          "kind": "torrent",
+          "label": "WEB-DL 720p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "torrent",
+          "label": "WEB-DLRip"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "1080p",
+          "kind": "torrent",
+          "label": "BDRip 1080p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "720p",
+          "kind": "torrent",
+          "label": "BDRip 720p"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "torrent",
+          "label": "BDRip"
+        }
+      ],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 202,
+      "catalogTitle": "Человек-паук: Возвращение домой",
+      "catalogOriginalTitle": "Spider-Man: Homecoming",
+      "catalogYear": 2017,
+      "catalogRating": 7.3,
+      "catalogVoteCount": 23969,
+      "cohort": "collision",
+      "wallMs": 10294
+    },
+    {
+      "runId": "collision-5-6",
+      "title": "Человек-паук: Нет пути домой",
+      "year": 2021,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6502,
+      "firstCandidateMs": 1770,
+      "candidateCount": 2,
+      "providerCount": 1,
+      "voiceCount": 0,
+      "qualityCount": 1,
+      "pairCount": 2,
+      "providers": [
+        "filmix"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p"
+      ],
+      "providerVariantCounts": {
+        "filmix": 2
+      },
+      "pairs": [
+        {
+          "voice": "Не указано",
+          "quality": "1080p"
+        },
+        {
+          "voice": "Не указано",
+          "quality": "Не указано"
+        }
+      ],
+      "variants": [
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "1080p",
+          "kind": "torrent",
+          "label": "BDRip 1080р"
+        },
+        {
+          "provider": "filmix",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "torrent",
+          "label": "BDRip"
+        }
+      ],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 6,
+      "catalogTitle": "Человек-паук: Нет пути домой",
+      "catalogOriginalTitle": "Spider-Man: No Way Home",
+      "catalogYear": 2021,
+      "catalogRating": 7.9,
+      "catalogVoteCount": 23210,
+      "cohort": "collision",
+      "wallMs": 10107
+    },
+    {
+      "probeStatus": "PROCESS_ERROR_RETRY",
+      "exitCode": 0,
+      "stderrType": "nonempty",
+      "catalogId": 90,
+      "catalogTitle": "Дюна",
+      "catalogOriginalTitle": "Dune",
+      "catalogYear": 2021,
+      "catalogRating": 7.8,
+      "catalogVoteCount": 15612,
+      "cohort": "collision",
+      "wallMs": 9863
+    },
+    {
+      "runId": "collision-6-33999",
+      "title": "Дюна",
+      "year": 1984,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6502,
+      "firstCandidateMs": -1,
+      "candidateCount": 0,
+      "providerCount": 0,
+      "voiceCount": 0,
+      "qualityCount": 0,
+      "pairCount": 0,
+      "providers": [],
+      "voices": [],
+      "qualities": [],
+      "providerVariantCounts": {},
+      "pairs": [],
+      "variants": [],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 15,
+          "matchedItems": 3
+        },
+        {
+          "providerId": 4,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 33999,
+      "catalogTitle": "Дюна",
+      "catalogOriginalTitle": "Dune",
+      "catalogYear": 1984,
+      "catalogRating": 6.2,
+      "catalogVoteCount": 3557,
+      "cohort": "collision",
+      "wallMs": 10415
+    },
+    {
+      "runId": "collision-8-31721",
+      "title": "Бэтмен",
+      "year": 1989,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6504,
+      "firstCandidateMs": -1,
+      "candidateCount": 0,
+      "providerCount": 0,
+      "voiceCount": 0,
+      "qualityCount": 0,
+      "pairCount": 0,
+      "providers": [],
+      "voices": [],
+      "qualities": [],
+      "providerVariantCounts": {},
+      "pairs": [],
+      "variants": [],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 36,
+          "matchedItems": 4
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 31721,
+      "catalogTitle": "Бэтмен",
+      "catalogOriginalTitle": "Batman",
+      "catalogYear": 1989,
+      "catalogRating": 7.2,
+      "catalogVoteCount": 8834,
+      "cohort": "collision",
+      "wallMs": 10193
+    },
+    {
+      "runId": "collision-9-4801",
+      "title": "Бэтмен",
+      "year": 2022,
+      "engineVersion": "3.466",
+      "activeProviders": 12,
+      "configurationStatus": "UPDATED",
+      "elapsedMs": 6503,
+      "firstCandidateMs": 4133,
+      "candidateCount": 2,
+      "providerCount": 1,
+      "voiceCount": 0,
+      "qualityCount": 0,
+      "pairCount": 1,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [],
+      "providerVariantCounts": {
+        "zona.mobi": 2
+      },
+      "pairs": [
+        {
+          "voice": "Не указано",
+          "quality": "Не указано"
+        }
+      ],
+      "variants": [
+        {
+          "provider": "zona.mobi",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "video",
+          "label": "MP4 • LQ"
+        },
+        {
+          "provider": "zona.mobi",
+          "voice": "Не указано",
+          "quality": "Не указано",
+          "kind": "video",
+          "label": "MP4 • HQ"
+        }
+      ],
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 51,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 36,
+          "matchedItems": 4
+        },
+        {
+          "providerId": 13,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "probeStatus": "OK",
+      "catalogId": 4801,
+      "catalogTitle": "Бэтмен",
+      "catalogOriginalTitle": "The Batman",
+      "catalogYear": 2022,
+      "catalogRating": 7.7,
+      "catalogVoteCount": 12579,
+      "cohort": "collision",
+      "wallMs": 9964
+    }
+  ]
+}

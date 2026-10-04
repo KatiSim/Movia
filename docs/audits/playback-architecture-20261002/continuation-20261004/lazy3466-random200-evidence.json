@@ -1,0 +1,595 @@
+{
+  "checkedAt": "2026-10-04T10:22:00Z",
+  "action": "benchmark_lazy_media_3466_random200_structural_playback",
+  "method": {
+    "engine": "LazyMedia Deluxe 3.466 pinned provider Dex",
+    "engineSha256": "637705386744f29445223fded2ad2df6aeb72295cfc9ce327609e7f0c7a72a00",
+    "execution": "isolated Android app_process; no Activity/player/service from LazyMedia",
+    "randomRequested": 200,
+    "randomSeed": 20261004,
+    "validRandomRuns": 190,
+    "harnessFailures": 10,
+    "engineTimeoutMs": 6500,
+    "activeProviderCount": 12,
+    "treeTraversal": "all k30 folders and h30 lazy branches for each movie were expanded to every j30 concrete leaf",
+    "persistedTelemetry": "structural only; no URLs, headers, cookies, tokens, signed locators"
+  },
+  "random200": {
+    "withAnyCandidate": 71,
+    "withAnyCandidatePct": 37.4,
+    "meanCandidatesAmongHits": 2.39,
+    "medianCandidatesAmongHits": 2,
+    "maxCandidates": 5,
+    "medianFirstCandidateMs": 1904,
+    "p90FirstCandidateMs": 5174,
+    "firstCandidateUnder5s": 61,
+    "voiceGe1": 0,
+    "voiceGe2": 0,
+    "voiceGe3": 0,
+    "qualityGe1": 22,
+    "qualityGe2": 10,
+    "qualityGe3": 0,
+    "providerGe2": 21,
+    "providerCombos": {
+      "none": 119,
+      "zona.mobi": 31,
+      "filmix": 19,
+      "filmix+zona.mobi": 21
+    },
+    "leafKinds": {
+      "video": 103,
+      "torrent": 67
+    },
+    "topLeafLabels": [
+      [
+        "MP4 • HQ",
+        52
+      ],
+      [
+        "MP4 • LQ",
+        51
+      ],
+      [
+        "DVDRip",
+        13
+      ],
+      [
+        "BDRip",
+        11
+      ],
+      [
+        "BDRip 720p",
+        9
+      ],
+      [
+        "WEB-DL 1080p",
+        6
+      ],
+      [
+        "WEB-DLRip",
+        6
+      ],
+      [
+        "BDRip 1080p",
+        4
+      ],
+      [
+        "HDRip",
+        2
+      ],
+      [
+        "BDRip 1080р",
+        2
+      ],
+      [
+        "WEB-DL 1080р",
+        2
+      ],
+      [
+        "BDRip 1080p ",
+        1
+      ],
+      [
+        "HDTVRip",
+        1
+      ],
+      [
+        "BDRip-AVC",
+        1
+      ],
+      [
+        "WEBDLRip",
+        1
+      ]
+    ],
+    "yearBuckets": {
+      "1920-1989": {
+        "n": 46,
+        "hits": 23,
+        "hitPct": 50.0
+      },
+      "1990-1999": {
+        "n": 16,
+        "hits": 11,
+        "hitPct": 68.8
+      },
+      "2000-2009": {
+        "n": 21,
+        "hits": 12,
+        "hitPct": 57.1
+      },
+      "2010-2019": {
+        "n": 29,
+        "hits": 13,
+        "hitPct": 44.8
+      },
+      "2020-2026": {
+        "n": 78,
+        "hits": 12,
+        "hitPct": 15.4
+      }
+    },
+    "providerResolvedTitles": {
+      "zona.mobi": 52,
+      "filmix": 40
+    },
+    "providerStatuses": [
+      {
+        "provider": "octopus",
+        "status": "IOException",
+        "count": 190
+      },
+      {
+        "provider": "eneyida(ua)",
+        "status": "NO_EXACT_MATCH",
+        "count": 186
+      },
+      {
+        "provider": "id:29",
+        "status": "TIMEOUT",
+        "count": 158
+      },
+      {
+        "provider": "id:28",
+        "status": "TIMEOUT",
+        "count": 157
+      },
+      {
+        "provider": "id:16",
+        "status": "TIMEOUT",
+        "count": 150
+      },
+      {
+        "provider": "id:33",
+        "status": "TIMEOUT",
+        "count": 115
+      },
+      {
+        "provider": "filmix",
+        "status": "IOException",
+        "count": 111
+      },
+      {
+        "provider": "id:32",
+        "status": "TIMEOUT",
+        "count": 109
+      },
+      {
+        "provider": "id:31",
+        "status": "TIMEOUT",
+        "count": 107
+      },
+      {
+        "provider": "zona.mobi",
+        "status": "NO_EXACT_MATCH",
+        "count": 101
+      },
+      {
+        "provider": "hdrezka",
+        "status": "NO_EXACT_MATCH",
+        "count": 93
+      },
+      {
+        "provider": "hdrezka",
+        "status": "NO_PLAYABLE_EPISODE",
+        "count": 93
+      },
+      {
+        "provider": "anilibria(v1)",
+        "status": "IOException",
+        "count": 83
+      },
+      {
+        "provider": "anilibria(v3)",
+        "status": "IOException",
+        "count": 81
+      },
+      {
+        "provider": "id:13",
+        "status": "TIMEOUT",
+        "count": 77
+      },
+      {
+        "provider": "encyclopedia",
+        "status": "NO_EXACT_MATCH",
+        "count": 71
+      },
+      {
+        "provider": "zona.mobi",
+        "status": "RESOLVED",
+        "count": 52
+      },
+      {
+        "provider": "kinodb",
+        "status": "IOException",
+        "count": 40
+      },
+      {
+        "provider": "filmix",
+        "status": "RESOLVED",
+        "count": 40
+      },
+      {
+        "provider": "zombie",
+        "status": "TIMEOUT",
+        "count": 40
+      },
+      {
+        "provider": "id:4",
+        "status": "TIMEOUT",
+        "count": 33
+      },
+      {
+        "provider": "zetflix",
+        "status": "TIMEOUT",
+        "count": 33
+      },
+      {
+        "provider": "seasonvar",
+        "status": "TIMEOUT",
+        "count": 32
+      },
+      {
+        "provider": "encyclopedia",
+        "status": "IOException",
+        "count": 28
+      },
+      {
+        "provider": "filmix",
+        "status": "NO_EXACT_MATCH",
+        "count": 23
+      },
+      {
+        "provider": "kinodb",
+        "status": "NO_EXACT_MATCH",
+        "count": 18
+      },
+      {
+        "provider": "filmix",
+        "status": "NO_PLAYABLE_EPISODE",
+        "count": 16
+      },
+      {
+        "provider": "kinodb",
+        "status": "NO_PLAYABLE_EPISODE",
+        "count": 15
+      },
+      {
+        "provider": "encyclopedia",
+        "status": "NO_PLAYABLE_EPISODE",
+        "count": 8
+      },
+      {
+        "provider": "encyclopedia",
+        "status": "TIMEOUT",
+        "count": 6
+      },
+      {
+        "provider": "id:21",
+        "status": "TIMEOUT",
+        "count": 4
+      },
+      {
+        "provider": "zona.mobi",
+        "status": "TIMEOUT",
+        "count": 3
+      },
+      {
+        "provider": "kinodb",
+        "status": "TIMEOUT",
+        "count": 2
+      },
+      {
+        "provider": "id:23",
+        "status": "TIMEOUT",
+        "count": 2
+      },
+      {
+        "provider": "zona.mobi",
+        "status": "NO_PLAYABLE_EPISODE",
+        "count": 1
+      },
+      {
+        "provider": "eneyida(ua)",
+        "status": "IOException",
+        "count": 1
+      },
+      {
+        "provider": "eneyida(ua)",
+        "status": "TIMEOUT",
+        "count": 1
+      }
+    ]
+  },
+  "collisionCases": [
+    {
+      "title": "Человек-паук",
+      "year": 2002,
+      "status": "OK",
+      "candidateCount": 1,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": []
+    },
+    {
+      "title": "Новый Человек-паук",
+      "year": 2012,
+      "status": "OK",
+      "candidateCount": 4,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ]
+    },
+    {
+      "title": "Новый Человек-паук: Высокое напряжение",
+      "year": 2014,
+      "status": "OK",
+      "candidateCount": 5,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ]
+    },
+    {
+      "title": "Человек-паук: Возвращение домой",
+      "year": 2017,
+      "status": "OK",
+      "candidateCount": 6,
+      "providers": [
+        "filmix"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ]
+    },
+    {
+      "title": "Человек-паук: Нет пути домой",
+      "year": 2021,
+      "status": "OK",
+      "candidateCount": 2,
+      "providers": [
+        "filmix"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p"
+      ]
+    },
+    {
+      "title": "Дюна",
+      "year": 2021,
+      "status": "OK",
+      "candidateCount": 2,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": []
+    },
+    {
+      "title": "Дюна",
+      "year": 1984,
+      "status": "OK",
+      "candidateCount": 0,
+      "providers": [],
+      "voices": [],
+      "qualities": []
+    },
+    {
+      "title": "Бэтмен",
+      "year": 1989,
+      "status": "OK",
+      "candidateCount": 0,
+      "providers": [],
+      "voices": [],
+      "qualities": []
+    },
+    {
+      "title": "Бэтмен",
+      "year": 2022,
+      "status": "OK",
+      "candidateCount": 2,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": []
+    }
+  ],
+  "deep18sControl": [
+    {
+      "title": "Интерстеллар",
+      "year": 2014,
+      "status": "OK",
+      "candidateCount": 5,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "firstCandidateMs": 1913,
+      "elapsedMs": 15534
+    },
+    {
+      "title": "Матрица",
+      "year": 1999,
+      "status": "PROCESS_ERROR",
+      "candidateCount": null,
+      "providers": null,
+      "voices": null,
+      "qualities": null,
+      "firstCandidateMs": null,
+      "elapsedMs": null
+    },
+    {
+      "title": "Оппенгеймер",
+      "year": 2023,
+      "status": "OK",
+      "candidateCount": 5,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "firstCandidateMs": 2415,
+      "elapsedMs": 13467
+    },
+    {
+      "title": "Мстители",
+      "year": 2012,
+      "status": "OK",
+      "candidateCount": 1,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [],
+      "firstCandidateMs": 4146,
+      "elapsedMs": 18001
+    },
+    {
+      "title": "Человек-паук: Нет пути домой",
+      "year": 2021,
+      "status": "PROCESS_ERROR",
+      "candidateCount": null,
+      "providers": null,
+      "voices": null,
+      "qualities": null,
+      "firstCandidateMs": null,
+      "elapsedMs": null
+    },
+    {
+      "title": "Дюна",
+      "year": 2021,
+      "status": "OK",
+      "candidateCount": 2,
+      "providers": [
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [],
+      "firstCandidateMs": 4297,
+      "elapsedMs": 16589
+    },
+    {
+      "title": "Тёмный рыцарь",
+      "year": 2008,
+      "status": "PROCESS_ERROR",
+      "candidateCount": null,
+      "providers": null,
+      "voices": null,
+      "qualities": null,
+      "firstCandidateMs": null,
+      "elapsedMs": null
+    },
+    {
+      "title": "Дэдпул",
+      "year": 2016,
+      "status": "PROCESS_ERROR",
+      "candidateCount": null,
+      "providers": null,
+      "voices": null,
+      "qualities": null,
+      "firstCandidateMs": null,
+      "elapsedMs": null
+    },
+    {
+      "title": "Побег из Шоушенка",
+      "year": 1994,
+      "status": "PROCESS_ERROR",
+      "candidateCount": null,
+      "providers": null,
+      "voices": null,
+      "qualities": null,
+      "firstCandidateMs": null,
+      "elapsedMs": null
+    },
+    {
+      "title": "Начало",
+      "year": 2010,
+      "status": "OK",
+      "candidateCount": 0,
+      "providers": [],
+      "voices": [],
+      "qualities": [],
+      "firstCandidateMs": -1,
+      "elapsedMs": 15267
+    },
+    {
+      "title": "Аватар",
+      "year": 2009,
+      "status": "OK",
+      "candidateCount": 5,
+      "providers": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "voices": [],
+      "qualities": [
+        "1080p",
+        "720p"
+      ],
+      "firstCandidateMs": 1875,
+      "elapsedMs": 17293
+    }
+  ],
+  "conclusions": [
+    "The transferable LazyMedia strength is the provider/search/article/VariantTree architecture, not current 2026 endpoint coverage.",
+    "In current 2026 responses only Filmix and Zona produced concrete movie leaves in this random benchmark.",
+    "No explicit movie voice label was produced in 190 valid random runs, even though folder traversal was exhaustive.",
+    "No valid random movie exposed three distinct normalized qualities; only ten exposed at least two.",
+    "Exact title/year filtering prevented observed cross-year contamination in nine collision/franchise cases.",
+    "Longer 18-second controls did not restore explicit voices on the valid popular titles tested."
+  ],
+  "limitations": {
+    "literalLazyMediaUiInstalled": false,
+    "reason": "LazyMedia package is not installed; same pinned provider Dex was executed headlessly through the existing isolated engine harness.",
+    "postersAndDescriptionsRendered": false,
+    "media3DecodedEveryLeaf": false,
+    "tenRandomHarnessRunsMissing": true,
+    "benchmarkDoesNotClaimOriginalHistoricalEndpointsStillBehaveAsInPast": true
+  }
+}
