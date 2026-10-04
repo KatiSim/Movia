@@ -112,6 +112,15 @@ class ProviderReliabilityIntegrationTests(unittest.TestCase):
         self.assertTrue(state["disabled"])
         self.assertEqual(state["consecutive_failures"], 3)
 
+
+    def test_balancer_defaults_never_recurse_into_torrent_fallback(self):
+        import inspect
+        zona = inspect.signature(balancer_integration.query_zona_api)
+        balancer = inspect.signature(balancer_integration.query_open_balancer_stream)
+        self.assertFalse(zona.parameters["allow_torrent_fallback"].default)
+        self.assertFalse(balancer.parameters["allow_torrent_fallback"].default)
+        self.assertFalse(hasattr(balancer_integration, "batch_update_balancer_streams"))
+
     def test_torrent_guard_does_not_invoke_provider_during_cooldown(self):
         for _ in range(3):
             reliability.observe("apibay", "PROVIDER_TIMEOUT")

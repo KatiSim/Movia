@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "remove_recursive_flat_balancer_and_audit_fresh_cohort_h",
+  "architectureCleanup": {
+    "removed": [
+      "batch_update_balancer_streams from balancer_integration",
+      "balancer_integration CLI __main__ direct writer path"
+    ],
+    "changedDefaults": {
+      "query_zona_api_allow_torrent_fallback": false,
+      "query_open_balancer_stream_allow_torrent_fallback": false
+    },
+    "reason": [
+      "torrent discovery now has its own dedicated provider branch",
+      "legacy recursive fallback could duplicate P2P candidates inside flat Zona/balancer results",
+      "batch updater directly overwrote movies.streams without the modern identity/persistence boundary"
+    ],
+    "retained": [
+      "resolve_balancer direct provider branch",
+      "Collaps and Zona direct providers",
+      "LazyMedia LegacyProviderEngine/VariantTree compatibility path"
+    ]
+  },
+  "tests": {
+    "focused": "9/9 PASS",
+    "fullBackend": "295/295 PASS",
+    "activePyCompile": "PASS"
+  },
+  "production": {
+    "zonaTorrentFallbackDefault": false,
+    "balancerTorrentFallbackDefault": false,
+    "batchUpdaterExists": false,
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING"
+  },
+  "cohortH": {
+    "seed": 3417,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "overlapWithE": 0,
+    "overlapWithF": 0,
+    "overlapWithG": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 7001,
+    "baseline": {
+      "complete": 10,
+      "voicesGe3": 13,
+      "qualitiesGe3": 79,
+      "anyStream": 467,
+      "nearComplete": 32
+    },
+    "targetedCompleted": [
+      {
+        "id": 282,
+        "title": "Человек-паук: Вдали от дома",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4
+        }
+      },
+      {
+        "id": 112,
+        "title": "Крёстный отец 2",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3
+        }
+      },
+      {
+        "id": 12296,
+        "title": "Варкрафт",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 4,
+          "qualities": 3
+        }
+      },
+      {
+        "id": 15568,
+        "title": "Армагеддец",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3
+        }
+      },
+      {
+        "id": 28722,
+        "title": "Джуманджи",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3
+        }
+      }
+    ],
+    "final": {
+      "complete": 15,
+      "voicesGe3": 18,
+      "qualitiesGe3": 79,
+      "anyStream": 467,
+      "nearComplete": 27
+    },
+    "deltaComplete": 5
+  },
+  "next": [
+    "create fresh cohort-I excluding exact saved B-H plus conservative A exclusions",
+    "continue migrating direct Collaps/Zona providers toward ProviderContract/VariantTree without removing working transports",
+    "prioritize real voice extraction because quality coverage still exceeds voice coverage by a wide margin"
+  ]
+}

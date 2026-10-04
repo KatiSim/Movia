@@ -129,7 +129,7 @@ def query_zona_api(
     year: Optional[int] = None,
     season: Optional[int] = None,
     episode: Optional[int] = None,
-    allow_torrent_fallback: bool = True,
+    allow_torrent_fallback: bool = False,
     expected_titles: Optional[List[str]] = None,
     media_type: Optional[str] = None,
     kinopoisk_id: Optional[int] = None,
@@ -264,7 +264,7 @@ def query_open_balancer_stream(
     episode: Optional[int] = None,
     kinopoisk_id: Optional[int] = None,
     check_archive_remote: bool = False,
-    allow_torrent_fallback: bool = True,
+    allow_torrent_fallback: bool = False,
     expected_titles: Optional[List[str]] = None,
     media_type: Optional[str] = None,
     zona_sources: Optional[List[Dict[str, Any]]] = None,
@@ -385,41 +385,6 @@ def resolve_balancer(
         logger.error(f"Error in resolve_balancer for {title}: {e}")
         return None
 
-def batch_update_balancer_streams(limit: int = 5000):
-    """Enriches catalog database with direct balancer streams."""
-    if not DB_PATH.exists():
-        logger.error(f"Database {DB_PATH} not found.")
-        return
-
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-
-    rows = cur.execute("SELECT id, title, tmdb_id, year, category, rating, streams FROM movies LIMIT ?;", (limit,)).fetchall()
-    logger.info(f"🔍 Обогащение прямыми потоками балансеров ({len(rows)} записей)...")
-
-    updated = 0
-    for r in rows:
-        m_id = r["id"]
-        title = r["title"] or ""
-        tmdb_id = r["tmdb_id"] or 0
-        year = int(r["year"] or 2024)
-        current_streams = []
-        try:
-            current_streams = json.loads(r["streams"] or "[]")
-        except Exception:
-            current_streams = []
-
-        direct_balancer_streams = query_open_balancer_stream(title=title, tmdb_id=tmdb_id, year=year)
-        torrent_streams = [s for s in current_streams if s.get("url", "").startswith("magnet:")]
-        combined = direct_balancer_streams + torrent_streams
-        cur.execute("UPDATE movies SET streams = ? WHERE id = ?;", (json.dumps(combined, ensure_ascii=False), m_id))
-        updated += 1
-
-    conn.commit()
-    conn.close()
-    logger.info(f"✅ Успешно обновлено прямыми потоками {updated} тайтлов.")
-
 def fetch_new_releases(limit: int = 50) -> List[Dict[str, Any]]:
     """Fetches latest releases and updates from public balancer feeds."""
     releases = []
@@ -436,13 +401,3 @@ def fetch_new_releases(limit: int = 50) -> List[Dict[str, Any]]:
     except Exception as e:
         logger.debug(f"fetch_new_releases error: {e}")
     return releases
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        raise SystemExit("usage: balancer_integration.py <title> [year]")
-    try:
-        requested_year = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-    except ValueError:
-        requested_year = 0
-    result = resolve_balancer(sys.argv[1], requested_year)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
