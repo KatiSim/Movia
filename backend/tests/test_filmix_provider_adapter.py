@@ -1,8 +1,10 @@
 import json
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import zona_legacy_adapters
+import filmix_provider_adapter
 from filmix_provider_adapter import FilmixProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
 
@@ -26,6 +28,64 @@ class FilmixProviderAdapterTests(unittest.TestCase):
                 }
             }
         })
+
+    def test_search_uses_decoded_lazy_3466_contract(self):
+        calls = []
+
+        def fetch_text(url, headers):
+            calls.append((url, dict(headers)))
+            return json.dumps({
+                "items": [
+                    {
+                        "id": 12345,
+                        "title": "Интерстеллар",
+                        "year": "2014",
+                        "poster": "https://img.example/poster.jpg",
+                        "ratingImdb": "8.7",
+                        "quality": "BDRip",
+                        "category": "movie",
+                    },
+                    {
+                        "id": 999,
+                        "title": "Excluded",
+                        "year": "2024",
+                        "category": "s87",
+                    },
+                    {"id": "", "title": "Broken", "category": "movie"},
+                ]
+            }, ensure_ascii=False), None
+
+        results, error = self.adapter.search(
+            "Интерстеллар 2014",
+            fetch_text=fetch_text,
+            page=2,
+            request_user_agent="Filmix-UA",
+        )
+
+        self.assertIsNone(error)
+        self.assertEqual(1, len(results))
+        self.assertEqual("12345", results[0].item_id)
+        self.assertEqual("Интерстеллар", results[0].title)
+        self.assertEqual(2014, results[0].year)
+        self.assertEqual("12345", results[0].article_ref)
+        self.assertEqual(
+            "http://5.61.56.18/partner_api/list?page=2&sort=date&search="
+            "%D0%98%D0%BD%D1%82%D0%B5%D1%80%D1%81%D1%82%D0%B5%D0%BB%D0%BB%D0%B0%D1%80%202014",
+            calls[0][0],
+        )
+        self.assertEqual("Filmix-UA", calls[0][1]["User-Agent"])
+
+    def test_search_rejects_invalid_payload_without_inventing_results(self):
+        results, error = self.adapter.search(
+            "Example",
+            fetch_text=lambda url, headers: (json.dumps({"unexpected": []}), None),
+        )
+        self.assertEqual([], results)
+        self.assertEqual("filmix-search:NO_ITEMS", error)
+
+    def test_adapter_runtime_has_no_zona_legacy_dependency(self):
+        source = Path(filmix_provider_adapter.__file__).read_text()
+        self.assertNotIn("zona_legacy_adapters", source)
 
     def test_movie_tree_matches_verified_flat_legacy_contract(self):
         gets = []
