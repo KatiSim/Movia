@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "target_near_complete_random1000_titles",
+  "baseline": {
+    "random1000Complete": 7,
+    "voicesGe3": 8,
+    "qualitiesGe3": 49,
+    "anyStream": 325,
+    "nearCompleteVoices2QualitiesGe3": 22
+  },
+  "targetedCompleted": [
+    {
+      "id": 8655,
+      "title": "Тройная граница",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 4,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 23203,
+      "title": "Соседка",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 2577,
+      "title": "Нежить",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 22569,
+      "title": "Волчья яма",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    }
+  ],
+  "after": {
+    "random1000Complete": 11,
+    "voicesGe3": 12,
+    "qualitiesGe3": 49,
+    "anyStream": 325
+  },
+  "delta": {
+    "completeAbsolute": 4,
+    "completeRelativePct": 57.1
+  },
+  "identity": {
+    "wrongSimilarTitleLeakObserved": false,
+    "method": "existing _release_matches_expected + persistence identity barrier"
+  },
+  "conclusion": "Voice coverage is now the dominant limiter: 49/1000 have >=3 qualities but only 12/1000 have >=3 voices."
+}
