@@ -18,6 +18,7 @@ from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from catalog_schema_v2 import normalize_ru_text
 from filmix_provider_adapter import FilmixProviderAdapter
+from octopus_provider_adapter import OctopusProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
 from stream_validation import sanitize_streams
 
@@ -103,59 +104,101 @@ def discover_provider_streams(
     is_series = season is not None or episode is not None or kind in {
         "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
     }
-    if is_series:
-        # Filmix series parsing must not assign an arbitrary requested episode to
-        # a card-level payload. Keep this fail-closed until its exact episode
-        # response contract has been verified against the pinned 3.466 engine.
-        return ProviderDiscoveryOutcome([], "UNSUPPORTED_SERIES")
-
-    if os.environ.get("MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER", "0") != "1" and fetch_text is None and fetch_post_form_text is None:
-        return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
-
-    adapter = FilmixProviderAdapter()
     get_text = fetch_text or _fetch_text
     post_form = fetch_post_form_text or _fetch_post_form_text
-    expected_titles = _normalized_titles((clean_title, original_title))
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
 
-    results, search_error = adapter.search(clean_title, fetch_text=get_text)
-    if search_error:
-        return ProviderDiscoveryOutcome([], "PROVIDER_ERROR", ("filmix",), 1)
+    # Filmix is kept disabled by default because its pinned 3.466 partner API
+    # now returns HTTP 403. The adapter remains fully testable behind the gate.
+    if os.environ.get("MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER", "0") == "1":
+        attempted.append("filmix")
+        if is_series:
+            terminal_statuses.append("UNSUPPORTED_SERIES")
+        else:
+            adapter = FilmixProviderAdapter()
+            expected_titles = _normalized_titles((clean_title, original_title))
+            results, search_error = adapter.search(clean_title, fetch_text=get_text)
+            if search_error:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                exact = []
+                for result in results:
+                    if normalize_ru_text(result.title) not in expected_titles:
+                        continue
+                    if int(year or 0) > 0 and result.year is not None and int(result.year) != int(year):
+                        continue
+                    exact.append(result)
+                exact = list({item.item_id: item for item in exact}.values())
+                if len(exact) > 1:
+                    terminal_statuses.append("AMBIGUOUS")
+                elif not exact:
+                    terminal_statuses.append("NO_MATCH")
+                else:
+                    selected = exact[0]
+                    request = ProviderRequest(
+                        media_id=str(media_id),
+                        title=clean_title,
+                        year=int(year) if int(year or 0) > 0 else None,
+                        media_type="movie",
+                    )
+                    tree, article, resolve_error = adapter.resolve_source(
+                        {"downloadLinkKey": selected.item_id},
+                        request,
+                        fetch_text=get_text,
+                        fetch_post_form_text=post_form,
+                    )
+                    if resolve_error or tree is None or article is None:
+                        error_count += 1
+                        terminal_statuses.append("PROVIDER_ERROR")
+                    else:
+                        rows = sanitize_streams(
+                            flatten_variant_tree(article, tree, request),
+                            require_source=True,
+                        )
+                        if rows:
+                            return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                        terminal_statuses.append("NO_RESULTS")
 
-    exact = []
-    for result in results:
-        if normalize_ru_text(result.title) not in expected_titles:
-            continue
-        if int(year or 0) > 0 and result.year is not None and int(result.year) != int(year):
-            continue
-        exact.append(result)
+    # Octopus search and article transport are live, but its current iframe
+    # still needs a clean-room playback decoder. Discovery is available behind
+    # a separate diagnostic gate and never fabricates a voice/quality stream.
+    if os.environ.get("MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY", "0") == "1":
+        attempted.append("octopus")
+        if is_series:
+            terminal_statuses.append("UNSUPPORTED_SERIES")
+        else:
+            adapter = OctopusProviderAdapter()
+            results, search_error = adapter.search(clean_title, fetch_text=get_text)
+            if search_error:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                selected, status = adapter.exact_match(
+                    results,
+                    title=clean_title,
+                    original_title=original_title,
+                    year=int(year or 0),
+                )
+                if selected is None:
+                    terminal_statuses.append(status)
+                else:
+                    article, article_error = adapter.resolve_article(selected, fetch_text=get_text)
+                    if article_error or article is None:
+                        error_count += 1
+                        terminal_statuses.append("PROVIDER_ERROR")
+                    else:
+                        return ProviderDiscoveryOutcome(
+                            [], "PLAYBACK_DECODER_REQUIRED", tuple(attempted), error_count
+                        )
 
-    unique_by_id = {item.item_id: item for item in exact}
-    exact = list(unique_by_id.values())
-    if not exact:
-        return ProviderDiscoveryOutcome([], "NO_MATCH", ("filmix",))
-    if len(exact) != 1:
-        return ProviderDiscoveryOutcome([], "AMBIGUOUS", ("filmix",))
-
-    selected = exact[0]
-    request = ProviderRequest(
-        media_id=str(media_id),
-        title=clean_title,
-        year=int(year) if int(year or 0) > 0 else None,
-        media_type="movie",
+    if not attempted:
+        return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
+    priority = (
+        "AMBIGUOUS", "PLAYBACK_DECODER_REQUIRED", "PROVIDER_ERROR",
+        "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH",
     )
-    tree, article, resolve_error = adapter.resolve_source(
-        {"downloadLinkKey": selected.item_id},
-        request,
-        fetch_text=get_text,
-        fetch_post_form_text=post_form,
-    )
-    if resolve_error or tree is None or article is None:
-        return ProviderDiscoveryOutcome([], "PROVIDER_ERROR", ("filmix",), 1)
-
-    rows = sanitize_streams(
-        flatten_variant_tree(article, tree, request),
-        require_source=True,
-    )
-    if not rows:
-        return ProviderDiscoveryOutcome([], "NO_RESULTS", ("filmix",))
-    return ProviderDiscoveryOutcome(rows, "OK", ("filmix",))
+    status = next((value for value in priority if value in terminal_statuses), terminal_statuses[-1] if terminal_statuses else "NO_RESULTS")
+    return ProviderDiscoveryOutcome([], status, tuple(attempted), error_count)

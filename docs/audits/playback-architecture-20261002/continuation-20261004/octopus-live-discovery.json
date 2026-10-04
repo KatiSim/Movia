@@ -1,0 +1,109 @@
+{
+  "checkedAt": "2026-10-04T08:26:00Z",
+  "action": "add_live_octopus_discovery_adapter_and_fix_multi_provider_registry",
+  "providerSurvey": {
+    "anilibriaV3": {
+      "decompile": "ListArticles/Article clean by marker scan",
+      "exactLazySearchTemplateRecovered": true,
+      "exactSearchHttpStatus": 410,
+      "exactArticleHttpStatus": 410,
+      "liveUsable": false
+    },
+    "zombie": {
+      "decompile": "ListArticles/Article clean by marker scan",
+      "apiBase": "https://api.zombie-film.live/v2/franchise",
+      "exactSearchTemplateRecovered": true,
+      "apiTransport": "timeout",
+      "siteTransport": "TLS/timeout",
+      "liveUsable": false
+    },
+    "seasonvar": {
+      "decompile": "ListArticles/Article clean by marker scan",
+      "siteHttpStatus": 200,
+      "exactSearchHttpStatus": 200,
+      "oldSearchDomMarkerPresent": false,
+      "sharedResolverEndpointShape": "https://api.luxembd.ws/embed/kp/{s}",
+      "sharedResolverProbeStatus": 422,
+      "liveUsable": false
+    },
+    "octopus": {
+      "decompile": "ListArticles/Article clean by marker scan",
+      "exactSearchTemplateRecovered": true,
+      "searchHttpStatus": 200,
+      "searchRedirectHost": "008.ultradox.lol",
+      "lazySearchMarkerPresent": true,
+      "articleHttpStatus": 200,
+      "iframePresent": true,
+      "iframeHttpStatus": 200,
+      "liveRegistryProbe": {
+        "status": "PLAYBACK_DECODER_REQUIRED",
+        "streams": 0,
+        "errors": 0,
+        "elapsedMs": 3214
+      },
+      "liveDiscoveryUsable": true,
+      "livePlaybackDecoderUsable": false
+    }
+  },
+  "implementation": {
+    "newAdapter": "backend/runtime/octopus_provider_adapter.py",
+    "searchContract": "[U]/index.php?do=search&subaction=search&from_page=0&story=[S]",
+    "exactIdentityGuard": true,
+    "articleIframeExtraction": true,
+    "fabricatedStreams": false,
+    "providerGate": "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY=1",
+    "defaultEnabled": false,
+    "providerRegistryFix": "Filmix disabled no longer returns early; registry now evaluates independent provider gates",
+    "filmixGate": "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER=1"
+  },
+  "security": {
+    "decodedStaticPlaybackSecretsDetectedInLegacyHDVBPath": true,
+    "secretsCopiedToRepo": false,
+    "secretsWrittenToAudit": false,
+    "guestCookiesLogged": false,
+    "signedMediaUrlsLogged": false
+  },
+  "tests": {
+    "focused": {
+      "tests": 16,
+      "status": "PASS"
+    },
+    "fullBackend": {
+      "tests": 264,
+      "status": "PASS"
+    },
+    "pyCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "knownWarnings": [
+      "pre-existing sqlite3 ResourceWarning messages remain"
+    ]
+  },
+  "production": {
+    "activeParserModified": false,
+    "cleanOctopusEnabled": false,
+    "cleanFilmixEnabled": false,
+    "activeParserPid": 23603,
+    "activeParserCheck": "RUNNING"
+  },
+  "preservation": {
+    "androidUiUsed": false,
+    "androidInstallAttempted": false,
+    "systemSettingsChanged": false,
+    "rootWorktreeWrittenByThisBlock": false,
+    "rootHead": "c5d1d3c882e07238c6f2a8fd308e8cec32f85936",
+    "rootIndexSha256": "0a6e8e0d5143d26ed257c1686d849ab9b4d92eb244fb4f1b8cbd843c0771ac7a",
+    "rootStatusSha256": "065a8153e9a074e097e7d0465c68a6da153d33bef67e7a9c4ee648790729e48f",
+    "rootStatusLines": 114
+  },
+  "limitations": {
+    "noLiveCleanProviderProducesPlayableStreamYet": true,
+    "random1000CoverageDeltaNotYetMeasured": true,
+    "octopusVoiceQualityTreeNotYetRecovered": true,
+    "seasonvarCurrentDomParserNotYetPorted": true
+  },
+  "nextPriority": [
+    "recover current Octopus/HDVB playback using public runtime bootstrap rather than legacy static secrets, or choose another provider with direct open media transport",
+    "only then enable clean provider in active parser",
+    "rerun deterministic random-1000 coverage audit after first playable clean provider"
+  ]
+}

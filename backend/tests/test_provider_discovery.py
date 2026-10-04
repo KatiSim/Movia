@@ -1,10 +1,15 @@
 import json
 import unittest
+from unittest.mock import patch
 
 from provider_discovery import discover_provider_streams
 
 
 class ProviderDiscoveryTests(unittest.TestCase):
+    def filmix(self, **kwargs):
+        with patch.dict("os.environ", {"MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "1"}, clear=False):
+            return discover_provider_streams(**kwargs)
+
     def test_filmix_exact_title_year_returns_all_variant_leaves(self):
         calls = []
 
@@ -30,7 +35,7 @@ class ProviderDiscoveryTests(unittest.TestCase):
                 "Original": "https://cdn.example/original-480.mp4",
             }}}}), None
 
-        outcome = discover_provider_streams(
+        outcome = self.filmix(
             title="Example",
             original_title="Example",
             year=2024,
@@ -47,15 +52,19 @@ class ProviderDiscoveryTests(unittest.TestCase):
         self.assertEqual({"77"}, {row["catalog_media_id"] for row in outcome.streams})
         self.assertEqual(("filmix",), outcome.providers)
 
-    def test_live_default_is_gated_until_filmix_search_contract_is_reverified(self):
-        outcome = discover_provider_streams(
-            title="Example", year=2024, media_id="77", media_type="movie",
-        )
+    def test_live_default_is_gated_until_provider_contracts_are_reverified(self):
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "0",
+        }, clear=False):
+            outcome = discover_provider_streams(
+                title="Example", year=2024, media_id="77", media_type="movie",
+            )
         self.assertEqual("PROVIDER_DISABLED", outcome.status)
         self.assertEqual([], outcome.streams)
 
     def test_filmix_is_fail_closed_for_series_until_episode_contract_is_verified(self):
-        outcome = discover_provider_streams(
+        outcome = self.filmix(
             title="Series",
             year=2024,
             media_id="88",
@@ -75,13 +84,32 @@ class ProviderDiscoveryTests(unittest.TestCase):
                 {"id": 2, "title": "Example", "year": 2024, "category": "movie"},
             ]}), None
 
-        outcome = discover_provider_streams(
+        outcome = self.filmix(
             title="Example", year=2024, media_id="77", media_type="movie",
             fetch_text=fetch_text,
             fetch_post_form_text=lambda *_: self.fail("ambiguous search must not resolve article"),
         )
         self.assertEqual("AMBIGUOUS", outcome.status)
         self.assertEqual([], outcome.streams)
+
+
+    def test_octopus_discovery_only_does_not_fabricate_stream(self):
+        search_html = """<div class='top__slider_div__item'><a href='/film/42-example-2024.html'><span>Example (2024)</span></a></div>"""
+        article_html = """<div class='full-story_iframe-block'><iframe src='https://player.example/movie/abc/iframe'></iframe></div>"""
+        def fetch(url, headers):
+            return (article_html if '42-example' in url else search_html), None
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "1",
+        }, clear=False):
+            outcome = discover_provider_streams(
+                title="Example", year=2024, media_id="77", media_type="movie",
+                fetch_text=fetch,
+            )
+        self.assertEqual("PLAYBACK_DECODER_REQUIRED", outcome.status)
+        self.assertEqual([], outcome.streams)
+        self.assertEqual(("octopus",), outcome.providers)
+
 
 
 if __name__ == "__main__":
