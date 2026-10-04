@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "audit_and_target_fresh_random1000_cohort_c",
+  "cohort": {
+    "name": "C",
+    "seed": 3412,
+    "size": 1000,
+    "movieOnly": true,
+    "overlapWithB": 0,
+    "exactOverlapWithAProvable": false,
+    "reason": "cohort-A IDs were not persisted and catalog grew from 96980 to 97098 rows",
+    "conservativeAExclusion": {
+      "excludedUniqueIds": 2001,
+      "reconstructions": [
+        "snapshot_all_96993",
+        "snapshot_prefix_96980",
+        "current_all_97098",
+        "current_prefix_96980"
+      ]
+    },
+    "idsArtifact": "random1000-cohort-c-ids-20261004.json"
+  },
+  "baseline": {
+    "complete": 10,
+    "voicesGe3": 15,
+    "qualitiesGe3": 84,
+    "anyStream": 453,
+    "bothGe2": 71,
+    "nearCompleteVoices2QualitiesGe3": 33
+  },
+  "targetedCompleted": [
+    {
+      "id": 15529,
+      "title": "Невероятная жизнь Уолтера Митти",
+      "before": {
+        "voices": 2,
+        "qualities": 4,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 4,
+        "complete": true
+      }
+    },
+    {
+      "id": 17548,
+      "title": "Шерлок Холмс: Игра теней",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 33145,
+      "title": "Взвод",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 4,
+        "complete": true
+      }
+    },
+    {
+      "id": 11210,
+      "title": "Окча",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    }
+  ],
+  "final": {
+    "complete": 14,
+    "voicesGe3": 19,
+    "qualitiesGe3": 84,
+    "anyStream": 453,
+    "nearCompleteVoices2QualitiesGe3": 29
+  },
+  "delta": {
+    "completeAbsolute": 4,
+    "completeRelativePct": 40
+  },
+  "operationalFinding": {
+    "slowestTargetMs": 34511,
+    "causeObserved": "background _process_row can wait on protected Zona/balancer provider-error path before torrent completion",
+    "followUp": "bound background direct-provider wait more tightly so torrent enrichment is not delayed by protected provider errors"
+  },
+  "futureRule": "Every future random-1000 cohort must exclude exact saved IDs of B, C, and later cohorts plus the conservative A exclusion reconstructions."
+}
