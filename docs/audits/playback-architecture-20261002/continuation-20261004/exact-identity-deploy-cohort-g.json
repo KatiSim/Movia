@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "deploy_exact_identity_apk_and_audit_fresh_cohort_g",
+  "androidDeployment": {
+    "versionCode": 327,
+    "buildResult": "assembleDebug PASS",
+    "builtApkSha256": "3e512d81a86912e50a057b1552715102d8d49f998c6bf8d0b4fdb9e3a1852a3e",
+    "installedBaseApkSha256": "3e512d81a86912e50a057b1552715102d8d49f998c6bf8d0b4fdb9e3a1852a3e",
+    "installMode": "pm install -r -d",
+    "dataCleared": false,
+    "coldLaunchCrashFound": false
+  },
+  "identityCollisionSmoke": [
+    {
+      "mediaId": "226",
+      "title": "Человек-паук",
+      "year": 2002,
+      "playbackMediaId": "226",
+      "media3MediaItemId": "226",
+      "reboundToOtherSpiderMan": false,
+      "playbackOutcome": "source attempted; concrete URL failed HTTP, identity remained exact"
+    },
+    {
+      "mediaId": "621453",
+      "title": "Spider-Man",
+      "year": 1977,
+      "playbackMediaId": "621453",
+      "media3MediaItemId": "621453",
+      "reboundToOtherSpiderMan": false,
+      "playbackOutcome": "search/buffering; identity remained exact"
+    }
+  ],
+  "exactIdentityRule": {
+    "deployed": true,
+    "rule": "known catalog mediaId never falls back to resolveByTitle after empty or mismatched identity response",
+    "identityLessFallbackStillAllowed": true
+  },
+  "cohortG": {
+    "seed": 3416,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "overlapWithE": 0,
+    "overlapWithF": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 6001,
+    "baseline": {
+      "complete": 13,
+      "voicesGe3": 14,
+      "qualitiesGe3": 96,
+      "anyStream": 462,
+      "nearComplete": 33
+    },
+    "targetedCompleted": [
+      {
+        "id": 16540,
+        "title": "Петля времени",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4,
+          "complete": true
+        },
+        "elapsedMs": 4381
+      }
+    ],
+    "final": {
+      "complete": 14,
+      "voicesGe3": 15,
+      "qualitiesGe3": 96,
+      "anyStream": 462,
+      "nearComplete": 32
+    }
+  },
+  "next": [
+    "continue fresh cohort-H with another 1000 unseen movie IDs",
+    "keep removing old flat/title-based playback paths only when they are proven redundant or unsafe",
+    "prioritize real voice extraction because >=3 qualities still far exceeds >=3 voices"
+  ]
+}
