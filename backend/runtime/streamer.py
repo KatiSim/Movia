@@ -2640,6 +2640,7 @@ def _resolve_balancer_provider(
             # but its live getVideoSources route can block/fail independently and
             # must not sit on the user-critical on-demand path.
             allow_zona_content_lookup=False,
+            allow_zona_provider=os.environ.get("MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT", "0") != "1",
             force_refresh=force_refresh,
         ) or []
     except Exception as exc:

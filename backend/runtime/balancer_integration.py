@@ -9,6 +9,7 @@ No title-based URL templates or synthetic direct streams are accepted.
 
 import json
 import logging
+import os
 import sqlite3
 import sys
 import threading
@@ -269,6 +270,7 @@ def query_open_balancer_stream(
     media_type: Optional[str] = None,
     zona_sources: Optional[List[Dict[str, Any]]] = None,
     allow_zona_content_lookup: bool = False,
+    allow_zona_provider: bool = True,
     force_refresh: bool = False,
 ) -> List[Dict[str, Any]]:
     """Return direct streams while dynamically bypassing degraded providers.
@@ -308,6 +310,9 @@ def query_open_balancer_stream(
     else:
         logger.info("Collaps provider is in bounded reliability cooldown; using fallback branch")
 
+    if not allow_zona_provider:
+        logger.debug("Zona balancer branch disabled: ProviderContract owns Zona discovery")
+        return []
     if not should_call("zona"):
         logger.info("Zona provider is in bounded reliability cooldown")
         return []
@@ -358,6 +363,7 @@ def resolve_balancer(
             expected_titles=expected_titles,
             media_type=media_type,
             allow_zona_content_lookup=True,
+            allow_zona_provider=os.environ.get("MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT", "0") != "1",
         )
         diagnostics = get_last_resolution_diagnostics()
         if not streams:

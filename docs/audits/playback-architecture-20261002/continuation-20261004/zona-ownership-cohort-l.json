@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "prepare_zona_provider_contract_ownership_and_audit_cohort_l",
+  "rewritePolicy": {
+    "copiedLazyMediaCode": false,
+    "observedBehavior": [
+      "movie article resolves one episode/source leaf set",
+      "series article exposes season -> episode -> source leaves",
+      "HQ/LQ are provider labels and are not trusted as concrete resolutions"
+    ],
+    "moviaNativeAdapter": "backend/runtime/zona_provider_adapter.py",
+    "logger": "zona_provider_adapter"
+  },
+  "zonaProviderContract": {
+    "alreadyPresentBeforeBlock": true,
+    "exactCatalogIdentity": true,
+    "variantTree": true,
+    "exactEpisodeScope": true,
+    "hqLqQualityGuessingDisabled": true,
+    "featureFlag": "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT",
+    "productionEnabled": false,
+    "reasonNotEnabled": "live Zona transport returned PROVIDER_ERROR/0 on Interstellar, Matrix, and Spider-Man: No Way Home for both old and ProviderContract paths",
+    "liveParity": [
+      {
+        "title": "Интерстеллар",
+        "year": 2014,
+        "oldStatus": "PROVIDER_ERROR",
+        "oldRows": 0,
+        "newRows": 0
+      },
+      {
+        "title": "Матрица",
+        "year": 1999,
+        "oldStatus": "PROVIDER_ERROR",
+        "oldRows": 0,
+        "newRows": 0
+      },
+      {
+        "title": "Человек-паук: Нет пути домой",
+        "year": 2021,
+        "oldStatus": "PROVIDER_ERROR",
+        "oldRows": 0,
+        "newRows": 0
+      }
+    ]
+  },
+  "ownershipSwitch": {
+    "addedToBalancer": true,
+    "parameter": "allow_zona_provider",
+    "parserBehaviorWhenFlagOn": "ProviderContract owns Zona; legacy balancer Zona branch is skipped",
+    "backgroundBehaviorWhenFlagOn": "content_filler resolve_balancer also skips legacy Zona branch",
+    "behaviorWhenFlagOff": "legacy Zona branch remains available exactly as before",
+    "activeRuntimeInstalled": true,
+    "activeFlagState": "unset(default-off)"
+  },
+  "regressionFoundAndFixed": {
+    "issue": "balancer_integration used os.environ in resolve_balancer without importing os",
+    "observedDuring": "live targeted enrichment",
+    "impact": "balancer branch raised NameError while torrent branch still completed",
+    "fix": "import os + regression test asserting environment ownership routing",
+    "activeVerified": true
+  },
+  "tests": {
+    "focused": "21/21 PASS",
+    "fullBackend": "318/318 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "cohortL": {
+    "seed": 3422,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughK": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 11001,
+    "baseline": {
+      "complete": 12,
+      "voicesGe3": 14,
+      "qualitiesGe3": 104,
+      "anyStream": 456,
+      "nearComplete": 39
+    },
+    "targetedCompleted": [
+      {
+        "id": 28652,
+        "title": "Крепкий орешек 3: Возмездие",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 4,
+          "qualities": 4,
+          "complete": true
+        },
+        "storedMagnetRows": 33,
+        "nativeLogicalIds": 25
+      }
+    ],
+    "final": {
+      "complete": 13,
+      "voicesGe3": 15,
+      "qualitiesGe3": 104,
+      "anyStream": 456,
+      "nearComplete": 38
+    },
+    "deltaComplete": 1
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200,
+    "zonaProviderContractFlag": "unset(default-off)"
+  },
+  "next": [
+    "create fresh cohort-M excluding exact B-L IDs plus conservative A exclusions",
+    "retry Zona activation only after a non-zero live transport result; do not enable on a zero/error transport",
+    "study the next actually reachable provider behavior and rewrite it natively for Movia with Movia logs only"
+  ]
+}

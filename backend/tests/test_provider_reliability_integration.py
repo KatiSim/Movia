@@ -113,6 +113,36 @@ class ProviderReliabilityIntegrationTests(unittest.TestCase):
         self.assertEqual(state["consecutive_failures"], 3)
 
 
+    def test_resolve_balancer_routes_zona_ownership_from_environment(self):
+        with patch.dict("os.environ", {"MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT": "1"}, clear=False), \
+                patch.object(balancer_integration, "query_open_balancer_stream", return_value=[]) as query:
+            self.assertIsNone(balancer_integration.resolve_balancer("Example", year=2024))
+        self.assertFalse(query.call_args.kwargs["allow_zona_provider"])
+
+    def test_provider_contract_ownership_skips_legacy_zona_balancer_branch(self):
+        with patch.object(balancer_integration, "should_call", side_effect=lambda provider: provider != "collaps"), \
+                patch.object(balancer_integration, "query_zona_api") as zona_query:
+            rows = balancer_integration.query_open_balancer_stream(
+                title="Example", year=2024, allow_zona_provider=False,
+            )
+        self.assertEqual([], rows)
+        zona_query.assert_not_called()
+
+    def test_legacy_zona_balancer_branch_remains_available_while_contract_is_disabled(self):
+        zona_row = {
+            "source": "Zona", "url": "https://cdn.example/zona.m3u8",
+            "voice": "Dub", "quality": "720p",
+        }
+        with patch.object(balancer_integration, "should_call", side_effect=lambda provider: provider != "collaps"), \
+                patch.object(balancer_integration, "query_zona_api", return_value=[zona_row]) as zona_query, \
+                patch.object(balancer_integration, "get_last_resolution_diagnostics", return_value={"status":"OK","error_count":0}), \
+                patch.object(balancer_integration, "observe", return_value={"reliability":1.0}):
+            rows = balancer_integration.query_open_balancer_stream(
+                title="Example", year=2024, allow_zona_provider=True,
+            )
+        self.assertEqual(1, len(rows))
+        zona_query.assert_called_once()
+
     def test_balancer_defaults_never_recurse_into_torrent_fallback(self):
         import inspect
         zona = inspect.signature(balancer_integration.query_zona_api)
