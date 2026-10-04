@@ -112,6 +112,7 @@ def discover_provider_streams(
     attempted: list[str] = []
     error_count = 0
     terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
 
     if os.environ.get("MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT", "0") == "1":
         attempted.append("hdrezka")
@@ -141,7 +142,7 @@ def discover_provider_streams(
                         flatten_variant_tree(article, tree, request), require_source=True
                     )
                     if rows:
-                        return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                        collected_streams.extend(rows)
                     terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
@@ -182,7 +183,7 @@ def discover_provider_streams(
                         require_source=True,
                     )
                     if rows:
-                        return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                        collected_streams.extend(rows)
                     terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
@@ -218,7 +219,7 @@ def discover_provider_streams(
                         require_source=True,
                     )
                     if rows:
-                        return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                        collected_streams.extend(rows)
                     terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
@@ -273,7 +274,7 @@ def discover_provider_streams(
                             require_source=True,
                         )
                         if rows:
-                            return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                            collected_streams.extend(rows)
                         terminal_statuses.append("NO_RESULTS")
 
     # Octopus search and article transport are live, but its current iframe
@@ -304,10 +305,15 @@ def discover_provider_streams(
                         error_count += 1
                         terminal_statuses.append("PROVIDER_ERROR")
                     else:
-                        return ProviderDiscoveryOutcome(
-                            [], "PLAYBACK_DECODER_REQUIRED", tuple(attempted), error_count
-                        )
+                        terminal_statuses.append("PLAYBACK_DECODER_REQUIRED")
 
+    if collected_streams:
+        return ProviderDiscoveryOutcome(
+            sanitize_streams(collected_streams, require_source=True),
+            "OK",
+            tuple(attempted),
+            error_count,
+        )
     if not attempted:
         return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
     priority = (

@@ -10,6 +10,38 @@ class ProviderDiscoveryTests(unittest.TestCase):
         with patch.dict("os.environ", {"MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "1"}, clear=False):
             return discover_provider_streams(**kwargs)
 
+    def test_registry_unions_multiple_successful_provider_contracts(self):
+        from collaps_provider_adapter import CollapsProviderAdapter
+        from hdrezka_provider_adapter import HDRezkaProviderAdapter
+        from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream
+        hsel = ProviderSearchResult(HDRezkaProviderAdapter.definition, "rezka-1", "Example", 2024, "r", "r")
+        harticle = ProviderArticle(HDRezkaProviderAdapter.definition, "rezka-1", "Example", 2024, "r", "r")
+        htree = VariantFolder(children=(VariantFolder(voice="Dub", children=(VariantStream(
+            url="https://cdn.example/rezka-720.m3u8", stream_key="rezka-720", voice="Dub", quality="720p", transport="hls",
+        ),)),))
+        csel = ProviderSearchResult(CollapsProviderAdapter.definition, "tt123", "Example", 2024, "tt123", "77")
+        carticle = ProviderArticle(CollapsProviderAdapter.definition, "tt123", "Example", 2024, "c", "77")
+        ctree = VariantFolder(children=(VariantFolder(voice="Original", children=(VariantStream(
+            url="https://cdn.example/collaps.m3u8", stream_key="collaps-original", voice="Original", quality="Не указано", transport="hls",
+        ),)),))
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT": "1",
+            "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT": "1",
+            "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT": "0",
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "0",
+        }, clear=False), \
+                patch.object(HDRezkaProviderAdapter, "search", return_value=([hsel], None)), \
+                patch.object(HDRezkaProviderAdapter, "resolve_source", return_value=(htree, harticle, None)), \
+                patch.object(CollapsProviderAdapter, "exact_catalog_result", return_value=(csel, None)), \
+                patch.object(CollapsProviderAdapter, "resolve_source", return_value=(ctree, carticle, None)):
+            outcome = discover_provider_streams(title="Example", year=2024, media_id="77", media_type="movie")
+        self.assertEqual("OK", outcome.status)
+        self.assertEqual(("hdrezka", "collaps"), outcome.providers)
+        self.assertEqual(2, len(outcome.streams))
+        self.assertEqual({"HDRezka", "Collaps"}, {row["provider"] for row in outcome.streams})
+        self.assertEqual({"Dub", "Original"}, {row["voice"] for row in outcome.streams})
+
     def test_hdrezka_contract_is_gated_and_returns_variant_tree_rows_when_enabled(self):
         from hdrezka_provider_adapter import HDRezkaProviderAdapter
         from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream

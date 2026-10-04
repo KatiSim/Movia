@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "provider_contract_union_and_audit_cohort_n",
+  "providerSelection": {
+    "checkedCandidates": [
+      "Kinoplay",
+      "VideoCDN",
+      "Alloha"
+    ],
+    "result": "no live source-ref evidence suitable for safe activation in this block",
+    "videocdnEvidence": "stored transfer report still says Zona source ref unavailable while deterministic l-engine exists",
+    "decision": "do not fabricate source refs or activate fixture-only transports"
+  },
+  "hdrezkaContributionStudy": {
+    "sampleTitles": 7,
+    "exactArticles": 7,
+    "rowsPerTitle": 10,
+    "voicesObserved": [
+      "Дубляж"
+    ],
+    "qualitiesObserved": [
+      "240p",
+      "360p",
+      "480p",
+      "720p"
+    ],
+    "logicalIdsPerTitle": 10,
+    "finding": "HDRezka currently improves quality coverage but not the dominant >=3 voice bottleneck"
+  },
+  "providerRegistryUnion": {
+    "oldBehavior": "return on first successful ProviderContract provider",
+    "newBehavior": "collect and sanitize leaves from all enabled successful ProviderContract providers before returning",
+    "reason": "HDRezka-first success must not starve future Collaps/Zona/Filmix voice variants",
+    "octopusBehavior": "PLAYBACK_DECODER_REQUIRED remains terminal metadata but does not discard already collected playable leaves",
+    "regression": "two successful providers must both appear in outcome",
+    "activeRuntimeInstalled": true
+  },
+  "tests": {
+    "focusedUnionAndHdrezka": "17/17 PASS",
+    "fullBackend": "320/320 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "liveProduction": {
+    "title": "Интерстеллар",
+    "mediaId": "158",
+    "status": "OK",
+    "providers": [
+      "hdrezka"
+    ],
+    "rows": 10,
+    "logicalIds": 10,
+    "providerItemIds": 10,
+    "voices": [
+      "Дубляж"
+    ],
+    "qualities": [
+      "240p",
+      "360p",
+      "480p",
+      "720p"
+    ]
+  },
+  "cohortN": {
+    "seed": 3424,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughM": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 13001,
+    "baseline": {
+      "complete": 10,
+      "voicesGe3": 11,
+      "qualitiesGe3": 86,
+      "anyStream": 452,
+      "nearComplete": 30
+    },
+    "targetedCompleted": [
+      {
+        "id": 14488,
+        "title": "Дивергент",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 7,
+          "complete": true
+        },
+        "elapsedMs": 9166
+      }
+    ],
+    "final": {
+      "complete": 11,
+      "voicesGe3": 12,
+      "qualitiesGe3": 86,
+      "anyStream": 452,
+      "nearComplete": 29
+    },
+    "deltaComplete": 1
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200
+  },
+  "next": [
+    "create fresh cohort-O excluding exact B-N IDs plus conservative A exclusions",
+    "find next provider only from non-zero live source evidence; never fabricate source refs",
+    "continue increasing real voice coverage because quality coverage remains much higher"
+  ]
+}
