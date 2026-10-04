@@ -1,0 +1,22 @@
+# Fresh random-1000 cohort B — 10-minute block
+
+- New cohort-B: 1000 movies, deterministic seed 3411.
+- Previous random-1000 IDs were explicitly excluded.
+- Overlap with previous cohort: 0.
+- Baseline cohort-B:
+  - complete 3 voices × 3 distinct qualities: 2/1000
+  - voices >=3: 5/1000
+  - qualities >=3: 49/1000
+  - any stream: 335/1000
+  - near-complete (2 voices + >=3 qualities): 18
+- Targeted through the normal content_filler path:
+  - Мстители: Эра Альтрона: 2×3 → 3×3
+  - Призрачный гонщик: 2×3 → 3×3
+  - Форпост: 2×3 → 3×3
+- Final cohort-B:
+  - complete: 5/1000
+  - voices >=3: 8/1000
+  - qualities >=3: 49/1000
+  - near-complete: 15
+- Delta: +3 complete cards, +150% relative to cohort-B baseline.
+- Future rule: every new random-1000 must exclude all prior cohort IDs.

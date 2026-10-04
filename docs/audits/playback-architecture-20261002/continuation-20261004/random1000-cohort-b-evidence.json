@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "audit_and_target_fresh_random1000_cohort_b",
+  "cohort": {
+    "name": "B",
+    "seed": 3411,
+    "size": 1000,
+    "excludedPreviousSeed": 20261004,
+    "overlapWithPreviousRandom1000": 0,
+    "idsArtifact": "random1000-cohort-b-ids-20261004.json"
+  },
+  "baseline": {
+    "complete": 2,
+    "voicesGe3": 5,
+    "qualitiesGe3": 49,
+    "anyStream": 335,
+    "nearCompleteVoices2QualitiesGe3": 18
+  },
+  "targetedCompleted": [
+    {
+      "id": 26,
+      "title": "Мстители: Эра Альтрона",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 20912,
+      "title": "Призрачный гонщик",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    },
+    {
+      "id": 7378,
+      "title": "Форпост",
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      }
+    }
+  ],
+  "final": {
+    "complete": 5,
+    "voicesGe3": 8,
+    "qualitiesGe3": 49,
+    "anyStream": 335,
+    "nearCompleteVoices2QualitiesGe3": 15
+  },
+  "delta": {
+    "completeAbsolute": 3,
+    "completeRelativePct": 150
+  },
+  "instructionForFutureAudits": "Every future random-1000 cohort must exclude all IDs already used by prior random-1000 cohorts."
+}
