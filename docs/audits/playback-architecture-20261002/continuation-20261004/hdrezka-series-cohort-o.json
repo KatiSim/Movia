@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "hdrezka_series_alias_and_audit_cohort_o",
+  "providerSelection": {
+    "checkedForNextNativeRewrite": [
+      "Kinoplay",
+      "VideoCDN",
+      "Alloha"
+    ],
+    "liveStoredSourceRefs": {
+      "kinoplay": 0,
+      "videocdn": 0,
+      "alloha": 0
+    },
+    "decision": "No activation from fixture/source-key guesses; no new provider was fabricated."
+  },
+  "hdrezkaSeries": {
+    "provider": "movia:hdrezka",
+    "originalTitleAliasSearch": true,
+    "exactAliasRule": "provider display title split by '/' must contain an exact normalized segment matching catalog title or original_title",
+    "fuzzyContainsMatching": false,
+    "exactYearRequiredWhenPresent": true,
+    "testedSeries": [
+      {
+        "title": "Во все тяжкие",
+        "originalTitle": "Breaking Bad",
+        "season": 1,
+        "episode": 1,
+        "rows": 10,
+        "exactEpisode": true
+      },
+      {
+        "title": "Шерлок",
+        "originalTitle": "Sherlock",
+        "season": 1,
+        "episode": 1,
+        "rows": 10,
+        "exactEpisode": true
+      },
+      {
+        "title": "Очень странные дела",
+        "originalTitle": "Stranger Things",
+        "season": 1,
+        "episode": 1,
+        "rows": 10,
+        "exactEpisode": true
+      }
+    ],
+    "liveFinalRegistry": {
+      "title": "Очень странные дела",
+      "mediaId": "424",
+      "status": "OK",
+      "providers": [
+        "hdrezka"
+      ],
+      "rows": 10,
+      "episodes": [
+        [
+          1,
+          1
+        ]
+      ],
+      "logicalIds": 10
+    },
+    "transientObservation": "One registry call returned PROVIDER_ERROR while the same active adapter path succeeded immediately before and after; repeat registry call succeeded. Treated as provider/network transient, not identity fallback."
+  },
+  "providerRegistryUnionDiagnostics": {
+    "noResultsOnlyWhenProviderRowsEmpty": true,
+    "filmixBranchFixedToo": true
+  },
+  "tests": {
+    "focusedAliasAndRegistry": "19/19 PASS",
+    "fullBackend": "322/322 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "cohortO": {
+    "seed": 3425,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughN": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 14001,
+    "baseline": {
+      "complete": 17,
+      "voicesGe3": 21,
+      "qualitiesGe3": 96,
+      "anyStream": 460,
+      "nearComplete": 35
+    },
+    "targetedCompleted": [
+      {
+        "id": 13387,
+        "title": "007: Спектр",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 7,
+          "complete": true
+        },
+        "elapsedMs": 13934
+      }
+    ],
+    "final": {
+      "complete": 18,
+      "voicesGe3": 22,
+      "qualitiesGe3": 96,
+      "anyStream": 460,
+      "nearComplete": 34
+    },
+    "deltaComplete": 1
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200
+  },
+  "next": [
+    "create fresh cohort-P excluding exact B-O IDs plus conservative A exclusions",
+    "continue searching for the next provider only from non-zero live source evidence",
+    "prioritize real voice expansion because quality coverage remains far ahead of >=3 voice coverage"
+  ]
+}

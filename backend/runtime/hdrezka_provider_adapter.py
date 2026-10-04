@@ -41,7 +41,7 @@ def _post(url:str,headers:Dict[str,str],form:Dict[str,str]):
     except Exception as e:return None,type(e).__name__
 
 
-def search_exact(title:str,year:Optional[int])->Tuple[List[ProviderSearchResult],Optional[str]]:
+def search_exact(title:str,year:Optional[int],accepted_titles=())->Tuple[List[ProviderSearchResult],Optional[str]]:
     q=title+(f' {year}' if year else '')
     body,error=_get(f'{BASE}/search/?do=search&subaction=search&q={quote(q)}',{'User-Agent':HDREZKA_DEFAULT_USER_AGENT})
     if error or not body:return [],error or 'EMPTY_SEARCH'
@@ -54,7 +54,9 @@ def search_exact(title:str,year:Optional[int])->Tuple[List[ProviderSearchResult]
         href=str(link.get('href') or '').strip()
         m=re.search(r'\b(19\d{2}|20\d{2})\b',meta.get_text(' ',strip=True) if meta else '')
         item_year=int(m.group(1)) if m else None
-        if normalize_ru_text(name)!=normalize_ru_text(title):continue
+        accepted_norm={normalize_ru_text(x) for x in (accepted_titles or (title,)) if str(x or '').strip()}
+        provider_title_variants={normalize_ru_text(part) for part in re.split(r'\s*/\s*',name) if str(part or '').strip()}
+        if not (provider_title_variants & accepted_norm):continue
         if year and item_year and int(year)!=item_year:continue
         parsed=urlparse(href); path=parsed.path.strip('/')
         if path.endswith('.html'):path=path[:-5]
@@ -67,9 +69,24 @@ def search_exact(title:str,year:Optional[int])->Tuple[List[ProviderSearchResult]
 
 class HDRezkaProviderAdapter:
     definition=DEF
-    def search(self,request:ProviderRequest):
-        rows,error=search_exact(request.title,request.year)
-        logger.info('HDRezka exact search media_id=%s matches=%s error=%s',request.media_id,len(rows),error)
+    def search(self,request:ProviderRequest,aliases=()):
+        accepted=[]
+        for value in (request.title,*tuple(aliases or ())):
+            text=str(value or '').strip()
+            if text and normalize_ru_text(text) not in {normalize_ru_text(x) for x in accepted}: accepted.append(text)
+        found={}
+        errors=[]
+        accepted_norm={normalize_ru_text(x) for x in accepted}
+        for query_title in accepted:
+            rows,error=search_exact(query_title,request.year,accepted_titles=accepted)
+            if error: errors.append(error)
+            for row in rows:
+                row_variants={normalize_ru_text(part) for part in re.split(r'\s*/\s*',row.title) if str(part or '').strip()}
+                if row_variants & accepted_norm:
+                    found[row.item_id]=row
+        error = errors[0] if errors and not found else None
+        rows=list(found.values())
+        logger.info('HDRezka exact search media_id=%s aliases=%s matches=%s error=%s',request.media_id,len(accepted),len(rows),error)
         return rows,error
     def resolve_source(self,source:ProviderSearchResult,request:ProviderRequest):
         streams,error=_resolve_hdrezka({'downloadLinkKey':source.item_id},fetch_text=_get,fetch_text_with_headers=_get_headers,fetch_post_form_text=_post,request_user_agent=HDREZKA_DEFAULT_USER_AGENT,season=request.season,episode=request.episode)

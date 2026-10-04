@@ -124,7 +124,7 @@ def discover_provider_streams(
                 media_type="tv" if is_series else "movie",
             )
             adapter = HDRezkaProviderAdapter()
-            results, search_error = adapter.search(request)
+            results, search_error = adapter.search(request, aliases=(original_title,))
             if search_error:
                 error_count += 1
                 terminal_statuses.append("PROVIDER_ERROR")
@@ -143,7 +143,8 @@ def discover_provider_streams(
                     )
                     if rows:
                         collected_streams.extend(rows)
-                    terminal_statuses.append("NO_RESULTS")
+                    else:
+                        terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
             terminal_statuses.append("PROVIDER_ERROR")
@@ -184,7 +185,8 @@ def discover_provider_streams(
                     )
                     if rows:
                         collected_streams.extend(rows)
-                    terminal_statuses.append("NO_RESULTS")
+                    else:
+                        terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
             terminal_statuses.append("PROVIDER_ERROR")
@@ -220,7 +222,8 @@ def discover_provider_streams(
                     )
                     if rows:
                         collected_streams.extend(rows)
-                    terminal_statuses.append("NO_RESULTS")
+                    else:
+                        terminal_statuses.append("NO_RESULTS")
         except Exception:
             error_count += 1
             terminal_statuses.append("PROVIDER_ERROR")
@@ -275,7 +278,8 @@ def discover_provider_streams(
                         )
                         if rows:
                             collected_streams.extend(rows)
-                        terminal_statuses.append("NO_RESULTS")
+                        else:
+                            terminal_statuses.append("NO_RESULTS")
 
     # Octopus search and article transport are live, but its current iframe
     # still needs a clean-room playback decoder. Discovery is available behind
