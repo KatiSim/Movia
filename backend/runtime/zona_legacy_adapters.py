@@ -822,6 +822,45 @@ def _hdrezka_safe_headers(value: Any) -> Dict[str, str]:
     return result
 
 
+def _hdrezka_cookie_header(response_headers: Any) -> str:
+    """Return a scoped request Cookie from one provider page response.
+
+    Only name=value pairs from Set-Cookie are retained. Attributes, deleted
+    values and malformed/control-character data are ignored. Nothing is
+    persisted beyond the current resolve call.
+    """
+    if not isinstance(response_headers, dict):
+        return ""
+    raw_values = response_headers.get("set-cookie")
+    if isinstance(raw_values, str):
+        raw_values = [raw_values]
+    if not isinstance(raw_values, (list, tuple)):
+        return ""
+    cookies: List[str] = []
+    seen = set()
+    for raw in raw_values[:32]:
+        first = str(raw or "").split(";", 1)[0].strip()
+        if not first or "=" not in first or "\r" in first or "\n" in first:
+            continue
+        name, value = first.split("=", 1)
+        name = name.strip()
+        value = value.strip()
+        if (
+            not re.fullmatch(r"[A-Za-z0-9!#$%&'*+.^_`|~-]{1,128}", name)
+            or not value
+            or value.casefold() == "deleted"
+            or len(value) > 2048
+        ):
+            continue
+        key = name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        cookies.append(f"{name}={value}")
+    joined = "; ".join(cookies)
+    return joined if len(joined) <= 4096 else ""
+
+
 def _hdrezka_decode_inner_json(value: Any) -> Any:
     if not isinstance(value, str) or not value.strip():
         return None
@@ -940,6 +979,15 @@ def _hdrezka_clean_voice(value: Any) -> str:
     return re.sub(r"\s+", " ", unescape(text)).strip()
 
 
+def _hdrezka_initial_translator_id(page_text: str) -> str:
+    match = re.search(
+        r"initCDNMoviesEvents\s*\(\s*\d+\s*,\s*(\d+)\s*,",
+        str(page_text or ""),
+        re.IGNORECASE,
+    )
+    return match.group(1) if match else ""
+
+
 def _hdrezka_translators(
     page_text: str,
     source_path: str,
@@ -966,7 +1014,11 @@ def _hdrezka_translators(
             "id": _hdrezka_attr(tag, "data-id") or page_id,
             "translator_id": translator_id,
             "voice": voice or str(_first(merged, ("tran", "translation", "voice")) or "Не указано"),
+            "active": "1" if re.search(r'\bclass\s*=\s*([\"\']).*?\bactive\b.*?\1', tag, re.IGNORECASE | re.DOTALL) else "0",
         }
+        cdn_url = _hdrezka_attr(tag, "data-cdn_url")
+        if cdn_url:
+            item["cdn_url"] = cdn_url
         for attr, field in (
             ("data-camrip", "is_camrip"),
             ("data-ads", "is_ads"),
@@ -1206,6 +1258,7 @@ def _resolve_hdrezka(
     source: Dict[str, Any],
     *,
     fetch_text: Optional[TextFetcher],
+    fetch_text_with_headers: Optional[TextWithHeadersFetcher] = None,
     fetch_post_form_text: Optional[PostFormFetcher],
     request_user_agent: str,
     season: Optional[int],
@@ -1235,6 +1288,7 @@ def _resolve_hdrezka(
     page_text = None
     page_url = None
     selected_base = None
+    page_cookie_header = ""
     page_errors: List[str] = []
     encoded_path = quote(source_path, safe="/%:@-._~")
     for base in base_candidates:
@@ -1242,7 +1296,12 @@ def _resolve_hdrezka(
         headers = {"User-Agent": user_agent}
         headers.update(dynamic_headers)
         try:
-            text, error = fetch_text(candidate_url, headers)
+            if fetch_text_with_headers is not None:
+                text, response_headers, error = fetch_text_with_headers(candidate_url, headers)
+                cookie_header = _hdrezka_cookie_header(response_headers)
+            else:
+                text, error = fetch_text(candidate_url, headers)
+                cookie_header = ""
         except Exception as exc:
             page_errors.append(type(exc).__name__)
             continue
@@ -1252,6 +1311,7 @@ def _resolve_hdrezka(
         page_text = text
         page_url = candidate_url
         selected_base = base
+        page_cookie_header = cookie_header
         break
     if page_text is None or page_url is None or selected_base is None:
         return [], "hdrezka:PAGE_REQUEST_FAILED" + (":" + ";".join(page_errors[:3]) if page_errors else "")
@@ -1277,11 +1337,29 @@ def _resolve_hdrezka(
         if str(item.get("translator_id") or "") not in disabled
     ]
 
-    # Some pages embed the CDN player payload directly and need no AJAX call.
+    # Some pages embed the currently selected CDN player payload directly.
+    # It is a useful fallback, but it must not short-circuit the translator
+    # branches: current HDRezka pages can expose 10+ distinct translations
+    # while the embedded payload represents only the active/default voice.
+    embedded_streams: List[Dict[str, Any]] = []
+    embedded_dynamic_required = False
     embedded = re.search(r'(\{"id":"cdnplayer".*?\})\);', page_text, re.IGNORECASE | re.DOTALL)
     if embedded:
-        voice = str(_first(merged, ("tran", "translation", "voice")) or "Не указано")
-        direct_streams, dynamic_required = _hdrezka_parse_response(
+        initial_translator_id = _hdrezka_initial_translator_id(page_text)
+        active_voice = next(
+            (
+                str(item.get("voice") or "").strip()
+                for item in translators
+                if str(item.get("voice") or "").strip()
+                and (
+                    str(item.get("active") or "") == "1"
+                    or (initial_translator_id and str(item.get("translator_id") or "") == initial_translator_id)
+                )
+            ),
+            "",
+        )
+        voice = active_voice or str(_first(merged, ("tran", "translation", "voice")) or "Не указано")
+        embedded_streams, embedded_dynamic_required = _hdrezka_parse_response(
             embedded.group(1),
             source,
             voice=voice,
@@ -1292,18 +1370,39 @@ def _resolve_hdrezka(
             episode=episode,
             quality_mapping=config.get("q"),
         )
-        if direct_streams:
-            return direct_streams, None
-        if dynamic_required:
-            return [], "hdrezka:DYNAMIC_DECODER_REQUIRED"
 
     if not translators:
+        if embedded_streams:
+            return embedded_streams, None
+        if embedded_dynamic_required:
+            return [], "hdrezka:DYNAMIC_DECODER_REQUIRED"
         return [], "hdrezka:NO_TRANSLATORS"
 
     all_streams: List[Dict[str, Any]] = []
-    dynamic_decoder_required = False
+    dynamic_decoder_required = bool(embedded_dynamic_required)
     provider_errors: List[str] = []
     for translator in translators:
+        # LazyMedia 3.466 first consumes data-cdn_url directly. Only translators
+        # without an embedded CDN playlist need the AJAX endpoint. This avoids
+        # unnecessary/blocked POST requests and preserves the translator voice.
+        cdn_url = str(translator.get("cdn_url") or "").strip()
+        if cdn_url:
+            direct_for_voice, needs_dynamic = _hdrezka_parse_response(
+                json.dumps({"url": cdn_url}),
+                source,
+                voice=str(translator.get("voice") or "Не указано"),
+                user_agent=user_agent,
+                page_url=page_url,
+                origin=selected_base,
+                season=season,
+                episode=episode,
+                quality_mapping=config.get("q"),
+            )
+            dynamic_decoder_required = dynamic_decoder_required or needs_dynamic
+            if direct_for_voice:
+                all_streams.extend(direct_for_voice)
+                continue
+
         form: Dict[str, str] = {
             "action": "get_stream" if season is not None and episode is not None else "get_movie",
             "id": str(translator.get("id") or ""),
@@ -1312,9 +1411,12 @@ def _resolve_hdrezka(
         if season is not None and episode is not None:
             form["season"] = str(int(season))
             form["episode"] = str(int(episode))
-        for field in ("is_camrip", "is_ads", "is_director"):
-            if translator.get(field) not in (None, ""):
-                form[field] = str(translator[field])
+        else:
+            # Exact LazyMedia movie form template. These zero-valued fields are
+            # part of the provider contract, not optional decorations.
+            form["is_camrip"] = str(translator.get("is_camrip") or "0")
+            form["is_ads"] = str(translator.get("is_ads") or "0")
+            form["is_director"] = str(translator.get("is_director") or "0")
 
         headers = {
             "User-Agent": user_agent,
@@ -1323,6 +1425,8 @@ def _resolve_hdrezka(
         }
         headers.update(dynamic_headers)
         headers.update(account_headers)
+        if page_cookie_header and not any(str(key).casefold() == "cookie" for key in headers):
+            headers["Cookie"] = page_cookie_header
         endpoint = f"{selected_base}{HDREZKA_AJAX_PATH}{int(time.time() * 1000)}"
         response_text: Optional[str] = None
         last_error: Optional[str] = None
@@ -1334,10 +1438,19 @@ def _resolve_hdrezka(
                 last_error = f"{type(exc).__name__}:{str(exc)[:100]}"
             if response_text and not last_error:
                 break
+            # Current HDRezka may hard-reject the legacy translator AJAX route.
+            # Retrying the same authenticated request for every translator only
+            # adds seconds of startup latency. One 403 is enough to use the
+            # already parsed embedded/default player fallback for this resolve.
+            if str(last_error or "").startswith("HTTP_ERROR:403"):
+                provider_errors.append("HTTP_ERROR:403")
+                break
             if attempt < 2:
                 time.sleep(0.1 * (2 ** attempt))
         if not response_text or last_error:
             provider_errors.append(str(last_error or "EMPTY_RESPONSE")[:120])
+            if str(last_error or "").startswith("HTTP_ERROR:403") and embedded_streams:
+                break
             continue
 
         parsed_streams, needs_dynamic = _hdrezka_parse_response(
@@ -1356,6 +1469,11 @@ def _resolve_hdrezka(
 
     if all_streams:
         return all_streams, None
+    # Translator expansion is authoritative when it succeeds. If every
+    # translator branch fails, retain the embedded/default player as a safe
+    # fallback instead of dropping an otherwise playable movie.
+    if embedded_streams:
+        return embedded_streams, None
     if dynamic_decoder_required:
         return [], "hdrezka:DYNAMIC_DECODER_REQUIRED"
     if provider_errors:
@@ -4260,6 +4378,7 @@ def resolve_local_source(
         return _resolve_hdrezka(
             source,
             fetch_text=fetch_text,
+            fetch_text_with_headers=fetch_text_with_headers,
             fetch_post_form_text=fetch_post_form_text,
             request_user_agent=request_user_agent or HDREZKA_DEFAULT_USER_AGENT,
             season=season,

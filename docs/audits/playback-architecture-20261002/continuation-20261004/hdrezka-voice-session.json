@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-04",
+  "action": "hdrezka_voice_expansion_and_session_diagnostics",
+  "blockLimitMinutes": 10,
+  "findings": {
+    "embeddedShortCircuitBug": true,
+    "pageTranslatorCountsObserved": {
+      "Интерстеллар": 10,
+      "Матрица": 22
+    },
+    "previousBehavior": "embedded cdnplayer returned early with voice=Не указано",
+    "fixedBehaviorInBranch": "translator branches are attempted before embedded fallback",
+    "liveCookieScopedVoiceImprovement": {
+      "title": "Интерстеллар",
+      "streams": 10,
+      "voices": [
+        "Дубляж"
+      ],
+      "qualities": [
+        "240p",
+        "360p",
+        "480p",
+        "720p"
+      ]
+    },
+    "translatorPostBeforeSessionFix": "HTTP 403",
+    "lazy3466HeadersRecovered": [
+      "User-Agent",
+      "Cookie",
+      "Referer",
+      "X-Hdrezka-Android-App",
+      "X-Hdrezka-Android-App-Version"
+    ],
+    "guestTokenCookieName": "dle_user_token",
+    "currentConfigBaseHost": "hdrzk.org",
+    "currentConfigBaseStatus": 403,
+    "currentConfigArticleStatus": 403,
+    "conclusion": "voice-tree parsing is fixed structurally, but current provider domain/session transport is still blocked; do not activate in production yet"
+  },
+  "tests": {
+    "focused": "9/9 PASS",
+    "fullBackend": "290/290 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "activeParserModified": false,
+    "streamerExpectedRunning": true
+  },
+  "next": [
+    "resolve current HDRezka domain/session transport or select working mirror",
+    "re-run translator POST live until multiple voices succeed",
+    "only then overlay active parser",
+    "measure random coverage delta after activation"
+  ]
+}
