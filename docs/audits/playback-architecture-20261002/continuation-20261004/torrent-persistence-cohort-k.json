@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "persist_torrent_variant_tree_in_background_and_audit_cohort_k",
+  "rewritePolicy": {
+    "copiedLazyMediaCode": false,
+    "behaviorOnly": "multiple torrent leaves with exact structural scope",
+    "implementation": "Movia ProviderContract + torrent_provider_adapter + Movia content_filler logs"
+  },
+  "backgroundPersistence": {
+    "module": "content_filler.py",
+    "hook": "_rewrite_torrent_rows_for_persistence",
+    "featureFlag": "MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT=1",
+    "enricherServiceConfigured": true,
+    "directRowsPreserved": true,
+    "movieMagnetsNativeBeforeSave": true,
+    "tvGenericPackNotRelabeledAsEpisode": true,
+    "migrationStrategy": "gradual replacement during ordinary enrichment; legacy rows not rediscovered in a pass remain untouched"
+  },
+  "livePersistenceProof": [
+    {
+      "id": 87,
+      "title": "Гарри Поттер и Дары Смерти: Часть I",
+      "elapsedMs": 4491,
+      "before": {
+        "magnetRows": 29,
+        "nativeLogicalIds": 0,
+        "missingNativeIds": 29,
+        "voices": 2,
+        "qualities": 5,
+        "complete": false
+      },
+      "after": {
+        "magnetRows": 29,
+        "nativeLogicalIds": 26,
+        "providerItemIds": 26,
+        "missingNativeIds": 3,
+        "voices": 2,
+        "qualities": 5,
+        "complete": false
+      },
+      "rewriteLog": {
+        "input": 27,
+        "leaves": 26
+      }
+    },
+    {
+      "id": 12256,
+      "title": "Славные парни",
+      "elapsedMs": 2023,
+      "before": {
+        "voices": 2,
+        "qualities": 3,
+        "complete": false
+      },
+      "after": {
+        "voices": 3,
+        "qualities": 3,
+        "complete": true
+      },
+      "storedMagnetRows": 28,
+      "nativeLogicalIds": 18,
+      "rewriteLog": {
+        "input": 18,
+        "leaves": 18
+      }
+    }
+  ],
+  "tests": {
+    "focusedPersistence": "10/10 PASS",
+    "fullBackend": "315/315 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "enricherPidAtCheck": 11339,
+    "enricherConfigFlag": "MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT=1"
+  },
+  "cohortK": {
+    "seed": 3421,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughJ": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 10001,
+    "baseline": {
+      "complete": 14,
+      "voicesGe3": 18,
+      "qualitiesGe3": 100,
+      "anyStream": 466,
+      "nearComplete": 24
+    },
+    "targetedCompleted": [
+      {
+        "id": 12256,
+        "title": "Славные парни",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3,
+          "complete": true
+        }
+      }
+    ],
+    "final": {
+      "complete": 15,
+      "voicesGe3": 19,
+      "qualitiesGe3": 100,
+      "anyStream": 466,
+      "nearComplete": 23
+    },
+    "deltaComplete": 1
+  },
+  "next": [
+    "create fresh cohort-L excluding exact B-K IDs plus conservative A exclusions",
+    "migrate the next working provider by behavior-study then Movia-native rewrite, never source copying",
+    "continue natural DB migration until legacy magnet rows disappear as they are rediscovered"
+  ]
+}

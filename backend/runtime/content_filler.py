@@ -496,6 +496,40 @@ def _candidate_streams(found_stream: Optional[Dict[str, Any]]) -> List[Dict[str,
     return sanitize_streams(raw_streams, require_source=True)
 
 
+def _rewrite_torrent_rows_for_persistence(
+    streams: List[Dict[str, Any]],
+    row: Any,
+) -> List[Dict[str, Any]]:
+    if os.environ.get("MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT", "0") != "1":
+        return streams
+    magnet_rows = [item for item in streams if str(item.get("url") or "").startswith("magnet:?")]
+    if not magnet_rows:
+        return streams
+    direct_rows = [item for item in streams if not str(item.get("url") or "").startswith("magnet:?")]
+    try:
+        from provider_contract import ProviderRequest
+        from torrent_provider_adapter import rewrite_torrent_rows_as_variant_tree
+        media_type = str(row["media_type"] or "movie").strip().casefold()
+        request = ProviderRequest(
+            media_id=str(row["id"]),
+            title=str(row["title"] or "").strip(),
+            year=_as_int(row["year"]) or None,
+            media_type="tv" if media_type in {"tv", "series", "serial", "tv_series", "limited_series"} else "movie",
+        )
+        rewritten = rewrite_torrent_rows_as_variant_tree(magnet_rows, request)
+        logger.info(
+            "Torrent VariantTree persistence rewrite ID=%s input=%s leaves=%s",
+            row["id"], len(magnet_rows), len(rewritten),
+        )
+        return sanitize_streams(direct_rows + rewritten, require_source=True)
+    except Exception as exc:
+        logger.warning(
+            "Torrent VariantTree persistence rewrite failed ID=%s error=%s",
+            row["id"], type(exc).__name__,
+        )
+        return streams
+
+
 def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     """Resolve and persist one row; the caller commits the durable cursor."""
     content_id = _as_int(row["id"])
@@ -616,6 +650,7 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             logger.debug("Torrent error for %s: %s", title, exc)
 
     resolved_streams = sanitize_streams(resolved_streams, require_source=True)
+    resolved_streams = _rewrite_torrent_rows_for_persistence(resolved_streams, row)
     if resolved_streams:
         primary = resolved_streams[0]
         found_stream = {

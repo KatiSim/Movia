@@ -23,6 +23,46 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
             'canonical_year': 2024, 'canonical_media_type': 'movie',
         }
 
+    def test_persistence_rewrites_movie_magnet_to_provider_contract_identity(self):
+        row = self.row()
+        magnet = {
+            'source': 'Rutor', 'provider': 'Rutor',
+            'url': 'magnet:?xt=urn:btih:' + 'a' * 40 + '&tr=https%3A%2F%2Fold',
+            'voice': 'Дубляж', 'quality': '1080p', 'seeders': 17,
+            'title': 'Example 2024 1080p | D',
+        }
+        direct = self.stream('Collaps', 'Dub', 'Auto', 'direct')
+        with patch.dict('os.environ', {'MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT': '1'}, clear=False):
+            out = filler._rewrite_torrent_rows_for_persistence([direct, magnet], row)
+        magnets = [item for item in out if str(item.get('url') or '').startswith('magnet:?')]
+        directs = [item for item in out if str(item.get('url') or '').startswith('https://')]
+        self.assertEqual(1, len(magnets))
+        self.assertEqual(1, len(directs))
+        self.assertEqual(direct['url'], directs[0]['url'])
+        self.assertEqual('a' * 40, magnets[0]['info_hash'])
+        self.assertEqual(17, magnets[0]['seeders'])
+        self.assertEqual('77', magnets[0]['catalog_media_id'])
+        self.assertTrue(magnets[0].get('logical_source_id'))
+        self.assertTrue(magnets[0].get('provider_item_id'))
+
+    def test_persistence_does_not_fabricate_episode_from_tv_card_level_pack(self):
+        row = self.row()
+        row.update(media_type='tv', category='tv_series')
+        generic = {
+            'source': 'Rutor', 'provider': 'Rutor',
+            'url': 'magnet:?xt=urn:btih:' + 'b' * 40,
+            'voice': 'Dub', 'quality': '1080p', 'seeders': 9,
+            'title': 'Example Season Pack',
+        }
+        exact_episode = dict(generic, url='magnet:?xt=urn:btih:' + 'c' * 40, season=1, episode=2, title='S01E02')
+        with patch.dict('os.environ', {'MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT': '1'}, clear=False):
+            out = filler._rewrite_torrent_rows_for_persistence([generic, exact_episode], row)
+        self.assertEqual(1, len(out))
+        self.assertEqual('b' * 40, out[0]['info_hash'])
+        self.assertNotIn('season', out[0])
+        self.assertNotIn('episode', out[0])
+        self.assertEqual('tv', out[0]['canonical_media_type'])
+
     def test_pending_balancer_cannot_block_torrent_enrichment(self):
         rutor = self.stream('Rutor', 'Studio B', '720p', 'rutor')
         torrent = {'playback_url': rutor['url'], 'voice': rutor['voice'],
