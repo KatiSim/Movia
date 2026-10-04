@@ -56,6 +56,7 @@ class DiscoveryPersistenceTest(unittest.TestCase):
                     patch.object(streamer, '_catalog_identity_for_request', return_value=('OK', self.card)), \
                     patch.object(streamer, 'get_recent_stale_direct_streams', return_value=[]), \
                     patch.object(streamer, '_resolve_balancer_provider', return_value=[self.row('A')]), \
+                    patch.object(streamer, '_resolve_clean_provider_registry', return_value=[]), \
                     patch.object(streamer, '_resolve_torrent_provider', side_effect=slow), \
                     patch.object(streamer, 'set_cached_streams', side_effect=write_then_complete), \
                     patch.object(streamer, 'persist_resolved_streams_to_catalog', return_value=True) as persisted:
@@ -65,6 +66,26 @@ class DiscoveryPersistenceTest(unittest.TestCase):
                 self.assertEqual(7, persisted.call_args.args[0])
                 self.assertEqual({'A', 'B'}, {row['voice'] for row in persisted.call_args.args[1]})
         finally: release.set(); pool.close()
+
+    def test_clean_provider_registry_is_unioned_with_balancer_inventory(self):
+        pool = BoundedExecutor(workers=2, max_pending=0, name='test-provider-union')
+        filmix = self.row('Filmix Dub', provider='Filmix', source='Filmix', quality='1080p')
+        balancer = self.row('Balancer Dub', provider='Rutor', source='Rutor', quality='720p')
+        try:
+            with patch.object(streamer, '_PROVIDER_EXECUTOR', pool), \
+                    patch.object(streamer, 'P2P_ENABLED', False), \
+                    patch.object(streamer, '_catalog_identity_for_request', return_value=('OK', self.card)), \
+                    patch.object(streamer, 'get_recent_stale_direct_streams', return_value=[]), \
+                    patch.object(streamer, '_resolve_balancer_provider', return_value=[balancer]), \
+                    patch.object(streamer, '_resolve_clean_provider_registry', return_value=[filmix]):
+                rows = streamer.resolve_on_demand_streams(
+                    'Fixture', 2020, catalog_media_id=7, media_type='movie',
+                    force_refresh=True, _allow_stale_fast_path=False,
+                )
+            self.assertEqual({'Filmix', 'Rutor'}, {row['provider'] for row in rows})
+            self.assertEqual({'Filmix Dub', 'Balancer Dub'}, {row['voice'] for row in rows})
+        finally:
+            pool.close()
 
     def test_late_result_for_another_catalog_identity_is_rejected(self):
         streamer.set_cached_streams('fixture', [self.row('A')])

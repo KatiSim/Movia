@@ -32,6 +32,7 @@ from balancer_integration import (
     get_last_resolution_diagnostics,
     resolve_balancer,
 )
+from provider_discovery import discover_provider_streams
 from streamer import set_cached_streams
 from background_network_budget import background_bulk_allowed
 from playback_availability_index import (
@@ -50,6 +51,9 @@ PROVIDER_ERROR_RETRY_MAX_SECONDS = 24 * 60 * 60
 NO_SOURCE_RETRY_SECONDS = 7 * 24 * 60 * 60
 IDENTITY_RETRY_SECONDS = 30 * 24 * 60 * 60
 PERSISTENCE_RETRY_SECONDS = 60 * 60
+
+
+_FILL_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-provider")
 
 logger = logging.getLogger("content_filler")
 logger.setLevel(logging.INFO)
@@ -429,24 +433,53 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     row_provider_errors = 0
     persisted_ok = False
 
+    provider_future = _FILL_PROVIDER_EXECUTOR.submit(
+        discover_provider_streams,
+        title=search_title,
+        original_title=original_title,
+        year=year,
+        media_id=str(content_id),
+        media_type=str(row["media_type"] or category),
+    )
+    balancer_future = _FILL_PROVIDER_EXECUTOR.submit(
+        resolve_balancer,
+        title=search_title,
+        year=year,
+        tmdb_id=tmdb_id,
+        expected_titles=list(dict.fromkeys(
+            value for value in (search_title, title, original_title) if value
+        )),
+        media_type=category,
+    )
+
+    resolved_streams: List[Dict[str, Any]] = []
     try:
-        balancer_result = resolve_balancer(
-            title=search_title,
-            year=year,
-            tmdb_id=tmdb_id,
-            expected_titles=list(dict.fromkeys(
-                value for value in (search_title, title, original_title)
-                if value
-            )),
-            media_type=category,
-        )
+        provider_outcome = provider_future.result()
+        resolved_streams.extend(provider_outcome.streams)
+        row_provider_errors += _as_int(provider_outcome.error_count)
+    except Exception as exc:
+        row_provider_errors += 1
+        logger.debug("Provider registry error for %s: %s", title, exc)
+
+    try:
+        balancer_result = balancer_future.result()
         diagnostics = get_last_resolution_diagnostics()
         row_provider_errors += _as_int(diagnostics.get("error_count"))
-        if isinstance(balancer_result, dict) and balancer_result.get("playback_url"):
-            found_stream = balancer_result
+        resolved_streams.extend(_candidate_streams(balancer_result))
     except Exception as exc:
         row_provider_errors += 1
         logger.debug("Balancer error for %s: %s", title, exc)
+
+    resolved_streams = sanitize_streams(resolved_streams, require_source=True)
+    if resolved_streams:
+        primary = resolved_streams[0]
+        found_stream = {
+            "playback_url": primary.get("url", ""),
+            "voice": primary.get("voice", "Не указано"),
+            "quality": primary.get("quality", "Не указано"),
+            "seeders": primary.get("seeders", 0),
+            "streams": resolved_streams,
+        }
 
     cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
     background_bulk = (

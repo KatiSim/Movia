@@ -2564,6 +2564,32 @@ def _resolve_torrent_provider(
         return []
 
 
+def _resolve_clean_provider_registry(
+    title: str,
+    year: int,
+    season: Optional[int],
+    episode: Optional[int],
+    original_title: Optional[str],
+    catalog_media_id: Any,
+    media_type: str,
+) -> List[Dict[str, Any]]:
+    try:
+        from provider_discovery import discover_provider_streams
+        outcome = discover_provider_streams(
+            title=title,
+            original_title=original_title,
+            year=year,
+            media_id=str(catalog_media_id or ""),
+            media_type=media_type,
+            season=season,
+            episode=episode,
+        )
+        return outcome.streams
+    except Exception as exc:
+        print(f"[DEBUG] Clean provider registry error: {type(exc).__name__}: {exc}")
+        return []
+
+
 def _resolve_balancer_provider(
     title: str,
     tmdb_id: int,
@@ -2987,8 +3013,8 @@ def resolve_on_demand_streams(
         # Independent provider branches run together; the union is required to
         # expose all real voice/quality variants.
         pool = _PROVIDER_EXECUTOR
-        balancer_future = torrent_future = None
-        direct_consumed = torrent_consumed = False
+        balancer_future = registry_future = torrent_future = None
+        direct_consumed = registry_consumed = torrent_consumed = False
         try:
             expected_titles = list(dict.fromkeys(
                 value for value in (clean_title, str(original_title or "").strip())
@@ -3007,15 +3033,34 @@ def resolve_on_demand_streams(
                 canonical_media_type,
                 force_refresh,
             )
+            registry_future = pool.submit(
+                _resolve_clean_provider_registry,
+                canonical_title,
+                canonical_year,
+                season,
+                episode,
+                canonical_original_title,
+                canonical_id or catalog_media_id,
+                canonical_media_type,
+            )
             if P2P_ENABLED and not CLOUD_MODE:
                 torrent_future = pool.submit(_resolve_torrent_provider,
                     clean_title, year, clean_category, season, episode)
+            direct_budget_started = time.monotonic()
             try:
                 direct_streams = balancer_future.result(timeout=4.0) if balancer_future else []
                 direct_consumed = True
             except Exception as exc:
                 print(f"[DEBUG] Balancer query error or timeout: {exc}")
                 direct_streams = []
+            remaining_registry_budget = max(0.05, 4.0 - (time.monotonic() - direct_budget_started))
+            try:
+                registry_streams = registry_future.result(timeout=remaining_registry_budget) if registry_future else []
+                registry_consumed = True
+            except Exception as exc:
+                print(f"[DEBUG] Clean provider registry timeout/error: {type(exc).__name__}")
+                registry_streams = []
+            direct_streams = list(direct_streams or []) + list(registry_streams or [])
             if not direct_streams and stale_direct_streams:
                 direct_streams = [dict(stream) for stream in stale_direct_streams]
                 print(
@@ -3033,7 +3078,7 @@ def resolve_on_demand_streams(
             # Registration occurs after saving the first result below, so an
             # already-completed late callback cannot be overwritten by it.
             late_futures = [future for future, consumed in
-                            ((balancer_future,direct_consumed),(torrent_future,torrent_consumed))
+                            ((balancer_future,direct_consumed),(registry_future,registry_consumed),(torrent_future,torrent_consumed))
                             if future is not None and not consumed]
 
         if not direct_streams and catalog_identity:

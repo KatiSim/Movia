@@ -1,0 +1,103 @@
+{
+  "checkedAt": "2026-10-04T08:07:00Z",
+  "action": "connect_clean_provider_registry_to_on_demand_and_filler",
+  "implementation": {
+    "providerDiscoveryModule": "backend/runtime/provider_discovery.py",
+    "enabledAdapters": [],
+    "gatedAdapters": [
+      "filmix"
+    ],
+    "filmixGate": "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER=1",
+    "defaultFilmixState": "PROVIDER_DISABLED",
+    "onDemandIntegration": {
+      "path": "streamer.resolve_on_demand_streams",
+      "behavior": "clean provider registry runs in parallel with balancer; completed rows are unioned; late rows use existing persistence callback",
+      "readyBudgetSeconds": 4,
+      "seriesFilmix": "fail-closed"
+    },
+    "backgroundIntegration": {
+      "path": "content_filler._process_row",
+      "behavior": "clean provider outcome and balancer outcome are unioned before identity filtering and persistence",
+      "additivePersistencePreserved": true
+    }
+  },
+  "tests": {
+    "focused": {
+      "tests": 12,
+      "status": "PASS"
+    },
+    "fullBackend": {
+      "tests": 260,
+      "status": "PASS"
+    },
+    "pyCompile": "PASS",
+    "gitDiffCheck": "PASS",
+    "knownWarnings": [
+      "pre-existing sqlite3 ResourceWarning messages remain"
+    ]
+  },
+  "liveFilmixProbe": {
+    "title": "Интерстеллар",
+    "catalogId": 158,
+    "year": 2014,
+    "cleanRegistryStatus": "PROVIDER_ERROR",
+    "elapsedMs": 136,
+    "streams": 0,
+    "legacyPartnerApiHttpStatus": 403,
+    "filmixSiteFinalHost": "filmix.gg",
+    "filmixSiteHttpStatus": 200,
+    "currentGuestCookieNames": [
+      "FILMIXNET",
+      "minotaurs",
+      "x-a-key"
+    ],
+    "legacyExpectedCookieName": "x424",
+    "currentGuestSessionAcceptedByLegacyPartnerApi": false,
+    "currentGuestSessionPartnerApiStatus": 403
+  },
+  "lazyMediaEvidence": {
+    "filmixListClass": "FILMIX_ListArticles",
+    "legacyCookieName": "x424",
+    "persistedPreferenceKey": "cookie_filmix",
+    "searchHeaders": [
+      "Cookie: x424=<guest value>;",
+      "X-Requested-With: XMLHttpRequest"
+    ],
+    "cookieSource": "base URL response cookie when no stored guest value",
+    "conclusion": "LazyMedia 3.466 search transport depended on a legacy Filmix guest-cookie/partner_api contract that is no longer reproduced by the current public Filmix site"
+  },
+  "safety": {
+    "activeParserModified": false,
+    "androidUiUsed": false,
+    "androidInstallAttempted": false,
+    "systemSettingsChanged": false,
+    "userSecretsRead": false,
+    "guestCookieValuesLogged": false,
+    "providerPayloadsPersisted": false
+  },
+  "runtime": {
+    "activeParserPid": 23603,
+    "activeParserCheck": "RUNNING",
+    "activeZonaAdapterSha256": "6bacb4ee246a4a1e57c93a1f1ab62112e559aec54e0224cccc266a56fd13d422",
+    "activeZonaContractSha256": "e0752b0c5fa23f351cb7ce0d2bb6a75ecbccdbb7ea79a1b8a70fe0233c9ca58e"
+  },
+  "preservation": {
+    "rootWorktreeWrittenByThisBlock": false,
+    "rootHead": "c5d1d3c882e07238c6f2a8fd308e8cec32f85936",
+    "rootIndexSha256": "0a6e8e0d5143d26ed257c1686d849ab9b4d92eb244fb4f1b8cbd843c0771ac7a",
+    "rootStatusSha256": "065a8153e9a074e097e7d0465c68a6da153d33bef67e7a9c4ee648790729e48f",
+    "rootStatusLines": 114
+  },
+  "limitations": {
+    "productionCleanProviderEnabled": false,
+    "filmixLiveSearchWorking": false,
+    "filmixSeriesVerified": false,
+    "activeParserUsesNewRegistry": false,
+    "coverageDeltaMeasuredAfterProviderEnable": false
+  },
+  "nextPriority": [
+    "port a live LazyMedia provider into provider_discovery and enable it",
+    "prefer providers whose current search/article transport is independently reproducible",
+    "then activate provider_discovery in active parser and rerun deterministic random-1000 coverage audit"
+  ]
+}
