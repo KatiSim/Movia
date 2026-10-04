@@ -64,6 +64,22 @@ class CatalogStreamServiceTests(unittest.TestCase):
         self.assertEqual('7', ready['streams'][0]['catalog_media_id'])
         self.assertFalse(self.api.cache)
 
+    def test_rows_use_runtime_torrent_variant_rewrite_boundary(self):
+        self.card['streams'] = [self.row('cached')]
+        calls = []
+        def rewrite(rows, identity, season, episode):
+            calls.append((identity['id'], season, episode, len(rows)))
+            out = [dict(row) for row in rows]
+            out[0]['logical_source_id'] = 'logical:test'
+            out[0]['provider_item_id'] = 'provider:test'
+            return out
+        self.service.runtime._rewrite_torrent_candidates_for_identity = rewrite
+        code, body = self.service('7', None, None)
+        self.assertEqual(200, code)
+        self.assertEqual([('7', None, None, 1)], calls)
+        self.assertEqual('logical:test', body['streams'][0]['logical_source_id'])
+        self.assertEqual('provider:test', body['streams'][0]['provider_item_id'])
+
     def test_cached_ready_variants_do_not_trigger_provider_work(self):
         self.card['streams'] = [self.row('cached')]
         code, body = self.service('7',None,None)

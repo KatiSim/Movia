@@ -160,6 +160,9 @@ class VariantStream:
     reload_supported: bool = False
     reload_data: Any = None
     transport: str = "direct"
+    seeders: Optional[int] = None
+    info_hash: str = ""
+    release_title: str = ""
     transport_metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -169,6 +172,9 @@ class VariantStream:
         _safe_track_index(self.audio_track_index)
         if (self.season is None) != (self.episode is None):
             raise ValueError("EXACT_EPISODE_REQUIRED")
+        if self.seeders is not None:
+            if isinstance(self.seeders, bool) or not isinstance(self.seeders, int) or self.seeders < 0:
+                raise ValueError("SEEDERS")
 
 
 @dataclass(frozen=True)
@@ -314,6 +320,12 @@ def _stream_row(
         row["reload_supported"] = True
     if stream.reload_data is not None:
         row["reload_data"] = stream.reload_data
+    if stream.seeders is not None:
+        row["seeders"] = stream.seeders
+    if stream.info_hash:
+        row["info_hash"] = _text(stream.info_hash)
+    if stream.release_title:
+        row["title"] = _text(stream.release_title)
     if stream.transport_metadata:
         row["transport_metadata"] = dict(stream.transport_metadata)
     return row

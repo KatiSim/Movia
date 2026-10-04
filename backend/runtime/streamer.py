@@ -2547,18 +2547,40 @@ def _resolve_torrent_provider(
     category: str,
     season: Optional[int],
     episode: Optional[int],
+    catalog_media_id: Any = None,
+    media_type: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     if not P2P_ENABLED:
         return []
     try:
         from torrent_resolver import resolve_torrents_for_query
-        return resolve_torrents_for_query(
+        rows = resolve_torrents_for_query(
             title=title,
             year=year,
             category=category,
             season=season,
             episode=episode,
         ) or []
+        if (
+            os.environ.get("MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT", "0") == "1"
+            and catalog_media_id is not None
+            and str(catalog_media_id).strip()
+        ):
+            from provider_contract import ProviderRequest
+            from torrent_provider_adapter import rewrite_torrent_rows_as_variant_tree
+            request = ProviderRequest(
+                media_id=str(catalog_media_id),
+                title=title,
+                year=int(year) if int(year or 0) > 0 else None,
+                season=season,
+                episode=episode,
+                media_type=str(media_type or ("tv" if season is not None else "movie")),
+            )
+            magnet_rows = [row for row in rows if str(row.get("url") or "").startswith("magnet:?")]
+            direct_rows = [row for row in rows if not str(row.get("url") or "").startswith("magnet:?")]
+            rewritten = rewrite_torrent_rows_as_variant_tree(magnet_rows, request)
+            return direct_rows + rewritten
+        return rows
     except Exception as exc:
         print(f"Torrent resolve error: {exc}")
         return []
@@ -2858,6 +2880,39 @@ def _scope_streams_to_catalog_card(
     )
 
 
+def _rewrite_torrent_candidates_for_identity(
+    streams: List[Dict[str, Any]],
+    identity: Dict[str, Any],
+    season: Optional[int],
+    episode: Optional[int],
+) -> List[Dict[str, Any]]:
+    if os.environ.get("MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT", "0") != "1":
+        return streams
+    media_id = identity.get("id")
+    if media_id is None or not str(media_id).strip():
+        return streams
+    magnet_rows = [row for row in streams if str(row.get("url") or "").startswith("magnet:?")]
+    if not magnet_rows:
+        return streams
+    direct_rows = [row for row in streams if not str(row.get("url") or "").startswith("magnet:?")]
+    try:
+        from provider_contract import ProviderRequest
+        from torrent_provider_adapter import rewrite_torrent_rows_as_variant_tree
+        request = ProviderRequest(
+            media_id=str(media_id),
+            title=str(identity.get("title") or "").strip(),
+            year=int(identity.get("year") or 0) or None,
+            season=season,
+            episode=episode,
+            media_type=str(identity.get("media_type") or ("tv" if season is not None else "movie")),
+        )
+        rewritten = rewrite_torrent_rows_as_variant_tree(magnet_rows, request)
+        return direct_rows + rewritten
+    except Exception as exc:
+        print(f"[DEBUG] Torrent VariantTree read rewrite error: {type(exc).__name__}: {exc}")
+        return streams
+
+
 def resolve_on_demand_streams(
     title: str,
     year: int = 2024,
@@ -3044,8 +3099,11 @@ def resolve_on_demand_streams(
                 canonical_media_type,
             )
             if P2P_ENABLED and not CLOUD_MODE:
-                torrent_future = pool.submit(_resolve_torrent_provider,
-                    clean_title, year, clean_category, season, episode)
+                torrent_future = pool.submit(
+                    _resolve_torrent_provider,
+                    canonical_title, canonical_year, clean_category, season, episode,
+                    canonical_id or catalog_media_id, canonical_media_type,
+                )
             direct_budget_started = time.monotonic()
             try:
                 direct_streams = balancer_future.result(timeout=4.0) if balancer_future else []

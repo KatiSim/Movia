@@ -35,9 +35,13 @@ class CatalogStreamService:
             expiry = self.runtime._direct_stream_expiry_seconds(row)
             if expiry is None or expiry > now + 15: eligible.append(row)
         exposed = eligible
-        return bind_stream_identity(exposed, catalog_media_id=card["id"], title=card.get("title"),
-                                    original_title=card.get("original_title"), year=card.get("year"),
-                                    media_type=card.get("media_type"), season=season, episode=episode)
+        bound = bind_stream_identity(exposed, catalog_media_id=card["id"], title=card.get("title"),
+                                     original_title=card.get("original_title"), year=card.get("year"),
+                                     media_type=card.get("media_type"), season=season, episode=episode)
+        rewrite = getattr(self.runtime, "_rewrite_torrent_candidates_for_identity", None)
+        if callable(rewrite):
+            return rewrite(bound, card, season, episode)
+        return bound
 
     def __call__(self, movie_id, season, episode, *, force_refresh=False):
         card = self._card(self.catalog.get_movie_playback_card(movie_id))

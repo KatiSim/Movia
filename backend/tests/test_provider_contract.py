@@ -181,6 +181,21 @@ class ProviderContractTests(unittest.TestCase):
         self.assertEqual(a["logical_source_id"], b["logical_source_id"])
         self.assertEqual(a["provider_item_id"], b["provider_item_id"])
 
+    def test_torrent_seeders_and_info_hash_survive_flattening(self):
+        provider = ProviderDefinition(provider_id="torrent-test", name="Rutor", family="test")
+        article = ProviderArticle(provider=provider, item_id="77", title="Example", year=2024)
+        request = ProviderRequest(media_id="77", title="Example", year=2024)
+        tree = VariantFolder(children=(VariantStream(
+            url="magnet:?xt=urn:btih:" + "a" * 40,
+            stream_key="btih:" + "a" * 40,
+            voice="Dub", quality="1080p", transport="torrent_p2p",
+            seeders=12, info_hash="a" * 40, release_title="Example 2024",
+        ),))
+        rows = flatten_variant_tree(article, tree, request)
+        self.assertEqual(12, rows[0]["seeders"])
+        self.assertEqual("a" * 40, rows[0]["info_hash"])
+        self.assertEqual("Example 2024", rows[0]["title"])
+
     def test_provider_profile_is_not_implicitly_merged_into_playback_headers(self):
         root = VariantFolder(children=[
             VariantStream(url="https://media.example/a.m3u8", quality="720p"),
