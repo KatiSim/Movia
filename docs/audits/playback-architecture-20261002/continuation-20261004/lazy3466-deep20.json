@@ -1,0 +1,1425 @@
+{
+  "n": 20,
+  "gainedCandidates": 1,
+  "zeroBecamePlayable": 1,
+  "gainedProvider": 1,
+  "gainedVoice": 0,
+  "gainedQuality": 0,
+  "rows": [
+    {
+      "catalogId": 40841,
+      "title": "На слом!",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 32766,
+      "title": "Четвертый протокол",
+      "year": 1987,
+      "oldCandidates": 3,
+      "oldProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": 1840,
+      "newCandidates": 3,
+      "newProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 1994,
+      "providerStatuses": [
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 16,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 11905,
+      "status": "OK",
+      "wallMs": 14650
+    },
+    {
+      "catalogId": 20107,
+      "title": "Солдаты неудачи",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 29946,
+      "title": "Фанфан - аромат любви",
+      "year": 1993,
+      "oldCandidates": 3,
+      "oldProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": 1590,
+      "newCandidates": 3,
+      "newProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 1942,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 20,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 12207,
+      "status": "OK",
+      "wallMs": 16480
+    },
+    {
+      "catalogId": 21719,
+      "title": "Запределье",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 14630,
+      "title": "Любовь сквозь время",
+      "year": 2014,
+      "oldCandidates": 2,
+      "oldProviders": [
+        "zona.mobi"
+      ],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": 3821,
+      "newCandidates": 2,
+      "newProviders": [
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 4829,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 2,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 2,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 4,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 20,
+          "matchedItems": 2
+        }
+      ],
+      "elapsedMs": 17223,
+      "status": "OK",
+      "wallMs": 20673
+    },
+    {
+      "catalogId": 47997,
+      "title": "История Бенджамина Блэйка",
+      "year": 1942,
+      "oldCandidates": 2,
+      "oldProviders": [
+        "zona.mobi"
+      ],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": 3861,
+      "newCandidates": 2,
+      "newProviders": [
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 4235,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 20,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 36,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 11030,
+      "status": "OK",
+      "wallMs": 17900
+    },
+    {
+      "catalogId": 16707,
+      "title": "Ржавчина и кость",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 23405,
+      "title": "Суперзвезда",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 24032,
+      "title": "Девочки из календаря",
+      "year": 2003,
+      "oldCandidates": 3,
+      "oldProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": 2220,
+      "newCandidates": 3,
+      "newProviders": [
+        "filmix",
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 1852,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 20,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 3,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 12969,
+      "status": "OK",
+      "wallMs": 16383
+    },
+    {
+      "catalogId": 633027,
+      "title": "回西藏",
+      "year": 2024,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 9684,
+      "status": "OK",
+      "wallMs": 14715
+    },
+    {
+      "catalogId": 5633,
+      "title": "Bad Hamster",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 1230737,
+      "title": "The Black Cat",
+      "year": 2017,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 6,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 3,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 1,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 6,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 9,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 11665,
+      "status": "OK",
+      "wallMs": 14666
+    },
+    {
+      "catalogId": 53483,
+      "title": "Поиск",
+      "year": 2012,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 4,
+      "newProviders": [
+        "zona.mobi"
+      ],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": 7686,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 36,
+          "matchedItems": 4
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "RESOLVED",
+          "searchHits": 60,
+          "matchedItems": 2
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 20,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 13529,
+      "status": "OK",
+      "wallMs": 18470
+    },
+    {
+      "catalogId": 588226,
+      "title": "Zu Eng!",
+      "status": "PROCESS_ERROR"
+    },
+    {
+      "catalogId": 373859,
+      "title": "ابن صلاح",
+      "year": 2026,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 10001,
+      "status": "OK",
+      "wallMs": 16364
+    },
+    {
+      "catalogId": 302737,
+      "title": "Tina Arena: Unravel Me",
+      "year": 2026,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 20,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 36,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 10399,
+      "status": "OK",
+      "wallMs": 14217
+    },
+    {
+      "catalogId": 158466,
+      "title": "Хороший отец",
+      "year": 2026,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 20,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 60,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 2,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 10284,
+      "status": "OK",
+      "wallMs": 13830
+    },
+    {
+      "catalogId": 40888,
+      "title": "Рукопись, найденная в Сарагосе",
+      "year": 1966,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 1,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 1,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 1,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 10446,
+      "status": "OK",
+      "wallMs": 15241
+    },
+    {
+      "catalogId": 38058,
+      "title": "Дьявол",
+      "year": 1974,
+      "oldCandidates": 0,
+      "oldProviders": [],
+      "oldVoices": [],
+      "oldQualities": [],
+      "oldFirstMs": -1,
+      "newCandidates": 0,
+      "newProviders": [],
+      "newVoices": [],
+      "newQualities": [],
+      "newFirstMs": -1,
+      "providerStatuses": [
+        {
+          "providerId": 1,
+          "provider": "filmix",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 72,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 4,
+          "provider": "zona.mobi",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 60,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 17,
+          "provider": "octopus",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 23,
+          "provider": "eneyida(ua)",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 0,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 21,
+          "provider": "hdrezka",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 36,
+          "matchedItems": 4
+        },
+        {
+          "providerId": 16,
+          "provider": "zombie",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 31,
+          "provider": "anilibria(v1)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 32,
+          "provider": "anilibria(v3)",
+          "status": "IOException",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 13,
+          "provider": "encyclopedia",
+          "status": "NO_PLAYABLE_EPISODE",
+          "searchHits": 20,
+          "matchedItems": 1
+        },
+        {
+          "providerId": 33,
+          "provider": "kinodb",
+          "status": "NO_EXACT_MATCH",
+          "searchHits": 20,
+          "matchedItems": 0
+        },
+        {
+          "providerId": 28,
+          "provider": "zetflix",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        },
+        {
+          "providerId": 29,
+          "provider": "seasonvar",
+          "status": "TIMEOUT",
+          "searchHits": -1,
+          "matchedItems": -1
+        }
+      ],
+      "elapsedMs": 12149,
+      "status": "OK",
+      "wallMs": 16507
+    }
+  ]
+}
