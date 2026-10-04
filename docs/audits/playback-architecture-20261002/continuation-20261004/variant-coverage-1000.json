@@ -1,0 +1,202 @@
+{
+  "checkedAt": "2026-10-04T07:43:00Z",
+  "action": "audit_variant_coverage_1000_and_plan_lazy_architecture_fix",
+  "methodology": {
+    "activeCatalogPath": "/data/data/com.termux/files/home/projects/media-parser/catalog.db",
+    "catalogSize": 96980,
+    "sampleSize": 1000,
+    "sampleMethod": "deterministic uniform random sample over all catalog rows",
+    "randomSeed": 20261004,
+    "emulatedStages": [
+      "catalog streams JSON",
+      "sanitize_streams(require_source=true)",
+      "provider/source grouping",
+      "voice cardinality",
+      "quality cardinality",
+      "same-provider voice-quality matrix",
+      "series season/episode identity presence"
+    ],
+    "networkRequestsDuring1000Audit": false,
+    "catalogMutated": false
+  },
+  "random1000": {
+    "hasAnyStreams": 329,
+    "noStreams": 671,
+    "voiceAtLeast2": 124,
+    "voiceLessThan2": 876,
+    "qualityAtLeast2": 213,
+    "qualityLessThan2": 787,
+    "bothVoiceAndQualityAtLeast2": 119,
+    "missingVoiceOrQualityChoice": 881,
+    "pctMissingVoiceOrQualityChoice": 88.1,
+    "movies": {
+      "sample": 603,
+      "noStreams": 327,
+      "bothAtLeast2": 114,
+      "missingVoiceOrQualityChoice": 489,
+      "pctMissing": 81.1
+    },
+    "tv": {
+      "sample": 397,
+      "noStreams": 344,
+      "bothAtLeast2": 5,
+      "missingVoiceOrQualityChoice": 392,
+      "pctMissing": 98.7,
+      "streamsButNoEpisodeIdentity": 45,
+      "hasEpisodeTaggedStream": 8
+    }
+  },
+  "transportOn329StreamfulCards": {
+    "anyP2p": 317,
+    "p2pOnly": 316,
+    "anyHttp": 13,
+    "httpOnly": 12,
+    "mixed": 1,
+    "pctP2pOnlyOfStreamful": 96,
+    "pctAnyHttpOfAll1000": 1.3
+  },
+  "top1000Control": {
+    "sampleMethod": "highest vote_count/rating",
+    "cleanNonempty": 960,
+    "voiceAtLeast2": 903,
+    "qualityAtLeast2": 943,
+    "bothAtLeast2": 899,
+    "conclusion": "popular-head is heavily enriched and is not representative of catalog-wide coverage"
+  },
+  "providerMatrixTop1000": {
+    "Rutor": {
+      "cards": 866,
+      "voiceAtLeast2": 748,
+      "qualityAtLeast2": 833,
+      "both": 746
+    },
+    "YTS": {
+      "cards": 738,
+      "voiceAtLeast2": 0,
+      "qualityAtLeast2": 707,
+      "both": 0
+    },
+    "Apibay": {
+      "cards": 246,
+      "voiceAtLeast2": 123,
+      "qualityAtLeast2": 235,
+      "both": 122
+    },
+    "Collaps": {
+      "cards": 52,
+      "voiceAtLeast2": 52,
+      "qualityAtLeast2": 0,
+      "both": 0
+    },
+    "TorrentFallback": {
+      "cards": 49,
+      "voiceAtLeast2": 47,
+      "qualityAtLeast2": 49,
+      "both": 47
+    }
+  },
+  "fillerEvidence": {
+    "passNumber": 13,
+    "processedTotal": 483451,
+    "successTotal": 33057,
+    "resolverHitTotal": 57878,
+    "noSourceTotal": 77784,
+    "providerErrorTotal": 4327031,
+    "statusTotals": {
+      "provider_error": 347994,
+      "no_source": 50981,
+      "persisted": 17903,
+      "rejected_by_identity": 1927,
+      "persistence_error": 9
+    },
+    "retryEntries": 14191,
+    "retryDueNow": 13121,
+    "retryFuture": 1070,
+    "recentBlockingReasons": [
+      "metered_default",
+      "quota_probe_failed:RuntimeError"
+    ],
+    "architecture": "content_filler -> resolve_balancer(Collaps then Zona) -> optional torrent fallback; LazyMedia provider registry is not used"
+  },
+  "androidEvidence": {
+    "catalogPlaybackStreamsRequiresExactEpisodeIdentity": true,
+    "initialMenuUsesCandidateStreamOptions": true,
+    "voiceMenuUsesPlaybackSessionCandidates": true,
+    "qualityMenuScopesByActiveVoice": true,
+    "legacyDiscoveryRunsInParallel": true,
+    "legacyDiscoveryBudgetMs": 25000,
+    "providerEngineBudgetMaxMs": 30000,
+    "backendResolverBudgetMs": 12000
+  },
+  "rootCauses": [
+    {
+      "priority": 1,
+      "issue": "catalog-wide enrichment gap",
+      "evidence": "671/1000 random cards have zero validated streams; top-1000 control has 960/1000",
+      "impact": "major"
+    },
+    {
+      "priority": 2,
+      "issue": "background filler bypasses LazyMedia provider architecture",
+      "evidence": "content_filler uses Collaps/Zona/torrent path, not the 3.466 provider registry/variant tree",
+      "impact": "major"
+    },
+    {
+      "priority": 3,
+      "issue": "background enrichment is repeatedly blocked",
+      "evidence": "recent logs repeatedly stop on metered_default and quota_probe_failed",
+      "impact": "major"
+    },
+    {
+      "priority": 4,
+      "issue": "streamful long-tail is overwhelmingly P2P-only",
+      "evidence": "316/329 streamful random cards are P2P-only; only 13/1000 have any HTTP stream",
+      "impact": "major"
+    },
+    {
+      "priority": 5,
+      "issue": "series inventory is stored at card level without exact episode identity",
+      "evidence": "45/53 streamful sampled TV cards have streams but no season+episode tags",
+      "impact": "critical for series"
+    },
+    {
+      "priority": 6,
+      "issue": "provider dimensions are asymmetric",
+      "evidence": "YTS supplies quality but no voice diversity; Collaps supplies voices but quality mostly Auto",
+      "impact": "menu richness and compatibility"
+    },
+    {
+      "priority": 7,
+      "issue": "Android menu is downstream of candidate inventory and cannot create missing provider variants",
+      "evidence": "menus are built from PlaybackSession.candidates/streamOptions; UI-only change cannot recover absent provider variants",
+      "impact": "secondary"
+    }
+  ],
+  "repairPlan": [
+    "Make one ProviderRegistry/VariantTree service the only discovery/enrichment source of truth.",
+    "Port active LazyMedia 3.466 provider adapters into backend clean-room contract, starting with Filmix then other cleanly recovered active providers; keep Zona adapters as second family.",
+    "Use the same provider service for user-triggered playback and background enrichment; remove separate resolve_balancer-only architecture.",
+    "User-triggered discovery must never be blocked by background metered/quota policy; quota guards apply only to bulk prefetch.",
+    "Cache structured variants by exact identity: movie contentId, or series contentId+season+episode. Never treat untagged card-level series streams as episode inventory.",
+    "Return provider results incrementally and cache them; do not require 96k titles to be fully prefilled before playback works.",
+    "Represent available choices as a compatibility graph of source/voice/quality/track so UI only offers combinations that exist.",
+    "Preserve adaptive Media3 track qualities only within the same logical stream; do not cross-combine them with unrelated provider voices.",
+    "Add deterministic 1000-title regression audit as a gate, split movie/series and popular/long-tail cohorts.",
+    "Differential-test each migrated LazyMedia provider against pinned 3.466 fixtures before removing the Dex fallback."
+  ],
+  "proposedAcceptance": {
+    "random1000AnyPlayableTarget": ">=80% of released/eligible titles after excluding future/unreleased/non-video catalog noise",
+    "resolvableMovieBothVoiceQualityTarget": ">=70% of titles where providers report multiple variants",
+    "seriesExactEpisodeIdentity": "100% of exposed series streams",
+    "invalidOfferedCombinations": 0,
+    "crossTitleEpisodeContamination": 0,
+    "userTriggeredDiscoveryBlockedByMeteredPolicy": 0
+  },
+  "limitations": {
+    "auditIsEmulatedFromCurrentCatalogState": true,
+    "no1000LiveProviderNetworkCalls": true,
+    "futureOrUnreleasedTitlesWereNotExcludedInPrimaryRandomSample": true,
+    "newFilmixAdapterNotYetConnectedToProduction": true,
+    "noProductionMutationThisBlock": true
+  }
+}
