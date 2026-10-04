@@ -30,6 +30,8 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
         provider_future = Future()
         provider_future.set_result(ProviderDiscoveryOutcome([], 'NO_RESULTS', (), 0))
         balancer_future = Future()
+        torrent_future = Future()
+        torrent_future.set_result(torrent)
         captured = {}
 
         def save(payload):
@@ -42,8 +44,8 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
                     'MOVIA_CLOUD_MODE': '0',
                 }, clear=False), \
                 patch.object(filler._FILL_PROVIDER_EXECUTOR, 'submit', side_effect=[provider_future, balancer_future]), \
+                patch.object(filler._FILL_TORRENT_EXECUTOR, 'submit', return_value=torrent_future) as torrent_submit, \
                 patch.object(filler, 'wait', return_value=({provider_future}, {balancer_future})) as wait_call, \
-                patch.object(filler, 'resolve_torrent', return_value=torrent) as torrent_resolve, \
                 patch.object(filler, 'filter_streams_for_content', side_effect=lambda rows, _: rows), \
                 patch.object(filler, 'save_content', side_effect=save), \
                 patch.object(filler, '_valid_persisted_row', return_value=True), \
@@ -54,7 +56,7 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
 
         self.assertEqual('persisted', result['status'])
         self.assertEqual({'Rutor'}, {row['provider'] for row in captured['streams']})
-        torrent_resolve.assert_called_once()
+        torrent_submit.assert_called_once()
         wait_call.assert_called_once()
         self.assertTrue(balancer_future.cancelled())
 

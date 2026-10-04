@@ -145,7 +145,7 @@ class ContentFillerBudgetPolicyTests(unittest.TestCase):
     def test_background_bulk_skips_torrent_fallback_by_default_source_contract(self):
         text = Path(c.__file__).read_text(encoding="utf-8")
         self.assertIn('MOVIA_BACKGROUND_TORRENT_LOOKUP', text)
-        self.assertIn('if not background_bulk or allow_background_torrent:', text)
+        self.assertIn('should_resolve_torrent = not background_bulk or allow_background_torrent', text)
 
 
 if __name__ == "__main__":

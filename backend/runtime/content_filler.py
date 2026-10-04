@@ -67,6 +67,7 @@ def _background_direct_provider_budget_seconds() -> float:
 
 
 _FILL_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-provider")
+_FILL_TORRENT_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-torrent")
 
 logger = logging.getLogger("content_filler")
 logger.setLevel(logging.INFO)
@@ -522,6 +523,17 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     row_provider_errors = 0
     persisted_ok = False
 
+    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
+    background_bulk = (
+        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
+        or cloud_mode
+    )
+    allow_background_torrent = (
+        not cloud_mode
+        and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
+    )
+    should_resolve_torrent = not background_bulk or allow_background_torrent
+
     provider_future = _FILL_PROVIDER_EXECUTOR.submit(
         discover_provider_streams,
         title=search_title,
@@ -540,6 +552,14 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         )),
         media_type=category,
     )
+    torrent_future = None
+    if should_resolve_torrent:
+        torrent_future = _FILL_TORRENT_EXECUTOR.submit(
+            resolve_torrent,
+            title=search_title,
+            year=year,
+            category=category,
+        )
 
     resolved_streams: List[Dict[str, Any]] = []
     direct_futures = {provider_future, balancer_future}
@@ -582,25 +602,14 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     for future in pending:
         future.cancel()
 
-    cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
-    background_bulk = (
-        os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1"
-        or cloud_mode
-    )
-    allow_background_torrent = (
-        not cloud_mode
-        and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
-    )
     # Torrent providers are an additive family, not a last-resort replacement.
-    # If Collaps/Zona already returned a direct stream we still need Rutor/YTS/
-    # Apibay variants to build the real voice x quality inventory.
-    if not background_bulk or allow_background_torrent:
+    # The torrent task starts at the same time as direct discovery so the
+    # four-second direct-provider budget overlaps useful P2P work instead of
+    # delaying it. A dedicated executor prevents stuck direct-provider workers
+    # from starving torrent resolution.
+    if torrent_future is not None:
         try:
-            torrent_result = resolve_torrent(
-                title=search_title,
-                year=year,
-                category=category,
-            )
+            torrent_result = torrent_future.result()
             resolved_streams.extend(_candidate_streams(torrent_result))
         except Exception as exc:
             row_provider_errors += 1

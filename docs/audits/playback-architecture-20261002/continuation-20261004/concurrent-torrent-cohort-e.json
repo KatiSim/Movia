@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "run_torrent_concurrently_and_audit_fresh_cohort_e",
+  "performance": {
+    "case": "Невероятная жизнь Уолтера Митти",
+    "originalMs": 34511,
+    "boundedDirectWaitMs": 10244,
+    "concurrentTorrentMs": 4519,
+    "deltaVsOriginalMs": -29992,
+    "reductionVsOriginalPct": 86.9,
+    "deltaVsBoundedMs": -5725,
+    "reductionVsBoundedPct": 55.9
+  },
+  "architecture": {
+    "directProviderBudgetSeconds": 4,
+    "providerAndBalancerShareBudget": true,
+    "torrentStartsBeforeDirectWait": true,
+    "dedicatedTorrentExecutorWorkers": 6,
+    "directPendingResultsIgnoredForCurrentRow": true
+  },
+  "tests": {
+    "focused": "14/14 PASS",
+    "fullBackend": "294/294 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "activeContentFillerUpdated": true,
+    "activeContentFillerSha256": "d4634444c4443a9347abc140e52be4892a141df550cc88ea5f385d996590955d",
+    "enricherRestarted": true
+  },
+  "cohortE": {
+    "seed": 3414,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 4001,
+    "baseline": {
+      "complete": 6,
+      "voicesGe3": 9,
+      "qualitiesGe3": 80,
+      "anyStream": 454,
+      "nearComplete": 33
+    },
+    "targetedCompleted": [
+      {
+        "id": 14490,
+        "title": "Годзилла",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4
+        }
+      },
+      {
+        "id": 13406,
+        "title": "Крид: Наследие Рокки",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 5
+        }
+      },
+      {
+        "id": 31719,
+        "title": "Когда Гарри встретил Салли",
+        "before": {
+          "voices": 2,
+          "qualities": 4
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4
+        }
+      },
+      {
+        "id": 35642,
+        "title": "Аэроплан",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4
+        }
+      }
+    ],
+    "final": {
+      "complete": 10,
+      "voicesGe3": 13,
+      "qualitiesGe3": 80,
+      "anyStream": 454,
+      "nearComplete": 29
+    },
+    "deltaComplete": 4
+  },
+  "next": [
+    "create fresh cohort-F excluding exact saved B/C/D/E plus conservative A exclusions",
+    "continue converting near-complete cards only when resolver proves the missing real voice",
+    "next throughput target: bound torrent tail separately if long-tail P2P queries still exceed the desired per-row budget"
+  ]
+}
