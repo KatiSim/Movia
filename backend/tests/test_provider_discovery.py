@@ -37,6 +37,31 @@ class ProviderDiscoveryTests(unittest.TestCase):
         self.assertEqual("77", outcome.streams[0]["catalog_media_id"])
         self.assertTrue(outcome.streams[0].get("logical_source_id"))
 
+    def test_zona_contract_is_gated_and_returns_variant_tree_rows_when_enabled(self):
+        from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream
+        from zona_provider_adapter import ZonaProviderAdapter
+        selected = ProviderSearchResult(ZonaProviderAdapter.definition, "123", "Example", 2024, "77", "Original")
+        article = ProviderArticle(ZonaProviderAdapter.definition, "zona-123", "Example", 2024, "77", "Original")
+        tree = VariantFolder(children=(VariantFolder(voice="Dub", children=(VariantStream(
+            url="https://cdn.example/master.m3u8", stream_key="zona:leaf:1", voice="Dub",
+            quality="720p", transport="hls", reload_supported=True, reload_data={"id": 1},
+        ),)),))
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT": "0",
+            "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT": "1",
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "0",
+        }, clear=False), \
+                patch.object(ZonaProviderAdapter, "exact_catalog_result", return_value=(selected, None)), \
+                patch.object(ZonaProviderAdapter, "resolve_source", return_value=(tree, article, None)):
+            outcome = discover_provider_streams(title="Example", year=2024, media_id="77", media_type="movie")
+        self.assertEqual("OK", outcome.status)
+        self.assertEqual(("zona",), outcome.providers)
+        self.assertEqual(1, len(outcome.streams))
+        self.assertEqual("77", outcome.streams[0]["catalog_media_id"])
+        self.assertEqual("720p", outcome.streams[0]["quality"])
+        self.assertTrue(outcome.streams[0].get("logical_source_id"))
+
     def test_filmix_exact_title_year_returns_all_variant_leaves(self):
         calls = []
 

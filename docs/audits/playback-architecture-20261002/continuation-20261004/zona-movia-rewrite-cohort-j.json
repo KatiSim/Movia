@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "rewrite_zona_as_movia_variant_tree_and_audit_cohort_j",
+  "rewritePolicy": {
+    "copiedLazyMediaCode": false,
+    "behaviorStudied": [
+      "exact search/article identity",
+      "season -> episode -> concrete source hierarchy",
+      "independent source leaves",
+      "reloadable provider source semantics"
+    ],
+    "implementationOwnership": "Movia",
+    "logger": "zona_provider_adapter",
+    "intentionallyNotCopied": [
+      "LazyMedia UI/player code",
+      "LazyMedia logging",
+      "LazyMedia hard-coded HQ/LQ resolution assumptions",
+      "credentials, cookies, tokens, static secrets"
+    ]
+  },
+  "zonaRewrite": {
+    "newModule": "backend/runtime/zona_provider_adapter.py",
+    "providerId": "movia:zona",
+    "family": "movia-rewrite",
+    "exactIdentity": "catalog media_id -> exact row -> Zona contract exact title/year/type",
+    "variantTree": "movie voice folders or season/episode/voice folders -> concrete source leaves",
+    "preserves": [
+      "headers",
+      "source type metadata",
+      "audio/video track indexes",
+      "subtitles",
+      "reload_data",
+      "logical source semantics"
+    ],
+    "guessedQuality": false,
+    "hqLqMappingInvented": false,
+    "featureFlag": "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT",
+    "activeRuntimeInstalled": true,
+    "productionEnabled": false,
+    "liveShadow": {
+      "title": "Интерстеллар",
+      "year": 2014,
+      "exactIdentityError": null,
+      "resolveError": "ZONA_PROVIDER_ERROR",
+      "leaves": 0
+    }
+  },
+  "tests": {
+    "focusedZonaAndDiscovery": "21/21 PASS",
+    "fullBackend": "310/310 PASS",
+    "transientFullSuiteFailureResolved": "TorrentProviderAdapter exact episode test passed after shared ProviderRequest seeders validation was restored to the correct VariantStream scope"
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "zonaContractFlag": "unset(default-off)",
+    "adapterSha256": "fb54bd64dd9ff3095c0b01776f57ba5283b0929ecdd5f53a55a3b9df8a37e530"
+  },
+  "cohortJ": {
+    "seed": 3419,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "overlapWithE": 0,
+    "overlapWithF": 0,
+    "overlapWithG": 0,
+    "overlapWithH": 0,
+    "overlapWithI": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 9001,
+    "baseline": {
+      "complete": 9,
+      "voicesGe3": 10,
+      "qualitiesGe3": 83,
+      "anyStream": 454,
+      "nearComplete": 29
+    },
+    "targetedCompleted": [
+      {
+        "id": 17496,
+        "title": "Миссия невыполнима: Протокол Фантом",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3
+        }
+      },
+      {
+        "id": 21909,
+        "title": "Тройной форсаж: Токийский Дрифт",
+        "before": {
+          "voices": 2,
+          "qualities": 4
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4
+        }
+      },
+      {
+        "id": 198805,
+        "title": "Тренировочный день",
+        "before": {
+          "voices": 2,
+          "qualities": 3
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 3
+        }
+      }
+    ],
+    "final": {
+      "complete": 12,
+      "voicesGe3": 13,
+      "qualitiesGe3": 83,
+      "anyStream": 454,
+      "nearComplete": 26
+    },
+    "deltaComplete": 3
+  },
+  "next": [
+    "retry Zona production activation only after a non-zero live source-ref result",
+    "rewrite the next working provider behavior into a Movia-native ProviderContract adapter rather than copying code",
+    "create cohort-K from another 1000 unseen movie IDs"
+  ]
+}

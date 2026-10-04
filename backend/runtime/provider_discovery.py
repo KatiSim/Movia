@@ -20,6 +20,7 @@ from catalog_schema_v2 import normalize_ru_text
 from collaps_provider_adapter import CollapsProviderAdapter
 from filmix_provider_adapter import FilmixProviderAdapter
 from octopus_provider_adapter import OctopusProviderAdapter
+from zona_provider_adapter import ZonaProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
 from stream_validation import sanitize_streams
 
@@ -137,6 +138,42 @@ def discover_provider_streams(
                 tree, article, resolve_error = adapter.resolve_source(
                     selected, request, fetch_text=get_text,
                 )
+                if resolve_error or tree is None or article is None:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
+                else:
+                    rows = sanitize_streams(
+                        flatten_variant_tree(article, tree, request),
+                        require_source=True,
+                    )
+                    if rows:
+                        return ProviderDiscoveryOutcome(rows, "OK", tuple(attempted), error_count)
+                    terminal_statuses.append("NO_RESULTS")
+        except Exception:
+            error_count += 1
+            terminal_statuses.append("PROVIDER_ERROR")
+
+    if os.environ.get("MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT", "0") == "1":
+        attempted.append("zona")
+        try:
+            request = ProviderRequest(
+                media_id=str(media_id),
+                title=clean_title,
+                year=int(year) if int(year or 0) > 0 else None,
+                season=season,
+                episode=episode,
+                media_type="tv" if is_series else "movie",
+            )
+            adapter = ZonaProviderAdapter()
+            selected, identity_error = adapter.exact_catalog_result(request)
+            if selected is None:
+                if identity_error in {"ZONA_IDENTITY_MISMATCH", "ZONA_CATALOG_LOOKUP_FAILED"}:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
+                else:
+                    terminal_statuses.append("NO_MATCH")
+            else:
+                tree, article, resolve_error = adapter.resolve_source(selected, request)
                 if resolve_error or tree is None or article is None:
                     error_count += 1
                     terminal_statuses.append("PROVIDER_ERROR")
