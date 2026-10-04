@@ -599,8 +599,8 @@ async def fetch_yts_torrents(title: str, year: int = 2024, timeout: float = 2.0)
                 hash_val = torrent.get("hash")
                 raw_q = str(torrent.get("quality", "") or "").strip().lower()
                 quality = "4K" if "2160" in raw_q else (
-                    "FullHD 1080" if "1080" in raw_q else (
-                        "HD 720" if "720" in raw_q else "Не указано"
+                    "1080p" if "1080" in raw_q else (
+                        "720p" if "720" in raw_q else "Не указано"
                     )
                 )
                 try:

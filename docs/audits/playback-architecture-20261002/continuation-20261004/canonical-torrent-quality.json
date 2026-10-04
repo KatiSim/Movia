@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "canonicalize_torrent_quality_and_enrichment_coverage",
+  "findings": {
+    "torrentResolverReturnsFullInventory": true,
+    "fillerDoesNotDropInventoryToTop1": true,
+    "qualityAliasInflationFound": true,
+    "aliases": {
+      "FullHD 1080": "1080p",
+      "HD 720": "720p",
+      "4K/UHD/2160p": "2160p for coverage accounting"
+    },
+    "random1000CanonicalThreeByThreeComplete": 7
+  },
+  "changes": {
+    "ytsOutputCanonicalized": true,
+    "coverageUsesCanonicalQuality": true,
+    "coverageUsesNormalizedVoiceKey": true
+  },
+  "tests": {
+    "focused": "17/17 PASS",
+    "fullBackend": "292/292 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "production": {
+    "streamerStatus": "RUNNING",
+    "streamerPid": 11260,
+    "enricherPid": 11267,
+    "healthHttpStatus": 200,
+    "healthSeconds": 0.006262,
+    "interstellarTorrentRows": 55,
+    "interstellarTorrentVoices": 2,
+    "interstellarTorrentQualities": 4,
+    "interstellarStoredInventory": {
+      "voices": 7,
+      "qualities": 4,
+      "complete": true
+    },
+    "avengersStoredInventory": {
+      "voices": 2,
+      "qualities": 3,
+      "complete": false
+    }
+  },
+  "remaining": [
+    "increase real voice coverage for partial titles such as Avengers",
+    "continue using Rutor/YTS/Apibay and direct providers without counting aliases as distinct qualities",
+    "recalculate broader coverage after enrichment runs with canonical policy"
+  ]
+}
