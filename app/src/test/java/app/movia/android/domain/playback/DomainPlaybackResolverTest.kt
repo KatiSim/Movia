@@ -412,7 +412,7 @@ class DomainPlaybackResolverTest {
             backend = backend,
         ) as PlaybackResolverResult.Success
 
-        assertEquals(listOf("identity", "title"), calls)
+        assertEquals(listOf("identity"), calls)
         assertEquals("cached", result.candidates.single().stableStreamId)
     }
 
@@ -459,7 +459,7 @@ class DomainPlaybackResolverTest {
     }
 
     @Test
-    fun resolverUsesTitleOnlyAsBoundedFallbackWhenIdentityHasNoUsableCandidates() = runBlocking {
+    fun knownCatalogIdentityNeverFallsBackToTitleAfterMismatchedIdentityRows() = runBlocking {
         val calls = mutableListOf<String>()
         val backend = object : PlaybackResolverBackend {
             override suspend fun resolveByIdentity(
@@ -472,14 +472,43 @@ class DomainPlaybackResolverTest {
             override suspend fun resolveByTitle(
                 request: PlaybackRequest,
                 forceRefresh: Boolean,
-            ) = PlaybackResolverBackendResponse(
-                candidates = listOf(resolvedCandidate("title")),
-            ).also { calls += "title" }
+            ) = error("Known catalog identity must never fall back to title")
         }
 
         val result = DomainPlaybackResolver.resolveStreamsWithBackend(
             request = PlaybackRequest(
                 mediaId = "42",
+                title = "The Film",
+                year = 2025,
+                mediaType = ContentType.MOVIE,
+            ),
+            backend = backend,
+        )
+
+        assertEquals(listOf("identity"), calls)
+        assertTrue(result is PlaybackResolverResult.NoSource)
+    }
+
+    @Test
+    fun identityLessCallerMayUseBoundedTitleFallback() = runBlocking {
+        val calls = mutableListOf<String>()
+        val backend = object : PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse().also { calls += "identity" }
+
+            override suspend fun resolveByTitle(
+                request: PlaybackRequest,
+                forceRefresh: Boolean,
+            ) = PlaybackResolverBackendResponse(
+                candidates = listOf(resolvedCandidate("title", mediaId = "")),
+            ).also { calls += "title" }
+        }
+
+        val result = DomainPlaybackResolver.resolveStreamsWithBackend(
+            request = PlaybackRequest(
+                mediaId = "",
                 title = "The Film",
                 year = 2025,
                 mediaType = ContentType.MOVIE,

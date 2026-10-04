@@ -639,9 +639,11 @@ object DomainPlaybackResolver {
     }
 
     /**
-     * Resolve identity first, and only ask the title route when that identity
-     * route yielded no usable candidates. This ordering is intentional: the
-     * title route is a bounded recovery path, not a second source of identity.
+     * A catalog identity is authoritative. Once mediaId is known, discovery may
+     * refresh only that identity; an empty/mismatched identity response must not
+     * fall back to a title search that could bind another work with the same or
+     * similar name. The title route remains only for truly identity-less legacy
+     * callers while they are being retired.
      */
     internal suspend fun resolveStreamsWithBackend(
         request: PlaybackRequest,
@@ -696,6 +698,10 @@ object DomainPlaybackResolver {
             ) {
                 // A known catalog identity with a server job/failure is not
                 // an invitation to resolve a different title or episode.
+                discoveredCandidates = emptyList()
+            } else if (request.mediaId.isNotBlank()) {
+                // Exact catalog identity is known. Do not rebind the request by
+                // title after an empty or mismatched identity response.
                 discoveredCandidates = emptyList()
             } else {
                 val titleResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {

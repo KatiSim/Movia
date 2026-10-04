@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "remove_old_movia_conflicts_and_audit_fresh_cohort_f",
+  "removedFromActiveRuntime": {
+    "files": [
+      "stream_extractor.py",
+      "zona_importer.py",
+      "zona_cache_migrator.py",
+      "zona_cache_migrator.state.json"
+    ],
+    "backupDirectory": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/active-parser-backup-20261004-remove-old-movia",
+    "hiddenServiceReferencesFound": false,
+    "reason": [
+      "stream_extractor was unused and contained fabricated defaults unknown voice -> Dub and unknown quality -> 1080p",
+      "zona_importer and zona_cache_migrator were unused migration/import paths",
+      "zona_playback_architecture retained because zona_legacy_adapters imports it in production"
+    ]
+  },
+  "androidPlaybackCleanup": {
+    "file": "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt",
+    "oldBehavior": "known catalog mediaId could fall back to resolveByTitle after empty/mismatched identity response",
+    "newBehavior": "known catalog mediaId never falls back to title; title fallback only for blank mediaId identity-less callers",
+    "lazyStructureProtected": "exact identity -> provider/article/variant candidates, no title rebind after identity mismatch",
+    "compileDebugKotlin": "BUILD SUCCESSFUL",
+    "compileWarningsOnly": true,
+    "targetedUnitTest": "not completed within invocation limit; stopped during unit-test Kotlin preparation, no assertion failure observed",
+    "installedApkUpdated": false
+  },
+  "tests": {
+    "backendFull": "294/294 PASS",
+    "activePyCompile": "PASS"
+  },
+  "cohortF": {
+    "seed": 3415,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "overlapWithE": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 5001,
+    "baseline": {
+      "complete": 13,
+      "voicesGe3": 14,
+      "qualitiesGe3": 93,
+      "anyStream": 462,
+      "nearComplete": 31
+    },
+    "targetedCompleted": [
+      {
+        "id": 20913,
+        "title": "Мгла",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4,
+          "complete": true
+        },
+        "elapsedMs": 4355
+      }
+    ],
+    "final": {
+      "complete": 14,
+      "voicesGe3": 15,
+      "qualitiesGe3": 93,
+      "anyStream": 462,
+      "nearComplete": 30
+    }
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200
+  },
+  "retainedCompatibilityLayers": [
+    "LegacyProviderEngine / LegacyPlaybackResolver: retained because it is the current LazyMedia 3.466 provider/VariantTree compatibility engine, not old Movia logic",
+    "zona_legacy_adapters / zona_playback_architecture: retained because current working Zona/HDRezka/Kinoplay paths still depend on them"
+  ],
+  "next": [
+    "finish Android targeted tests and build/install a new APK with exact-identity fallback removal",
+    "continue replacing flat backend discovery with ProviderContract/VariantTree adapters provider by provider",
+    "create fresh cohort-G excluding exact B-F IDs plus conservative A exclusions"
+  ]
+}
