@@ -219,6 +219,18 @@ class CatalogSyncTests(unittest.TestCase):
             classify_voice_and_quality("Example Movie (2024) DVDRip | A"),
             ("Авторский (Одноголосый)", "480p"),
         )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) UHD 2160p | P, P2, A"),
+            ("Профессиональный (МВО)", "4K"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) BDRip 1080p | P2, A"),
+            ("Двухголосый (ДВО)", "1080p"),
+        )
+        self.assertEqual(
+            classify_voice_and_quality("Example Movie (2024) BDRip 720p | A, P"),
+            ("Авторский (Одноголосый)", "720p"),
+        )
         from torrent_resolver import _release_matches_expected
         self.assertTrue(_release_matches_expected(
             "Гладиатор / Gladiator (2000) BDRip 1080p | P",

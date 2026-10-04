@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-05",
+  "blockLimitMinutes": 10,
+  "action": "rutor_comma_voice_markers_and_audit_cohort_p",
+  "providerProbe": {
+    "zonaSourceRefs": "PROVIDER_ERROR / no usable refs on 5 popular titles",
+    "persistedSourceRefs": {
+      "kinoplay": 0,
+      "videocdn": 0,
+      "alloha": 0
+    },
+    "octopus": {
+      "liveSearchReachable": true,
+      "exactSample": "Джокер (2019)",
+      "iframeHttpStatus": 200,
+      "iframeMediaManifestFound": false,
+      "playerMarkersFound": [],
+      "observedExternalLanding": "kinogohd.online",
+      "decision": "keep playback fail-closed; one exact landing sample is insufficient to classify the whole provider"
+    },
+    "decision": "No new provider activated without non-zero playable live evidence."
+  },
+  "rutorVoiceEvidence": {
+    "releaseExample": "Битлджюс / Beetle Juice (1988) UHD BDRemux 2160p | 4K | HDR | P, P2, A",
+    "detailPageEvidence": [
+      "Перевод 1: профессиональный многоголосый",
+      "Перевод 2: профессиональный многоголосый",
+      "Перевод 3: профессиональный двухголосый",
+      "original audio also listed"
+    ],
+    "parserRule": "comma-separated P/P2/A markers are accepted; only the first declared category labels the row because audio_track_index is not known",
+    "fakeSelectableVoicesCreated": false,
+    "activeChecks": {
+      "P, P2, A": [
+        "Профессиональный (МВО)",
+        "4K"
+      ],
+      "D, P, P2, A, L1": [
+        "Дубляж",
+        "4K"
+      ]
+    },
+    "activeTorrentResolverSha256": "b8dbc9ce1b34994148fe093b02c54dc0db1d7106df0598fd83d7be6e0886e0b9"
+  },
+  "tests": {
+    "focusedCatalogSync": "3/3 PASS",
+    "fullBackend": "322/322 PASS",
+    "knownWarnings": "pre-existing sqlite ResourceWarning messages"
+  },
+  "cohortP": {
+    "seed": 3426,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithBThroughO": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 15001,
+    "baseline": {
+      "complete": 12,
+      "voicesGe3": 15,
+      "qualitiesGe3": 76,
+      "anyStream": 434,
+      "nearComplete": 25
+    },
+    "nearCompleteChecked": 25,
+    "resolverCompleteCandidates": 0,
+    "final": {
+      "complete": 12,
+      "voicesGe3": 15,
+      "qualitiesGe3": 76,
+      "anyStream": 434,
+      "nearComplete": 25
+    },
+    "deltaComplete": 0,
+    "interpretation": "Current providers still expose only two switchable/usable voice categories for these near-complete cards; no labels were fabricated."
+  },
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "healthHttpStatus": 200
+  },
+  "next": [
+    "create fresh cohort-Q excluding exact B-P IDs plus conservative A exclusions",
+    "continue provider search only from non-zero playable live evidence",
+    "prioritize voice-track evidence that can be mapped to an actual selectable audio_track_index rather than duplicating one magnet into fake voice options"
+  ]
+}

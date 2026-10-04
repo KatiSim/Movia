@@ -507,21 +507,21 @@ def classify_voice_and_quality(raw_name: str) -> tuple[str, str]:
         voice = "Дубляж"
     elif (
         any(k in lower for k in ["многоголосый", "профессиональный", "проф.", "мво", "mvo"])
-        or re.search(r"(?:^|\|)\s*p\s*(?:\||$)", lower)
+        or re.search(r"(?:^|\|)\s*p\s*(?:[,|]|$)", lower)
     ):
         # Verified against Rutor detail pages: ``| P`` denotes a
         # professional multi-voice translation.
         voice = "Профессиональный (МВО)"
     elif (
         any(k in lower for k in ["двухголосый", "дво", "dvo"])
-        or re.search(r"(?:^|\|)\s*p2\s*(?:\||$)", lower)
+        or re.search(r"(?:^|\|)\s*p2\s*(?:[,|]|$)", lower)
     ):
         # Verified against Rutor detail pages: ``| P2`` denotes a
         # professional two-voice translation.
         voice = "Двухголосый (ДВО)"
     elif (
         any(k in lower for k in ["авторский", "одноголосый", "пво", "головин", "сербин", "живов", "пучков", "гоблин", "гаврилов"])
-        or re.search(r"(?:^|\|)\s*a\s*(?:\||$)", lower)
+        or re.search(r"(?:^|\|)\s*a\s*(?:[,|]|$)", lower)
     ):
         # Verified against Rutor detail pages: ``| A`` denotes an
         # author/one-voice translation.
