@@ -10,6 +10,33 @@ class ProviderDiscoveryTests(unittest.TestCase):
         with patch.dict("os.environ", {"MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "1"}, clear=False):
             return discover_provider_streams(**kwargs)
 
+    def test_collaps_contract_is_gated_and_returns_variant_tree_rows_when_enabled(self):
+        from collaps_provider_adapter import CollapsProviderAdapter
+        from provider_contract import ProviderArticle, ProviderSearchResult, VariantFolder, VariantStream
+        selected = ProviderSearchResult(CollapsProviderAdapter.definition, "tt123", "Example", 2024, "tt123", "77")
+        article = ProviderArticle(CollapsProviderAdapter.definition, "tt123", "Example", 2024, "article", "77")
+        tree = VariantFolder(children=(VariantFolder(voice="Dub", children=(VariantStream(
+            url="https://cdn.example/master.m3u8", stream_key="hls|audio:0", voice="Dub",
+            quality="Не указано", headers={"Referer":"https://api.example/"}, transport="hls", audio_track_index=0,
+        ),)),))
+        with patch.dict("os.environ", {
+            "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT": "1",
+            "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER": "0",
+            "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY": "0",
+        }, clear=False), \
+                patch.object(CollapsProviderAdapter, "exact_catalog_result", return_value=(selected, None)), \
+                patch.object(CollapsProviderAdapter, "resolve_source", return_value=(tree, article, None)):
+            outcome = discover_provider_streams(
+                title="Example", year=2024, media_id="77", media_type="movie",
+                fetch_text=lambda *_: self.fail("fixture resolve_source is patched"),
+            )
+        self.assertEqual("OK", outcome.status)
+        self.assertEqual(("collaps",), outcome.providers)
+        self.assertEqual(1, len(outcome.streams))
+        self.assertEqual("Dub", outcome.streams[0]["voice"])
+        self.assertEqual("77", outcome.streams[0]["catalog_media_id"])
+        self.assertTrue(outcome.streams[0].get("logical_source_id"))
+
     def test_filmix_exact_title_year_returns_all_variant_leaves(self):
         calls = []
 

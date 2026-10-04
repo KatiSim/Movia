@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-04",
+  "blockLimitMinutes": 10,
+  "action": "rewrite_collaps_as_movia_variant_tree_and_audit_cohort_i",
+  "rewritePolicy": {
+    "copiedLazyMediaCode": false,
+    "behaviorStudied": [
+      "article/embed discovery",
+      "HLS/DASH transport leaves",
+      "season -> episode tree structure",
+      "audio track ordering"
+    ],
+    "intentionallyNotCopied": [
+      "LazyMedia UI/player code",
+      "LazyMedia logging",
+      "hard-coded series quality guesses for HLS/DASH",
+      "credentials/tokens/static secrets"
+    ]
+  },
+  "collapsRewrite": {
+    "newModule": "backend/runtime/collaps_provider_adapter.py",
+    "logger": "collaps_provider_adapter",
+    "providerId": "movia:collaps",
+    "family": "movia-rewrite",
+    "exactIdentity": "catalog media_id -> exact row -> imdb_id",
+    "variantTree": "movie voice folders or season/episode/voice folders -> HLS/DASH concrete leaves",
+    "logicalSourceId": true,
+    "providerItemId": true,
+    "catalogMediaId": true,
+    "guessedQuality": false,
+    "featureFlag": "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT",
+    "activeRuntimeInstalled": true,
+    "productionEnabled": false,
+    "reasonNotEnabled": "live Collaps transport returned zero for both old and new paths during this block, so non-zero parity was not available"
+  },
+  "tests": {
+    "focusedAdapterAndDiscovery": "10/10 PASS",
+    "adapterProviderContractLegacyParityFixtures": "17/17 PASS",
+    "fullBackend": "300/300 PASS"
+  },
+  "liveDifferential": [
+    {
+      "title": "Интерстеллар",
+      "year": 2014,
+      "oldRows": 0,
+      "newRows": 0
+    },
+    {
+      "title": "Матрица",
+      "year": 1999,
+      "oldRows": 0,
+      "newRows": 0
+    }
+  ],
+  "production": {
+    "parserStatus": "RUNNING",
+    "enricherStatus": "RUNNING",
+    "collapsContractFlag": "unset(default-off)",
+    "adapterSha256": "b40e88556971556e9a317ae7bb2cf8cf9368d0af167fc635f9785ad1eec4d3d8"
+  },
+  "cohortI": {
+    "seed": 3418,
+    "movieOnly": true,
+    "size": 1000,
+    "overlapWithB": 0,
+    "overlapWithC": 0,
+    "overlapWithD": 0,
+    "overlapWithE": 0,
+    "overlapWithF": 0,
+    "overlapWithG": 0,
+    "overlapWithH": 0,
+    "conservativeAExclusionApplied": true,
+    "excludedIdsCount": 8001,
+    "baseline": {
+      "complete": 15,
+      "voicesGe3": 23,
+      "qualitiesGe3": 103,
+      "anyStream": 476,
+      "nearComplete": 45
+    },
+    "targetedCompleted": [
+      {
+        "id": 20922,
+        "title": "Типа крутые легавые",
+        "before": {
+          "voices": 2,
+          "qualities": 3,
+          "complete": false
+        },
+        "after": {
+          "voices": 3,
+          "qualities": 4,
+          "complete": true
+        },
+        "elapsedMs": 1364
+      }
+    ],
+    "final": {
+      "complete": 16,
+      "voicesGe3": 24,
+      "qualitiesGe3": 103,
+      "anyStream": 476,
+      "nearComplete": 44
+    }
+  },
+  "next": [
+    "retry live Collaps parity only when transport is non-zero; then enable the Movia adapter and disable the old flat Collaps branch",
+    "apply the same study-behavior-and-rewrite pattern to the next working provider instead of copying source",
+    "create cohort-J from another 1000 unseen movie IDs"
+  ]
+}
