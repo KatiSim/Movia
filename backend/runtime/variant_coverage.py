@@ -7,6 +7,7 @@ selectors/defaults, not distinct media variants.
 """
 from __future__ import annotations
 
+from itertools import combinations
 from dataclasses import dataclass
 from typing import Any, Optional
 
@@ -36,6 +37,8 @@ class VariantCoverage:
     exact_episode_streams: int
     complete: bool
     requires_episode_identity: bool = False
+    marginal_complete: bool = False
+    voices_with_three_qualities: int = 0
 
 
 def variant_coverage(
@@ -94,9 +97,20 @@ def variant_coverage(
         and normalize_voice(row.get("voice") or row.get("translation"))
         and canonical_quality(row.get("quality") or row.get("resolution"))
     }
-    complete = (
+    marginal_complete = (
         len(voices) >= MIN_CONCRETE_VOICES
         and len(qualities) >= MIN_CONCRETE_QUALITIES
+    )
+    quality_voices = {quality: {voice for voice, q in pairs if q == quality} for quality in qualities}
+    # A complete 3x3 rectangle needs the same three qualities for three voices.
+    # Counts on the two axes alone do not prove nine selectable combinations.
+    eligible_qualities = [q for q, names in quality_voices.items() if len(names) >= MIN_CONCRETE_VOICES]
+    complete = marginal_complete and any(
+        len(set.intersection(*(quality_voices[q] for q in group))) >= MIN_CONCRETE_VOICES
+        for group in combinations(eligible_qualities, MIN_CONCRETE_QUALITIES)
+    )
+    voices_with_three_qualities = sum(
+        sum(1 for v, q in pairs if v == voice) >= MIN_CONCRETE_QUALITIES for voice in voices
     )
     return VariantCoverage(
         streams=len(scoped),
@@ -106,4 +120,6 @@ def variant_coverage(
         exact_episode_streams=exact_episode,
         complete=complete,
         requires_episode_identity=False,
+        marginal_complete=marginal_complete,
+        voices_with_three_qualities=voices_with_three_qualities,
     )

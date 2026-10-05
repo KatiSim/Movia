@@ -25,14 +25,14 @@ object LegacyMediaHttp {
 
     fun client(profile: StreamRequestProfile): OkHttpClient = base.newBuilder()
         .addInterceptor { chain ->
-            if (!LegacyProviderEngine.isMediaUrl(chain.request().url.toString())) throw IOException("PROVIDER_UNSAFE_URL")
+            if (!app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(chain.request().url.toString())) throw IOException("PROVIDER_UNSAFE_URL")
             chain.proceed(chain.request())
         }
         .addNetworkInterceptor { chain ->
             // This interceptor runs for every redirect and every HLS/DASH segment.
             val original = chain.call().request().url
             val current = chain.request()
-            if (!LegacyProviderEngine.isMediaUrl(current.url.toString()) ||
+            if (!app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(current.url.toString()) ||
                 (original.isHttps && !current.url.isHttps)) throw IOException("PROVIDER_UNSAFE_REDIRECT")
             val request = current.newBuilder().removeHeader("Cookie")
                 .removeHeader("Authorization").removeHeader("Proxy-Authorization")

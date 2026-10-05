@@ -22,7 +22,7 @@ from provider_contract import (
     VariantStream,
     flatten_variant_tree,
 )
-from stream_validation import sanitize_streams
+from stream_validation import sanitize_streams, canonical_stream_locator
 
 logger = logging.getLogger("torrent_provider_adapter")
 
@@ -52,6 +52,33 @@ def _release_title(row: Dict[str, Any]) -> str:
     return str(row.get("title") or row.get("release_title") or "").strip()
 
 
+def _file_index(row: Dict[str, Any]):
+    value = row.get("file_index", row.get("fileIndex"))
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        index = int(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if str(value).strip() != str(index) or not 0 <= index <= 2_147_483_647:
+        return None
+    return index
+
+
+def _matches_bound_identity(row: Dict[str, Any], request: ProviderRequest) -> bool:
+    for alias in ("catalog_media_id", "catalogMediaId"):
+        if row.get(alias) not in (None, "") and str(row[alias]) != str(request.media_id):
+            return False
+    for alias in ("canonical_year", "canonicalYear"):
+        if row.get(alias) not in (None, "") and request.year is not None:
+            try:
+                if int(row[alias]) != int(request.year):
+                    return False
+            except (TypeError, ValueError, OverflowError):
+                return False
+    return True
+
+
 def _safe_seeders(value: Any) -> int:
     try:
         return max(0, int(value or 0))
@@ -62,7 +89,11 @@ def _safe_seeders(value: Any) -> int:
 def _leaf_stream_key(row: Dict[str, Any], provider: str, index: int) -> str:
     info_hash = _info_hash(row)
     if info_hash:
-        return f"btih:{info_hash}"
+        key = f"btih:{info_hash}"
+        locator = canonical_stream_locator(str(row.get("url") or ""))
+        if "|" in locator:
+            key += "|" + locator.split("|", 1)[1]
+        return key
     provider_item = str(row.get("provider_item_id") or row.get("providerItemId") or "").strip()
     if provider_item:
         return f"provider-item:{provider_item}"
@@ -108,10 +139,9 @@ def _build_provider_tree(rows: List[Dict[str, Any]], request: ProviderRequest, p
         voice = str(row.get("voice") or "Не указано").strip() or "Не указано"
         quality = str(row.get("quality") or "Не указано").strip() or "Не указано"
         info_hash = _info_hash(row)
-        metadata = {
-            "torrent_provider": provider,
-            "release_title": _release_title(row),
-        }
+        # Input has passed the common metadata/credential sanitizer.
+        metadata = dict(row.get("transport_metadata") or {})
+        metadata.update(torrent_provider=provider, release_title=_release_title(row))
         if row.get("size") is not None:
             metadata["size"] = row.get("size")
         voice_groups[voice].append(VariantStream(
@@ -120,6 +150,18 @@ def _build_provider_tree(rows: List[Dict[str, Any]], request: ProviderRequest, p
             label=_release_title(row),
             voice=voice,
             quality=quality,
+            language=str(row.get("language") or ""),
+            resolution=str(row.get("resolution") or ""),
+            audio_track_index=row.get("audio_track_index"),
+            video_track_index=row.get("video_track_index"),
+            file_index=_file_index(row),
+            file_path=str(row.get("file_path") or row.get("filePath") or ""),
+            headers=row.get("headers") or {},
+            user_agent=str(row.get("user_agent") or ""),
+            codec=str(row.get("codec") or ""),
+            mime_type=str(row.get("mime_type") or row.get("mimeType") or ""),
+            subtitles=tuple(row.get("subtitle_list") or ()),
+            has_internal_subtitles=bool(row.get("is_use_internal_subtitles")),
             season=request.season,
             episode=request.episode,
             seeders=_safe_seeders(row.get("seeders") or row.get("seeds")),
@@ -166,6 +208,9 @@ def rewrite_torrent_rows_as_variant_tree(rows: Iterable[Dict[str, Any]], request
     clean = sanitize_streams(list(rows), require_source=True)
     by_provider: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for row in clean:
+        if not _matches_bound_identity(row, request):
+            logger.warning("Torrent bound identity mismatch media_id=%s", request.media_id)
+            continue
         if not str(row.get("url") or "").startswith("magnet:?"):
             continue
         by_provider[_provider_name(row)].append(row)

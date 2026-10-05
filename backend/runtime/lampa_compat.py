@@ -414,8 +414,12 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
     raw_file_index = _first_value(raw, "file_index", "fileIndex")
     if raw_file_index is None:
         raw_file_index = _first_value(info, "file_index", "fileIndex")
-    file_index = _positive_int(raw_file_index, maximum=1000000)
-    if file_index is not None:
+    # A selector is not a quantity: booleans/fractions must not coerce to a file.
+    result.pop("file_index", None)
+    result.pop("fileIndex", None)
+    text_index = str(raw_file_index).strip()
+    file_index = int(text_index) if not isinstance(raw_file_index, bool) and re.fullmatch(r"[0-9]+", text_index) and len(text_index) <= 10 else None
+    if file_index is not None and file_index <= 2_147_483_647:
         result["file_index"] = file_index
 
     probe = _first_value(raw, "ffprobe", "FFProbe", "probe")

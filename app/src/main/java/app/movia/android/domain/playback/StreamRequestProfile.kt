@@ -39,13 +39,16 @@ data class StreamRequestProfile(
                 ?: headerUserAgent
                 ?: DEFAULT_STREAM_USER_AGENT
 
+            val providerTransport = candidate.providerId?.startsWith("movia:") == true ||
+                candidate.transportMetadata["legacy_engine"] == "3.466"
+
             val profile = StreamRequestProfile(
                 userAgent = effectiveUserAgent,
                 headers = candidateHeaders.filterKeys {
                     !it.equals("user-agent", ignoreCase = true)
                 },
-                publicNetworkOnly = candidate.transportMetadata["legacy_engine"] == "3.466" && !isLoopbackUri(consumedUri),
-                providerCookie = if (candidate.transportMetadata["legacy_engine"] == "3.466") {
+                publicNetworkOnly = providerTransport && !isLoopbackUri(consumedUri),
+                providerCookie = if (providerTransport) {
                     candidate.headers.entries.firstOrNull { it.key.equals("cookie", true) }?.value?.takeIf {
                         it.isNotBlank() && it.length <= 8192 && '\r' !in it && '\n' !in it && '\u0000' !in it
                     }

@@ -423,7 +423,8 @@ def _fetch_rows(db: Any, last_id: int, state: Optional[Dict[str, Any]] = None) -
         # movie enrichment until the episode-specific background queue exists.
         if coverage.requires_episode_identity:
             return 2
-        return 1 if coverage.complete else 0
+        # Variant counts are audit statistics, never a reason to stop discovery.
+        return coverage.streams
     def due(rows):
         eligible=[row for row in rows if not state or _retry_due(state,_as_int(row["id"]),now_epoch)]
         return sorted(eligible, key=coverage_priority)
@@ -722,9 +723,9 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
             )
 
     coverage = _persisted_variant_coverage(content_id) if persisted_ok else None
-    if persisted_ok and coverage is not None:
-        status = "coverage_complete" if coverage.complete else "partial_coverage"
-    elif persisted_ok:
+    if persisted_ok:
+        # 3x3 is a diagnostic target, not an exhausted-provider inventory.
+        # Keep normal freshness scheduling for 1, 3 or 30 voices alike.
         status = "duplicate" if duplicate_candidate else "persisted"
     elif clean_streams:
         status = "persistence_error"

@@ -16,7 +16,7 @@ def row(voice, quality, suffix, **extra):
 
 
 class VariantCoverageTests(unittest.TestCase):
-    def test_three_by_three_target_is_complete(self):
+    def test_partial_matrix_is_not_three_by_three_complete(self):
         rows = [
             row("Dub", "1080p", "1"),
             row("Dub", "720p", "2"),
@@ -26,7 +26,8 @@ class VariantCoverageTests(unittest.TestCase):
             row("Original", "1080p", "6"),
         ]
         c = variant_coverage(rows, media_type="movie")
-        self.assertTrue(c.complete)
+        self.assertFalse(c.complete)
+        self.assertTrue(c.marginal_complete)
         self.assertEqual(3, c.voices)
         self.assertEqual(3, c.qualities)
 
@@ -86,7 +87,8 @@ class VariantCoverageTests(unittest.TestCase):
             row("Wrong", "2160p", "6", season=1, episode=2),
         ]
         c = variant_coverage(rows, media_type="tv", season=1, episode=1)
-        self.assertTrue(c.complete)
+        self.assertFalse(c.complete)
+        self.assertTrue(c.marginal_complete)
         self.assertEqual(3, c.voices)
         self.assertEqual(3, c.qualities)
         self.assertEqual(5, c.exact_episode_streams)

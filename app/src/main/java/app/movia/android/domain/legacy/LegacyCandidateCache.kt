@@ -9,10 +9,10 @@ internal class LegacyCandidateCache(
     private val ttlMs: Long = 120_000,
     private val clock: () -> Long = { System.nanoTime() / 1_000_000 },
 ) {
-    private data class Key(val id: String, val title: String, val year: Int?, val season: Int?, val episode: Int?)
+    private data class Key(val id: String, val title: String, val year: Int?, val mediaType: String, val season: Int?, val episode: Int?)
     private data class Entry(val createdMs: Long, val candidates: List<StreamCandidate>)
     private val entries = LinkedHashMap<Key, Entry>()
-    private fun key(request: PlaybackRequest) = Key(request.mediaId, request.title, request.year,
+    private fun key(request: PlaybackRequest) = Key(request.mediaId, request.title, request.year, request.mediaType.name,
         request.seasonNumber, request.episodeNumber)
 
     @Synchronized fun get(request: PlaybackRequest): List<StreamCandidate>? {

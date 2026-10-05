@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
 internal object LegacyWebEmbedResolver {
     data class Media(val url: String, val headers: Map<String, String>)
     suspend fun resolve(context: Context, url: String, headers: Map<String, String>): List<Media> {
-        if (!LegacyProviderEngine.isMediaUrl(url)) return emptyList()
+        if (!app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(url)) return emptyList()
         val found = ConcurrentHashMap<String, Media>()
         var view: WebView? = null
         try {
@@ -70,7 +70,7 @@ internal object LegacyWebEmbedResolver {
                             return null
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
-                            !LegacyProviderEngine.isMediaUrl(request.url.toString())
+                            !app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(request.url.toString())
                     }
                     loadUrl(url, headers)
                 }
@@ -93,7 +93,7 @@ internal object LegacyWebEmbedResolver {
             !path.matches(Regex(".*(?:/ads?/|preroll|advertisement|/trailers?/).*"))
     }
     private fun publicDestination(url: String): Boolean {
-        if (!LegacyProviderEngine.isMediaUrl(url) || url.startsWith("magnet:")) return false
+        if (!app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(url) || url.startsWith("magnet:")) return false
         return runCatching {
             InetAddress.getAllByName(URI(url).host).all {
                 LegacyMediaHttp.isPublicAddress(it)

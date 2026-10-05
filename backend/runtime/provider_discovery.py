@@ -11,9 +11,13 @@ fail-closed until the Filmix episode branch is independently verified.
 from __future__ import annotations
 
 import os
+import time
+import threading
+from collections import OrderedDict
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from catalog_schema_v2 import normalize_ru_text
@@ -22,6 +26,7 @@ from filmix_provider_adapter import FilmixProviderAdapter
 from hdrezka_provider_adapter import HDRezkaProviderAdapter
 from octopus_provider_adapter import OctopusProviderAdapter
 from zona_provider_adapter import ZonaProviderAdapter
+from zona_mobi_provider_adapter import ZonaMobiProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
 from stream_validation import sanitize_streams
 
@@ -87,8 +92,9 @@ def _normalized_titles(values: Sequence[Optional[str]]) -> set[str]:
     }
 
 
-def discover_provider_streams(
+def _discover_provider_streams(
     *,
+    enabled_flags: frozenset[str],
     title: str,
     year: int = 0,
     media_id: str,
@@ -114,7 +120,28 @@ def discover_provider_streams(
     terminal_statuses: list[str] = []
     collected_streams: list[Dict[str, Any]] = []
 
-    if os.environ.get("MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT", "0") == "1":
+    if "MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT" in enabled_flags:
+        attempted.append("zona.mobi")
+        try:
+            request = ProviderRequest(str(media_id), clean_title, int(year) if int(year or 0) > 0 else None,
+                                      season, episode, "tv" if is_series else "movie")
+            adapter = ZonaMobiProviderAdapter()
+            results, search_error = adapter.search(request, aliases=(original_title,))
+            if search_error:
+                terminal_statuses.append(search_error)
+            elif len(results) != 1:
+                terminal_statuses.append("AMBIGUOUS" if results else "NO_MATCH")
+            else:
+                tree, article, resolve_error = adapter.resolve_source(results[0], request)
+                if resolve_error or tree is None or article is None:
+                    terminal_statuses.append(resolve_error or "PROVIDER_ERROR")
+                else:
+                    collected_streams.extend(sanitize_streams(flatten_variant_tree(article, tree, request), require_source=True))
+        except Exception:
+            error_count += 1
+            terminal_statuses.append("PROVIDER_ERROR")
+
+    if "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT" in enabled_flags:
         attempted.append("hdrezka")
         try:
             request = ProviderRequest(
@@ -152,7 +179,7 @@ def discover_provider_streams(
     # Collaps is the first working provider rewritten natively onto the shared
     # ProviderContract. Keep activation gated until a live non-zero differential
     # confirms parity with the current production transport.
-    if os.environ.get("MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT", "0") == "1":
+    if "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT" in enabled_flags:
         attempted.append("collaps")
         try:
             request = ProviderRequest(
@@ -191,7 +218,7 @@ def discover_provider_streams(
             error_count += 1
             terminal_statuses.append("PROVIDER_ERROR")
 
-    if os.environ.get("MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT", "0") == "1":
+    if "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT" in enabled_flags:
         attempted.append("zona")
         try:
             request = ProviderRequest(
@@ -230,7 +257,7 @@ def discover_provider_streams(
 
     # Filmix is kept disabled by default because its pinned 3.466 partner API
     # now returns HTTP 403. The adapter remains fully testable behind the gate.
-    if os.environ.get("MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER", "0") == "1":
+    if "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER" in enabled_flags:
         attempted.append("filmix")
         if is_series:
             terminal_statuses.append("UNSUPPORTED_SERIES")
@@ -284,7 +311,7 @@ def discover_provider_streams(
     # Octopus search and article transport are live, but its current iframe
     # still needs a clean-room playback decoder. Discovery is available behind
     # a separate diagnostic gate and never fabricates a voice/quality stream.
-    if os.environ.get("MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY", "0") == "1":
+    if "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY" in enabled_flags:
         attempted.append("octopus")
         if is_series:
             terminal_statuses.append("UNSUPPORTED_SERIES")
@@ -326,3 +353,82 @@ def discover_provider_streams(
     )
     status = next((value for value in priority if value in terminal_statuses), terminal_statuses[-1] if terminal_statuses else "NO_RESULTS")
     return ProviderDiscoveryOutcome([], status, tuple(attempted), error_count)
+
+
+_PROVIDER_FLAGS = ('MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT', 'MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT', 'MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT', 'MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT', 'MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER', 'MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY')
+_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=24, thread_name_prefix="movia-provider")
+_PROVIDER_CACHE = OrderedDict()
+_PROVIDER_CACHE_LOCK = threading.Lock()
+
+
+def _cache_completed(key, future):
+    try:
+        result = future.result()
+        if not result.streams:
+            return
+        with _PROVIDER_CACHE_LOCK:
+            _PROVIDER_CACHE[key] = (time.monotonic() + 60, result)
+            _PROVIDER_CACHE.move_to_end(key)
+            while len(_PROVIDER_CACHE) > 256:
+                _PROVIDER_CACHE.popitem(last=False)
+    except Exception:
+        pass
+
+
+def discover_provider_streams(*, budget_seconds=3.7, **request) -> ProviderDiscoveryOutcome:
+    """Run enabled providers independently; publish the union within one budget.
+
+    A slow provider cannot hide the completed leaves of another provider.
+    Each task receives immutable flags rather than changing process environment.
+    """
+    enabled = [flag for flag in _PROVIDER_FLAGS if os.environ.get(flag, "0") == "1"]
+    if not enabled:
+        return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
+    futures, cached = [], []
+    # A completed late task remains available to the next exact-identity poll.
+    # Callables used for deterministic transport tests bypass this live cache.
+    use_cache = not request.get("fetch_text") and not request.get("fetch_post_form_text")
+    identity = tuple(str(request.get(k) or "") for k in
+                     ("media_id", "title", "year", "media_type", "season", "episode", "original_title"))
+    for flag in enabled:
+        key = (flag, identity)
+        with _PROVIDER_CACHE_LOCK:
+            entry = _PROVIDER_CACHE.get(key) if use_cache else None
+            if entry and entry[0] <= time.monotonic():
+                _PROVIDER_CACHE.pop(key, None)
+                entry = None
+        if entry:
+            cached.append(entry[1])
+            continue
+        future = _PROVIDER_EXECUTOR.submit(_discover_provider_streams, enabled_flags=frozenset({flag}), **request)
+        futures.append(future)
+        if use_cache:
+            future.add_done_callback(lambda f, key=key: _cache_completed(key, f))
+    done, pending = wait(futures, timeout=min(12.0, max(0.1, float(budget_seconds))))
+    rows, providers, statuses = [], [], []
+    for result in cached:
+        rows.extend(result.streams)
+        providers.extend(result.providers)
+        statuses.append(result.status)
+    errors = len(pending)
+    for future in pending:
+        future.cancel()
+    for future in futures:
+        if future not in done:
+            continue
+        try:
+            result = future.result()
+            rows.extend(result.streams)
+            providers.extend(result.providers)
+            statuses.append(result.status)
+            errors += result.error_count
+        except Exception:
+            errors += 1
+            statuses.append("PROVIDER_ERROR")
+    if rows:
+        return ProviderDiscoveryOutcome(sanitize_streams(rows, require_source=True), "OK", tuple(providers), errors)
+    if pending:
+        return ProviderDiscoveryOutcome([], "PROVIDER_TIMEOUT", tuple(providers), errors)
+    priority = ("INVALID_REQUEST", "AMBIGUOUS", "EXACT_EPISODE_REQUIRED", "PROVIDER_ERROR", "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
+    status = next((x for x in priority if x in statuses), statuses[-1] if statuses else "NO_RESULTS")
+    return ProviderDiscoveryOutcome([], status, tuple(providers), errors)

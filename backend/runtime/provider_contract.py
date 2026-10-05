@@ -164,12 +164,15 @@ class VariantStream:
     info_hash: str = ""
     release_title: str = ""
     transport_metadata: Mapping[str, Any] = field(default_factory=dict)
+    file_index: Optional[int] = None
+    file_path: str = ""
 
     def __post_init__(self) -> None:
         if not _text(self.url):
             raise ValueError("STREAM_URL")
         _safe_track_index(self.video_track_index)
         _safe_track_index(self.audio_track_index)
+        _safe_track_index(self.file_index)
         if (self.season is None) != (self.episode is None):
             raise ValueError("EXACT_EPISODE_REQUIRED")
         if self.seeders is not None:
@@ -257,9 +260,12 @@ def _stream_row(
         voice,
         quality,
         _text(stream.language),
-        stream.video_track_index if stream.video_track_index is not None else "",
-        stream.audio_track_index if stream.audio_track_index is not None else "",
+        str(stream.video_track_index) if stream.video_track_index is not None else "",
+        str(stream.audio_track_index) if stream.audio_track_index is not None else "",
     )
+    file_identity = ("file", str(stream.file_index) if stream.file_index is not None else "", stream.file_path) if stream.file_index is not None or stream.file_path else ()
+    identity_parts += file_identity
+    track_identity = ("tracks", str(stream.video_track_index) if stream.video_track_index is not None else "", str(stream.audio_track_index) if stream.audio_track_index is not None else "") if stream.video_track_index is not None or stream.audio_track_index is not None else ()
     provider_item_id = _stable_id("provider-item:", *identity_parts)
     logical_source_id = _stable_id(
         "logical-source:",
@@ -269,6 +275,8 @@ def _stream_row(
         stream_key,
         voice,
         quality,
+        *track_identity,
+        *file_identity,
     )
     row: dict[str, Any] = {
         "source": article.provider.name,
@@ -304,6 +312,10 @@ def _stream_row(
         row["subtitle_list"] = [dict(item) for item in stream.subtitles]
     if stream.has_internal_subtitles:
         row["is_use_internal_subtitles"] = True
+    if stream.file_index is not None:
+        row["file_index"] = stream.file_index
+    if stream.file_path:
+        row["file_path"] = stream.file_path
     if stream.video_track_index is not None:
         row["video_track_index"] = stream.video_track_index
     if stream.audio_track_index is not None:
@@ -336,9 +348,9 @@ def flatten_variant_tree(
     root: VariantNode,
     request: ProviderRequest,
     *,
-    max_depth: int = 12,
-    max_nodes: int = 4096,
-    max_streams: int = 512,
+    max_depth: int = 64,
+    max_nodes: int = 20_000,
+    max_streams: Optional[int] = None,
 ) -> list[dict[str, Any]]:
     """Resolve one exact request without eagerly expanding unrelated branches.
 
@@ -346,7 +358,7 @@ def flatten_variant_tree(
     guesses season/episode/voice/quality from display text.
     """
 
-    if max_depth < 1 or max_nodes < 1 or max_streams < 1:
+    if max_depth < 1 or max_nodes < 1 or (max_streams is not None and max_streams < 1):
         raise ValueError("VARIANT_LIMITS")
 
     result: list[dict[str, Any]] = []
@@ -360,8 +372,8 @@ def flatten_variant_tree(
         depth: int,
     ) -> None:
         nonlocal visited_count
-        if depth > max_depth or len(result) >= max_streams or visited_count >= max_nodes:
-            return
+        if depth > max_depth or visited_count >= max_nodes:
+            raise ValueError("VARIANT_LIMIT")
         marker = id(node)
         if marker in visited:
             return
@@ -380,8 +392,6 @@ def flatten_variant_tree(
                     children.extend(list(loaded))
             for index, child in enumerate(children):
                 walk(child, next_context, f"{path}/{index}", depth + 1)
-                if len(result) >= max_streams or visited_count >= max_nodes:
-                    break
             return
 
         if not isinstance(node, VariantStream):
@@ -390,6 +400,8 @@ def flatten_variant_tree(
         next_context = context.with_stream(node)
         if not _leaf_matches(request, next_context):
             return
+        if max_streams is not None and len(result) >= max_streams:
+            raise ValueError("VARIANT_LIMIT")
         result.append(_stream_row(article, request, node, next_context, path))
 
     walk(root, _VariantContext(), "root", 0)

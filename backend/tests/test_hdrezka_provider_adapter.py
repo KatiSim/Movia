@@ -20,4 +20,35 @@ class HDRezkaProviderAdapterTests(unittest.TestCase):
             rows,error=HDRezkaProviderAdapter().search(req,aliases=('Stranger Things',))
         self.assertIsNone(error);self.assertEqual(1,len(rows))
 
+    def test_search_does_not_hide_extra_exact_articles_after_thirty_results(self):
+        html=''.join(HTML.replace('17109-',str(n)+'-') for n in range(31))
+        with patch('hdrezka_provider_adapter._get',return_value=(html,None)):
+            rows,_=search_exact('Очень странные дела',2016)
+        self.assertEqual(31,len(rows))
+
+    def test_known_year_rejects_search_rows_without_year_evidence(self):
+        without_year=HTML.replace('2016-2026, США, Триллеры','США, Триллеры')
+        with patch('hdrezka_provider_adapter._get',return_value=(without_year,None)):
+            rows,_=search_exact('Очень странные дела',2016)
+        self.assertEqual([],rows)
+
+    def test_movie_request_rejects_same_title_series_article(self):
+        req=ProviderRequest('42','Очень странные дела',2016,media_type='movie')
+        with patch('hdrezka_provider_adapter._get',return_value=(HTML,None)):
+            rows,_=HDRezkaProviderAdapter().search(req)
+        self.assertEqual([],rows)
+
+    def test_native_adapter_keeps_more_than_512_real_leaves_and_supports_reload(self):
+        from provider_contract import ProviderSearchResult,flatten_variant_tree
+        from hdrezka_provider_adapter import DEF
+        request=ProviderRequest('42','Example',2024)
+        source=ProviderSearchResult(DEF,'films/example','Example',2024,'article:42','films/example')
+        streams=[{'url':f'https://cdn.example/{n}.mp4','voice':f'Voice {n}','quality':'720p'} for n in range(600)]
+        with patch('hdrezka_provider_adapter._resolve_hdrezka',return_value=(streams,None)):
+            tree,article,error=HDRezkaProviderAdapter().resolve_source(source,request)
+        self.assertIsNone(error)
+        rows=flatten_variant_tree(article,tree,request)
+        self.assertEqual(600,len(rows))
+        self.assertTrue(all(row['reload_supported'] for row in rows))
+
 if __name__=='__main__': unittest.main()

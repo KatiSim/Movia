@@ -704,6 +704,7 @@ private fun MoviaContent(
                     candidateStreams = streamCandidates,
                     candidateStreamOptions = sortedStreams,
                     contentYear = content?.year,
+                    expectedDurationMs = content?.takeIf { it.type == ContentType.MOVIE }?.durationMinutes?.takeIf { it > 0 }?.toLong()?.times(60_000L),
                     mediaType = content?.type,
                     preferredQuality = initialQuality,
                     preferredVoice = initialVoice,

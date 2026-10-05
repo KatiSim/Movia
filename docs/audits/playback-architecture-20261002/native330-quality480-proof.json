@@ -1,0 +1,51 @@
+{
+  "playback": {
+    "status": "READY",
+    "switchState": "READY",
+    "playing": true,
+    "playWhenReady": true,
+    "mediaId": "158",
+    "title": "Интерстеллар",
+    "positionMs": 197880,
+    "durationMs": 10143948,
+    "bufferedMs": 241555,
+    "requestedStreamId": "stream:44a953ecc7daaea41a593328",
+    "activeStreamId": "stream:b4e645be67a20365fb8d711f",
+    "requestedQuality": "480p",
+    "requestedVoice": "Дубляж",
+    "activeQuality": "480p",
+    "activeVoice": "Дубляж",
+    "quality": "480p",
+    "voice": "Дубляж",
+    "source": "HDRezka",
+    "fallbackReason": "BUFFERING_TIMEOUT",
+    "mediaItemId": "158",
+    "fullscreen": false,
+    "pip": false
+  },
+  "media3": {
+    "playbackState": "READY",
+    "playbackStateCode": 3,
+    "domainPlaybackState": "READY",
+    "switchState": "READY",
+    "playWhenReady": true,
+    "isPlaying": true,
+    "playbackSuppressionReason": 0,
+    "mediaItemId": "158",
+    "videoWidth": 854,
+    "videoHeight": 480,
+    "bufferedPositionMs": 241555,
+    "currentPositionMs": 197890,
+    "selectedAudioLanguage": "ru",
+    "speed": 1
+  },
+  "probeFrames": 1909,
+  "tracks": [
+    {
+      "id": "track:2:0:0",
+      "quality": "480p",
+      "height": 480,
+      "selected": true
+    }
+  ]
+}

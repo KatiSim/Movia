@@ -37,7 +37,7 @@ public final class MoviaProviderConfiguration {
         return new JSONObject().put("schemaVersion",1).put("providers",safe).put("properties",validProperties);
     }
     static boolean publicUrl(String raw) {
-        if(raw==null||raw.length()>2048||!LegacyProviderEngine.isMediaUrl(raw)||
+        if(raw==null||raw.length()>2048||!app.movia.android.domain.provider.ProviderMediaUrlPolicy.isMediaUrl(raw)||
             !(raw.startsWith("https://")||raw.startsWith("http://")))return false;
         try {URI uri=new URI(raw);String host=uri.getHost().toLowerCase(Locale.ROOT);
             return uri.getRawQuery()==null&&uri.getRawFragment()==null&&

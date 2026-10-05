@@ -1004,6 +1004,7 @@ object AgentControlRuntime {
                         mediaId = content.id,
                         title = displayTitle,
                         contentYear = content.year,
+                        expectedDurationMs = content.durationMinutes.takeIf { content.type == ContentType.MOVIE && it > 0 }?.toLong()?.times(60_000L),
                         seasonNumber = season,
                         episodeNumber = episode,
                         mediaType = content.type,

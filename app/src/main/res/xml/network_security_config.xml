@@ -19,6 +19,8 @@
         <domain includeSubdomains="true">vibio.tv</domain>
         <domain includeSubdomains="false">5.61.56.18</domain>
         <domain includeSubdomains="true">hdrezka-fly.net</domain>
+        <domain includeSubdomains="true">voidboost.one</domain>
+        <domain includeSubdomains="true">voidboost.org</domain>
     </domain-config>
 
     <!-- Разрешаем cleartext для балансеров, если они работают по HTTP -->

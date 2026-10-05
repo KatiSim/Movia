@@ -312,8 +312,10 @@ object DomainPlaybackResolver {
                     ?: sObj.optInt("fileIndex", -1).takeIf { it >= 0 },
                 filePath = sObj.optString("file_path").takeIf { it.isNotBlank() }
                     ?: sObj.optString("filePath").takeIf { it.isNotBlank() },
-                seasonNumber = sObj.optInt("season", -1).takeIf { it > 0 } ?: season,
-                episodeNumber = sObj.optInt("episode", -1).takeIf { it > 0 } ?: episode,
+                seasonNumber = sObj.optInt("season", -1).takeIf { it > 0 }
+                    ?: sObj.optInt("seasonNumber", -1).takeIf { it > 0 },
+                episodeNumber = sObj.optInt("episode", -1).takeIf { it > 0 }
+                    ?: sObj.optInt("episodeNumber", -1).takeIf { it > 0 },
                 mimeType = sObj.optString("mime_type").takeIf { it.isNotBlank() }
                     ?: sObj.optString("mimeType").takeIf { it.isNotBlank() },
                 drmScheme = sObj.optString("drm_scheme").takeIf { it.isNotBlank() }
@@ -622,20 +624,31 @@ object DomainPlaybackResolver {
     ): List<StreamCandidate> {
         if (initial.isEmpty()) return discovered
         if (discovered.isEmpty()) return initial
-        val discoveredById = discovered
-            .filter { it.stableStreamId.isNotBlank() }
-            .groupBy { it.stableStreamId }
-        val retainedInitial = initial.filter { old ->
-            val sameIdFresh = discoveredById[old.stableStreamId].orEmpty()
-            sameIdFresh.none { fresh ->
-                fresh.toStreamOption().sameRequestedVariant(
-                    old.toStreamOption(),
-                    request.seasonNumber,
-                    request.episodeNumber,
-                )
+        val replaced = mutableSetOf<Int>()
+        val refreshed = discovered.map { fresh ->
+            val old = initial.withIndex().firstOrNull { indexed ->
+                val previous = indexed.value
+                (previous.stableStreamId == fresh.stableStreamId ||
+                    (!previous.logicalSourceId.isNullOrBlank() && previous.logicalSourceId == fresh.logicalSourceId)) &&
+                    (previous.providerId ?: previous.provider) == (fresh.providerId ?: fresh.provider) &&
+                    previous.transport == fresh.transport &&
+                    (if (previous.stableStreamId == fresh.stableStreamId) {
+                        (previous.fileIndex == null || fresh.fileIndex == null || previous.fileIndex == fresh.fileIndex) &&
+                            (previous.filePath == null || fresh.filePath == null || previous.filePath == fresh.filePath) &&
+                            (previous.videoTrackIndex == null || fresh.videoTrackIndex == null || previous.videoTrackIndex == fresh.videoTrackIndex) &&
+                            (previous.audioTrackIndex == null || fresh.audioTrackIndex == null || previous.audioTrackIndex == fresh.audioTrackIndex)
+                    } else {
+                        previous.fileIndex == fresh.fileIndex && previous.filePath == fresh.filePath &&
+                            previous.videoTrackIndex == fresh.videoTrackIndex && previous.audioTrackIndex == fresh.audioTrackIndex
+                    }) &&
+                    matchesReloadIdentity(previous, fresh, request)
+            }
+            if (old == null) fresh else {
+                replaced += old.index
+                mergeReloadedCandidate(old.value, fresh)
             }
         }
-        return retainedInitial + discovered
+        return initial.filterIndexed { index, _ -> index !in replaced } + refreshed
     }
 
     /**
@@ -672,7 +685,7 @@ object DomainPlaybackResolver {
             val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                 var response = backend.resolveByIdentity(request, forceRefresh)
                 while (response.discoveryPending &&
-                    (forceRefresh || usableCandidates(request, response.candidates).isEmpty())
+                    usableCandidates(request, response.candidates).isEmpty()
                 ) {
                     sawPending = true
                     delay(response.retryAfterMs.coerceIn(100L, 800L))

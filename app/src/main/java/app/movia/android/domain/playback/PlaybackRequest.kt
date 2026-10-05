@@ -36,6 +36,7 @@ data class PlaybackRequest(
     val generationId: Long = 0L,
     val correlationId: String = UUID.randomUUID().toString(),
     val attempt: Int = 1,
+    val expectedDurationMs: Long? = null,
 ) {
     val isSeries: Boolean get() = seasonNumber != null && episodeNumber != null
     val canonicalEpisodeKey: String get() = if (isSeries) "$mediaId:s${seasonNumber}e${episodeNumber}" else mediaId

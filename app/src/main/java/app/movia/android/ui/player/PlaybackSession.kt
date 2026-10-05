@@ -379,6 +379,12 @@ class PlaybackSession(context: Context) {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_READY -> {
+                        val request = playbackRequest
+                        if (request != null && app.movia.android.domain.playback.MediaContentIdentityPolicy.durationMismatch(request, player.duration)) {
+                            player.stop()
+                            handleCandidateFailure("CONTENT_DURATION_MISMATCH", request.startPositionMs, playbackGeneration, StreamFailureClass.NON_NETWORK)
+                            return
+                        }
                         if (readyLatencyMs == null && requestStartedMs > 0L) readyLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
                         watchdogJob?.cancel()
                         stallWatchdogJob?.cancel()
@@ -1082,7 +1088,7 @@ class PlaybackSession(context: Context) {
         val request = playbackRequest
         // Zona V4 continuity rule: refresh the same logical stream before
         // committing it to problem memory or falling back to another candidate.
-        if (failed != null && request != null && rememberReloadAttempt(failed) &&
+        if (reason != "CONTENT_DURATION_MISMATCH" && failed != null && request != null && rememberReloadAttempt(failed) &&
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
             val refreshed = withTimeoutOrNull(RELOAD_TIMEOUT_MS) {
@@ -1177,6 +1183,7 @@ class PlaybackSession(context: Context) {
         preferredStreamId: String? = null,
         candidateStreamOptions: List<StreamOption> = emptyList(),
         recordHistory: Boolean = true,
+        expectedDurationMs: Long? = null,
     ) {
         this.recordHistory = recordHistory
         startupHandoverJob?.cancel()
@@ -1222,6 +1229,7 @@ class PlaybackSession(context: Context) {
             requestedStreamId = preferredStreamId?.trim()?.takeIf { it.isNotBlank() },
             startPositionMs = startPositionMs.coerceAtLeast(0L),
             generationId = generation,
+            expectedDurationMs = expectedDurationMs,
         )
         playbackRequest = request
         val seeds = initialCandidates(
@@ -1302,7 +1310,9 @@ class PlaybackSession(context: Context) {
             }
             val result = try {
                 withTimeoutOrNull(RESOLVER_TIMEOUT_MS) {
-                    DomainPlaybackResolver.resolveStreams(request = request, initialCandidates = seeds)
+                    val rows = nativeDiscovery.await()
+                    if (rows.isNotEmpty()) PlaybackResolverResult.Success(rows)
+                    else PlaybackResolverResult.NoSource()
                 } ?: PlaybackResolverResult.Error("Таймаут резолвера потоков (${RESOLVER_TIMEOUT_MS / 1000}с)")
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
@@ -1335,7 +1345,8 @@ class PlaybackSession(context: Context) {
         val validated = DomainPlaybackResolver.validatedCandidates(current, incoming)
         if (validated.isEmpty()) return
         candidates = StreamRanker.rankCandidates(
-            StreamDeduplicator.deduplicate(validated + candidates), context = requestContext(current))
+            StreamDeduplicator.deduplicate(DomainPlaybackResolver.preferDiscoveredCandidates(candidates, validated, current)),
+            context = requestContext(current))
         publishCandidateOptions()
         recoveryAttemptBudget = candidates.size.coerceAtLeast(1) * 2 + 1
         val desired = selectInitialCandidate(current) ?: return

@@ -613,6 +613,24 @@ class DomainPlaybackResolverTest {
         assertEquals(1,calls)
     }
 
+    @Test fun forcedRefreshReturnsVerifiedVariantsWhileOptionalProvidersAreStillRunning() = runBlocking {
+        var calls=0
+        val backend=object: PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls++
+                assertTrue(forceRefresh)
+                return PlaybackResolverBackendResponse(listOf(resolvedCandidate("confirmed")),discoveryPending=true)
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Unexpected title fallback")
+        }
+        val result=kotlinx.coroutines.withTimeout(500L) {
+            DomainPlaybackResolver.resolveStreamsWithBackend(
+                PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),forceRefresh=true,backend=backend)
+        }
+        assertEquals("confirmed",(result as PlaybackResolverResult.Success).candidates.single().stableStreamId)
+        assertEquals(1,calls)
+    }
+
     @Test fun terminalDiscoveryFailureNeverFallsBackToAnotherTitle() = runBlocking {
         for(code in listOf("SOURCE_UNAVAILABLE","DISCOVERY_BUSY","DISCOVERY_UNAVAILABLE")) {
             val backend=object: PlaybackResolverBackend {
@@ -635,6 +653,23 @@ class DomainPlaybackResolverTest {
             DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend=backend)
         }
         assertNull(result);assertTrue(calls in 1..3)
+    }
+
+    @Test fun discoveredLocatorReplacesOnlyTheSameLogicalLeafAndRetainsSelectionId() {
+        val request=PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025)
+        val old=resolvedCandidate("old").copy(logicalSourceId="logical-leaf",providerId="movia:provider",transport="direct")
+        val fresh=old.copy(stableStreamId="new",url="https://cdn.example/refreshed.mp4")
+        val other=old.copy(stableStreamId="other",providerId="movia:other",url="https://other.example/movie.mp4")
+        val rows=DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old,other),listOf(fresh),request)
+        assertEquals(2,rows.size)
+        assertEquals(fresh.url,rows.single { it.stableStreamId=="old" }.url)
+        assertEquals(other,rows.single { it.stableStreamId=="other" })
+    }
+    @Test fun logicalRefreshNeverMergesDifferentAudioOrFileSelections() {
+        val request=PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025)
+        val old=resolvedCandidate("old").copy(logicalSourceId="logical-leaf",providerId="movia:provider",audioTrackIndex=0,fileIndex=0)
+        val fresh=old.copy(stableStreamId="new",audioTrackIndex=1,fileIndex=1,url="https://cdn.example/refreshed.mp4")
+        assertEquals(2,DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old),listOf(fresh),request).size)
     }
 
 }

@@ -2605,6 +2605,7 @@ def _resolve_clean_provider_registry(
             media_type=media_type,
             season=season,
             episode=episode,
+            budget_seconds=12.0,
         )
         return outcome.streams
     except Exception as exc:
