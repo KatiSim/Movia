@@ -1946,6 +1946,594 @@
       "335_exact_s01e01_original"
     ],
     "notAllLeavesVerified": true,
-    "notEveryVoiceQualityCombinationVerified": true
-  }
+    "notEveryVoiceQualityCombinationVerified": true,
+    "decodedNativeMovieVoices": [
+      "Оригинал (+субтитры)",
+      "Студия Омикрон"
+    ]
+  },
+  "installed335MovieCases": [
+    {
+      "case": "335_native_movie_voice_action",
+      "voice": "Студия Омикрон",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "advertised": "1080p"
+    },
+    {
+      "case": "335_native_movie_Студия Омикрон_1080p",
+      "passed": true,
+      "elapsedMs": 15549,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 62,
+        "durationMs": 10143947,
+        "bufferedMs": 3878,
+        "requestedStreamId": "stream:a7d8f8796757b7595422b398",
+        "activeStreamId": "stream:a7d8f8796757b7595422b398",
+        "requestedQuality": "720p",
+        "requestedVoice": "Студия Омикрон",
+        "activeQuality": "720p",
+        "activeVoice": "Студия Омикрон",
+        "quality": "720p",
+        "voice": "Студия Омикрон",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 220
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 4587,
+        "currentPositionMs": 123,
+        "speed": 1
+      },
+      "voice": "Студия Омикрон",
+      "quality": "720p",
+      "frames": 4,
+      "readyLatencyMs": 15218,
+      "firstFrameLatencyMs": 15164,
+      "selected": {
+        "streamId": "stream:a7d8f8796757b7595422b398",
+        "source": "HDRezka",
+        "voice": "Студия Омикрон",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "hdrezka_native_transport": "true"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_native_movie_voice_action",
+      "voice": "Оригинал (+субтитры)",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "advertised": "1080p"
+    },
+    {
+      "case": "335_native_movie_Оригинал (+субтитры)_1080p",
+      "passed": false,
+      "elapsedMs": 18529,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedStreamId": "stream:7e071e0a03076f064a1fc2af",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 220
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 5,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    },
+    {
+      "case": "335_native_movie_voice_action",
+      "voice": "Оригинал (+субтитры)",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "advertised": "720p"
+    },
+    {
+      "case": "335_native_movie_Оригинал (+субтитры)_720p",
+      "passed": true,
+      "elapsedMs": 2010,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 209,
+        "durationMs": 10143925,
+        "bufferedMs": 13263,
+        "requestedStreamId": "stream:ec2f0dacbf90882f32f09df8",
+        "activeStreamId": "stream:ec2f0dacbf90882f32f09df8",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "480p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "quality": "480p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 220
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 854,
+        "videoHeight": 480,
+        "bufferedPositionMs": 13263,
+        "currentPositionMs": 229,
+        "speed": 1
+      },
+      "voice": "Оригинал (+субтитры)",
+      "quality": "480p",
+      "frames": 12,
+      "readyLatencyMs": 1571,
+      "firstFrameLatencyMs": 1502,
+      "selected": {
+        "streamId": "stream:ec2f0dacbf90882f32f09df8",
+        "source": "HDRezka",
+        "voice": "Оригинал (+субтитры)",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "720p",
+        "hdrezka_native_transport": "true"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ]
+    }
+  ],
+  "installed335CollisionCases": [
+    {
+      "mediaId": "226",
+      "year": 2002,
+      "requestAction": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "catalogIdentityPreserved": true,
+      "media3IdentityPreserved": true,
+      "notClaimingDecodedMovie": true,
+      "observed": {
+        "playback": {
+          "status": "BUFFERING",
+          "switchState": "SEARCHING_SOURCE",
+          "playing": false,
+          "playWhenReady": true,
+          "mediaId": "226",
+          "title": "Человек-паук",
+          "positionMs": 0,
+          "durationMs": 0,
+          "bufferedMs": 0,
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "quality": "Auto",
+          "voice": "Auto",
+          "mediaItemId": "226",
+          "fullscreen": false,
+          "pip": false,
+          "statusMessage": "Ищем источник"
+        },
+        "registry": {
+          "architecture": "movia-provider-registry",
+          "referenceRuntimeLoaded": false,
+          "status": "RESOLVED",
+          "providers": {
+            "movia:provider-service": "RESOLVED"
+          },
+          "candidateCount": 220
+        },
+        "media3": {
+          "playbackState": "IDLE",
+          "playbackStateCode": 1,
+          "domainPlaybackState": "BUFFERING",
+          "switchState": "SEARCHING_SOURCE",
+          "playWhenReady": true,
+          "isPlaying": false,
+          "playbackSuppressionReason": 0,
+          "mediaItemId": "226",
+          "videoWidth": 0,
+          "videoHeight": 0,
+          "bufferedPositionMs": 0,
+          "currentPositionMs": 0,
+          "speed": 1
+        },
+        "voice": null,
+        "quality": null,
+        "frames": 0,
+        "readyLatencyMs": null,
+        "firstFrameLatencyMs": null,
+        "selected": {
+          "streamId": null,
+          "source": null,
+          "voice": null,
+          "quality": null,
+          "transport": null
+        },
+        "selectedMetadata": {},
+        "audioTracks": [],
+        "videoTracks": []
+      }
+    },
+    {
+      "mediaId": "621453",
+      "year": 1977,
+      "requestAction": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "catalogIdentityPreserved": true,
+      "media3IdentityPreserved": true,
+      "notClaimingDecodedMovie": true,
+      "observed": {
+        "playback": {
+          "status": "BUFFERING",
+          "switchState": "PREBUFFERING",
+          "playing": false,
+          "playWhenReady": true,
+          "mediaId": "621453",
+          "title": "Spider-Man",
+          "positionMs": 0,
+          "durationMs": 0,
+          "bufferedMs": 0,
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "quality": "Auto",
+          "voice": "Auto",
+          "source": "Apibay",
+          "mediaItemId": "621453",
+          "fullscreen": false,
+          "pip": false,
+          "statusMessage": "Готовим видео"
+        },
+        "registry": {
+          "architecture": "movia-provider-registry",
+          "referenceRuntimeLoaded": false,
+          "status": "RESOLVED",
+          "providers": {
+            "movia:provider-service": "RESOLVED"
+          },
+          "candidateCount": 1
+        },
+        "media3": {
+          "playbackState": "BUFFERING",
+          "playbackStateCode": 2,
+          "domainPlaybackState": "BUFFERING",
+          "switchState": "PREBUFFERING",
+          "playWhenReady": true,
+          "isPlaying": false,
+          "playbackSuppressionReason": 0,
+          "mediaItemId": "621453",
+          "videoWidth": 0,
+          "videoHeight": 0,
+          "bufferedPositionMs": 0,
+          "currentPositionMs": 0,
+          "speed": 1
+        },
+        "voice": null,
+        "quality": null,
+        "frames": 0,
+        "readyLatencyMs": null,
+        "firstFrameLatencyMs": null,
+        "selected": {
+          "streamId": null,
+          "source": null,
+          "voice": null,
+          "quality": null,
+          "transport": null
+        },
+        "selectedMetadata": {},
+        "audioTracks": [],
+        "videoTracks": []
+      }
+    }
+  ],
+  "installed335FarSeekCases": [
+    {
+      "case": "335_far_seek_start",
+      "mediaId": "159",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_native_original_far_seek",
+      "mediaId": "159",
+      "passed": true,
+      "elapsedMs": 1743,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 300267,
+        "durationMs": 2884903,
+        "bufferedMs": 303086,
+        "requestedStreamId": "stream:dff3169aff9e1bb1d046d6bf",
+        "activeStreamId": "stream:dff3169aff9e1bb1d046d6bf",
+        "requestedQuality": "1080p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "720p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 138
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 303753,
+        "currentPositionMs": 300441,
+        "speed": 1
+      },
+      "voice": "Оригинал (+субтитры)",
+      "quality": "720p",
+      "frames": 27,
+      "readyLatencyMs": 5449,
+      "firstFrameLatencyMs": 5404,
+      "selected": {
+        "streamId": "stream:dff3169aff9e1bb1d046d6bf",
+        "source": "HDRezka",
+        "voice": "Оригинал (+субтитры)",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2886051",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_far_seek_start",
+      "mediaId": "158",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_native_original_far_seek",
+      "mediaId": "158",
+      "passed": false,
+      "elapsedMs": 18118,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedStreamId": "stream:ec2f0dacbf90882f32f09df8",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 328
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 195,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    }
+  ]
 }
