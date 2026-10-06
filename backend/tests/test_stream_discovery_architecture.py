@@ -146,3 +146,50 @@ class DiscoveryPersistenceTest(unittest.TestCase):
             with sqlite3.connect(db_path) as conn:
                 rows = json.loads(conn.execute('SELECT streams FROM movies WHERE id=7').fetchone()[0])
             self.assertEqual({'Studio'+str(index) for index in range(8)}, {row['voice'] for row in rows})
+
+
+class EpisodeDiscoveryIdentityTest(unittest.TestCase):
+    def test_stream_id_enrichment_does_not_invent_episode_coordinates(self):
+        generic={'source':'HDRezka','url':'https://media.example/series.m3u8','voice':'Dub','quality':'720p'}
+        result=streamer.enrich_stream_identity([generic],1,2)
+        self.assertNotIn('season',result[0]);self.assertNotIn('episode',result[0])
+        self.assertEqual([],streamer.filter_streams_for_episode(result,1,2))
+
+    def test_multiseason_pack_is_not_rebound_to_requested_episode(self):
+        card={'id':7,'title':'Fixture','year':2020,'media_type':'tv'}
+        pack={'source':'Rutor','url':'magnet:?xt=urn:btih:'+'a'*40,
+              'title':'Fixture (2020) [S01-04]','quality':'720p','voice':'Dub','season':1,'episode':1}
+        self.assertEqual([],streamer._scope_streams_to_catalog_card([pack],card,2,1))
+        self.assertEqual((1,1),(pack['season'],pack['episode']))
+
+    def test_foreground_union_rejects_generic_and_wrong_episode_rows(self):
+        with tempfile.TemporaryDirectory() as temp:
+            pool=BoundedExecutor(workers=2,max_pending=0,name='test-exact-episode')
+            card={'id':7,'title':'Fixture','year':2020,'media_type':'tv','category':'tv_series','tmdb_id':77}
+            generic={'source':'Fixture','url':'https://media.example/generic.m3u8','voice':'Dub','quality':'720p'}
+            wrong=dict(generic,url='https://media.example/wrong.m3u8',season=1,episode=1)
+            exact=dict(generic,url='https://media.example/exact.m3u8',season=1,episode=2)
+            try:
+                with patch.object(streamer,'CACHE_DB_PATH',Path(temp)/'streams.db'), patch.object(streamer,'_PROVIDER_EXECUTOR',pool), patch.object(streamer,'P2P_ENABLED',False), patch.object(streamer,'_catalog_identity_for_request',return_value=('OK',card)), patch.object(streamer,'get_recent_stale_direct_streams',return_value=[]), patch.object(streamer,'_resolve_balancer_provider',return_value=[generic,wrong]), patch.object(streamer,'_resolve_clean_provider_registry',return_value=[exact]):
+                    streamer.init_cache_db()
+                    with streamer._STREAM_MEMORY_CACHE_LOCK:streamer._STREAM_MEMORY_CACHE.clear()
+                    rows=streamer.resolve_on_demand_streams('Fixture',2020,category='tv_series',season=1,episode=2,catalog_media_id=7,media_type='tv',force_refresh=True,_allow_stale_fast_path=False)
+                self.assertEqual([exact['url']],[row['url'] for row in rows])
+                self.assertEqual([(1,2)],[(row['season'],row['episode']) for row in rows])
+            finally:
+                pool.close()
+                with streamer._STREAM_MEMORY_CACHE_LOCK:streamer._STREAM_MEMORY_CACHE.clear()
+
+    def test_shared_binding_rejects_missing_wrong_and_noninteger_coordinates(self):
+        from stream_validation import bind_stream_identity
+        from stream_identity import filter_streams_for_content
+        card={'id':7,'title':'Fixture','year':2020,'media_type':'tv','season':1,'episode':2}
+        base={'source':'Fixture','url':'https://media.example/episode.m3u8','voice':'Dub','quality':'720p'}
+        for coordinates in ({},{'season':1,'episode':1},{'season':True,'episode':2},{'season':1,'episode':2.9},{'season':1,'episode':'2.0'}):
+            with self.subTest(coordinates=coordinates):
+                row=dict(base,**coordinates)
+                self.assertEqual([],filter_streams_for_content([row],card))
+                self.assertEqual([],bind_stream_identity([row],catalog_media_id=7,title='Fixture',year=2020,media_type='tv',season=1,episode=2))
+        valid=dict(base,season='01',episode='02')
+        self.assertEqual(1,len(filter_streams_for_content([valid],card)))
+        self.assertEqual(1,len(bind_stream_identity([valid],catalog_media_id=7,title='Fixture',year=2020,media_type='tv',season=1,episode=2)))

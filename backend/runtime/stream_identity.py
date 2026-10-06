@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 from urllib.parse import parse_qs, unquote, urlparse
 from catalog_localization import russian_alternative_titles
 from catalog_schema_v2 import normalize_ru_text
-from stream_validation import sanitize_streams
+from stream_validation import sanitize_streams, episode_coordinate
 
 def _stream_identity_title(raw: Dict[str, Any]) -> str:
     """Get provider release identity from explicit title or magnet display name."""
@@ -113,12 +113,13 @@ def filter_streams_for_content(
         except (TypeError, ValueError):
             requested_episode = None
         if requested_season is not None or requested_episode is not None:
-            try:
-                if requested_season is not None and int(item.get("season")) != requested_season:
-                    continue
-                if requested_episode is not None and int(item.get("episode")) != requested_episode:
-                    continue
-            except (TypeError, ValueError):
+            provider=str(item.get("provider_id") or item.get("source") or "").casefold()
+            metadata=item.get("transport_metadata") or {}
+            if provider in {"movia:hdrezka","hdrezka"} and (metadata.get("hdrezka_episode_verified") is not True or episode_coordinate(metadata.get("expected_episode_duration_ms")) is None):
+                continue
+            if requested_season is not None and episode_coordinate(item.get("season")) != episode_coordinate(requested_season):
+                continue
+            if requested_episode is not None and episode_coordinate(item.get("episode")) != episode_coordinate(requested_episode):
                 continue
         release_title = _stream_identity_title(item)
         if not release_title:

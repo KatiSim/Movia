@@ -51,4 +51,37 @@ class HDRezkaProviderAdapterTests(unittest.TestCase):
         self.assertEqual(600,len(rows))
         self.assertTrue(all(row['reload_supported'] for row in rows))
 
+    def test_slow_measurements_bound_queue_without_truncating_inventory(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import BoundedSemaphore,Event
+        from time import monotonic
+        from provider_contract import ProviderSearchResult,flatten_variant_tree
+        from hdrezka_provider_adapter import DEF
+        request=ProviderRequest('42','Example',2024)
+        source=ProviderSearchResult(DEF,'films/example','Example',2024,'article:42','films/example')
+        streams=[{'url':f'https://cdn.example/{n}.mp4','voice':f'Voice {n}','quality':'720p'} for n in range(600)]
+        gate=Event(); slots=BoundedSemaphore(3); executor=ThreadPoolExecutor(max_workers=1)
+        futures=[]
+        original_submit=executor.submit
+        def submit(*args,**kwargs):
+            future=original_submit(*args,**kwargs); futures.append(future); return future
+        def slow_measure(*args):
+            gate.wait(10); return None
+        try:
+            with patch('hdrezka_provider_adapter._CONTENT_PROBES',executor), patch('hdrezka_provider_adapter._CONTENT_PROBE_SLOTS',slots), patch.object(executor,'submit',side_effect=submit), patch('hdrezka_provider_adapter._resolve_hdrezka',return_value=(streams,None)):
+                started=monotonic()
+                tree,article,error=HDRezkaProviderAdapter(measure=slow_measure,expected_duration=lambda _:7200).resolve_source(source,request)
+                elapsed=monotonic()-started
+            self.assertIsNone(error)
+            self.assertEqual(600,len(flatten_variant_tree(article,tree,request)))
+            self.assertEqual(3,len(futures))
+            self.assertEqual(2,sum(f.cancelled() for f in futures))
+            self.assertLess(elapsed,4)
+        finally:
+            gate.set(); executor.shutdown(wait=True,cancel_futures=True)
+        acquired=[slots.acquire(blocking=False) for _ in range(4)]
+        self.assertEqual([True,True,True,False],acquired)
+        for ok in acquired:
+            if ok:slots.release()
+
 if __name__=='__main__': unittest.main()

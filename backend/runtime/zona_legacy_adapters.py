@@ -23,6 +23,7 @@ from urllib.parse import quote, urljoin, urlparse
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from stream_validation import is_valid_stream_url
+from hdrezka_episode_identity import selected_episode,exact_episode_page
 from zona_playback_architecture import (
     LegacyStreamBuilder,
     VideoSourceRef,
@@ -981,7 +982,7 @@ def _hdrezka_clean_voice(value: Any) -> str:
 
 def _hdrezka_initial_translator_id(page_text: str) -> str:
     match = re.search(
-        r"initCDNMoviesEvents\s*\(\s*\d+\s*,\s*(\d+)\s*,",
+        r"initCDN(?:Movies|Series)Events\s*\(\s*\d+\s*,\s*(\d+)\s*,",
         str(page_text or ""),
         re.IGNORECASE,
     )
@@ -1210,12 +1211,15 @@ def _hdrezka_parse_response(
     season: Optional[int],
     episode: Optional[int],
     quality_mapping: Any,
+    episode_evidence: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], bool]:
     try:
         payload = json.loads(response_text)
     except (TypeError, ValueError):
         return [], False
     if not isinstance(payload, dict):
+        return [], False
+    if payload.get("success") is False:
         return [], False
     raw_value = payload.get("url")
     if raw_value in (None, "", [], {}):
@@ -1248,6 +1252,8 @@ def _hdrezka_parse_response(
             stream["season"] = int(season)
         if episode is not None:
             stream["episode"] = int(episode)
+        if season is not None and episode is not None and episode_evidence:
+            stream["transport_metadata"]={"hdrezka_episode_verified":True,"hdrezka_episode_evidence":episode_evidence}
         if subtitles:
             stream["subtitles"] = list(subtitles)
         streams.append(stream)
@@ -1326,6 +1332,30 @@ def _resolve_hdrezka(
     if re.search(r"<title>Sign In</title>", page_text, re.IGNORECASE):
         return [], "hdrezka:AUTH_REQUIRED"
 
+    series_request = season is not None and episode is not None
+    episode_page_verified = not series_request
+    if series_request:
+        article_match=re.match(r"(\d+)(?:-|$)",source_path.rsplit("/",1)[-1])
+        article_id=article_match.group(1) if article_match else ""
+        episode_page_verified = bool(article_id) and selected_episode(page_text,article_id) == (int(season),int(episode))
+        if not episode_page_verified:
+            episode_url=exact_episode_page(page_text,page_url,int(season),int(episode))
+            if episode_url:
+                episode_headers={"User-Agent":user_agent,**dynamic_headers,"Referer":page_url}
+                try:
+                    if fetch_text_with_headers is not None:
+                        episode_text,episode_headers_response,episode_error=fetch_text_with_headers(episode_url,episode_headers)
+                        new_cookie=_hdrezka_cookie_header(episode_headers_response)
+                    else:
+                        episode_text,episode_error=fetch_text(episode_url,episode_headers)
+                        new_cookie=""
+                except Exception:
+                    episode_text,episode_error=None,"EPISODE_PAGE_ERROR"
+                if not episode_error and isinstance(episode_text,str) and bool(article_id) and selected_episode(episode_text,article_id)==(int(season),int(episode)):
+                    page_text,page_url=episode_text,episode_url
+                    if new_cookie:page_cookie_header=new_cookie
+                    episode_page_verified=True
+
     merged = _merged_source(source)
     disabled_raw = merged.get("disabled_tids")
     disabled = {
@@ -1344,7 +1374,7 @@ def _resolve_hdrezka(
     embedded_streams: List[Dict[str, Any]] = []
     embedded_dynamic_required = False
     embedded = re.search(r'(\{"id":"cdnplayer".*?\})\);', page_text, re.IGNORECASE | re.DOTALL)
-    if embedded:
+    if embedded and episode_page_verified:
         initial_translator_id = _hdrezka_initial_translator_id(page_text)
         active_voice = next(
             (
@@ -1369,6 +1399,7 @@ def _resolve_hdrezka(
             season=season,
             episode=episode,
             quality_mapping=config.get("q"),
+            episode_evidence="embedded-page" if series_request else None,
         )
 
     if not translators:
@@ -1386,7 +1417,7 @@ def _resolve_hdrezka(
         # without an embedded CDN playlist need the AJAX endpoint. This avoids
         # unnecessary/blocked POST requests and preserves the translator voice.
         cdn_url = str(translator.get("cdn_url") or "").strip()
-        if cdn_url:
+        if cdn_url and episode_page_verified and (not series_request or str(translator.get("active")) == "1"):
             direct_for_voice, needs_dynamic = _hdrezka_parse_response(
                 json.dumps({"url": cdn_url}),
                 source,
@@ -1397,6 +1428,7 @@ def _resolve_hdrezka(
                 season=season,
                 episode=episode,
                 quality_mapping=config.get("q"),
+                episode_evidence="translator-page" if series_request else None,
             )
             dynamic_decoder_required = dynamic_decoder_required or needs_dynamic
             if direct_for_voice:
@@ -1449,7 +1481,7 @@ def _resolve_hdrezka(
                 time.sleep(0.1 * (2 ** attempt))
         if not response_text or last_error:
             provider_errors.append(str(last_error or "EMPTY_RESPONSE")[:120])
-            if str(last_error or "").startswith("HTTP_ERROR:403") and embedded_streams:
+            if str(last_error or "").startswith("HTTP_ERROR:403"):
                 break
             continue
 
@@ -1463,6 +1495,7 @@ def _resolve_hdrezka(
             season=season,
             episode=episode,
             quality_mapping=config.get("q"),
+            episode_evidence="episode-ajax" if series_request else None,
         )
         dynamic_decoder_required = dynamic_decoder_required or needs_dynamic
         all_streams.extend(parsed_streams)

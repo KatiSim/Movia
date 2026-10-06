@@ -380,7 +380,10 @@ class PlaybackSession(context: Context) {
                 when (playbackState) {
                     Player.STATE_READY -> {
                         val request = playbackRequest
-                        if (request != null && app.movia.android.domain.playback.MediaContentIdentityPolicy.durationMismatch(request, player.duration)) {
+                        if (request != null && app.movia.android.domain.playback.MediaContentIdentityPolicy.durationMismatch(
+                                request, player.duration,
+                                app.movia.android.domain.playback.MediaContentIdentityPolicy.episodeDuration(request, candidates),
+                            )) {
                             player.stop()
                             handleCandidateFailure("CONTENT_DURATION_MISMATCH", request.startPositionMs, playbackGeneration, StreamFailureClass.NON_NETWORK)
                             return

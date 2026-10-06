@@ -1,0 +1,13 @@
+{
+  "versionCode": 333,
+  "tests": 201,
+  "failures": 0,
+  "errors": 0,
+  "uiInteraction": false,
+  "sha256": "4e580e63a86d0a5dad56be8eb62644239a6f4b1f034a12214747e9982a5b3afe",
+  "coldHeadlessReadyMs": 4115,
+  "foregroundServiceConfirmed": true,
+  "pid": "15181",
+  "fatalExceptionSeen": false,
+  "status": "BUILD_INSTALL_COLD_HEADLESS_PASS"
+}

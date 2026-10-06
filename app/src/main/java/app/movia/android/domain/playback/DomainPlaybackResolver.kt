@@ -577,6 +577,10 @@ object DomainPlaybackResolver {
         }
         if (request.isSeries) {
             if (candidate.seasonNumber != request.seasonNumber || candidate.episodeNumber != request.episodeNumber) return false
+            val isHdrezka = candidate.providerId.equals("movia:hdrezka", ignoreCase = true) ||
+                candidate.provider.equals("HDRezka", ignoreCase = true)
+            if (isHdrezka && (candidate.transportMetadata["hdrezka_episode_verified"] != "true" ||
+                    (candidate.transportMetadata["expected_episode_duration_ms"]?.toLongOrNull() ?: 0L) <= 0L)) return false
         } else if (candidate.seasonNumber != null || candidate.episodeNumber != null) {
             return false
         }

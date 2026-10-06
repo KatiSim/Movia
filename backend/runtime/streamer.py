@@ -36,6 +36,7 @@ from playback_resolver_shadow_audit import audit_streams as audit_source_truth_s
 from playback_candidate_policy import audit_candidate_policy, select_candidate_policy
 from stream_validation import (
     bind_stream_identity,
+    episode_coordinate,
     canonical_stream_locator,
     is_valid_magnet,
     sanitize_streams,
@@ -190,10 +191,8 @@ def enrich_stream_identity(
         info_hash = str(
             stream.get("info_hash") or stream.get("infoHash") or ""
         ).strip() or (match.group(1).lower() if match else "")
-        resolved_season = stream.get("season")
-        resolved_episode = stream.get("episode")
-        stream["season"] = season if resolved_season is None else resolved_season
-        stream["episode"] = episode if resolved_episode is None else resolved_episode
+        # Request coordinates are not evidence of a concrete episode.
+        # Preserve only coordinates returned by the provider/file resolver.
         if info_hash:
             stream["info_hash"] = info_hash
         existing_id = str(
@@ -2371,134 +2370,7 @@ def rank_playback_streams(
     )
 
 def _stream_part_number(stream: Dict[str, Any], key: str) -> Optional[int]:
-    value = stream.get(key)
-    if value is None or str(value).strip() == "":
-        return None
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def _torrent_declared_seasons(stream: Dict[str, Any]) -> Optional[set[int]]:
-    """Return explicitly advertised seasons from torrent metadata/name.
-
-    ``None`` means the torrent name does not make a reliable season claim, so it
-    remains eligible as a generic fallback. A non-empty set is authoritative
-    enough to reject a request outside that advertised coverage before aria2 is
-    started.
-    """
-    url = str(stream.get("url") or "").strip()
-    transport = str(stream.get("transport") or "").strip().casefold()
-    if not (url.lower().startswith("magnet:") or transport in {"torrent", "p2p", "torrent_p2p", "magnet"}):
-        return None
-
-    text = _torrent_release_identity_text(stream)
-    if not text:
-        return None
-
-    seasons: set[int] = set()
-    declared = False
-
-    # Common release forms: [S01-04], S01-S04, S05, S05E06.
-    for match in re.finditer(r"(?i)\bS0*(\d{1,2})\s*[-–—]\s*S?0*(\d{1,2})(?!\d)", text):
-        declared = True
-        start, end = int(match.group(1)), int(match.group(2))
-        if 0 < start <= end <= 99:
-            seasons.update(range(start, end + 1))
-    for match in re.finditer(r"(?i)\bS0*(\d{1,2})(?!\d)", text):
-        declared = True
-        value = int(match.group(1))
-        if 0 < value <= 99:
-            seasons.add(value)
-
-    # Russian release labels occasionally use "Сезоны 1-4" / "Сезон 5".
-    for match in re.finditer(r"(?i)\bсезон(?:ы|а|ов)?\s*0*(\d{1,2})\s*[-–—]\s*0*(\d{1,2})(?!\d)", text):
-        declared = True
-        start, end = int(match.group(1)), int(match.group(2))
-        if 0 < start <= end <= 99:
-            seasons.update(range(start, end + 1))
-    for match in re.finditer(r"(?i)\bсезон\s*0*(\d{1,2})(?!\d)", text):
-        declared = True
-        value = int(match.group(1))
-        if 0 < value <= 99:
-            seasons.add(value)
-
-    return seasons if declared and seasons else None
-
-
-def _torrent_release_identity_text(stream: Dict[str, Any]) -> str:
-    texts = [
-        str(stream.get("name") or ""),
-        str(stream.get("title") or ""),
-        str(stream.get("release_name") or stream.get("releaseName") or ""),
-    ]
-    url = str(stream.get("url") or "").strip()
-    if url.lower().startswith("magnet:"):
-        try:
-            texts.extend(
-                str(value)
-                for value in urllib.parse.parse_qs(
-                    urllib.parse.urlsplit(url).query
-                ).get("dn", [])
-            )
-        except Exception:
-            pass
-    return " ".join(value for value in texts if value).strip()
-
-
-def _retarget_reusable_multiseason_torrent_packs(
-    streams: List[Dict[str, Any]],
-    season: Optional[int],
-    episode: Optional[int],
-) -> List[Dict[str, Any]]:
-    """Retarget stale per-episode annotations on an explicit multi-season pack.
-
-    Provider resolution historically persisted the same season pack after each
-    episode request, attaching that request's S/E to the shared magnet. Reusing
-    it for another season is safe only when the release explicitly advertises a
-    multi-season range and does not advertise one exact SxxEyy. The torrent
-    gateway still validates the requested episode against exact file paths.
-    """
-    if season is None or episode is None:
-        return [dict(item) for item in streams if isinstance(item, dict)]
-    target_season = int(season)
-    target_episode = int(episode)
-    result: List[Dict[str, Any]] = []
-    for raw in streams:
-        if not isinstance(raw, dict):
-            continue
-        item = dict(raw)
-        url = str(item.get("url") or "").strip()
-        if not url.lower().startswith("magnet:"):
-            result.append(item)
-            continue
-        declared = _torrent_declared_seasons(item)
-        release_text = _torrent_release_identity_text(item)
-        explicit_episode = bool(re.search(
-            r"(?i)\bS0*\d{1,2}\s*E0*\d{1,3}\b", release_text
-        ))
-        if (
-            declared is None
-            or len(declared) < 2
-            or target_season not in declared
-            or explicit_episode
-        ):
-            result.append(item)
-            continue
-        if (
-            _stream_part_number(item, "season") != target_season
-            or _stream_part_number(item, "episode") != target_episode
-        ):
-            item["season"] = target_season
-            item["episode"] = target_episode
-            for key in (
-                "file_index", "fileIndex", "file_path", "filePath",
-                "local_path", "localPath", "local_ready", "localReady",
-            ):
-                item.pop(key, None)
-        result.append(item)
-    return result
+    return episode_coordinate(stream.get(key))
 
 
 def filter_streams_for_episode(
@@ -2506,39 +2378,15 @@ def filter_streams_for_episode(
     season: Optional[int] = None,
     episode: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
-    """Keep only streams compatible with the requested episode.
-
-    Explicitly tagged streams from another season/episode are never returned.
-    Untagged streams are retained only as a last-resort generic series/torrent
-    package; the torrent playback layer still selects the requested file.
-    """
-    clean = sanitize_streams(streams, require_source=True)
+    """Publish only provider/file evidence of the exact requested episode."""
+    clean=sanitize_streams(streams,require_source=True)
     if season is None and episode is None:
         return clean
-
-    compatible: List[Dict[str, Any]] = []
-    generic: List[Dict[str, Any]] = []
-    for stream in clean:
-        stream_season = _stream_part_number(stream, "season")
-        stream_episode = _stream_part_number(stream, "episode")
-        if season is not None and stream_season is not None and stream_season != int(season):
-            continue
-        if episode is not None and stream_episode is not None and stream_episode != int(episode):
-            continue
-        if season is not None and stream_season is None and stream_episode is None:
-            declared_seasons = _torrent_declared_seasons(stream)
-            if declared_seasons is not None and int(season) not in declared_seasons:
-                continue
-        compatible.append(stream)
-        if stream_season is None and stream_episode is None:
-            generic.append(stream)
-
-    exact = [
-        stream for stream in compatible
-        if (season is None or _stream_part_number(stream, "season") == int(season))
-        and (episode is None or _stream_part_number(stream, "episode") == int(episode))
-    ]
-    return exact or generic
+    if episode_coordinate(season) is None or episode_coordinate(episode) is None:
+        return []
+    return [row for row in clean
+            if _stream_part_number(row,"season")==episode_coordinate(season)
+            and _stream_part_number(row,"episode")==episode_coordinate(episode)]
 
 
 def _resolve_torrent_provider(
@@ -2857,7 +2705,6 @@ def _scope_streams_to_catalog_card(
     clean = sanitize_streams(streams, require_source=True)
     if not identity:
         return clean
-    clean = _retarget_reusable_multiseason_torrent_packs(clean, season, episode)
     try:
         from stream_identity import filter_streams_for_content
 
@@ -3160,10 +3007,8 @@ def resolve_on_demand_streams(
             if not isinstance(candidate, dict):
                 continue
             candidate = dict(candidate)
-            if candidate.get("season") is None:
-                candidate["season"] = season
-            if candidate.get("episode") is None:
-                candidate["episode"] = episode
+            # Never manufacture S/E from the requested card. Exact provider
+            # coordinates must survive the content filter below.
             candidates.append(candidate)
         streams = enrich_stream_identity(
             _scope_streams_to_catalog_card(

@@ -8,8 +8,9 @@ logging and candidate metadata are owned by Movia.
 """
 from __future__ import annotations
 import logging,re
+from threading import BoundedSemaphore
 from concurrent.futures import ThreadPoolExecutor,wait
-from media_content_probe import catalog_duration_seconds,duration_matches,measure_mp4
+from media_content_probe import catalog_duration_seconds,duration_matches,measure_mp4,measure_hls_content
 from typing import Any,Dict,List,Optional,Tuple
 from urllib.parse import quote,urlparse
 import requests
@@ -20,6 +21,21 @@ from zona_legacy_adapters import _resolve_hdrezka,HDREZKA_DEFAULT_USER_AGENT
 
 logger=logging.getLogger('hdrezka_provider_adapter')
 _CONTENT_PROBES=ThreadPoolExecutor(max_workers=8,thread_name_prefix='movia-content-probe')
+# Bound running + queued measurements across concurrent articles. Inventory is
+# retained when probe capacity is exhausted; unknown metadata stays unknown.
+_CONTENT_PROBE_SLOTS=BoundedSemaphore(24)
+
+def _submit_content_probe(measure,url,headers):
+    if not _CONTENT_PROBE_SLOTS.acquire(blocking=False):
+        return None
+    slots=_CONTENT_PROBE_SLOTS
+    try:
+        future=_CONTENT_PROBES.submit(measure,url,headers)
+    except Exception:
+        slots.release()
+        raise
+    future.add_done_callback(lambda _:slots.release())
+    return future
 BASE='https://rezka.ag'
 DEF=ProviderDefinition(provider_id='movia:hdrezka',name='HDRezka',family='movia-rewrite',capabilities=frozenset({'movie','series','exact-identity','voice','quality'}),request_profile=ProviderRequestProfile(user_agent=HDREZKA_DEFAULT_USER_AGENT,base_urls=(BASE,),properties={'architecture':'provider-contract-variant-tree'}))
 
@@ -72,9 +88,10 @@ def search_exact(title:str,year:Optional[int],accepted_titles=())->Tuple[List[Pr
 
 class HDRezkaProviderAdapter:
     definition=DEF
-    def __init__(self,measure=measure_mp4,expected_duration=catalog_duration_seconds):
+    def __init__(self,measure=measure_mp4,expected_duration=catalog_duration_seconds,measure_playlist=measure_hls_content):
         self.measure=measure
         self.expected_duration=expected_duration
+        self.measure_playlist=measure_playlist
     def search(self,request:ProviderRequest,aliases=()):
         accepted=[]
         for value in (request.title,*tuple(aliases or ())):
@@ -104,31 +121,66 @@ class HDRezkaProviderAdapter:
         article=ProviderArticle(DEF,source.item_id,source.title,source.year,source.article_ref,source.content_ref)
         groups:Dict[str,List[VariantStream]]={}
         expected=self.expected_duration(request)
-        probes={}
-        if expected:
+        probes={};playlist_urls=set()
+        if expected or request.is_series_request:
             for row in streams:
                 url=str(row.get('url') or '').strip()
-                if urlparse(url).path.lower().endswith('.mp4') and url not in probes:
-                    probes[url]=_CONTENT_PROBES.submit(self.measure,url,dict(row.get('headers') or {}))
-            done,_=wait(list(probes.values()),timeout=2.5) if probes else (set(),set())
+                path=urlparse(url).path.lower()
+                measure=None
+                if path.endswith('.mp4'):measure=self.measure
+                elif request.is_series_request and path.endswith('.m3u8') and (row.get('transport_metadata') or {}).get('hdrezka_episode_verified') is True:
+                    measure=self.measure_playlist;playlist_urls.add(url)
+                if measure is not None and url not in probes:
+                    future=_submit_content_probe(measure,url,dict(row.get('headers') or {}))
+                    if future is not None:probes[url]=future
+            done,pending=wait(list(probes.values()),timeout=2.5) if probes else (set(),set())
+            for future in pending:future.cancel()
         else:done=set()
+        measurements={}
+        for url,future in probes.items():
+            if future not in done:continue
+            try:value=future.result()
+            except Exception:continue
+            if isinstance(value,(float,int)) and not isinstance(value,bool):value={'duration':value,'container':'hls'}
+            if isinstance(value,dict):measurements[url]=value
+        # Independent qualities of a complete media playlist must agree before
+        # its runtime is applied to the other representations of this episode.
+        verified_playlists=set((url,str(row.get('quality')),measurements[url]['duration'])
+            for row in streams for url in [str(row.get('url') or '').strip()]
+            if url in playlist_urls and measurements.get(url,{}).get('container')=='hls')
+        episode_runtime=None
+        runtime_clusters=[]
+        for url,quality,duration in verified_playlists:
+            group=[(u,q,d) for u,q,d in verified_playlists if abs(d-duration)<=max(1,duration*.02)]
+            if len({q for u,q,d in group})>=2 and len({u for u,q,d in group})>=2:
+                runtime_clusters.append(group)
+        if runtime_clusters:
+            score=max(len({q for u,q,d in g}) for g in runtime_clusters)
+            best=[g for g in runtime_clusters if len({q for u,q,d in g})==score]
+            runtimes=[sum(d for u,q,d in g)/len(g) for g in best]
+            # Equally supported conflicting runtimes remain unknown.
+            if max(runtimes)-min(runtimes)<=max(1,min(runtimes)*.02):episode_runtime=runtimes[0]
+        if request.is_series_request and episode_runtime is None:
+            logger.info('HDRezka exact episode content unverified media_id=%s season=%s episode=%s',request.media_id,request.season,request.episode)
+            return None,None,'HDREZKA_EPISODE_CONTENT_UNVERIFIED'
+        if not expected and episode_runtime:expected=episode_runtime
         for i,row in enumerate(streams):
             url=str(row.get('url') or '').strip()
             if not url:continue
+            if request.is_series_request and (row.get('season'),row.get('episode')) != (request.season,request.episode):
+                continue
+            if request.is_series_request and (row.get('transport_metadata') or {}).get('hdrezka_episode_verified') is not True:
+                continue
             voice=str(row.get('voice') or row.get('translation') or 'Не указано').strip() or 'Не указано'
             quality=str(row.get('quality') or 'Не указано').strip() or 'Не указано'
-            measured=None
-            future=probes.get(url)
-            if future in done:
-                try:measured=future.result()
-                except Exception:pass
-            if measured and not duration_matches(measured.get('duration'),expected):
+            measured=measurements.get(url)
+            if measured and expected and not duration_matches(measured.get('duration'),expected):
                 logger.warning('HDRezka content duration mismatch media_id=%s actual=%s expected=%s',request.media_id,measured.get('duration'),expected)
                 continue
-            if measured:
+            if measured and measured.get('height'):
                 quality=str(measured['height'])+'p'
             key=f'{source.item_id}|{voice.casefold()}|{quality.casefold()}|{i}'
-            leaf=VariantStream(url=url,stream_key=key,voice=voice,quality=quality,season=request.season,episode=request.episode,headers=dict(row.get('headers') or {}),user_agent=str(row.get('user_agent') or HDREZKA_DEFAULT_USER_AGENT),subtitles=tuple(dict(x) for x in (row.get('subtitle_list') or row.get('subtitles') or []) if isinstance(x,dict)),audio_track_index=row.get('audio_track_index'),transport=str(row.get('transport') or ('hls' if '.m3u8' in url else 'direct')),reload_supported=True,transport_metadata=({"measured_duration_ms":int(measured["duration"]*1000),"measured_height":measured["height"]} if measured else {}))
+            leaf=VariantStream(url=url,stream_key=key,voice=voice,quality=quality,season=request.season,episode=request.episode,headers=dict(row.get('headers') or {}),user_agent=str(row.get('user_agent') or HDREZKA_DEFAULT_USER_AGENT),subtitles=tuple(dict(x) for x in (row.get('subtitle_list') or row.get('subtitles') or []) if isinstance(x,dict)),audio_track_index=row.get('audio_track_index'),transport=str(row.get('transport') or ('hls' if '.m3u8' in url else 'direct')),reload_supported=True,transport_metadata={**dict(row.get('transport_metadata') or {}),**({'expected_episode_duration_ms':int(episode_runtime*1000)} if episode_runtime else {}),**({"measured_duration_ms":int(measured["duration"]*1000),**({"measured_height":measured['height']} if measured.get('height') else {})} if measured else {})})
             groups.setdefault(voice,[]).append(leaf)
         voices=tuple(VariantFolder(voice=v,season=request.season,episode=request.episode,children=tuple(ls)) for v,ls in groups.items() if ls)
         if not voices:return None,None,'HDREZKA_NO_PLAYABLE_LEAVES'

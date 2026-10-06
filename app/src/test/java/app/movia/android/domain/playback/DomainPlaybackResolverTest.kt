@@ -672,4 +672,19 @@ class DomainPlaybackResolverTest {
         assertEquals(2,DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old),listOf(fresh),request).size)
     }
 
+    @Test fun cachedHdrezkaEpisodeNeedsProviderEvidenceBeyondRequestedCoordinates() {
+        val request=PlaybackRequest(mediaId="159", title="Breaking Bad", mediaType=ContentType.SERIES,
+            year=2008, seasonNumber=1, episodeNumber=2)
+        val stale=StreamCandidate(stableStreamId="old-pilot", provider="HDRezka", providerId="movia:hdrezka",
+            url="https://cdn.example/pilot.m3u8", catalogMediaId="159", canonicalTitle="Breaking Bad",
+            canonicalYear=2008, canonicalMediaType="tv", seasonNumber=1, episodeNumber=2)
+        assertTrue(DomainPlaybackResolver.validatedCandidates(request,listOf(stale)).isEmpty())
+        val verified=stale.copy(stableStreamId="exact-episode", transportMetadata=mapOf(
+            "hdrezka_episode_verified" to "true", "hdrezka_episode_evidence" to "embedded-page",
+            "expected_episode_duration_ms" to "2892955"))
+        assertEquals(listOf(verified),DomainPlaybackResolver.validatedCandidates(request,listOf(verified)))
+        assertTrue(DomainPlaybackResolver.validatedCandidates(request,listOf(verified.copy(episodeNumber=1))).isEmpty())
+        val anotherProvider=stale.copy(provider="Collaps",providerId="movia:collaps")
+        assertEquals(listOf(anotherProvider),DomainPlaybackResolver.validatedCandidates(request,listOf(anotherProvider)))
+    }
 }

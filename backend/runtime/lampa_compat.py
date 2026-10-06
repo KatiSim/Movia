@@ -93,6 +93,16 @@ def _positive_int(value: Any, *, maximum: int = 10000) -> Optional[int]:
     return parsed
 
 
+def _episode_number(value: Any, maximum: int) -> Optional[int]:
+    if isinstance(value,bool) or not isinstance(value,(str,int)):
+        return None
+    text=str(value).strip()
+    if not text.isascii() or not text.isdigit():
+        return None
+    number=int(text)
+    return number if 0 < number <= maximum else None
+
+
 def _valid_btih(value: Any) -> bool:
     text = _text(value)
     return bool(
@@ -391,16 +401,16 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
     raw_episode = _first_value(raw, "episode", "Episode")
     if raw_episode is None:
         raw_episode = _first_value(info, "episode", "Episode")
-    season = _positive_int(raw_season, maximum=99)
-    episode = _positive_int(raw_episode, maximum=999)
+    season = _episode_number(raw_season, maximum=99)
+    episode = _episode_number(raw_episode, maximum=999)
     if season == 0:
         season = None
     if episode == 0:
         episode = None
     parsed = parsed_title
-    if season is None:
+    if season is None and raw_season is None:
         season = parsed.get("season")
-    if episode is None:
+    if episode is None and raw_episode is None:
         episode = parsed.get("episode")
     if season is not None:
         result["season"] = season

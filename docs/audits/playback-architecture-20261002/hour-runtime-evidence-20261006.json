@@ -1,0 +1,2161 @@
+{
+  "note": "Earlier cases intentionally document pre-fix failures on 332; final 333 cases record actual outcomes, including transport instability. Full offline download and Spider-Man decoded playback are not claimed.",
+  "downloadGuard": {
+    "case": "333_idle_download_enqueue_delete",
+    "enqueueCompleted": true,
+    "testTitle": "Movia QA idle download guard",
+    "testJobCleaned": true,
+    "fatalExceptionSeen": false,
+    "scope": "Idle scheduler crash regression only; full offline download unverified"
+  },
+  "events": [
+    {
+      "case": "interstellar_720_start",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 122
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "quality": "720p",
+        "voice": "Дубляж",
+        "source": "HDRezka",
+        "fallbackReason": "PLAYER_ERROR",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Источник работает медленно. Пытаемся восстановить воспроизведение…"
+      },
+      "media3": {
+        "playbackState": "IDLE",
+        "playbackStateCode": 1,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "playerErrorCode": "ERROR_CODE_IO_BAD_HTTP_STATUS",
+        "playerErrorCause": "InvalidResponseCodeException",
+        "mediaItemId": "158",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      },
+      "probeFrames": 0,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "videoTracks": [],
+      "audioTracks": []
+    },
+    {
+      "case": "collaps_english",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 122
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 132609,
+        "durationMs": 10144225,
+        "bufferedMs": 180006,
+        "requestedStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "activeStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "requestedQuality": "720p",
+        "requestedVoice": "Original (с субтитрами)",
+        "activeQuality": "720p",
+        "activeVoice": "Original (с субтитрами)",
+        "quality": "720p",
+        "voice": "Original (с субтитрами)",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 180006,
+        "currentPositionMs": 132632,
+        "selectedAudioLabel": "eng6",
+        "selectedAudioLanguage": "en",
+        "speed": 1
+      },
+      "probeFrames": 3205,
+      "readyLatencyMs": 4579,
+      "firstFrameLatencyMs": 4537,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": false
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "collaps_english_360",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 152341,
+        "durationMs": 10144225,
+        "bufferedMs": 191444,
+        "requestedStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "activeStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "requestedQuality": "360p",
+        "requestedVoice": "Original (с субтитрами)",
+        "activeQuality": "360p",
+        "activeVoice": "Original (с субтитрами)",
+        "quality": "360p",
+        "voice": "Original (с субтитрами)",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 191444,
+        "currentPositionMs": 152391,
+        "selectedAudioLabel": "eng6",
+        "selectedAudioLanguage": "en",
+        "speed": 1
+      },
+      "probeFrames": 3673,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": false
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "collaps_russian_index4",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 183095,
+        "durationMs": 10144225,
+        "bufferedMs": 210007,
+        "requestedStreamId": "collaps_tt0816692_%D0%94.%20%D0%95%D1%81%D0%B0%D1%80%D0%B5%D0%B2",
+        "activeStreamId": "collaps_tt0816692_%D0%94.%20%D0%95%D1%81%D0%B0%D1%80%D0%B5%D0%B2",
+        "requestedQuality": "360p",
+        "requestedVoice": "Д. Есарев",
+        "activeQuality": "360p",
+        "activeVoice": "Д. Есарев",
+        "quality": "360p",
+        "voice": "Д. Есарев",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 210007,
+        "currentPositionMs": 183095,
+        "selectedAudioLabel": "rus4",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 4405,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "cached_short_leaf_guard",
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 194335,
+        "durationMs": 10144225,
+        "bufferedMs": 194335,
+        "requestedStreamId": "stream:b18b6d1be724993a5b453226",
+        "requestedQuality": "360p",
+        "requestedVoice": "Дубляж",
+        "quality": "360p",
+        "voice": "Дубляж",
+        "source": "HDRezka",
+        "fallbackReason": "PLAYER_ERROR",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 194335,
+        "currentPositionMs": 194335,
+        "speed": 1
+      }
+    },
+    {
+      "case": "cached_short_leaf_guard_after_fallback",
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 194335,
+        "durationMs": 10144225,
+        "bufferedMs": 194335,
+        "requestedStreamId": "stream:b18b6d1be724993a5b453226",
+        "requestedQuality": "360p",
+        "requestedVoice": "Дубляж",
+        "quality": "360p",
+        "voice": "Дубляж",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_PLAYER_ERROR",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 194335,
+        "currentPositionMs": 194335,
+        "speed": 1
+      }
+    },
+    {
+      "case": "spiderman_2002",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 18
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "226",
+        "title": "Человек-паук",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "quality": "720p",
+        "voice": "Дубляж",
+        "source": "YTS",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "226",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "226",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      }
+    },
+    {
+      "case": "spiderman_1977",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 1
+      },
+      "playback": {
+        "status": "IDLE",
+        "switchState": "FAILED",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "621453",
+        "title": "Spider-Man",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "720p",
+        "requestedVoice": "Auto",
+        "quality": "720p",
+        "voice": "Auto",
+        "source": "Apibay",
+        "fallbackReason": "EXHAUSTED_BUFFERING_TIMEOUT",
+        "mediaItemId": "621453",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Не удалось найти стабильный источник."
+      },
+      "media3": {
+        "playbackState": "IDLE",
+        "playbackStateCode": 1,
+        "domainPlaybackState": "IDLE",
+        "switchState": "FAILED",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "621453",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      }
+    },
+    {
+      "case": "breaking_bad_s01e01",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 44
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E01 · Эпизод 1",
+        "season": 1,
+        "episode": 1,
+        "positionMs": 890,
+        "durationMs": 3486554,
+        "bufferedMs": 33791,
+        "requestedStreamId": "stream:43cb8740d5d28aa187a99858",
+        "activeStreamId": "collaps_tt0903747_s1e1_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "activeQuality": "720p",
+        "activeVoice": "Дубляж",
+        "quality": "720p",
+        "voice": "Дубляж",
+        "source": "Collaps",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 38125,
+        "currentPositionMs": 1014,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 4695,
+      "coordinates": [
+        {
+          "id": "collaps_tt0903747_s1e1_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_%D0%9A%D1%83%D0%B1%D0%B8%D0%BA%20%D0%B2%20%D0%9A%D1%83%D0%B1%D0%B5",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_LostFilm",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_Original%20%28English%29",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_%D0%93%D0%BE%D0%B1%D0%BB%D0%B8%D0%BD%20%28%D0%9F%D1%83%D1%87%D0%BA%D0%BE%D0%B2%29",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_%D0%AE.%20%D0%A1%D0%B5%D1%80%D0%B1%D0%B8%D0%BD",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_AMC%20%28%D1%83%D0%BA%D1%80%29",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_Eng.%20Orig.%20with%20Commentary",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "collaps_tt0903747_s1e1_Fox",
+          "season": 1,
+          "episode": 1
+        },
+        {
+          "id": "stream:43cb8740d5d28aa187a99858",
+          "season": 1,
+          "episode": 1,
+          "provider": "movia:torrent:rutor"
+        },
+        {
+          "id": "stream:ddb23a607f68340782949ee9",
+          "season": 1,
+          "episode": 1,
+          "provider": "movia:torrent:rutor"
+        },
+        {
+          "id": "stream:34074aaafb7235e81b9225e6",
+          "season": 1,
+          "episode": 1,
+          "provider": "movia:torrent:rutor"
+        }
+      ]
+    },
+    {
+      "case": "breaking_bad_s01e01_english",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E01 · Эпизод 1",
+        "season": 1,
+        "episode": 1,
+        "positionMs": 20340,
+        "durationMs": 3486554,
+        "bufferedMs": 60002,
+        "requestedStreamId": "collaps_tt0903747_s1e1_Original%20%28English%29",
+        "activeStreamId": "collaps_tt0903747_s1e1_Original%20%28English%29",
+        "requestedQuality": "720p",
+        "requestedVoice": "Original (с субтитрами)",
+        "activeQuality": "720p",
+        "activeVoice": "Original (с субтитрами)",
+        "quality": "720p",
+        "voice": "Original (с субтитрами)",
+        "source": "Collaps",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 60002,
+        "currentPositionMs": 20498,
+        "selectedAudioLabel": "eng7",
+        "selectedAudioLanguage": "en",
+        "speed": 1
+      }
+    },
+    {
+      "case": "breaking_bad_s01e02",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 21
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "quality": "720p",
+        "voice": "Дубляж",
+        "source": "Rutor",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      }
+    },
+    {
+      "case": "breaking_bad_s01e02_after_deploy",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 41
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 44977,
+        "durationMs": 3486549,
+        "bufferedMs": 78910,
+        "activeStreamId": "stream:704325f26ff7af5a99b6538c",
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "activeQuality": "720p",
+        "activeVoice": "Не указано",
+        "quality": "720p",
+        "voice": "Не указано",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 78910,
+        "currentPositionMs": 45119,
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      }
+    },
+    {
+      "case": "exact_hdrezka_s01e02_hls_after_episode_page_fix",
+      "playback": {
+        "status": "ENDED",
+        "switchState": "READY",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 60096,
+        "durationMs": 60075,
+        "bufferedMs": 60075,
+        "requestedStreamId": "stream:b22af6f4dbc240366098e255",
+        "activeStreamId": "stream:b22af6f4dbc240366098e255",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "1080p",
+        "activeVoice": "TVShows",
+        "quality": "1080p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "ENDED",
+        "playbackStateCode": 4,
+        "domainPlaybackState": "ENDED",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1920,
+        "videoHeight": 1080,
+        "bufferedPositionMs": 60075,
+        "currentPositionMs": 60096,
+        "speed": 1
+      },
+      "probeFrames": 1526
+    },
+    {
+      "case": "333_exact_s01e02_initial",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 29
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 0,
+        "durationMs": 2892955,
+        "bufferedMs": 583,
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 583,
+        "currentPositionMs": 0,
+        "speed": 1
+      },
+      "probeFrames": 1,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_exact_s01e02_full_runtime",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 29
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 1790,
+        "durationMs": 2892955,
+        "bufferedMs": 1790,
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 1790,
+        "currentPositionMs": 1790,
+        "speed": 1
+      },
+      "probeFrames": 43,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_exact_s01e02_hls720",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 29
+      },
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 1790,
+        "durationMs": 2892955,
+        "bufferedMs": 1790,
+        "requestedStreamId": "stream:d979e3baf9c53704a38f6f7d",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 1790,
+        "currentPositionMs": 1790,
+        "speed": 1
+      },
+      "probeFrames": 44,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_exact_s01e02_hls480_recovered_full_playback",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 29
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 145492,
+        "durationMs": 2892955,
+        "bufferedMs": 168006,
+        "requestedStreamId": "stream:b9de1622e56011576e1760d0",
+        "activeStreamId": "stream:b9de1622e56011576e1760d0",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "480p",
+        "activeVoice": "TVShows",
+        "quality": "480p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 854,
+        "videoHeight": 480,
+        "bufferedPositionMs": 168006,
+        "currentPositionMs": 145513,
+        "speed": 1
+      },
+      "probeFrames": 689,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_english720",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 113
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 7438,
+        "durationMs": 10144225,
+        "bufferedMs": 50017,
+        "requestedStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "activeStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "requestedQuality": "720p",
+        "requestedVoice": "Original (с субтитрами)",
+        "activeQuality": "720p",
+        "activeVoice": "Original (с субтитрами)",
+        "quality": "720p",
+        "voice": "Original (с субтитрами)",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 50017,
+        "currentPositionMs": 7630,
+        "selectedAudioLabel": "eng6",
+        "selectedAudioLanguage": "en",
+        "speed": 1
+      },
+      "probeFrames": 934,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": false
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_english360",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 113
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 28386,
+        "durationMs": 10144225,
+        "bufferedMs": 70010,
+        "requestedStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "activeStreamId": "collaps_tt0816692_Original%20%28English%29",
+        "requestedQuality": "360p",
+        "requestedVoice": "Original (с субтитрами)",
+        "activeQuality": "360p",
+        "activeVoice": "Original (с субтитрами)",
+        "quality": "360p",
+        "voice": "Original (с субтитрами)",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 70010,
+        "currentPositionMs": 28518,
+        "selectedAudioLabel": "eng6",
+        "selectedAudioLanguage": "en",
+        "speed": 1
+      },
+      "probeFrames": 1360,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": false
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": true
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_dub",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 37964,
+        "durationMs": 10144225,
+        "bufferedMs": 80018,
+        "requestedStreamId": "collaps_tt0816692_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+        "activeStreamId": "collaps_tt0816692_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+        "requestedQuality": "360p",
+        "requestedVoice": "Дубляж",
+        "activeQuality": "360p",
+        "activeVoice": "Дубляж",
+        "quality": "360p",
+        "voice": "Дубляж",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 80018,
+        "currentPositionMs": 38015,
+        "selectedAudioLabel": "rus0",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 1672,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_serbin",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 52891,
+        "durationMs": 10144225,
+        "bufferedMs": 90003,
+        "requestedStreamId": "collaps_tt0816692_%D0%AE.%20%D0%A1%D0%B5%D1%80%D0%B1%D0%B8%D0%BD",
+        "activeStreamId": "collaps_tt0816692_%D0%AE.%20%D0%A1%D0%B5%D1%80%D0%B1%D0%B8%D0%BD",
+        "requestedQuality": "360p",
+        "requestedVoice": "Ю. Сербин",
+        "activeQuality": "360p",
+        "activeVoice": "Ю. Сербин",
+        "quality": "360p",
+        "voice": "Ю. Сербин",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 90003,
+        "currentPositionMs": 52901,
+        "selectedAudioLabel": "rus2",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 1911,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_zhivov",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 63664,
+        "durationMs": 10144225,
+        "bufferedMs": 110019,
+        "requestedStreamId": "collaps_tt0816692_%D0%AE.%20%D0%96%D0%B8%D0%B2%D0%BE%D0%B2",
+        "activeStreamId": "collaps_tt0816692_%D0%AE.%20%D0%96%D0%B8%D0%B2%D0%BE%D0%B2",
+        "requestedQuality": "360p",
+        "requestedVoice": "Ю. Живов",
+        "activeQuality": "360p",
+        "activeVoice": "Ю. Живов",
+        "quality": "360p",
+        "voice": "Ю. Живов",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 110019,
+        "currentPositionMs": 63756,
+        "selectedAudioLabel": "rus3",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 2294,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_omikron",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 69885,
+        "durationMs": 10144225,
+        "bufferedMs": 120004,
+        "requestedStreamId": "collaps_tt0816692_%D0%9E%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D0%BD",
+        "activeStreamId": "collaps_tt0816692_%D0%9E%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D0%BD",
+        "requestedQuality": "360p",
+        "requestedVoice": "Омикрон",
+        "activeQuality": "360p",
+        "activeVoice": "Омикрон",
+        "quality": "360p",
+        "voice": "Омикрон",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 120004,
+        "currentPositionMs": 69906,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 2358,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_esarev",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 79164,
+        "durationMs": 10144225,
+        "bufferedMs": 120004,
+        "requestedStreamId": "collaps_tt0816692_%D0%94.%20%D0%95%D1%81%D0%B0%D1%80%D0%B5%D0%B2",
+        "activeStreamId": "collaps_tt0816692_%D0%94.%20%D0%95%D1%81%D0%B0%D1%80%D0%B5%D0%B2",
+        "requestedQuality": "360p",
+        "requestedVoice": "Д. Есарев",
+        "activeQuality": "360p",
+        "activeVoice": "Д. Есарев",
+        "quality": "360p",
+        "voice": "Д. Есарев",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 120004,
+        "currentPositionMs": 79278,
+        "selectedAudioLabel": "rus4",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "probeFrames": 2656,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_voice_ukrainian",
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 89704,
+        "durationMs": 10144225,
+        "bufferedMs": 130012,
+        "requestedStreamId": "collaps_tt0816692_%D0%A3%D0%BA%D1%80.%20%D0%94%D1%83%D0%B1%D0%BB%D1%8C%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9",
+        "activeStreamId": "collaps_tt0816692_%D0%A3%D0%BA%D1%80.%20%D0%94%D1%83%D0%B1%D0%BB%D1%8C%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9",
+        "requestedQuality": "360p",
+        "requestedVoice": "Укр. Дубльований",
+        "activeQuality": "360p",
+        "activeVoice": "Укр. Дубльований",
+        "quality": "360p",
+        "voice": "Укр. Дубльований",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 130012,
+        "currentPositionMs": 89826,
+        "selectedAudioLabel": "ukr5",
+        "selectedAudioLanguage": "uk",
+        "speed": 1
+      },
+      "probeFrames": 2907,
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": true
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_interstellar_ukrainian720_return",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 113
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "158",
+        "title": "Интерстеллар",
+        "positionMs": 102566,
+        "durationMs": 10144225,
+        "bufferedMs": 140020,
+        "requestedStreamId": "collaps_tt0816692_%D0%A3%D0%BA%D1%80.%20%D0%94%D1%83%D0%B1%D0%BB%D1%8C%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9",
+        "activeStreamId": "collaps_tt0816692_%D0%A3%D0%BA%D1%80.%20%D0%94%D1%83%D0%B1%D0%BB%D1%8C%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9",
+        "requestedQuality": "720p",
+        "requestedVoice": "Укр. Дубльований",
+        "activeQuality": "720p",
+        "activeVoice": "Укр. Дубльований",
+        "quality": "720p",
+        "voice": "Укр. Дубльований",
+        "source": "Collaps",
+        "mediaItemId": "158",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "158",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 140020,
+        "currentPositionMs": 102660,
+        "selectedAudioLabel": "ukr5",
+        "selectedAudioLanguage": "uk",
+        "speed": 1
+      },
+      "probeFrames": 3222,
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": false
+        }
+      ],
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "ukr5",
+          "language": "uk",
+          "selected": true
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "eng6",
+          "language": "en",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "case": "333_series_stale_short_leaf_excluded",
+      "candidateCount": 29,
+      "staleId": "stream:b22af6f4dbc240366098e255",
+      "stalePresent": false,
+      "hdRows": [
+        {
+          "id": "stream:6e37c142421c11e6f177f877",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true"
+          }
+        },
+        {
+          "id": "stream:3524b4c2392ea68185ef50d3",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true",
+            "measured_duration_ms": "2892955"
+          }
+        },
+        {
+          "id": "stream:03b480d16d394dbecf4b6d63",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true"
+          }
+        },
+        {
+          "id": "stream:8037227f8364aa2201530c58",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true",
+            "measured_duration_ms": "2892955"
+          }
+        },
+        {
+          "id": "stream:c6b07d9118bb065a0530c9d4",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true"
+          }
+        },
+        {
+          "id": "stream:60445975f3fe3e5ac85c1a30",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true",
+            "measured_duration_ms": "2892955"
+          }
+        },
+        {
+          "id": "stream:01fb428e1254f09f0b8d6458",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true"
+          }
+        },
+        {
+          "id": "stream:6f8c078fb0d183b240e60739",
+          "season": 1,
+          "episode": 2,
+          "meta": {
+            "expected_episode_duration_ms": "2892955",
+            "hdrezka_episode_evidence": "embedded-page",
+            "hdrezka_episode_verified": "true",
+            "measured_duration_ms": "2892955"
+          }
+        }
+      ]
+    },
+    {
+      "case": "333_stale_series_select_rejected",
+      "code": "STREAM_NOT_FOUND",
+      "httpStatus": 400
+    },
+    {
+      "case": "333_spiderman_2002_identity",
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "226",
+        "title": "Человек-паук",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "quality": "Auto",
+        "voice": "Auto",
+        "source": "HDRezka",
+        "mediaItemId": "226",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Готовим видео"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "226",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      }
+    },
+    {
+      "case": "333_spiderman_1977_identity",
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "621453",
+        "title": "Spider-Man",
+        "positionMs": 0,
+        "durationMs": 0,
+        "bufferedMs": 0,
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "quality": "Auto",
+        "voice": "Auto",
+        "source": "Apibay",
+        "mediaItemId": "621453",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Готовим видео"
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "PREBUFFERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "621453",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      }
+    }
+  ]
+}

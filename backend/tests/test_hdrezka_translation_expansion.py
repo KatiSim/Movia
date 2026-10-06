@@ -210,5 +210,68 @@ class HdrezkaTranslationExpansionTests(unittest.TestCase):
         self.assertEqual("Не указано", streams[0]["voice"])
 
 
+class HdrezkaExactEpisodeTests(unittest.TestCase):
+    def page(self,episode,link=True):
+        target='<a class="b-simple_episode__item" data-season_id="1" data-episode_id="2" href="https://rezka.ag/series/drama/123-example/10-dub/1-season/2-episode.html">2</a>' if link else ''
+        return f"""<a class="b-simple_episode__item active" data-id="123" data-season_id="1" data-episode_id="{episode}">active</a>
+        {target}<li class="b-translator__item active" data-id="123" data-translator_id="10" title="Dub">Dub</li>
+        <script>playerInit({{"id":"cdnplayer","url":"[720p]https://cdn.example/episode{episode}.mp4"}});</script>"""
+
+    def resolve(self,page_fetch,post=None):
+        config={"u":"Fixture-UA","q":{},"_headers":{},"_account":{}}
+        with patch.object(a,"_hdrezka_get_config",return_value=config):
+            return a._resolve_hdrezka({"downloadLinkKey":"series/drama/123-example"},fetch_text=page_fetch,fetch_post_form_text=post or (lambda *_:(None,"HTTP_ERROR:403")),request_user_agent="Fixture-UA",season=1,episode=2)
+
+    def test_default_pilot_fallback_cannot_be_labeled_as_second_episode(self):
+        rows,error=self.resolve(lambda *_:(self.page(1,False),None))
+        self.assertEqual([],rows);self.assertIn('PROVIDER_ERROR',error)
+
+    def test_exact_public_episode_page_establishes_embedded_player_identity(self):
+        visited=[]
+        def fetch(url,headers):
+            visited.append(url)
+            return self.page(2 if url.endswith('/2-episode.html') else 1),None
+        rows,error=self.resolve(fetch)
+        self.assertIsNone(error);self.assertEqual(1,len(rows));self.assertTrue(visited[-1].endswith('/2-episode.html'))
+        self.assertTrue(rows[0]['url'].endswith('episode2.mp4'))
+        self.assertEqual((1,2),(rows[0]['season'],rows[0]['episode']))
+        self.assertEqual('embedded-page',rows[0]['transport_metadata']['hdrezka_episode_evidence'])
+
+    def test_episode_link_redirecting_back_to_pilot_fails_closed(self):
+        rows,error=self.resolve(lambda *_:(self.page(1),None))
+        self.assertEqual([],rows)
+
+    def test_episode_page_from_another_article_is_rejected_even_with_matching_numbers(self):
+        def fetch(url,headers):
+            page=self.page(2).replace('data-id="123"','data-id="999"') if url.endswith('/2-episode.html') else self.page(1)
+            return page,None
+        rows,error=self.resolve(fetch)
+        self.assertEqual([],rows)
+
+    def test_successful_exact_episode_ajax_is_valid_without_page_fallback(self):
+        forms=[]
+        def post(url,headers,form):
+            forms.append(form);return json.dumps({'success':True,'url':'[720p]https://cdn.example/episode2.mp4'}),None
+        rows,error=self.resolve(lambda *_:(self.page(1,False),None),post)
+        self.assertIsNone(error);self.assertEqual(('1','2'),(forms[0]['season'],forms[0]['episode']))
+        self.assertEqual('episode-ajax',rows[0]['transport_metadata']['hdrezka_episode_evidence'])
+
+    def test_same_article_link_and_unique_active_coordinates_are_required(self):
+        from hdrezka_episode_identity import selected_episode,exact_episode_page
+        page=self.page(1)
+        self.assertEqual((1,1),selected_episode(page))
+        self.assertIsNone(selected_episode(page+self.page(2)))
+        wrong=page.replace('/series/drama/123-example/10-dub/','/series/drama/999-another/10-dub/')
+        self.assertIsNone(exact_episode_page(wrong,'https://rezka.ag/series/drama/123-example.html',1,2))
+
+    def test_old_cached_hdrezka_episode_without_provider_evidence_is_rejected(self):
+        from stream_identity import filter_streams_for_content
+        card={'id':159,'title':'Во все тяжкие','year':2008,'media_type':'tv','season':1,'episode':2}
+        row={'source':'HDRezka','provider_id':'movia:hdrezka','url':'https://cdn.example/pilot.mp4','voice':'Dub','quality':'720p','season':1,'episode':2}
+        self.assertEqual([],filter_streams_for_content([row],card))
+        row['transport_metadata']={'hdrezka_episode_verified':True,'hdrezka_episode_evidence':'episode-ajax','expected_episode_duration_ms':2880000}
+        self.assertEqual(1,len(filter_streams_for_content([row],card)))
+
+
 if __name__ == "__main__":
     unittest.main()

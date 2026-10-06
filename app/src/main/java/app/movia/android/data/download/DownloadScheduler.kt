@@ -51,7 +51,7 @@ object DownloadScheduler {
         val networkType = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
         val session = app.movia.android.ui.player.MoviaPlaybackRegistry.current
         val active = session?.state?.value
-        val selection = active?.takeIf { MediaRef(it.mediaId, it.seasonNumber, it.episodeNumber) == mediaRef }?.activeStreamSelection
+        val selection = active?.takeIf { DownloadPlaybackIdentity.matches(mediaRef, it.mediaId, it.seasonNumber, it.episodeNumber) }?.activeStreamSelection
         val audio = if (selection != null) session?.selectedDownloadAudio() else null
         val input = workDataOf(
             OfflineDownloadWorker.KEY_TITLE to title,
@@ -125,7 +125,7 @@ object DownloadScheduler {
 
     private fun delete(context: Context, title: String, mediaRef: MediaRef?): Boolean {
         val active = app.movia.android.ui.player.MoviaPlaybackRegistry.current
-        if (active?.isOffline == true && active.state.value.let { MediaRef(it.mediaId, it.seasonNumber, it.episodeNumber) } == mediaRef) return false
+        if (active?.isOffline == true && active.state.value.let { DownloadPlaybackIdentity.matches(mediaRef, it.mediaId, it.seasonNumber, it.episodeNumber) }) return false
         if (mediaRef != null && AdaptiveOfflineDownloader.isDownloading(mediaRef)) {
             WorkManager.getInstance(context).cancelUniqueWork(uniqueWorkName(title, mediaRef))
             return false

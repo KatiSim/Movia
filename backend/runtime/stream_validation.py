@@ -352,6 +352,20 @@ def _safe_reload_data(value: Any, *, depth: int = 0) -> Any:
     return None
 
 
+def episode_coordinate(value: Any) -> Optional[int]:
+    """An explicit positive integer, never a bool or truncated fraction."""
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        return None
+    text=str(value).strip()
+    if not text.isascii() or not text.isdigit():
+        return None
+    try:
+        number=int(text)
+    except (ValueError,OverflowError):
+        return None
+    return number if 0 < number <= 2_147_483_647 else None
+
+
 def bind_stream_identity(
     streams: Any,
     *,
@@ -382,6 +396,12 @@ def bind_stream_identity(
     result: List[Dict[str, Any]] = []
     for raw in clean:
         item = dict(raw)
+        # Binding the card does not establish an episode. Require provider or
+        # exact file evidence before attaching canonical identity annotations.
+        if season is not None and (episode_coordinate(season) is None or episode_coordinate(item.get("season")) != episode_coordinate(season)):
+            continue
+        if episode is not None and (episode_coordinate(episode) is None or episode_coordinate(item.get("episode")) != episode_coordinate(episode)):
+            continue
         if media_id:
             item["catalog_media_id"] = media_id
         if canonical_title:
