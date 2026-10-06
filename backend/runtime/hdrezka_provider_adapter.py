@@ -3,8 +3,8 @@
 
 Reimplements verified provider behavior: exact search result -> article ->
 translator/episode branches -> concrete stream leaves. Existing Movia transport
-helpers are reused only for HTTP/provider decoding; identity, tree composition,
-logging and candidate metadata are owned by Movia.
+transport is independently implemented in hdrezka_transport; identity, tree
+composition, logging and candidate metadata are owned by Movia.
 """
 from __future__ import annotations
 import logging,re
@@ -17,7 +17,7 @@ import requests
 from bs4 import BeautifulSoup
 from catalog_schema_v2 import normalize_ru_text
 from provider_contract import ProviderArticle,ProviderDefinition,ProviderRequest,ProviderRequestProfile,ProviderSearchResult,VariantFolder,VariantStream
-from zona_legacy_adapters import _resolve_hdrezka,HDREZKA_DEFAULT_USER_AGENT
+from hdrezka_transport import resolve_hdrezka as _resolve_hdrezka,HDREZKA_DEFAULT_USER_AGENT
 
 logger=logging.getLogger('hdrezka_provider_adapter')
 _CONTENT_PROBES=ThreadPoolExecutor(max_workers=8,thread_name_prefix='movia-content-probe')
@@ -55,7 +55,7 @@ def _get_headers(url:str,headers:Dict[str,str]):
 
 def _post(url:str,headers:Dict[str,str],form:Dict[str,str]):
     try:
-        r=requests.post(url,headers=headers,data=form,timeout=5)
+        r=requests.post(url,headers=headers,data=form,timeout=(1,2))
         return (r.text,None) if r.status_code==200 else (None,f'HTTP_ERROR:{r.status_code}')
     except Exception as e:return None,type(e).__name__
 
@@ -123,12 +123,30 @@ class HDRezkaProviderAdapter:
         expected=self.expected_duration(request)
         probes={};playlist_urls=set()
         if expected or request.is_series_request:
-            for row in streams:
+            voices = list(dict.fromkeys(str(row.get('voice') or '') for row in streams))
+            voice_order = {voice:index for index,voice in enumerate(voices)}
+            counts = {}
+            ordered = []
+            def probe_priority(row):
+                meta = row.get('transport_metadata') or {}
+                if not meta.get('hdrezka_native_transport'):
+                    return (0,0)
+                label = str(row.get('advertised_quality') or '')
+                numeric = re.search(r'(2160|1440|1080|720|576|480|360|240)', label)
+                # Scheduling only: a published label never establishes dimensions.
+                return (1 if '<' in label else 0, -int(numeric.group(1)) if numeric else 0)
+            for row in sorted(streams,key=probe_priority):
+                voice = str(row.get('voice') or '')
+                is_hls = urlparse(str(row.get('url') or '')).path.lower().endswith('.m3u8')
+                key = (voice,is_hls)
+                turn = counts.get(key,0); counts[key] = turn+1
+                ordered.append((0 if is_hls else 1,turn//2,voice_order[voice],turn,row))
+            for _,_,_,_,row in sorted(ordered,key=lambda item:item[:4]):
                 url=str(row.get('url') or '').strip()
                 path=urlparse(url).path.lower()
                 measure=None
                 if path.endswith('.mp4'):measure=self.measure
-                elif request.is_series_request and path.endswith('.m3u8') and (row.get('transport_metadata') or {}).get('hdrezka_episode_verified') is True:
+                elif path.endswith('.m3u8') and ((row.get('transport_metadata') or {}).get('hdrezka_native_transport') is True or (request.is_series_request and (row.get('transport_metadata') or {}).get('hdrezka_episode_verified') is True)):
                     measure=self.measure_playlist;playlist_urls.add(url)
                 if measure is not None and url not in probes:
                     future=_submit_content_probe(measure,url,dict(row.get('headers') or {}))
@@ -145,7 +163,7 @@ class HDRezkaProviderAdapter:
             if isinstance(value,dict):measurements[url]=value
         # Independent qualities of a complete media playlist must agree before
         # its runtime is applied to the other representations of this episode.
-        verified_playlists=set((url,str(row.get('quality')),measurements[url]['duration'])
+        verified_playlists=set((url,str(row.get('advertised_quality') or row.get('quality')),measurements[url]['duration'])
             for row in streams for url in [str(row.get('url') or '').strip()]
             if url in playlist_urls and measurements.get(url,{}).get('container')=='hls')
         episode_runtime=None

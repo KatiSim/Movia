@@ -118,6 +118,13 @@ object StreamRanker {
         !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic
     }
 
+    private fun preferredVoicePool(candidates: List<StreamCandidate>, context: StreamRankingContext): List<StreamCandidate> {
+        val healthy = healthyPool(candidates, context.failedStreamIds)
+        val voice = activeRequestedVoice(context) ?: return healthy
+        val matching = healthy.filter { !it.isTrailer && requestedVoiceMatches(it, voice) }
+        return matching.ifEmpty { healthy }
+    }
+
     private fun activeRequestedVoice(context: StreamRankingContext): String? =
         context.requestedVoice?.trim()?.takeUnless {
             it.isBlank() || it.equals("Auto", ignoreCase = true) || it.equals("Any", ignoreCase = true)
@@ -254,6 +261,14 @@ object StreamRanker {
      * P2P viability are first-class signals; transport/provider remain stable
      * final tie-breaks. A direct URL has no unconditional priority.
      */
+    /** Measured complete content wins only after user preferences and observed health. */
+    private fun contentEvidencePenalty(candidate: StreamCandidate): Int {
+        val measured = candidate.transportMetadata["measured_duration_ms"]?.toLongOrNull() ?: return 1
+        val expected = candidate.transportMetadata["expected_episode_duration_ms"]?.toLongOrNull() ?: return 1
+        if (measured <= 0L || expected <= 0L) return 1
+        return if (measured.toDouble() in expected * 0.7..expected * 1.4) 0 else 1
+    }
+
     fun rankCandidates(
         candidates: List<StreamCandidate>,
         failedStreamIds: Set<String> = emptySet(),
@@ -275,6 +290,7 @@ object StreamRanker {
                 .thenBy { if (hasPeers(it)) 0 else 1 }
                 .thenByDescending { it.seeders }
                 .thenBy { defaultQualityRank(it.quality) }
+                .thenBy { contentEvidencePenalty(it) }
                 .thenBy { normalized(it.transport) }
                 .thenBy { normalized(it.provider) }
                 .thenBy { it.stableStreamId },
@@ -295,11 +311,12 @@ object StreamRanker {
             requestedQuality = requestedQuality,
             failedStreamIds = context.failedStreamIds + failedStreamIds,
         )
-        val strict = strictBestGroup(candidates, effectiveContext)
+        val preferred = preferredVoicePool(candidates, effectiveContext)
+        val strict = strictBestGroup(preferred, effectiveContext)
         if (strict.isNotEmpty()) {
             return rankCandidates(strict, context = effectiveContext).firstOrNull()
         }
-        val better = betterGroup(candidates, effectiveContext)
+        val better = betterGroup(preferred, effectiveContext)
         return rankCandidates(better, context = effectiveContext).firstOrNull()
     }
 
@@ -308,8 +325,9 @@ object StreamRanker {
         candidates: List<StreamCandidate>,
         context: StreamRankingContext,
     ): List<StreamCandidate> {
-        val better = betterGroup(candidates, context)
-        val strict = strictBestGroup(candidates, context)
+        val preferred = preferredVoicePool(candidates, context)
+        val better = betterGroup(preferred, context)
+        val strict = strictBestGroup(preferred, context)
         val seen = linkedSetOf<String>()
         val ordered = ArrayList<StreamCandidate>()
         fun appendRanked(group: List<StreamCandidate>) {
@@ -319,6 +337,7 @@ object StreamRanker {
         }
         appendRanked(better)
         appendRanked(strict)
+        appendRanked(preferred)
         appendRanked(healthyPool(candidates, context.failedStreamIds))
         return ordered
     }

@@ -1,0 +1,192 @@
+[
+  {
+    "jobId": "job_20261006_211254_36c7ec46",
+    "records": [
+      {
+        "mediaId": "158",
+        "season": null,
+        "episode": null,
+        "leaves": 110,
+        "voices": [
+          "Белорусский двухголосый",
+          "Грузинский многоголосый",
+          "Дубляж",
+          "Есарев",
+          "Живов",
+          "Одноголосый закадровый",
+          "Оригинал (+субтитры)",
+          "Сербин",
+          "Студия Омикрон",
+          "Украинский дубляж"
+        ],
+        "advertised": [
+          "1080p",
+          "360p",
+          "480p",
+          "720p",
+          "<span class=\"pjs-prem-quality\">1080p Ultra<img src=\"http://static.rezka.cloud/templates/hdrezka/images/prem-icon.svg\" alt=\"\"></span>"
+        ],
+        "error": null,
+        "elapsed": 4.61
+      },
+      {
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "leaves": 100,
+        "voices": [
+          "HDrezka в Кубе (Kubik³)",
+          "TVShows",
+          "Амедиа (Amedia)",
+          "Гоблин",
+          "Дубляж",
+          "Оригинал (+субтитры)",
+          "Сербин",
+          "Украинский многоголосый",
+          "лостфильм (LostFilm)"
+        ],
+        "advertised": [
+          "1080p",
+          "360p",
+          "480p",
+          "720p",
+          "<span class=\"pjs-prem-quality\">1080p Ultra<img src=\"http://static.rezka.cloud/templates/hdrezka/images/prem-icon.svg\" alt=\"\"></span>",
+          "<span class=\"pjs-prem-quality\">4K<img src=\"http://static.rezka.cloud/templates/hdrezka/images/prem-icon.svg\" alt=\"\"></span>"
+        ],
+        "error": null,
+        "elapsed": 5.64
+      }
+    ]
+  },
+  {
+    "jobId": "job_20261006_212326_dc356406",
+    "records": [
+      {
+        "run": 0,
+        "error": null,
+        "leaves": 100,
+        "voices": {
+          "TVShows": {
+            "qualities": [
+              "Не указано",
+              "720p"
+            ],
+            "measured": 3
+          },
+          "Дубляж": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 4
+          },
+          "Амедиа (Amedia)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 4
+          },
+          "HDrezka в Кубе (Kubik³)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "лостфильм (LostFilm)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Гоблин": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Сербин": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Украинский многоголосый": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Оригинал (+субтитры)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 1
+          }
+        },
+        "elapsed": 5.66
+      },
+      {
+        "run": 1,
+        "error": null,
+        "leaves": 100,
+        "voices": {
+          "TVShows": {
+            "qualities": [
+              "Не указано",
+              "720p"
+            ],
+            "measured": 4
+          },
+          "Дубляж": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 4
+          },
+          "Амедиа (Amedia)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 4
+          },
+          "HDrezka в Кубе (Kubik³)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "лостфильм (LostFilm)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Гоблин": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Сербин": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Украинский многоголосый": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          },
+          "Оригинал (+субтитры)": {
+            "qualities": [
+              "Не указано"
+            ],
+            "measured": 2
+          }
+        },
+        "elapsed": 5.47
+      }
+    ]
+  }
+]

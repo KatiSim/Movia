@@ -1,0 +1,1951 @@
+{
+  "preFinalCases": [
+    {
+      "case": "334_native_s01e02_initial",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 37
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 9386,
+        "durationMs": 2892955,
+        "bufferedMs": 48048,
+        "activeStreamId": "stream:7436e7fc2346080a2385c506",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "720p",
+        "activeVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 48048,
+        "currentPositionMs": 9500,
+        "speed": 1
+      },
+      "probeFrames": 261,
+      "readyLatencyMs": 3624,
+      "firstFrameLatencyMs": 3471
+    },
+    {
+      "case": "334_native_s01e02_original_explicit_stream",
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 135
+      },
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 29228,
+        "durationMs": 2884903,
+        "bufferedMs": 72054,
+        "requestedStreamId": "stream:d532ff4d7a9066337e585b55",
+        "activeStreamId": "stream:d532ff4d7a9066337e585b55",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "720p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 72054,
+        "currentPositionMs": 29360,
+        "speed": 1
+      },
+      "probeFrames": 1913,
+      "readyLatencyMs": 1535,
+      "firstFrameLatencyMs": 1465
+    }
+  ],
+  "installed335Cases": [
+    {
+      "case": "335_automatic_original_start_action",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_automatic_original720",
+      "passed": true,
+      "elapsedMs": 2100,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 62,
+        "durationMs": 2884903,
+        "bufferedMs": 6047,
+        "activeStreamId": "stream:d532ff4d7a9066337e585b55",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "720p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 135
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 7090,
+        "currentPositionMs": 138,
+        "speed": 1
+      },
+      "voice": "Оригинал (+субтитры)",
+      "quality": "720p",
+      "frames": 7,
+      "readyLatencyMs": 1662,
+      "firstFrameLatencyMs": 1608,
+      "selected": {
+        "streamId": "stream:d532ff4d7a9066337e585b55",
+        "source": "HDRezka",
+        "voice": "Оригинал (+субтитры)",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2886301",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_quality480_action",
+      "result": {
+        "status": null,
+        "errorCode": "QUALITY_NOT_FOUND"
+      }
+    },
+    {
+      "case": "335_original_unmeasured_branch_switch_action",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_original_measured480_branch_position",
+      "passed": false,
+      "elapsedMs": 25581,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 120000,
+        "durationMs": 2884903,
+        "bufferedMs": 120000,
+        "requestedStreamId": "stream:dc20e7ad405f07ee8f93780c",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "quality": "720p",
+        "voice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Источник работает медленно. Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 120000,
+        "currentPositionMs": 120000,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 8,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "TVShows",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_TVShows",
+      "passed": true,
+      "elapsedMs": 2006,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 120593,
+        "durationMs": 2892955,
+        "bufferedMs": 134556,
+        "requestedStreamId": "stream:b76d5c4ebd8a3bc249174882",
+        "activeStreamId": "stream:b76d5c4ebd8a3bc249174882",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "720p",
+        "activeVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 135223,
+        "currentPositionMs": 120668,
+        "speed": 1
+      },
+      "voice": "TVShows",
+      "quality": "720p",
+      "frames": 26,
+      "readyLatencyMs": 1353,
+      "firstFrameLatencyMs": 1266,
+      "selected": {
+        "streamId": "stream:b76d5c4ebd8a3bc249174882",
+        "source": "HDRezka",
+        "voice": "TVShows",
+        "quality": "720p",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2886301",
+        "hdrezka_episode_evidence": "embedded-page",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2892955"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "Сербин",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_Сербин",
+      "passed": false,
+      "elapsedMs": 22310,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 120819,
+        "durationMs": 2884903,
+        "bufferedMs": 120819,
+        "requestedStreamId": "stream:25e5f2bd3934d5902eb49b78",
+        "requestedQuality": "720p",
+        "requestedVoice": "Сербин",
+        "quality": "720p",
+        "voice": "Сербин",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 120819,
+        "currentPositionMs": 120819,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 27,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    },
+    {
+      "case": "335_explicit_native_voice_action",
+      "voice": "Сербин",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_native_voice_Сербин",
+      "passed": false,
+      "elapsedMs": 22229,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 120819,
+        "durationMs": 2884903,
+        "bufferedMs": 120819,
+        "requestedStreamId": "stream:25e5f2bd3934d5902eb49b78",
+        "requestedQuality": "720p",
+        "requestedVoice": "Сербин",
+        "quality": "720p",
+        "voice": "Сербин",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 120819,
+        "currentPositionMs": 120819,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 27,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "Дубляж",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_Дубляж",
+      "passed": true,
+      "elapsedMs": 1960,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 120843,
+        "durationMs": 2884903,
+        "bufferedMs": 126006,
+        "requestedStreamId": "stream:26843d04f9dfcffe7adf5c1e",
+        "activeStreamId": "stream:26843d04f9dfcffe7adf5c1e",
+        "requestedQuality": "720p",
+        "requestedVoice": "Дубляж",
+        "activeQuality": "360p",
+        "activeVoice": "Дубляж",
+        "quality": "360p",
+        "voice": "Дубляж",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 129050,
+        "currentPositionMs": 120957,
+        "speed": 1
+      },
+      "voice": "Дубляж",
+      "quality": "360p",
+      "frames": 38,
+      "readyLatencyMs": 1638,
+      "firstFrameLatencyMs": 1551,
+      "selected": {
+        "streamId": "stream:26843d04f9dfcffe7adf5c1e",
+        "source": "HDRezka",
+        "voice": "Дубляж",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "480p",
+        "expected_episode_duration_ms": "2885973",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "360p",
+          "height": 360,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "Амедиа (Amedia)",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_Амедиа (Amedia)",
+      "passed": true,
+      "elapsedMs": 1507,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 121431,
+        "durationMs": 2884903,
+        "bufferedMs": 126214,
+        "requestedStreamId": "stream:9701d8c2b69625660daee713",
+        "activeStreamId": "stream:9701d8c2b69625660daee713",
+        "requestedQuality": "720p",
+        "requestedVoice": "Амедиа (Amedia)",
+        "activeQuality": "720p",
+        "activeVoice": "Амедиа (Amedia)",
+        "quality": "720p",
+        "voice": "Амедиа (Amedia)",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 128049,
+        "currentPositionMs": 121510,
+        "speed": 1
+      },
+      "voice": "Амедиа (Amedia)",
+      "quality": "720p",
+      "frames": 52,
+      "readyLatencyMs": 1182,
+      "firstFrameLatencyMs": 1111,
+      "selected": {
+        "streamId": "stream:9701d8c2b69625660daee713",
+        "source": "HDRezka",
+        "voice": "Амедиа (Amedia)",
+        "quality": "720p",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2886301",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "Гоблин",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_Гоблин",
+      "passed": false,
+      "elapsedMs": 22565,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 121794,
+        "durationMs": 2884903,
+        "bufferedMs": 121794,
+        "requestedStreamId": "stream:40071cb78d6c0b7b2819d0d1",
+        "requestedQuality": "720p",
+        "requestedVoice": "Гоблин",
+        "quality": "720p",
+        "voice": "Гоблин",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 121794,
+        "currentPositionMs": 121794,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 54,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_explicit_native_voice_action",
+      "voice": "Гоблин",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_native_voice_Гоблин",
+      "passed": true,
+      "elapsedMs": 3292,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 122326,
+        "durationMs": 2884903,
+        "bufferedMs": 125088,
+        "requestedStreamId": "stream:ac7d5e423991c6bb528983f9",
+        "activeStreamId": "stream:ac7d5e423991c6bb528983f9",
+        "requestedQuality": "720p",
+        "requestedVoice": "Гоблин",
+        "activeQuality": "720p",
+        "activeVoice": "Гоблин",
+        "quality": "720p",
+        "voice": "Гоблин",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 125588,
+        "currentPositionMs": 122399,
+        "speed": 1
+      },
+      "voice": "Гоблин",
+      "quality": "720p",
+      "frames": 71,
+      "readyLatencyMs": 2628,
+      "firstFrameLatencyMs": 2249,
+      "selected": {
+        "streamId": "stream:ac7d5e423991c6bb528983f9",
+        "source": "HDRezka",
+        "voice": "Гоблин",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2885973",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "HDrezka в Кубе (Kubik³)",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_HDrezka в Кубе (Kubik³)",
+      "passed": false,
+      "elapsedMs": 22313,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 122517,
+        "durationMs": 2884882,
+        "bufferedMs": 122517,
+        "requestedStreamId": "stream:4e18a335f1205ba496eff5d2",
+        "requestedQuality": "720p",
+        "requestedVoice": "HDrezka в Кубе (Kubik³)",
+        "quality": "720p",
+        "voice": "HDrezka в Кубе (Kubik³)",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Переключаем источник…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "SWITCHING_SOURCE",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 122517,
+        "currentPositionMs": 122517,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 73,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    },
+    {
+      "case": "335_explicit_native_voice_action",
+      "voice": "HDrezka в Кубе (Kubik³)",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_native_voice_HDrezka в Кубе (Kubik³)",
+      "passed": true,
+      "elapsedMs": 2673,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 122868,
+        "durationMs": 2884882,
+        "bufferedMs": 132012,
+        "requestedStreamId": "stream:4e18a335f1205ba496eff5d2",
+        "activeStreamId": "stream:4e18a335f1205ba496eff5d2",
+        "requestedQuality": "720p",
+        "requestedVoice": "HDrezka в Кубе (Kubik³)",
+        "activeQuality": "720p",
+        "activeVoice": "HDrezka в Кубе (Kubik³)",
+        "quality": "720p",
+        "voice": "HDrezka в Кубе (Kubik³)",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 134014,
+        "currentPositionMs": 123074,
+        "speed": 1
+      },
+      "voice": "HDrezka в Кубе (Kubik³)",
+      "quality": "720p",
+      "frames": 89,
+      "readyLatencyMs": 1925,
+      "firstFrameLatencyMs": 1831,
+      "selected": {
+        "streamId": "stream:4e18a335f1205ba496eff5d2",
+        "source": "HDRezka",
+        "voice": "HDrezka в Кубе (Kubik³)",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2885973",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884882"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "лостфильм (LostFilm)",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_лостфильм (LostFilm)",
+      "passed": true,
+      "elapsedMs": 1610,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 123225,
+        "durationMs": 2884903,
+        "bufferedMs": 126006,
+        "requestedStreamId": "stream:7a6044e95b61c410d0906f70",
+        "activeStreamId": "stream:7a6044e95b61c410d0906f70",
+        "requestedQuality": "720p",
+        "requestedVoice": "лостфильм (LostFilm)",
+        "activeQuality": "480p",
+        "activeVoice": "лостфильм (LostFilm)",
+        "quality": "480p",
+        "voice": "лостфильм (LostFilm)",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 854,
+        "videoHeight": 480,
+        "bufferedPositionMs": 128717,
+        "currentPositionMs": 123445,
+        "speed": 1
+      },
+      "voice": "лостфильм (LostFilm)",
+      "quality": "480p",
+      "frames": 100,
+      "readyLatencyMs": 1396,
+      "firstFrameLatencyMs": 1358,
+      "selected": {
+        "streamId": "stream:7a6044e95b61c410d0906f70",
+        "source": "HDRezka",
+        "voice": "лостфильм (LostFilm)",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "720p",
+        "expected_episode_duration_ms": "2885973",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_select_voice_action",
+      "voice": "Украинский многоголосый",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_voice_Украинский многоголосый",
+      "passed": true,
+      "elapsedMs": 2006,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 123825,
+        "durationMs": 2884903,
+        "bufferedMs": 128883,
+        "requestedStreamId": "stream:a20191779d5ad50a565a813e",
+        "activeStreamId": "stream:a20191779d5ad50a565a813e",
+        "requestedQuality": "720p",
+        "requestedVoice": "Украинский многоголосый",
+        "activeQuality": "720p",
+        "activeVoice": "Украинский многоголосый",
+        "quality": "720p",
+        "voice": "Украинский многоголосый",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 137
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 130218,
+        "currentPositionMs": 123898,
+        "speed": 1
+      },
+      "voice": "Украинский многоголосый",
+      "quality": "720p",
+      "frames": 114,
+      "readyLatencyMs": 1631,
+      "firstFrameLatencyMs": 1586,
+      "selected": {
+        "streamId": "stream:a20191779d5ad50a565a813e",
+        "source": "HDRezka",
+        "voice": "Украинский многоголосый",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2885973",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2884903"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_tvshows720_followup_start",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_tvshows720_quality_start",
+      "passed": true,
+      "elapsedMs": 5693,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 466,
+        "durationMs": 2892956,
+        "bufferedMs": 46504,
+        "activeStreamId": "stream:03b480d16d394dbecf4b6d63",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "720p",
+        "activeVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 138
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 46504,
+        "currentPositionMs": 498,
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "voice": "TVShows",
+      "quality": "720p",
+      "frames": 15,
+      "readyLatencyMs": 4945,
+      "firstFrameLatencyMs": 4868,
+      "selected": {
+        "streamId": "stream:03b480d16d394dbecf4b6d63",
+        "source": "HDRezka",
+        "voice": "TVShows",
+        "quality": "720p",
+        "transport": "direct"
+      },
+      "selectedMetadata": {
+        "expected_episode_duration_ms": "2892955",
+        "hdrezka_episode_evidence": "embedded-page",
+        "hdrezka_episode_verified": "true"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Русский",
+          "language": "ru",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_tvshows_quality480_action",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_tvshows480_position_preserved",
+      "passed": true,
+      "elapsedMs": 13662,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 150059,
+        "durationMs": 2892955,
+        "bufferedMs": 157382,
+        "requestedStreamId": "stream:3524b4c2392ea68185ef50d3",
+        "activeStreamId": "stream:3524b4c2392ea68185ef50d3",
+        "requestedQuality": "480p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "480p",
+        "activeVoice": "TVShows",
+        "quality": "480p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "fallbackReason": "RELOADED_BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 138
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 854,
+        "videoHeight": 480,
+        "bufferedPositionMs": 162053,
+        "currentPositionMs": 150221,
+        "speed": 1
+      },
+      "voice": "TVShows",
+      "quality": "480p",
+      "frames": 23,
+      "readyLatencyMs": 13433,
+      "firstFrameLatencyMs": 13317,
+      "selected": {
+        "streamId": "stream:3524b4c2392ea68185ef50d3",
+        "source": "HDRezka",
+        "voice": "TVShows",
+        "quality": "480p",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "expected_episode_duration_ms": "2892955",
+        "hdrezka_episode_evidence": "embedded-page",
+        "hdrezka_episode_verified": "true",
+        "measured_duration_ms": "2892955"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "480p",
+          "height": 480,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_tvshows_quality720_restore_action",
+      "result": {
+        "status": "completed",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_tvshows720_position_preserved",
+      "passed": true,
+      "elapsedMs": 1585,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 150351,
+        "durationMs": 2892955,
+        "bufferedMs": 151584,
+        "requestedStreamId": "stream:b76d5c4ebd8a3bc249174882",
+        "activeStreamId": "stream:b76d5c4ebd8a3bc249174882",
+        "requestedQuality": "720p",
+        "requestedVoice": "TVShows",
+        "activeQuality": "720p",
+        "activeVoice": "TVShows",
+        "quality": "720p",
+        "voice": "TVShows",
+        "source": "HDRezka",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 138
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 151751,
+        "currentPositionMs": 150382,
+        "speed": 1
+      },
+      "voice": "TVShows",
+      "quality": "720p",
+      "frames": 29,
+      "readyLatencyMs": 1633,
+      "firstFrameLatencyMs": 1179,
+      "selected": {
+        "streamId": "stream:b76d5c4ebd8a3bc249174882",
+        "source": "HDRezka",
+        "voice": "TVShows",
+        "quality": "720p",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "1080p",
+        "expected_episode_duration_ms": "2886301",
+        "hdrezka_episode_evidence": "embedded-page",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true",
+        "measured_duration_ms": "2892955"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_serbin_alternative_action",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "advertised": "720p"
+    },
+    {
+      "case": "335_serbin_alternative_720p",
+      "passed": false,
+      "elapsedMs": 12346,
+      "playback": {
+        "status": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playing": false,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 0,
+        "durationMs": 2884903,
+        "bufferedMs": 0,
+        "requestedStreamId": "stream:c3b99d0ecb1bc0b00004781d",
+        "requestedQuality": "1080p",
+        "requestedVoice": "Сербин",
+        "quality": "1080p",
+        "voice": "Сербин",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false,
+        "statusMessage": "Источник работает медленно. Пытаемся восстановить воспроизведение…"
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 237
+      },
+      "media3": {
+        "playbackState": "BUFFERING",
+        "playbackStateCode": 2,
+        "domainPlaybackState": "BUFFERING",
+        "switchState": "RECOVERING",
+        "playWhenReady": true,
+        "isPlaying": false,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 0,
+        "videoHeight": 0,
+        "bufferedPositionMs": 0,
+        "currentPositionMs": 0,
+        "speed": 1
+      },
+      "voice": null,
+      "quality": null,
+      "frames": 30,
+      "readyLatencyMs": null,
+      "firstFrameLatencyMs": null,
+      "selected": {
+        "streamId": null,
+        "source": null,
+        "voice": null,
+        "quality": null,
+        "transport": null
+      },
+      "selectedMetadata": {},
+      "audioTracks": [],
+      "videoTracks": []
+    },
+    {
+      "case": "335_serbin_alternative_action",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      },
+      "advertised": "480p"
+    },
+    {
+      "case": "335_serbin_alternative_480p",
+      "passed": true,
+      "elapsedMs": 1979,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E02 · Эпизод 2",
+        "season": 1,
+        "episode": 2,
+        "positionMs": 201,
+        "durationMs": 2884903,
+        "bufferedMs": 12053,
+        "requestedStreamId": "stream:5a69b3e3c894371572ac7261",
+        "activeStreamId": "stream:5a69b3e3c894371572ac7261",
+        "requestedQuality": "1080p",
+        "requestedVoice": "Сербин",
+        "activeQuality": "360p",
+        "activeVoice": "Сербин",
+        "quality": "360p",
+        "voice": "Сербин",
+        "source": "HDRezka",
+        "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "RESOLVED",
+        "providers": {
+          "movia:provider-service": "RESOLVED"
+        },
+        "candidateCount": 237
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 640,
+        "videoHeight": 360,
+        "bufferedPositionMs": 12053,
+        "currentPositionMs": 294,
+        "speed": 1
+      },
+      "voice": "Сербин",
+      "quality": "360p",
+      "frames": 39,
+      "readyLatencyMs": 1462,
+      "firstFrameLatencyMs": 1374,
+      "selected": {
+        "streamId": "stream:5a69b3e3c894371572ac7261",
+        "source": "HDRezka",
+        "voice": "Сербин",
+        "quality": "Не указано",
+        "transport": "hls"
+      },
+      "selectedMetadata": {
+        "advertised_quality": "480p",
+        "expected_episode_duration_ms": "2886242",
+        "hdrezka_episode_evidence": "episode-ajax",
+        "hdrezka_episode_verified": "true",
+        "hdrezka_native_transport": "true"
+      },
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "Аудиодорожка 1",
+          "selected": true
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "360p",
+          "height": 360,
+          "selected": true
+        }
+      ]
+    },
+    {
+      "case": "335_exact_s01e01_original_start",
+      "result": {
+        "status": "accepted",
+        "errorCode": null
+      }
+    },
+    {
+      "case": "335_exact_s01e01_original",
+      "passed": false,
+      "elapsedMs": 18214,
+      "playback": {
+        "status": "READY",
+        "switchState": "READY",
+        "playing": true,
+        "playWhenReady": true,
+        "mediaId": "159",
+        "title": "Во все тяжкие · S01E01 · Эпизод 1",
+        "season": 1,
+        "episode": 1,
+        "positionMs": 15816,
+        "durationMs": 3486554,
+        "bufferedMs": 51541,
+        "activeStreamId": "collaps_tt0903747_s1e1_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+        "requestedQuality": "720p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "720p",
+        "activeVoice": "Дубляж",
+        "quality": "720p",
+        "voice": "Дубляж",
+        "source": "Collaps",
+        "mediaItemId": "159",
+        "fullscreen": false,
+        "pip": false
+      },
+      "registry": {
+        "architecture": "movia-provider-registry",
+        "referenceRuntimeLoaded": false,
+        "status": "UNAVAILABLE",
+        "providers": {
+          "movia:provider-service": "UNAVAILABLE"
+        },
+        "candidateCount": 0
+      },
+      "media3": {
+        "playbackState": "READY",
+        "playbackStateCode": 3,
+        "domainPlaybackState": "READY",
+        "switchState": "READY",
+        "playWhenReady": true,
+        "isPlaying": true,
+        "playbackSuppressionReason": 0,
+        "mediaItemId": "159",
+        "videoWidth": 1280,
+        "videoHeight": 720,
+        "bufferedPositionMs": 51541,
+        "currentPositionMs": 15856,
+        "selectedAudioLabel": "rus1",
+        "selectedAudioLanguage": "ru",
+        "speed": 1
+      },
+      "voice": "Дубляж",
+      "quality": "720p",
+      "frames": 423,
+      "readyLatencyMs": 1719,
+      "firstFrameLatencyMs": 1658,
+      "selected": {
+        "streamId": "collaps_tt0903747_s1e1_%D0%94%D1%83%D0%B1%D0%BB%D1%8F%D0%B6",
+        "source": "Collaps",
+        "voice": "Дубляж",
+        "quality": "Auto",
+        "transport": "hls"
+      },
+      "selectedMetadata": {},
+      "audioTracks": [
+        {
+          "id": "track:1:1:0",
+          "voice": "rus0",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:2:0",
+          "voice": "rus1",
+          "language": "ru",
+          "selected": true
+        },
+        {
+          "id": "track:1:3:0",
+          "voice": "rus2",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:4:0",
+          "voice": "rus3",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:5:0",
+          "voice": "rus4",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:6:0",
+          "voice": "rus5",
+          "language": "ru",
+          "selected": false
+        },
+        {
+          "id": "track:1:7:0",
+          "voice": "ukr6",
+          "language": "uk",
+          "selected": false
+        },
+        {
+          "id": "track:1:8:0",
+          "voice": "eng7",
+          "language": "en",
+          "selected": false
+        },
+        {
+          "id": "track:1:9:0",
+          "voice": "eng8",
+          "language": "en",
+          "selected": false
+        }
+      ],
+      "videoTracks": [
+        {
+          "id": "track:2:0:0",
+          "quality": "720p",
+          "height": 720,
+          "selected": true
+        },
+        {
+          "id": "track:2:0:2",
+          "quality": "360p",
+          "height": 360,
+          "selected": false
+        }
+      ]
+    }
+  ],
+  "segmentProbes": [
+    {
+      "voice": "Оригинал (+субтитры)",
+      "advertisedLabel": "720p",
+      "manifestStatus": 200,
+      "errorType": "ConnectionError"
+    },
+    {
+      "voice": "Сербин",
+      "advertisedLabel": "1080p",
+      "manifestStatus": 200,
+      "errorType": "ConnectionError"
+    }
+  ],
+  "summary": {
+    "decodedNativeEpisodeVoices": [
+      "HDrezka в Кубе (Kubik³)",
+      "TVShows",
+      "Амедиа (Amedia)",
+      "Гоблин",
+      "Дубляж",
+      "Оригинал (+субтитры)",
+      "Сербин",
+      "Украинский многоголосый",
+      "лостфильм (LostFilm)"
+    ],
+    "decodedNativeEpisodeVoiceCount": 9,
+    "decodedHeights": [
+      360,
+      480,
+      720
+    ],
+    "qualitySwitchPreservedPosition": true,
+    "failedCasesRetained": [
+      "335_original_measured480_branch_position",
+      "335_voice_Сербин",
+      "335_native_voice_Сербин",
+      "335_voice_Гоблин",
+      "335_voice_HDrezka в Кубе (Kubik³)",
+      "335_serbin_alternative_720p",
+      "335_exact_s01e01_original"
+    ],
+    "notAllLeavesVerified": true,
+    "notEveryVoiceQualityCombinationVerified": true
+  }
+}

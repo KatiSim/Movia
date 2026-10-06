@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-06T21:46:06.180876+00:00",
+  "versionCode": 335,
+  "runtimeParity": {
+    "hdrezka_provider_adapter.py": true,
+    "hdrezka_transport.py": true,
+    "media_content_probe.py": true
+  },
+  "services": "run: movia-media-parser: (pid 5395) 1301s; run: log: (pid 6330) 106393s\nrun: movia-stream-enricher: (pid 5408) 1301s\n",
+  "health": {
+    "status": "ok",
+    "service": "movia-p2p-streamer-on-demand",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "cloudMode": false,
+    "p2pEnabled": true,
+    "security": "isolated-localhost"
+  },
+  "checkedPid": "17095",
+  "fatalExceptionSeen": false,
+  "anrSeen": false,
+  "uiAttached": false,
+  "idle": true,
+  "architecture": "movia-provider-registry",
+  "referenceRuntimeLoaded": false,
+  "probeDisabled": true
+}
