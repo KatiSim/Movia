@@ -1,0 +1,339 @@
+{
+  "keys": [
+    "schemaVersion",
+    "requestedStreamId",
+    "activeStreamId",
+    "requestedQuality",
+    "requestedVoice",
+    "activeQuality",
+    "activeVoice",
+    "fallbackReason",
+    "videoTracks",
+    "audioTracks",
+    "probeFrames",
+    "readyLatencyMs",
+    "firstFrameLatencyMs",
+    "qualities"
+  ],
+  "matrix": [
+    {
+      "streamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:38e3ed36fb1c861861472687",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:63cdf66023f6df31e3b3b40f",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:9456e04b91c7fc530f322b29",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:a03531516b353e38601ba3eb",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:072cdf75b7cc744292762735",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:270d888b2122fef0275b9a4b",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:37c606d607e152651a1a26a3",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:3ce5bef093a00cd41aff00a4",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:a2427495fa60d3d59e9f9212",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "direct",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:295675530908cf403dcffaa1",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:3da0d8410655d23b106988f9",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:4f3bcef5b934f392ccaa2fbe",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:c8a62ebf13351ac39b7299d1",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "provider-item:v2:ea5ba0894ff7dc5b2e065f26",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:1406071f2f8c6351a7494b7a",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:369ac726e94d3b33372b9ea5",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:7602a64d8f0e673a2ae51a21",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:b096dbae4de67d28d8cb62f5",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    },
+    {
+      "streamId": "stream:c5c065b2c7428109d6e1e1e2",
+      "voice": "Оригинал (+субтитры)",
+      "quality": "Не указано",
+      "transport": "hls",
+      "healthScore": 0.5,
+      "recentFailureCount": 0,
+      "unavailableQuality": false,
+      "sameLocator": true,
+      "truth": {
+        "playback_verification_status": null,
+        "playback_decoded": null,
+        "measured_quality": null
+      }
+    }
+  ],
+  "videoTracks": [
+    {
+      "id": "track:2:0:0",
+      "quality": "240p",
+      "height": 240,
+      "selected": true
+    }
+  ],
+  "selection": {
+    "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+    "activeStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+    "requestedQuality": "1080p",
+    "requestedVoice": "Дубляж",
+    "activeQuality": "240p",
+    "activeVoice": "Оригинал (+субтитры)",
+    "source": "HDRezka",
+    "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE"
+  },
+  "verificationCaveat": "sameLocator was computed from absent sanitized URLs and is not evidence of physical URL equality."
+}

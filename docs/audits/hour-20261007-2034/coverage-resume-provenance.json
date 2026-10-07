@@ -1,0 +1,6 @@
+{
+  "continuedFrom": "../hour-20261007-1927/android_coverage_results.jsonl",
+  "newSample": false,
+  "target": 500,
+  "checks": "Unconfirmed discovery does not satisfy the 500-card gate; actual episode coordinates are checked."
+}

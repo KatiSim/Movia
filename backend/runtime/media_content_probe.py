@@ -91,15 +91,17 @@ def hls_duration_from_playlist(text):
     return total if durations and math.isfinite(total) else None
 
 
-def _measure_video_sample(data):
+def _measure_video_sample(data, *, require_duration=True):
     with tempfile.NamedTemporaryFile(suffix=".mp4") as sample:
         sample.write(data);sample.flush()
         probe=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=codec_type,width,height","-of","json",sample.name],capture_output=True,text=True,timeout=1.2)
     measured=json.loads(probe.stdout or "{}")
     videos=[x for x in measured.get("streams",[]) if x.get("codec_type")=="video" and int(x.get("height",0))>0]
     seconds=float(measured.get("format",{}).get("duration",0))
-    if videos and math.isfinite(seconds) and seconds>0:
-        return {"duration":seconds,"height":int(videos[0]["height"]),"width":int(videos[0].get("width",0))}
+    if videos and (not require_duration or math.isfinite(seconds) and seconds>0):
+        result={"height":int(videos[0]["height"]),"width":int(videos[0].get("width",0))}
+        if math.isfinite(seconds) and seconds>0:result["duration"]=seconds
+        return result
     return None
 
 
@@ -117,7 +119,7 @@ def _hls_video_dimensions(text, playlist_url, headers):
         with requests.get(url,headers={**headers,'Range':'bytes=0-65535'},stream=True,timeout=(.5,.5)) as response:
             response.raise_for_status()
             data=next(response.iter_content(65536),b'')[:65536]
-        measured=_measure_video_sample(data)
+        measured=_measure_video_sample(data, require_duration=False)
         if measured:
             return {key:measured[key] for key in ('height','width') if measured.get(key)}
     except (requests.RequestException,OSError,subprocess.TimeoutExpired,ValueError,TypeError):

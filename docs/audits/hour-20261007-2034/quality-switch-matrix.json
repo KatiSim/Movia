@@ -1,0 +1,160 @@
+{
+  "at": 1791408363.5715084,
+  "cases": [
+    {
+      "seconds": 6.04,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "READY",
+      "playing": true,
+      "height": 240,
+      "positionMs": 1559,
+      "frames": 38,
+      "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "activeStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "240p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "240p",
+      "sourceIdPresent": false,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "exact240Start",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-a8a0271b-6283-441d-9a17-d62903c1d604"
+      }
+    },
+    {
+      "seconds": 11.92,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "READY",
+      "playing": true,
+      "height": 480,
+      "positionMs": 30222,
+      "frames": 50,
+      "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "requestedQuality": "480p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "480p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT"
+      },
+      "candidateQuality": "480p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "select-480p",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "requestedQualityPreserved": true,
+      "providerVoiceBranchPreserved": true,
+      "positionPreserved": true
+    },
+    {
+      "seconds": 21.68,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "RECOVERING",
+      "playing": false,
+      "height": 0,
+      "positionMs": 30000,
+      "frames": 51,
+      "activeId": null,
+      "selection": {
+        "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "requestedQuality": "240p",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT"
+      },
+      "candidateQuality": null,
+      "sourceIdPresent": false,
+      "localDecoded": null,
+      "referenceRuntimeLoaded": false,
+      "passed": false,
+      "case": "select-240p",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "requestedQualityPreserved": true,
+      "providerVoiceBranchPreserved": false,
+      "positionPreserved": true
+    },
+    {
+      "seconds": 17.18,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "READY",
+      "playing": true,
+      "height": 480,
+      "positionMs": 30235,
+      "frames": 69,
+      "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Оригинал (+субтитры)",
+        "activeQuality": "480p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka",
+        "fallbackReason": "BUFFERING_TIMEOUT"
+      },
+      "candidateQuality": "480p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": false,
+      "case": "select-Auto",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "requestedQualityPreserved": true,
+      "providerVoiceBranchPreserved": true,
+      "positionPreserved": true
+    }
+  ],
+  "installedApkSha256": "ec8cec0b9ec02942600bc8509af8eb4d2a8a423285a3574c8bfaccbaae928b58",
+  "initialCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "countsPreserved": true,
+  "allRequiredPassed": false
+}

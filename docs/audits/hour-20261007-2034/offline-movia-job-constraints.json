@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-07T21:24:20.287088+00:00",
+  "jobBlockCount": 3,
+  "moviaJobConstraints": [
+    "#androidx.work.systemjobscheduler:u0a298/26 from u0a298: NetworkRequest [ NONE id=0, [ Capabilities: INTERNET&TRUSTED&VALIDATED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10298 UnderlyingNetworks: Null] ]",
+    "#androidx.work.systemjobscheduler:u0a298/26 from u0a298 active, exempted: app.movia.android [RUN_ANY_IN_BACKGROUND allowed] RUNNABLE",
+    "Timer<REG>{<0>app.movia.android} NOT active, 0 running bg jobs"
+  ],
+  "exitCode": 0,
+  "interpretation": "Filtered to Movia-only lines; aggregate system scheduler sections do not prove a download failure cause."
+}

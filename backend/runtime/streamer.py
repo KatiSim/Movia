@@ -420,15 +420,16 @@ def _annotate_streams_with_source_truth(
         if not isinstance(source, dict):
             continue
         locator_hash = str(source.get("locatorHash") or "").strip().lower()
+        profile_hash = str(source.get("requestProfileHash") or "").strip().lower()
         provider = str(source.get("provider") or "").strip().casefold()
         if not locator_hash:
             continue
         source_id = str(source.get("sourceId") or "").strip()
         # Runtime evidence is separate from provider quality/voice claims.
         if source_id:
-            source_ids_by_fingerprint[(provider, locator_hash)] = source_id
+            source_ids_by_fingerprint[(provider, locator_hash, profile_hash)] = source_id
         from source_playback_evidence import source_runtime_evidence
-        evidence_by_fingerprint[(provider, locator_hash)] = source_runtime_evidence(
+        evidence_by_fingerprint[(provider, locator_hash, profile_hash)] = source_runtime_evidence(
             source, observed_at, index.expiry_margin_seconds)
         # A stable ID permits native feedback; it is not proof of playback.
         if source.get("verificationStatus") != "VERIFIED":
@@ -457,7 +458,7 @@ def _annotate_streams_with_source_truth(
             "allowedAudioLanguages": _source_truth_allowed_audio_languages(audio_tracks),
             "expiresAt": source.get("expiresAt"),
         }
-        verified_by_fingerprint[(provider, locator_hash)] = facts
+        verified_by_fingerprint[(provider, locator_hash, profile_hash)] = facts
 
     for item in result:
         locator = str(item.get("url") or item.get("playback_url") or "").strip()
@@ -465,10 +466,12 @@ def _annotate_streams_with_source_truth(
             continue
         provider = str(item.get("provider") or item.get("source") or "").strip().casefold()
         locator_hash = hashlib.sha256(locator.encode("utf-8")).hexdigest()
-        source_id = source_ids_by_fingerprint.get((provider, locator_hash))
+        from native_variant_feedback import feedback_fingerprints
+        profile_hash = feedback_fingerprints(item)["native_feedback_profile_hash"]
+        source_id = source_ids_by_fingerprint.get((provider, locator_hash, profile_hash))
         if source_id:
             item["sourceId"] = source_id
-        evidence = evidence_by_fingerprint.get((provider, locator_hash))
+        evidence = evidence_by_fingerprint.get((provider, locator_hash, profile_hash))
         if evidence:
             item["sourceTruth"] = dict(evidence)
             item["health_score"] = evidence["healthScore"]
@@ -482,7 +485,7 @@ def _annotate_streams_with_source_truth(
                 "playback_decoded": evidence["decodedPlayback"],
             })
             item["transport_metadata"] = meta
-        facts = verified_by_fingerprint.get((provider, locator_hash))
+        facts = verified_by_fingerprint.get((provider, locator_hash, profile_hash))
         if facts is None:
             continue
         overlay = {**(evidence or {}), **facts}
@@ -3349,7 +3352,8 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         legacy_feedback = parsed.path == "/internal/playback-availability/legacy-media3-success"
         failure_feedback = parsed.path == "/internal/playback-availability/media3-failure"
-        if not legacy_feedback and not failure_feedback and parsed.path != "/internal/playback-availability/media3-success":
+        variant_feedback = parsed.path == "/internal/playback-availability/native-variant-success"
+        if not variant_feedback and not legacy_feedback and not failure_feedback and parsed.path != "/internal/playback-availability/media3-success":
             self._send_json(404, {"error": "not_found"})
             return
         if not _is_loopback_client_address(self.client_address):
@@ -3388,7 +3392,14 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             if failure_feedback:
                 from source_playback_evidence import sanitize_media3_failure_payload
                 clean = sanitize_media3_failure_payload(payload)
-                result = index.record_source_failure(clean["sourceId"], reason=clean["reason"], cooldown=clean["cooldown"], observed_at=clean["observedAt"])
+                result = index.record_source_failure(clean["sourceId"], reason=clean["reason"], cooldown=clean["cooldown"], observed_at=clean["observedAt"], expected_locator_hash=clean.get("locatorHash"), expected_profile_hash=clean.get("profileHash"))
+            elif variant_feedback:
+                from native_variant_feedback import record_native_variant_success
+                from stream_identity import filter_streams_for_content
+                result = record_native_variant_success(index, payload,
+                    catalog_api.get_movie_playback_card_scoped, filter_streams_for_content,
+                    _sanitize_media3_success_payload)
+                clean = {"sourceId": result["sourceId"]}
             elif legacy_feedback:
                 legacy = _sanitize_legacy_media3_payload(payload)
                 result = _record_legacy_media3_success(index, legacy)

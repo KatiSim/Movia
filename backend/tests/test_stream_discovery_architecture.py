@@ -116,6 +116,7 @@ class DiscoveryPersistenceTest(unittest.TestCase):
             def get_by_key(self,key,**kwargs):
                 import hashlib
                 return {'sources':[{'sourceId':'expired','provider':'fixture','locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'requestProfileHash':__import__('native_variant_feedback').feedback_fingerprints(source)['native_feedback_profile_hash'],
                     'verificationStatus':'VERIFIED','expiresAt':time.time()-1,'actualQuality':'720p','actualQualities':['720p']}]}
             def get(self,*args,**kwargs):raise AssertionError('Mutating read')
         source=self.row('Studio')
@@ -134,6 +135,7 @@ class DiscoveryPersistenceTest(unittest.TestCase):
             def get_by_key(inner,key,**kwargs):
                 return {'sources':[{'sourceId':'src:known','provider':'fixture',
                     'locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'requestProfileHash':__import__('native_variant_feedback').feedback_fingerprints(source)['native_feedback_profile_hash'],
                     'verificationStatus':'VERIFIED','verificationMethod':'MEDIA3_SUCCESS',
                     'healthScore':.98,'startupLatencyMs':2345,'consecutiveFailures':0,
                     'actualQuality':'576p','actualQualities':['576p'],'expiresAt':None}]}
@@ -154,6 +156,7 @@ class DiscoveryPersistenceTest(unittest.TestCase):
             def get_by_key(inner,key,**kwargs):
                 return {'sources':[{'sourceId':'src:failed','provider':'fixture',
                     'locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'requestProfileHash':__import__('native_variant_feedback').feedback_fingerprints(source)['native_feedback_profile_hash'],
                     'verificationStatus':'COOLDOWN','verificationMethod':'MEDIA3_SUCCESS',
                     'healthScore':.1,'startupLatencyMs':2345,'consecutiveFailures':3,
                     'actualQuality':'576p','expiresAt':None}]}

@@ -1,0 +1,24 @@
+[
+  {
+    "streamId": "provider-item:v2:a03531516b353e38601ba3eb",
+    "quality": "Не указано",
+    "transport": "direct",
+    "status": 206,
+    "bytesRead": 4096,
+    "mp4Signature": true,
+    "playlistSignature": false,
+    "contentType": "video/mp4",
+    "seconds": 0.63
+  },
+  {
+    "streamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+    "quality": "Не указано",
+    "transport": "direct",
+    "status": 206,
+    "bytesRead": 4096,
+    "mp4Signature": true,
+    "playlistSignature": false,
+    "contentType": "video/mp4",
+    "seconds": 0.84
+  }
+]

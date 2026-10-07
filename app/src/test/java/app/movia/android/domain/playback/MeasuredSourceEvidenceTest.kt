@@ -80,4 +80,60 @@ class MeasuredSourceEvidenceTest {
         assertEquals(proven, fallback.first())
         assertEquals(setOf("proven", "alternate"), fallback.map { it.stableStreamId }.toSet())
     }
+
+    @Test fun firstFramePublishesTheMeasuredFixedQualityWithoutChangingIdentity() {
+        val before = candidate("leaf", "Не указано")
+        val decoded = before.withLocalDecodedMeasurement(480, listOf(480))
+        assertEquals("480p", decoded.quality)
+        assertEquals(480, decoded.resolutionHeight)
+        assertEquals(before.stableStreamId, decoded.stableStreamId)
+        assertEquals("true", decoded.transportMetadata["playback_decoded"])
+    }
+    @Test fun adaptiveFirstFrameDoesNotEraseOtherRenditions() {
+        val before = candidate("leaf", "Auto").copy(transport="hls")
+        val decoded = before.withLocalDecodedMeasurement(480, listOf(240,480,720))
+        assertEquals("Auto", decoded.quality)
+        assertNull(decoded.resolutionHeight)
+        assertEquals("480p", decoded.transportMetadata["measured_quality"])
+    }
+    @Test fun missingVideoFrameDoesNotInventEvidence() {
+        val before = candidate("leaf", "Не указано")
+        assertEquals(before, before.withLocalDecodedMeasurement(0, emptyList()))
+    }
+    @Test fun partialInventoryCannotEraseSameLocatorMeasurement() {
+        val old = candidate("leaf", "Не указано").withLocalDecodedMeasurement(480,listOf(480))
+        val fresh = old.copy(quality="Не указано",resolutionHeight=null,transportMetadata=emptyMap())
+        val merged = preserveMeasurementScope(old,fresh,fresh)
+        assertEquals("480p",merged.quality)
+        assertEquals(480,merged.resolutionHeight)
+        assertEquals("true",merged.transportMetadata["playback_decoded"])
+    }
+    @Test fun rotatedLocatorDoesNotInheritDecodedEvidenceOrDimensions() {
+        val old = candidate("leaf","Не указано").withLocalDecodedMeasurement(480,listOf(480))
+            .copy(sourceId="src:old")
+        val fresh = old.copy(url="https://cdn.example/rotated",quality="Не указано",
+            resolutionHeight=null,sourceId=null,transportMetadata=emptyMap())
+        val merged = preserveMeasurementScope(old,fresh,old.copy(url=fresh.url))
+        assertEquals("Не указано",merged.quality)
+        assertNull(merged.resolutionHeight)
+        assertNull(merged.sourceId)
+        assertNull(merged.transportMetadata["playback_decoded"])
+    }
+    @Test fun changedHeadersAndTracksCannotReuseMeasurement() {
+        val old = candidate("leaf","Не указано").withLocalDecodedMeasurement(480,listOf(480))
+        val changes = listOf(old.copy(headers=mapOf("Referer" to "https://other.example")),
+            old.copy(audioTrackIndex=1),old.copy(videoTrackIndex=1),old.copy(fileIndex=2),
+            old.copy(episodeNumber=2),old.copy(userAgent="Different player"))
+        changes.forEach { assertEquals(false,sameMeasurementScope(old,it)) }
+    }
+    @Test fun unprovedProviderLabelIsNotRestoredAsMeasuredQuality() {
+        val old = candidate("leaf","1080p")
+        val fresh = old.copy(quality="Не указано")
+        assertEquals("Не указано",preserveMeasurementScope(old,fresh,old).quality)
+    }
+    @Test fun newMeasuredQualitySupersedesOldMeasurement() {
+        val old = candidate("leaf","Не указано").withLocalDecodedMeasurement(480,listOf(480))
+        val fresh = old.withLocalDecodedMeasurement(720,listOf(720))
+        assertEquals("720p",preserveMeasurementScope(old,fresh,fresh).quality)
+    }
 }

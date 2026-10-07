@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-07T21:06:17.047869+00:00",
+  "priorEvidenceFiles": [
+    "docs/audits/playback-architecture-20261002/continuation-20261003/kinoplay-port-verification.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/active-kinoplay-activation.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/filmix-provider-adapter.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/filmix-independent-search.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/octopus-live-discovery.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/collaps-movia-rewrite-cohort-i.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/zona-movia-rewrite-cohort-j.json",
+    "docs/audits/playback-architecture-20261002/continuation-20261004/zona-ownership-cohort-l.json"
+  ],
+  "liveProvidersRecheckedThisHour": false
+}

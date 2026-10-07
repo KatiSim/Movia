@@ -864,7 +864,7 @@ object DomainPlaybackResolver {
     private fun mergeReloadedCandidate(
         previous: StreamCandidate,
         refreshed: StreamCandidate,
-    ): StreamCandidate = refreshed.copy(
+    ): StreamCandidate = preserveMeasurementScope(previous, refreshed, refreshed.copy(
         // The concrete URL may rotate, but the selected logical stream ID does
         // not. This keeps UI selection and the problem memory coherent.
         stableStreamId = previous.stableStreamId,
@@ -898,5 +898,5 @@ object DomainPlaybackResolver {
         canonicalYear = refreshed.canonicalYear ?: previous.canonicalYear,
         canonicalMediaType = refreshed.canonicalMediaType ?: previous.canonicalMediaType,
         isProblematic = false,
-    )
+    ))
 }

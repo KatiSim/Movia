@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-07T21:15:43.321396+00:00",
+  "health": 200,
+  "services": {
+    "movia-media-parser": {
+      "exitCode": 0,
+      "status": "ok: run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 31540) 0s"
+    },
+    "movia-stream-enricher": {
+      "exitCode": 0,
+      "status": "ok: run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 31551) 1s"
+    }
+  },
+  "runtimeParity": {
+    "catalog_stream_service.py": true,
+    "media_content_probe.py": true,
+    "native_variant_feedback.py": true,
+    "playback_availability_index.py": true,
+    "streamer.py": true,
+    "source_playback_evidence.py": true
+  },
+  "tests": 523,
+  "schemaChange": "Additive request_profile_hash; existing data retained, old measurements require a matching profile."
+}

@@ -1,0 +1,97 @@
+............................................/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_api.py:187: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a106d0>
+  subtitle_languages = sorted({str(sub.get("language")).strip() for x in known_streams if isinstance(x, dict) for sub in (x.get("subtitles") or []) if isinstance(sub, dict) and sub.get("language")})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_api.py:187: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a10220>
+  subtitle_languages = sorted({str(sub.get("language")).strip() for x in known_streams if isinstance(x, dict) for sub in (x.get("subtitles") or []) if isinstance(sub, dict) and sub.get("language")})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_api.py:187: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a104f0>
+  subtitle_languages = sorted({str(sub.get("language")).strip() for x in known_streams if isinstance(x, dict) for sub in (x.get("subtitles") or []) if isinstance(sub, dict) and sub.get("language")})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_api.py:187: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a10b80>
+  subtitle_languages = sorted({str(sub.get("language")).strip() for x in known_streams if isinstance(x, dict) for sub in (x.get("subtitles") or []) if isinstance(sub, dict) and sub.get("language")})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_api.py:187: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a10c70>
+  subtitle_languages = sorted({str(sub.get("language")).strip() for x in known_streams if isinstance(x, dict) for sub in (x.get("subtitles") or []) if isinstance(sub, dict) and sub.get("language")})
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................................................Collaps identity rejected media_id=77 reason=title_mismatch
+Collaps identity rejected media_id=77 reason=year_mismatch
+.................2026-10-07 23:09:26,872 - INFO - Torrent VariantTree persistence rewrite ID=77 input=2 leaves=1
+.2026-10-07 23:09:26,903 - INFO - Torrent VariantTree persistence rewrite ID=77 input=1 leaves=1
+................................................................................................./data/data/com.termux/files/usr/lib/python3.14/tempfile.py:558: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a46b60>
+  def NamedTemporaryFile(mode='w+b', buffering=-1, encoding=None,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/tempfile.py:558: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a47b50>
+  def NamedTemporaryFile(mode='w+b', buffering=-1, encoding=None,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......HDRezka content duration mismatch media_id=42 actual=60 expected=10140
+.HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+......HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+................../data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/playback_availability_index.py:526: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19a47b50>
+  return conn.execute(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................................................................[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+...[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+[DEBUG] Zona balancer branch disabled: ProviderContract owns Zona discovery
+.[WARNING] [Balancer] Нет доступных потоков: status=UNKNOWN provider_errors=0 title=Example year=2024
+...2026-10-07 23:09:41,498 - INFO - Provider apibay skipped during reliability cooldown
+......./data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb100>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb1f0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb3d0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb2e0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb4c0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb5b0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb790>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb880>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acba60>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acbb50>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acbc40>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb970>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................./data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:254: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acbd30>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................../data/data/com.termux/files/usr/lib/python3.14/threading.py:307: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acb5b0>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:307: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e19acbe20>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............................Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+...................................................................................Zona identity rejected media_id=77 reason=title_mismatch
+Zona identity rejected media_id=77 reason=year_mismatch
+....
+----------------------------------------------------------------------
+Ran 523 tests in 24.125s
+
+OK
+Torrent resolve error or timeout: 

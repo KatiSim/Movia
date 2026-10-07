@@ -1,0 +1,24 @@
+{
+  "s": {
+    "size": 1000,
+    "outcomes": {
+      "completed_with_candidates": 469,
+      "provider_unavailable": 531
+    },
+    "candidateLeaves": 3761,
+    "nativeLeaves": 3697,
+    "identityErrors": 0,
+    "newSample": false
+  },
+  "t": {
+    "size": 1000,
+    "outcomes": {
+      "provider_unavailable": 583,
+      "completed_with_candidates": 417
+    },
+    "candidateLeaves": 2839,
+    "nativeLeaves": 2760,
+    "identityErrors": 0,
+    "newSample": false
+  }
+}

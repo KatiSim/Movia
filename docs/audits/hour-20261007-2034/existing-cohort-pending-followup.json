@@ -1,0 +1,61 @@
+{
+  "newSample": false,
+  "results": [
+    {
+      "cohort": "s",
+      "mediaId": "342840",
+      "at": "2026-10-07T20:49:03.938120+00:00",
+      "status": "UNAVAILABLE",
+      "discoveryStatus": "UNAVAILABLE",
+      "refreshing": false,
+      "observedActiveDiscovery": true,
+      "foundLeaves": 0,
+      "nativeConcreteLeaves": 0,
+      "identityMismatches": [],
+      "outcome": "provider_unavailable",
+      "seconds": 5.42
+    },
+    {
+      "cohort": "s",
+      "mediaId": "30848",
+      "at": "2026-10-07T20:49:00.849092+00:00",
+      "status": "READY",
+      "discoveryStatus": "UNAVAILABLE",
+      "refreshing": false,
+      "observedActiveDiscovery": true,
+      "foundLeaves": 4,
+      "nativeConcreteLeaves": 4,
+      "identityMismatches": [],
+      "outcome": "completed_with_candidates",
+      "seconds": 2.33
+    },
+    {
+      "cohort": "t",
+      "mediaId": "54197",
+      "at": "2026-10-07T20:49:09.372271+00:00",
+      "status": "UNAVAILABLE",
+      "discoveryStatus": "UNAVAILABLE",
+      "refreshing": false,
+      "observedActiveDiscovery": true,
+      "foundLeaves": 0,
+      "nativeConcreteLeaves": 0,
+      "identityMismatches": [],
+      "outcome": "provider_unavailable",
+      "seconds": 8.52
+    },
+    {
+      "cohort": "t",
+      "mediaId": "42324",
+      "at": "2026-10-07T20:49:06.160906+00:00",
+      "status": "UNAVAILABLE",
+      "discoveryStatus": "UNAVAILABLE",
+      "refreshing": false,
+      "observedActiveDiscovery": true,
+      "foundLeaves": 0,
+      "nativeConcreteLeaves": 0,
+      "identityMismatches": [],
+      "outcome": "provider_unavailable",
+      "seconds": 2.22
+    }
+  ]
+}

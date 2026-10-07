@@ -1,0 +1,24 @@
+{
+  "status": "READY",
+  "discoveryStatus": "IDLE",
+  "refreshing": false,
+  "retryAfterMs": 350,
+  "mediaId": "160",
+  "title": "Чернобыль",
+  "year": 2019,
+  "season": 1,
+  "episode": 2,
+  "id": "160",
+  "nativeRows": [
+    {
+      "stream_id": "provider-item:v2:8c6234acec3cfb4965b50f0c",
+      "catalog_media_id": "160",
+      "season": 1,
+      "episode": 2,
+      "season_number": null,
+      "episode_number": null,
+      "provider": "Apibay",
+      "transport": "torrent_p2p"
+    }
+  ]
+}

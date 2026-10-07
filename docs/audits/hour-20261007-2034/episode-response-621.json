@@ -1,0 +1,24 @@
+{
+  "status": "READY",
+  "discoveryStatus": "IDLE",
+  "refreshing": false,
+  "retryAfterMs": 350,
+  "mediaId": "621",
+  "title": "Смерть в раю",
+  "year": 2011,
+  "season": 1,
+  "episode": 2,
+  "id": "621",
+  "nativeRows": [
+    {
+      "stream_id": "provider-item:v2:c6dd42b74c22640f394feb0b",
+      "catalog_media_id": "621",
+      "season": 1,
+      "episode": 2,
+      "season_number": null,
+      "episode_number": null,
+      "provider": "Apibay",
+      "transport": "torrent_p2p"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-07T21:04:48.169325+00:00",
+  "checksPassed": 6,
+  "cause": "Audit assumed season_number/episode_number while native stream contract uses season/episode. No playback source was modified.",
+  "oldRecordsRetained": true,
+  "unconfirmedCardsRetryable": true,
+  "conflictingAliasesRejected": true
+}

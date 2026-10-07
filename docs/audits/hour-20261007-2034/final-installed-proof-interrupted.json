@@ -1,0 +1,140 @@
+{
+  "at": 1791407820.5316389,
+  "cases": [
+    {
+      "seconds": 2.44,
+      "mediaId": "26041",
+      "season": null,
+      "episode": null,
+      "state": "READY",
+      "playing": true,
+      "height": 346,
+      "positionMs": 400,
+      "frames": 9,
+      "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+        "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "346p",
+        "activeVoice": "Не указано",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "346p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": null,
+      "passed": true,
+      "case": "nativeFeedback-26041",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-ed17cccd-569f-4843-a16d-fb5f9f5ea329"
+      },
+      "backendBefore": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "346p",
+        "lastSuccessAt": 1791406980.0813563,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "requestToDecodedSeconds": 2.62,
+      "backendAfter": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "346p",
+        "lastSuccessAt": 1791407822.7888823,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "freshFeedbackPassed": true
+    },
+    {
+      "seconds": 2.22,
+      "mediaId": "1168",
+      "season": null,
+      "episode": null,
+      "state": "READY",
+      "playing": true,
+      "height": 534,
+      "positionMs": 571,
+      "frames": 27,
+      "activeId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+        "activeStreamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "534p",
+        "activeVoice": "Дубляж",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "534p",
+      "sourceIdPresent": false,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": null,
+      "passed": true,
+      "case": "nativeFeedback-1168",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-12cfd899-fae9-49e2-8df5-3966682fe026"
+      },
+      "backendBefore": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "534p",
+        "lastSuccessAt": 1791406875.7106373,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "requestToDecodedSeconds": 2.46,
+      "backendAfter": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "534p",
+        "lastSuccessAt": 1791407826.0009627,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "freshFeedbackPassed": true
+    }
+  ],
+  "installedApkSha256": "ec8cec0b9ec02942600bc8509af8eb4d2a8a423285a3574c8bfaccbaae928b58",
+  "initialCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "finalCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "finalPlayback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "allRequiredPassed": false,
+  "interruptedByHarnessTimeout": true
+}

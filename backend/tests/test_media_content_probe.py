@@ -101,3 +101,18 @@ class MediaContentProbeTests(unittest.TestCase):
             tree,article,error=adapter.resolve_source(source,request)
         self.assertIsNone(tree)
         self.assertEqual('HDREZKA_EPISODE_CONTENT_UNVERIFIED',error)
+
+
+class IndependentSegmentDimensionsTests(unittest.TestCase):
+    def test_segment_dimensions_do_not_require_sample_duration(self):
+        from types import SimpleNamespace
+        from media_content_probe import _measure_video_sample
+        response=SimpleNamespace(stdout='{"streams":[{"codec_type":"video","height":480,"width":854}],"format":{}}')
+        with patch('media_content_probe.subprocess.run',return_value=response):
+            self.assertEqual({"height":480,"width":854},_measure_video_sample(b"segment",require_duration=False))
+            self.assertIsNone(_measure_video_sample(b"segment"))
+    def test_audio_only_segment_never_fabricates_video_dimensions(self):
+        from types import SimpleNamespace
+        from media_content_probe import _measure_video_sample
+        with patch('media_content_probe.subprocess.run',return_value=SimpleNamespace(stdout='{"streams":[{"codec_type":"audio"}]}')):
+            self.assertIsNone(_measure_video_sample(b"segment",require_duration=False))

@@ -35,6 +35,8 @@ import app.movia.android.domain.model.PlaybackSwitchState
 import app.movia.android.domain.model.StreamOption
 import app.movia.android.domain.model.sameRequestedVariant
 import app.movia.android.domain.legacy.LegacyPlaybackResolver
+import app.movia.android.domain.playback.withLocalDecodedMeasurement
+import app.movia.android.domain.playback.nativeFeedbackScope
 import app.movia.android.domain.playback.DomainPlaybackResolver
 import app.movia.android.domain.playback.PlaybackRequest
 import app.movia.android.domain.playback.PlaybackResolverResult
@@ -409,7 +411,13 @@ class PlaybackSession(context: Context) {
             }
 
             override fun onRenderedFirstFrame() {
-                activeCandidate?.let { decoded ->
+                activeCandidate?.let { current ->
+                    val decoded = current.withLocalDecodedMeasurement(
+                        player.videoFormat?.height ?: 0,
+                        playbackChoices(player.currentTracks, player.videoFormat?.height ?: 0).video.map { it.height },
+                    )
+                    replaceCandidate(current, decoded)
+                    activeCandidate = decoded
                     reloadGuard.onDecoded(decoded.stableStreamId)
                     clearProblemMemory(decoded)
                     recoveryAttemptCount = 0
@@ -587,7 +595,10 @@ class PlaybackSession(context: Context) {
         val request = playbackRequest ?: return
         val isLegacy = candidate.transportMetadata["legacy_engine"] == "3.466"
         val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() }
-        if (sourceId == null && !isLegacy) return
+        val nativeVariant = candidate.stableStreamId.startsWith("provider-item:v2:") &&
+            candidate.catalogMediaId == request.mediaId
+        val nativeScope = if (nativeVariant) nativeFeedbackScope(candidate) else null
+        if (sourceId == null && !isLegacy && !nativeVariant) return
         if (feedbackGeneration == playbackGeneration || isOffline) return
         feedbackGeneration = playbackGeneration
         val observation = org.json.JSONObject().put("sourceId", sourceId)
@@ -600,10 +611,23 @@ class PlaybackSession(context: Context) {
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val token = java.io.File(appContext.filesDir, "agent/movia-agent.token").readText().trim()
-                val endpoint = if (isLegacy) "legacy-media3-success" else "media3-success"
+                val endpoint = when {
+                    isLegacy -> "legacy-media3-success"
+                    nativeVariant -> "native-variant-success"
+                    else -> "media3-success"
+                }
                 val payload = if (isLegacy) {
                     val facts = org.json.JSONObject(observation.toString()).apply { remove("sourceId") }
                     LegacyPlaybackResolver.firstFramePayload(candidate, request, facts)
+                } else if (nativeVariant) {
+                    val facts = org.json.JSONObject(observation.toString()).apply { remove("sourceId") }
+                    org.json.JSONObject().put("mediaId", request.mediaId)
+                        .put("season", request.seasonNumber ?: org.json.JSONObject.NULL)
+                        .put("episode", request.episodeNumber ?: org.json.JSONObject.NULL)
+                        .put("streamId", candidate.stableStreamId)
+                        .put("locatorHash", nativeScope?.locatorHash)
+                        .put("profileHash", nativeScope?.profileHash)
+                        .put("observation", facts)
                 } else observation
                 val connection = java.net.URL("http://127.0.0.1:8888/internal/playback-availability/$endpoint").openConnection() as java.net.HttpURLConnection
                 try {
@@ -625,8 +649,13 @@ class PlaybackSession(context: Context) {
     private fun recordNativeFailure(candidate: StreamCandidate, failureClass: StreamFailureClass) {
         val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() } ?: return
         if (isOffline) return
-        val payload = org.json.JSONObject().put("sourceId", sourceId).put("reason", failureClass.name)
-            .put("observedAt", System.currentTimeMillis() / 1000.0).toString()
+        val facts = org.json.JSONObject().put("sourceId", sourceId).put("reason", failureClass.name)
+            .put("observedAt", System.currentTimeMillis() / 1000.0)
+        if (candidate.stableStreamId.startsWith("provider-item:v2:")) {
+            val scope = nativeFeedbackScope(candidate)
+            facts.put("locatorHash", scope.locatorHash).put("profileHash", scope.profileHash)
+        }
+        val payload = facts.toString()
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val token = java.io.File(appContext.filesDir, "agent/movia-agent.token").readText().trim()

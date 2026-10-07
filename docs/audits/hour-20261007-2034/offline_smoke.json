@@ -1,0 +1,204 @@
+{
+  "at": "2026-10-07T21:29:56.771622+00:00",
+  "mediaId": "26041",
+  "title": "О птичках",
+  "year": 2000,
+  "realCatalogContent": true,
+  "requestWifiOnly": false,
+  "schedulingBudgetSeconds": 120,
+  "selectedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+  "online": {
+    "seconds": 1.8,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+    "framesBefore": 0,
+    "framesAfter": 16,
+    "durationMs": 205259,
+    "selection": {
+      "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "HDRezka"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "enqueueStatus": "completed",
+  "testOwnedDownload": true,
+  "downloadStatus": {
+    "status": "completed",
+    "action": "downloads.status",
+    "title": "О птичках",
+    "state": "SUCCEEDED",
+    "progressPercent": 0,
+    "errorCode": null,
+    "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+    "schemaVersion": 2,
+    "requestId": "hour-offline-7800d27334e746e0afa9e7cb2a0f5079"
+  },
+  "downloadCompleted": true,
+  "downloadStateChanges": [
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-9986d783e2da42328426a4887b5660aa"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-b52d0186326b41978122d18e9269174e"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-59bfa0bf5a584f36b79e047291b1d91c"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-b6a71ae4fe264db387991f03d9d18683"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-e81c169f93984128b6a1ec6ecf43add3"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-dc605e298ead4ad097ac3ee47ae32053"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-b4e09cef739245d59238490fcba1d618"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-497331f257e143bfa5d472c029a5c6d6"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-5972e27fb14e4d77a78f369bb15f36dc"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "SUCCEEDED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+      "schemaVersion": 2,
+      "requestId": "hour-offline-7800d27334e746e0afa9e7cb2a0f5079"
+    }
+  ],
+  "offline": {
+    "seconds": 0.6,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "offline:media:5:26041:s0:e0",
+    "framesBefore": 209,
+    "framesAfter": 216,
+    "durationMs": 205259,
+    "selection": {
+      "activeStreamId": "offline:media:5:26041:s0:e0",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "offline"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "offlineSourceConfirmed": true,
+  "offlineSeek": {
+    "passed": true,
+    "positionMs": 30320,
+    "framesAfter": 227
+  },
+  "passed": false,
+  "playerCleanup": true,
+  "testDownloadCleanup": true,
+  "installedApkSha256": "ec8cec0b9ec02942600bc8509af8eb4d2a8a423285a3574c8bfaccbaae928b58",
+  "observedScenarioPassed": true,
+  "validationInvalidated": true,
+  "validationCaveat": "An accidental import executed a second player test between 21:31:10 and 21:31:30 UTC during this run. Download/offline/seek observations are retained, but this run is excluded from isolated validation."
+}

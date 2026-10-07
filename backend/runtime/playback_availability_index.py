@@ -477,6 +477,8 @@ class PlaybackAvailabilityRepository:
                 """
             )
             source_columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(playback_sources)")}
+            if "request_profile_hash" not in source_columns:
+                conn.execute("ALTER TABLE playback_sources ADD COLUMN request_profile_hash TEXT NOT NULL DEFAULT ''")
             if "actual_qualities_json" not in source_columns:
                 conn.execute(
                     "ALTER TABLE playback_sources ADD COLUMN actual_qualities_json TEXT NOT NULL DEFAULT '[]'"
@@ -728,6 +730,8 @@ class PlaybackAvailabilityService:
         source_type = infer_source_type(candidate)
         source_id = _source_id(key.value, candidate, locator)
         locator_hash = _sha256(locator)
+        from native_variant_feedback import feedback_fingerprints
+        request_profile_hash = feedback_fingerprints(candidate)["native_feedback_profile_hash"]
         expiry = _finite_float(candidate.get("expires_at") or candidate.get("expiresAt"))
         if expiry is None:
             expiry = signed_url_expiry(locator)
@@ -760,7 +764,7 @@ class PlaybackAvailabilityService:
         existing_sql = (
             "SELECT source_id,created_at,actual_quality,actual_qualities_json,actual_audio_json,verification_status,"
             "verification_method,last_checked_at,last_success_at,last_failure_at,"
-            "consecutive_failures,startup_latency_ms,health_score "
+            "consecutive_failures,startup_latency_ms,health_score,request_profile_hash "
             "FROM playback_sources "
         )
         existing = conn.execute(existing_sql + "WHERE source_id=?", (source_id,)).fetchone()
@@ -775,7 +779,8 @@ class PlaybackAvailabilityService:
             if existing is not None:
                 source_id = str(existing["source_id"])
         created_at = float(existing["created_at"]) if existing is not None else ts
-        if existing is not None and not explicit_verified:
+        same_profile = existing is not None and existing["request_profile_hash"] == request_profile_hash
+        if same_profile and not explicit_verified:
             if existing["verification_status"] == STATUS_VERIFIED and status != STATUS_EXPIRED:
                 status = STATUS_VERIFIED
                 verification_method = str(existing["verification_method"] or VERIFICATION_NONE)
@@ -828,6 +833,12 @@ class PlaybackAvailabilityService:
                 created_at, ts,
             ),
         )
+        if existing is not None and not same_profile:
+            conn.execute("""UPDATE playback_sources SET last_checked_at=NULL,last_success_at=NULL,
+                last_failure_at=NULL,startup_latency_ms=NULL,consecutive_failures=0,
+                failure_reason=NULL,health_score=NULL WHERE source_id=?""", (source_id,))
+        conn.execute("UPDATE playback_sources SET request_profile_hash=? WHERE source_id=?",
+            (request_profile_hash, source_id))
         return source_id
 
     def _upsert_discovered_source(
@@ -983,26 +994,42 @@ class PlaybackAvailabilityService:
         cooldown: bool = False,
         now: Optional[float] = None,
         observed_at: Optional[float] = None,
+        expected_locator_hash: Optional[str] = None,
+        expected_profile_hash: Optional[str] = None,
     ) -> Dict[str, Any]:
         ts = float(observed_at) if observed_at is not None else (time.time() if now is None else float(now))
         with self.repository.connection() as conn:
             row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
             if row is None:
                 raise KeyError(source_id)
+            # The same locator can be rediscovered with a different request
+            # profile while an old Android error is still in flight.
+            if expected_locator_hash is not None and row["locator_hash"] != expected_locator_hash:
+                raise ValueError("failure_locator_scope_mismatch")
+            if expected_profile_hash is not None and row["request_profile_hash"] != expected_profile_hash:
+                raise ValueError("failure_profile_scope_mismatch")
             watermark = max(float(row["last_success_at"] or 0), float(row["last_failure_at"] or 0))
             # Native IO is asynchronous. An older failure cannot overwrite a
             # newer first frame or a newer failed attempt for this exact source.
             if observed_at is not None and ts < watermark:
                 return self._recompute(str(row["media_key"]), now=watermark)
             status = STATUS_COOLDOWN if cooldown else STATUS_FAILED
-            conn.execute(
+            update = conn.execute(
                 """
                 UPDATE playback_sources SET verification_status=?,last_checked_at=?,last_failure_at=?,
                     consecutive_failures=consecutive_failures+1,failure_reason=?,updated_at=?
                 WHERE source_id=?
+                  AND (? IS NULL OR locator_hash=?)
+                  AND (? IS NULL OR request_profile_hash=?)
                 """,
-                (status, ts, ts, _text(reason) or "UNKNOWN", ts, source_id),
+                (status, ts, ts, _text(reason) or "UNKNOWN", ts, source_id,
+                 expected_locator_hash, expected_locator_hash, expected_profile_hash, expected_profile_hash),
             )
+            # SELECT does not start a SQLite write transaction. Recheck in the
+            # UPDATE itself so a concurrent discovery cannot change the scope
+            # between validation and recording the error.
+            if update.rowcount != 1:
+                raise ValueError("failure_scope_changed")
             key_value = str(row["media_key"])
         return self._recompute(key_value, now=ts)
 
@@ -1097,6 +1124,7 @@ class PlaybackAvailabilityService:
                     "failureReason": source["failure_reason"],
                     "healthScore": source["health_score"],
                     "locatorHash": source["locator_hash"],
+                    "requestProfileHash": source["request_profile_hash"],
                 }
                 if include_locator:
                     item["locator"] = source["locator"]

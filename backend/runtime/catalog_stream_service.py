@@ -47,7 +47,8 @@ class CatalogStreamService:
         annotate = getattr(self.runtime, "_annotate_streams_with_source_truth", None)
         if callable(annotate):
             bound = annotate(card, bound, season, episode)
-        return bound
+        from native_variant_feedback import attach_feedback_scope
+        return [attach_feedback_scope(row) for row in bound]
 
     def _load_card(self, movie_id, season, episode):
         scoped = getattr(self.catalog, "get_movie_playback_card_scoped", None)

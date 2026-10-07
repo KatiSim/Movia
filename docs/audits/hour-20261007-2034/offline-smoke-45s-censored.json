@@ -1,0 +1,169 @@
+{
+  "at": "2026-10-07T21:23:40.763346+00:00",
+  "mediaId": "26041",
+  "title": "О птичках",
+  "year": 2000,
+  "realCatalogContent": true,
+  "requestWifiOnly": false,
+  "schedulingBudgetSeconds": 45,
+  "selectedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+  "online": {
+    "seconds": 7.28,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+    "framesBefore": 0,
+    "framesAfter": 16,
+    "durationMs": 205259,
+    "selection": {
+      "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "HDRezka"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "enqueueStatus": "completed",
+  "testOwnedDownload": true,
+  "downloadStatus": {
+    "status": "completed",
+    "action": "downloads.status",
+    "title": "О птичках",
+    "state": "RUNNING",
+    "progressPercent": 47,
+    "errorCode": null,
+    "localFile": null,
+    "schemaVersion": 2,
+    "requestId": "hour-offline-d8a68429f71b4d18b4a0790d358aa84e"
+  },
+  "downloadCompleted": false,
+  "downloadStateChanges": [
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-a8bfb75d87e541f5985dd862b680ef55"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-f43acd0ec2fa4f7fa4a951a45585e0f3"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-c5a5d2353137409a93a3d67aa9d488c1"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-3c4d2e232ed049338035c8552058f5b3"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-6ccbaaa03a704ba79b5b0a4adf567188"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-ab164c5b83c14c35a2c51eea8ef3131d"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-2d93e8018afb4fc6bb12791b57c21d4a"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-49c8f106f36d400d9c60747f582bb90a"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 22,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-fb72a6763fbc4d02a18ee3a6e855f966"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 47,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-d8a68429f71b4d18b4a0790d358aa84e"
+    }
+  ],
+  "error": "AssertionError: Real film download did not complete",
+  "passed": false,
+  "playerCleanup": true,
+  "testDownloadCleanup": true,
+  "installedApkSha256": "ec8cec0b9ec02942600bc8509af8eb4d2a8a423285a3574c8bfaccbaae928b58"
+}

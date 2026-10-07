@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-07T20:52:33.594116+00:00",
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 238767,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "initialLibraryCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  }
+}

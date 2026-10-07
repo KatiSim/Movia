@@ -1,0 +1,143 @@
+{
+  "at": "2026-10-07T21:02:58.734842+00:00",
+  "mediaId": "26041",
+  "title": "О птичках",
+  "year": 2000,
+  "realCatalogContent": true,
+  "selectedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+  "online": {
+    "seconds": 1.86,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+    "framesBefore": 0,
+    "framesAfter": 13,
+    "durationMs": 205259,
+    "selection": {
+      "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "HDRezka"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "enqueueStatus": "completed",
+  "testOwnedDownload": true,
+  "downloadStatus": {
+    "status": "completed",
+    "action": "downloads.status",
+    "title": "О птичках",
+    "state": "SUCCEEDED",
+    "progressPercent": 0,
+    "errorCode": null,
+    "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+    "schemaVersion": 2,
+    "requestId": "hour-offline-27921a11da2c4eacbbee55f97a2b8000"
+  },
+  "downloadCompleted": true,
+  "downloadStateChanges": [
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-17156858042946d980474bb658e9d947"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 8,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-61e14a84ba26424cbf9f5308c93256eb"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 44,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-8072fdf3646042669eef435d481c49c5"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 69,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-cd51987252ba4126b1f5a1bdb2dff212"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "SUCCEEDED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+      "schemaVersion": 2,
+      "requestId": "hour-offline-27921a11da2c4eacbbee55f97a2b8000"
+    }
+  ],
+  "offline": {
+    "seconds": 0.63,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "offline:media:5:26041:s0:e0",
+    "framesBefore": 199,
+    "framesAfter": 205,
+    "durationMs": 205259,
+    "selection": {
+      "activeStreamId": "offline:media:5:26041:s0:e0",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "offline"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "offlineSourceConfirmed": true,
+  "offlineSeek": {
+    "passed": true,
+    "positionMs": 30369,
+    "framesAfter": 217
+  },
+  "passed": true,
+  "playerCleanup": true,
+  "testDownloadCleanup": true
+}

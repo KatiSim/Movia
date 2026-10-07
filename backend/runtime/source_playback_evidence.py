@@ -70,7 +70,7 @@ def map_manifest_audio_identity(candidate, actual_tracks):
 
 
 def sanitize_media3_failure_payload(payload, now=None):
-    if not isinstance(payload, dict) or set(payload) != {"sourceId", "reason", "observedAt"}:
+    if not isinstance(payload, dict) or set(payload) not in ({"sourceId", "reason", "observedAt"}, {"sourceId", "reason", "observedAt", "locatorHash", "profileHash"}):
         raise ValueError("invalid_failure_fields")
     source_id = payload["sourceId"]
     if not isinstance(source_id, str) or not re.fullmatch(r"src:[A-Za-z0-9:_-]{1,124}", source_id):
@@ -82,4 +82,11 @@ def sanitize_media3_failure_payload(payload, now=None):
     clock = time.time() if now is None else now
     if isinstance(observed, bool) or not isinstance(observed, (float, int)) or not math.isfinite(observed) or not clock - 300 <= observed <= clock + 5:
         raise ValueError("invalid_observation_time")
-    return {"sourceId": source_id, "reason": reason, "cooldown": reason == "NETWORK", "observedAt": observed}
+    result = {"sourceId": source_id, "reason": reason, "cooldown": reason == "NETWORK", "observedAt": observed}
+    if "profileHash" in payload:
+        for key in ("locatorHash", "profileHash"):
+            value = payload[key]
+            if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
+                raise ValueError("invalid_failure_scope")
+            result[key] = value
+    return result
