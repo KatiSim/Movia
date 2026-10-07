@@ -1,0 +1,25 @@
+{
+  "health200": true,
+  "services": [
+    {
+      "action": "down",
+      "exitCode": 0,
+      "status": ""
+    },
+    {
+      "action": "up",
+      "exitCode": 0,
+      "status": ""
+    }
+  ],
+  "files": {
+    "provider_contract.py": "aed459cb84391b1481d76f01e8fae8c6b53cc0beab559001603264092043dd83",
+    "hdrezka_provider_adapter.py": "6658437410f24cf192c5712fd5941e96119fc7a81604ed9a878af6b6e1771f6c",
+    "hdrezka_transport.py": "4b0ba9cb7fe26aea209eadf1117688c2e62cb1926a85876b3d9a38f4c2f32e74",
+    "torrent_provider_adapter.py": "3de6d4719e709d30f7760048265cf2500d725d721581e36a7981704c1819852a",
+    "zona_provider_adapter.py": "ef85bba936c0b07283f5350a63b1a31c66f065c7c3313cca99623cfa9ca654a0"
+  },
+  "databaseMigration": false,
+  "flagsChanged": false,
+  "gatedZonaDeployedWithoutEnable": true
+}

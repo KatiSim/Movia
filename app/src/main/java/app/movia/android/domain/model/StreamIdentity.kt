@@ -79,6 +79,19 @@ fun StreamOption.logicalSourceIdentity(
     seasonOverride: Int? = null,
     episodeOverride: Int? = null,
 ): String? {
+    // V2 provider IDs already bind catalog, translator and rendition. Measured
+    // dimensions and localized voice labels must not re-key that concrete leaf.
+    val nativeIdentity = logicalSourceId?.trim()?.takeIf { it.startsWith("logical-source:v2:") }
+    if (nativeIdentity != null) return listOf(
+        nativeIdentity,
+        catalogMediaId.orEmpty(), canonicalYear?.toString().orEmpty(),
+        canonicalMediaType?.name.orEmpty(), isTrailer.toString(), transport,
+        (seasonOverride ?: seasonNumber)?.toString().orEmpty(),
+        (episodeOverride ?: episodeNumber)?.toString().orEmpty(),
+        fileIndex?.toString().orEmpty(), filePath.orEmpty(),
+        videoTrackIndex?.toString().orEmpty(), audioTrackIndex?.toString().orEmpty(),
+    ).joinToString("|")
+
     val source = listOf(logicalSourceId, sourceId, providerId, providerContentId, providerItemId, infoHash)
         .firstOrNull { !it.isNullOrBlank() }
         ?.trim()
@@ -102,6 +115,14 @@ fun StreamOption.canonicalStreamId(
 ): String {
     val explicit = streamId.trim()
     if (explicit.isNotEmpty()) return explicit
+
+    if (logicalSourceId?.startsWith("logical-source:v2:") == true) {
+        val identity = logicalSourceIdentity(seasonOverride, episodeOverride).orEmpty()
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(identity.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte) }.take(24)
+        return "stream:$digest"
+    }
 
     val hash = infoHash?.trim()?.ifEmpty { null }
         ?: magnetHashRegex.find(url)?.groupValues?.getOrNull(1)?.trim()?.lowercase()

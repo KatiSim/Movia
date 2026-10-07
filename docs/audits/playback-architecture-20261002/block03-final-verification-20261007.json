@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-07T13:25:15.561993+00:00",
+  "health": 200,
+  "preexistingPaths": 20,
+  "unchanged": true,
+  "stagedCodeFiles": [
+    "app/src/main/java/app/movia/android/domain/model/StreamIdentity.kt",
+    "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt",
+    "app/src/test/java/app/movia/android/domain/model/StreamIdentityTest.kt",
+    "app/src/test/java/app/movia/android/domain/playback/DomainPlaybackResolverTest.kt",
+    "backend/runtime/hdrezka_provider_adapter.py",
+    "backend/runtime/hdrezka_transport.py",
+    "backend/runtime/provider_contract.py",
+    "backend/runtime/torrent_provider_adapter.py",
+    "backend/runtime/zona_provider_adapter.py",
+    "backend/tests/test_stable_provider_source_identity.py"
+  ]
+}

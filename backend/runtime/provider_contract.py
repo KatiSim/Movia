@@ -13,6 +13,7 @@ algorithms belong in this module.
 from __future__ import annotations
 
 import hashlib
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping, Optional, Sequence, Union
@@ -23,7 +24,7 @@ def _text(value: Any) -> str:
 
 
 def _stable_id(prefix: str, *parts: Any) -> str:
-    payload = "\x1f".join(_text(part) for part in parts)
+    payload = json.dumps([_text(part) for part in parts], ensure_ascii=False, separators=(",", ":"))
     return prefix + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
 
 
@@ -139,6 +140,7 @@ class DeferredVariantLoader(ABC):
 @dataclass(frozen=True)
 class VariantStream:
     url: str
+    # Authoritative concrete selector: translator/rendition/transport, not a display label.
     stream_key: str = ""
     label: str = ""
     voice: str = ""
@@ -251,38 +253,30 @@ def _stream_row(
 ) -> dict[str, Any]:
     voice = context.voice or "Не указано"
     quality = context.quality or "Не указано"
-    stream_key = _text(stream.stream_key) or branch_path
+    # Provider-owned selectors are identity; probe results and labels are metadata.
+    # Without such a selector, retain exact URL + dimensions conservatively.
+    # A positional tree path cannot identify a source across reordered discovery.
+    selector = _text(stream.stream_key)
+    leaf_identity = ("provider-key", selector) if selector else (
+        "exact-locator", _text(stream.url), voice, quality, _text(stream.language),
+    )
     identity_parts = (
-        article.provider.provider_id,
-        article.item_id,
-        request.episode_key,
-        stream_key,
-        voice,
-        quality,
-        _text(stream.language),
+        article.provider.provider_id, article.item_id,
+        request.media_id, request.year, request.media_type, request.is_trailer,
+        request.episode_key, *leaf_identity,
+        _text(stream.transport) or "direct",
         str(stream.video_track_index) if stream.video_track_index is not None else "",
         str(stream.audio_track_index) if stream.audio_track_index is not None else "",
+        str(stream.file_index) if stream.file_index is not None else "", stream.file_path,
     )
-    file_identity = ("file", str(stream.file_index) if stream.file_index is not None else "", stream.file_path) if stream.file_index is not None or stream.file_path else ()
-    identity_parts += file_identity
-    track_identity = ("tracks", str(stream.video_track_index) if stream.video_track_index is not None else "", str(stream.audio_track_index) if stream.audio_track_index is not None else "") if stream.video_track_index is not None or stream.audio_track_index is not None else ()
-    provider_item_id = _stable_id("provider-item:", *identity_parts)
-    logical_source_id = _stable_id(
-        "logical-source:",
-        article.provider.provider_id,
-        article.item_id,
-        request.episode_key,
-        stream_key,
-        voice,
-        quality,
-        *track_identity,
-        *file_identity,
-    )
+    provider_item_id = _stable_id("provider-item:v2:", *identity_parts)
+    logical_source_id = _stable_id("logical-source:v2:", *identity_parts)
     row: dict[str, Any] = {
         "source": article.provider.name,
         "provider": article.provider.name,
         "provider_id": article.provider.provider_id,
         "provider_item_id": provider_item_id,
+        "stream_id": provider_item_id,
         "logical_source_id": logical_source_id,
         "url": _text(stream.url),
         "voice": voice,

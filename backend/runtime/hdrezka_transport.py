@@ -14,7 +14,7 @@ from urllib.parse import quote, urlparse
 
 from bs4 import BeautifulSoup
 from hdrezka_episode_identity import selected_episode, exact_episode_page
-from stream_validation import is_valid_stream_url, episode_coordinate
+from stream_validation import is_valid_stream_url, episode_coordinate, canonical_stream_locator
 
 logger = logging.getLogger("hdrezka_transport")
 _TRANSLATOR_WORKERS = ThreadPoolExecutor(max_workers=4, thread_name_prefix="movia-hd-translator")
@@ -196,6 +196,13 @@ def _rows(payload, translator, page_url, user_agent, season, episode, evidence):
             metadata.update(hdrezka_episode_verified=True, hdrezka_episode_evidence=evidence)
         row = {
             "source": "HDRezka", "provider": "HDRezka", "url": url,
+            # Preserve translator + advertised rendition before dimension probes.
+            # Only the proven numeric path rule can ignore CDN host/query churn.
+            "stream_key": json.dumps([
+                translator.translator_id, label.casefold(),
+                "hls" if urlparse(url).path.lower().endswith(".m3u8") else "direct",
+                canonical_stream_locator(url, 2),
+            ], ensure_ascii=False, separators=(",", ":")),
             "voice": translator.voice, "translation": translator.voice,
             # Provider labels are not dimensions. The content probe fills quality.
             "quality": "Не указано", "advertised_quality": label,

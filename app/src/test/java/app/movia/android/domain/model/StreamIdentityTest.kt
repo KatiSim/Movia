@@ -139,4 +139,39 @@ class StreamIdentityTest {
         assertTrue(probed.sameRequestedVariant(unprobed))
     }
 
+
+    private fun native() = option("https://cdn.example/old.m3u8", quality = "Не указано")
+        .copy(logicalSourceId = "logical-source:v2:one", catalogMediaId = "42", canonicalYear = 2025,
+            canonicalMediaType = ContentType.MOVIE, transport = "hls")
+
+    @Test fun nativeMeasuredQualityAndVoiceLabelsDoNotChangeIdentity() {
+        val before = native()
+        val after = before.copy(url = "https://other.example/new.m3u8", quality = "480p", voice = "Renamed", language = "ja")
+        assertEquals(before.logicalSourceIdentity(), after.logicalSourceIdentity())
+        assertEquals(before.canonicalStreamId(), after.canonicalStreamId())
+    }
+    @Test fun nativeIdentityNeverBorrowsAnotherCatalogOrEpisode() {
+        val base = native()
+        for (other in listOf(base.copy(catalogMediaId = "43"), base.copy(canonicalYear = 2024),
+            base.copy(seasonNumber = 1, episodeNumber = 2), base.copy(isTrailer = true))) {
+            assertNotEquals(base.logicalSourceIdentity(), other.logicalSourceIdentity())
+        }
+    }
+    @Test fun nativeTracksFilesAndRenditionsRemainSeparate() {
+        val base = native()
+        for (other in listOf(base.copy(audioTrackIndex = 0), base.copy(audioTrackIndex = 1),
+            base.copy(videoTrackIndex = 1), base.copy(fileIndex = 2), base.copy(filePath = "other.mp4"),
+            base.copy(logicalSourceId = "logical-source:v2:other"), base.copy(transport = "dash"))) {
+            assertNotEquals(base.logicalSourceIdentity(), other.logicalSourceIdentity())
+        }
+    }
+    @Test fun legacyProviderLevelIdsCannotEraseVariantDimensions() {
+        val base = native().copy(logicalSourceId = null, providerId = "provider-wide")
+        assertNotEquals(base.logicalSourceIdentity(), base.copy(quality = "1080p").logicalSourceIdentity())
+        assertNotEquals(base.logicalSourceIdentity(), base.copy(voice = "Other").logicalSourceIdentity())
+    }
+    @Test fun explicitPublicIdSurvivesMeasuredMetadata() {
+        val base = native().copy(streamId = "provider-item:v2:one")
+        assertEquals(base.canonicalStreamId(), base.copy(quality = "480p", url = "https://cdn.example/new.m3u8").canonicalStreamId())
+    }
 }

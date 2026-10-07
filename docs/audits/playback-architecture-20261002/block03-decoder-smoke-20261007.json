@@ -1,0 +1,22 @@
+{
+  "case": "post_install_exact_series_decode",
+  "mediaId": "159",
+  "season": 1,
+  "episode": 2,
+  "actionStatus": "accepted",
+  "passed": true,
+  "elapsedSeconds": 8.03,
+  "mediaItemId": "159",
+  "isPlaying": true,
+  "switchState": "READY",
+  "durationMs": 2884904,
+  "videoHeight": 240,
+  "probeFrames": 9,
+  "activeVoice": "Оригинал (+субтитры)",
+  "activeQuality": "240p",
+  "activeStreamId": "stream:072cdf75b7cc744292762735",
+  "nativePublicId": false,
+  "nativeTransport": "true",
+  "idleCleanup": true,
+  "crashLines": []
+}

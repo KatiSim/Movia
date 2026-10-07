@@ -687,4 +687,18 @@ class DomainPlaybackResolverTest {
         val anotherProvider=stale.copy(provider="Collaps",providerId="movia:collaps")
         assertEquals(listOf(anotherProvider),DomainPlaybackResolver.validatedCandidates(request,listOf(anotherProvider)))
     }
+
+    @Test fun nativeReloadMatchesMeasuredDimensionsForSameConcreteLeaf() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year = 2025)
+        val before = resolvedCandidate("old").copy(logicalSourceId = "logical-source:v2:same", quality = "Не указано")
+        val after = before.copy(stableStreamId = "new", url = "https://cdn.example/rotated.mp4", quality = "480p", voice = "Renamed")
+        assertTrue(DomainPlaybackResolver.matchesReloadIdentity(before, after, request))
+        assertFalse(DomainPlaybackResolver.matchesReloadIdentity(before, after.copy(logicalSourceId = "logical-source:v2:other"), request))
+    }
+    @Test fun nativeReloadStillRejectsWrongCatalogAndDifferentAudioTrack() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year = 2025)
+        val before = resolvedCandidate("old").copy(logicalSourceId = "logical-source:v2:same", audioTrackIndex = 0)
+        assertFalse(DomainPlaybackResolver.matchesReloadIdentity(before, before.copy(audioTrackIndex = 1), request))
+        assertFalse(DomainPlaybackResolver.matchesReloadIdentity(before, before.copy(catalogMediaId = "43"), request))
+    }
 }

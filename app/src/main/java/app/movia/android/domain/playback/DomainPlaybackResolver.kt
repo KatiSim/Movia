@@ -776,6 +776,12 @@ object DomainPlaybackResolver {
         request: PlaybackRequest,
     ): Boolean {
         if (!identityMatches(request, refreshed)) return false
+        if (previous.logicalSourceId?.startsWith("logical-source:v2:") == true &&
+            previous.logicalSourceId == refreshed.logicalSourceId
+        ) {
+            return previous.logicalSourceIdentity(request.seasonNumber, request.episodeNumber) ==
+                refreshed.logicalSourceIdentity(request.seasonNumber, request.episodeNumber)
+        }
         val previousOption = previous.toStreamOption()
         val refreshedOption = refreshed.toStreamOption()
         if (!refreshedOption.sameRequestedVariant(

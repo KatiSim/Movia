@@ -7,6 +7,7 @@ folders. It uses only Movia resolver rows, ProviderContract types and Movia logs
 """
 from __future__ import annotations
 
+import base64
 import logging
 import re
 from collections import defaultdict
@@ -41,11 +42,14 @@ def _provider_id(name: str) -> str:
 
 def _info_hash(row: Dict[str, Any]) -> str:
     explicit = str(row.get("info_hash") or row.get("infoHash") or "").strip()
-    if explicit:
-        return explicit.casefold()
     url = str(row.get("url") or "").strip()
     match = _BTih.search(url)
-    return match.group(1).casefold() if match else ""
+    for value in (explicit, match.group(1) if match else ""):
+        if re.fullmatch(r"[0-9a-fA-F]{40}", value):
+            return value.casefold()
+        if re.fullmatch(r"[A-Za-z2-7]{32}", value):
+            return base64.b32decode(value.upper()).hex()
+    return ""
 
 
 def _release_title(row: Dict[str, Any]) -> str:
@@ -205,7 +209,12 @@ def rewrite_torrent_rows_as_variant_tree(rows: Iterable[Dict[str, Any]], request
     retries, reliability and catalog search. This boundary only preserves
     provider/voice/quality/episode structure and stable torrent identity.
     """
-    clean = sanitize_streams(list(rows), require_source=True)
+    # Common torrent dedupe may collapse the same BTIH reported by mirrors.
+    # Choose its provider deterministically instead of whichever row arrived first.
+    ordered = sorted(list(rows), key=lambda row: (
+        _provider_name(row).casefold(), str(row.get("url") or ""),
+    ) if isinstance(row, dict) else ("", ""))
+    clean = sanitize_streams(ordered, require_source=True)
     by_provider: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for row in clean:
         if not _matches_bound_identity(row, request):

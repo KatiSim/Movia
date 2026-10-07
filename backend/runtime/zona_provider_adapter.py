@@ -7,6 +7,7 @@ composition, logging and candidate metadata. It never guesses a resolution.
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import sqlite3
@@ -107,8 +108,7 @@ class ZonaProviderAdapter:
             )
             return None, None, f"ZONA_{lookup.status}"
 
-        article_item = next((str(row.get("provider_content_id") or row.get("provider_id") or "").strip()
-                             for row in lookup.streams if str(row.get("provider_content_id") or row.get("provider_id") or "").strip()), source.item_id)
+        article_item = source.item_id
         article = ProviderArticle(
             provider=self.definition,
             item_id=article_item,
@@ -118,13 +118,18 @@ class ZonaProviderAdapter:
             content_ref=source.content_ref,
         )
         voice_groups: dict[str, list[VariantStream]] = {}
-        for ordinal, row in enumerate(lookup.streams[:512]):
+        for row in lookup.streams:
             url = str(row.get("url") or "").strip()
             if not url: continue
             voice = str(row.get("voice") or row.get("translation") or "Не указано").strip() or "Не указано"
             quality = _real_quality(row.get("quality") or row.get("resolution"))
             source_type = row.get("source_type_id") or row.get("video_source_type_id") or ""
-            stream_key = str(row.get("logical_source_id") or row.get("provider_item_id") or f"source:{source_type}|leaf:{ordinal}")
+            explicit_key = str(row.get("logical_source_id") or row.get("provider_item_id") or "").strip()
+            selector = ("provider-key", explicit_key) if explicit_key else ("exact-locator", url, voice, quality)
+            stream_key = json.dumps([
+                str(source_type), str(row.get("provider_content_id") or row.get("provider_id") or ""),
+                *selector,
+            ], ensure_ascii=False, separators=(",", ":"))
             metadata = dict(row.get("transport_metadata") or {}) if isinstance(row.get("transport_metadata"), dict) else {}
             if source_type != "": metadata.setdefault("zona_source_type_id", str(source_type))
             leaf = VariantStream(

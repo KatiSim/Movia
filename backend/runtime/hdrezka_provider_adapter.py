@@ -7,7 +7,7 @@ transport is independently implemented in hdrezka_transport; identity, tree
 composition, logging and candidate metadata are owned by Movia.
 """
 from __future__ import annotations
-import logging,re
+import logging,re,json
 from threading import BoundedSemaphore
 from concurrent.futures import ThreadPoolExecutor,wait
 from media_content_probe import catalog_duration_seconds,duration_matches,measure_mp4,measure_hls_content
@@ -17,6 +17,7 @@ import requests
 from bs4 import BeautifulSoup
 from catalog_schema_v2 import normalize_ru_text
 from provider_contract import DeferredVariantLoader, ProviderArticle,ProviderDefinition,ProviderRequest,ProviderRequestProfile,ProviderSearchResult,VariantFolder,VariantStream
+from stream_validation import canonical_stream_locator
 from hdrezka_transport import resolve_hdrezka as _resolve_hdrezka,HDREZKA_DEFAULT_USER_AGENT
 
 logger=logging.getLogger('hdrezka_provider_adapter')
@@ -213,7 +214,7 @@ class HDRezkaProviderAdapter:
             logger.info('HDRezka exact episode content unverified media_id=%s season=%s episode=%s',request.media_id,request.season,request.episode)
             return None,None,'HDREZKA_EPISODE_CONTENT_UNVERIFIED'
         if not expected and episode_runtime:expected=episode_runtime
-        for i,row in enumerate(streams):
+        for row in streams:
             url=str(row.get('url') or '').strip()
             if not url:continue
             if request.is_series_request and (row.get('season'),row.get('episode')) != (request.season,request.episode):
@@ -228,7 +229,10 @@ class HDRezkaProviderAdapter:
                 continue
             if measured and measured.get('height'):
                 quality=str(measured['height'])+'p'
-            key=f'{source.item_id}|{voice.casefold()}|{quality.casefold()}|{i}'
+            key = str(row.get('stream_key') or '').strip() or json.dumps([
+                "fallback", canonical_stream_locator(url, 2), voice.casefold(),
+                str(row.get('advertised_quality') or row.get('quality') or '').casefold(),
+            ], ensure_ascii=False, separators=(",", ":"))
             leaf=VariantStream(url=url,stream_key=key,voice=voice,quality=quality,season=request.season,episode=request.episode,headers=dict(row.get('headers') or {}),user_agent=str(row.get('user_agent') or HDREZKA_DEFAULT_USER_AGENT),subtitles=tuple(dict(x) for x in (row.get('subtitle_list') or row.get('subtitles') or []) if isinstance(x,dict)),audio_track_index=row.get('audio_track_index'),transport=str(row.get('transport') or ('hls' if '.m3u8' in url else 'direct')),reload_supported=True,transport_metadata={**dict(row.get('transport_metadata') or {}),**({'expected_episode_duration_ms':int(episode_runtime*1000)} if episode_runtime else {}),**({"measured_duration_ms":int(measured["duration"]*1000),**({"measured_height":measured['height']} if measured.get('height') else {})} if measured else {})})
             groups.setdefault(voice,[]).append(leaf)
         voices=tuple(VariantFolder(voice=v,season=request.season,episode=request.episode,children=tuple(ls)) for v,ls in groups.items() if ls)

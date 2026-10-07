@@ -1,0 +1,61 @@
+{
+  "mediaId": "158",
+  "title": "Интерстеллар",
+  "year": 2014,
+  "matches": 1,
+  "searchError": null,
+  "passes": [
+    {
+      "leaves": 100,
+      "uniqueLogicalIds": 100,
+      "uniquePublicIds": 100,
+      "voices": [
+        "Белорусский двухголосый",
+        "Грузинский многоголосый",
+        "Дубляж",
+        "Есарев",
+        "Живов",
+        "Одноголосый закадровый",
+        "Оригинал (+субтитры)",
+        "Сербин",
+        "Студия Омикрон",
+        "Украинский дубляж"
+      ],
+      "qualities": [
+        "Не указано"
+      ],
+      "error": null,
+      "elapsedSeconds": 7.2
+    },
+    {
+      "leaves": 100,
+      "uniqueLogicalIds": 100,
+      "uniquePublicIds": 100,
+      "voices": [
+        "Белорусский двухголосый",
+        "Грузинский многоголосый",
+        "Дубляж",
+        "Есарев",
+        "Живов",
+        "Одноголосый закадровый",
+        "Оригинал (+субтитры)",
+        "Сербин",
+        "Студия Омикрон",
+        "Украинский дубляж"
+      ],
+      "qualities": [
+        "480p",
+        "720p",
+        "Не указано"
+      ],
+      "error": null,
+      "elapsedSeconds": 4.94
+    }
+  ],
+  "commonLogicalIds": 100,
+  "idsOnlyFirst": 0,
+  "idsOnlySecond": 0,
+  "publicIdSameForCommon": 100,
+  "qualityChangedForCommon": 2,
+  "urlRotatedForCommon": 100
+}
