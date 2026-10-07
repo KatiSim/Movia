@@ -818,21 +818,32 @@ object DomainPlaybackResolver {
             identityMatches(request, refreshed)
     }
 
-    suspend fun reloadStreamCandidate(
-        candidate: StreamCandidate,
-        request: PlaybackRequest,
+    internal fun hasFreshReloadLocator(previous: StreamCandidate, refreshed: StreamCandidate): Boolean {
+        val parsed = runCatching { java.net.URI(previous.url) }.getOrNull()
+        val local = parsed?.host in setOf("127.0.0.1", "localhost", "::1") ||
+            previous.transport.lowercase() in setOf("local_gateway", "torrent", "torrent_p2p", "p2p", "magnet", "local_storage")
+        if (local) return true
+        return previous.url != refreshed.url || previous.headers != refreshed.headers ||
+            previous.userAgent != refreshed.userAgent || previous.drmLicenseUrl != refreshed.drmLicenseUrl
+    }
+
+    suspend fun reloadStreamCandidate(candidate: StreamCandidate, request: PlaybackRequest): StreamCandidate? =
+        reloadStreamCandidateWithBackend(candidate, request, httpBackend)
+
+    internal suspend fun reloadStreamCandidateWithBackend(
+        candidate: StreamCandidate, request: PlaybackRequest, backend: PlaybackResolverBackend,
     ): StreamCandidate? = withContext(Dispatchers.IO) {
         try {
             if (!candidate.reloadSupported && candidate.reloadData.isNullOrBlank()) return@withContext null
-            val fresh = resolveStreams(request, forceRefresh = true)
+            // A force-refresh response can contain the failed cached locator while
+            // discovery is pending. Observe that same job before accepting reload.
+            val fresh = resolveStreamsWithBackend(request, forceRefresh = true, backend = backend, onCandidates = {})
             if (fresh is PlaybackResolverResult.Success) {
-                val matching = fresh.candidates.firstOrNull {
-                    matchesReloadIdentity(candidate, it, request)
-                }
-                matching?.let { mergeReloadedCandidate(candidate, it) }
-            } else {
-                null
-            }
+                fresh.candidates.firstOrNull { matchesReloadIdentity(candidate, it, request) &&
+                    hasFreshReloadLocator(candidate, it) }?.let { mergeReloadedCandidate(candidate, it) }
+            } else null
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (e: Exception) {
             Log.d(TAG, "reloadStreamCandidate failed: ${e::class.java.simpleName}")
             null

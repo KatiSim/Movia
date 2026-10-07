@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-07T14:31:31.900355+00:00",
+  "healthHttpStatus": 200,
+  "health": {
+    "status": "ok",
+    "service": "movia-p2p-streamer-on-demand",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "cloudMode": false,
+    "p2pEnabled": true,
+    "security": "isolated-localhost"
+  },
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 346778,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "playbackState": null,
+  "userDirtyPathsPreserved": 20,
+  "userDirtyHashesUnchanged": true,
+  "services": [
+    "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 7435) 1821s; run: log: (pid 6330) 166785s",
+    "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 7422) 1821s",
+    "run: /data/data/com.termux/files/usr/var/service/movia-torrserver: (pid 6374) 166785s; run: log: (pid 6373) 166785s"
+  ]
+}

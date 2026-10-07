@@ -1,0 +1,19 @@
+{
+  "streamId": "provider-item:v2:9ede95bbfc62adc6b860c65e",
+  "wasPresent": false,
+  "seconds": 20.41,
+  "statusKeys": [
+    "title",
+    "category",
+    "poster",
+    "timestamp",
+    "name",
+    "hash",
+    "stat",
+    "stat_string"
+  ],
+  "filesCount": 0,
+  "fileIdTypes": [],
+  "videoExtensions": [],
+  "fileSizes": []
+}

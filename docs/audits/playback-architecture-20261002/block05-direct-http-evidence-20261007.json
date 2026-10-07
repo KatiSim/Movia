@@ -1,0 +1,50 @@
+[
+  {
+    "streamId": "stream:d3465798eba9280186ef5f47",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "scheme": "http",
+    "loopback": false,
+    "status": 403,
+    "contentType": "text/html",
+    "bytesRead": 256,
+    "redirect": false,
+    "seconds": 0.17
+  },
+  {
+    "streamId": "stream:b0608eb0463cbfcdcbb7f1ee",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "scheme": "http",
+    "loopback": false,
+    "status": 403,
+    "contentType": "text/html",
+    "bytesRead": 256,
+    "redirect": false,
+    "seconds": 0.09
+  },
+  {
+    "streamId": "stream:bab99487e9a1c88cf33e6f88",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "scheme": "http",
+    "loopback": false,
+    "status": 403,
+    "contentType": "text/html",
+    "bytesRead": 256,
+    "redirect": false,
+    "seconds": 0.07
+  },
+  {
+    "streamId": "stream:1d32a7c6f4372c7bc4e5271f",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "scheme": "http",
+    "loopback": false,
+    "status": 403,
+    "contentType": "text/html",
+    "bytesRead": 256,
+    "redirect": false,
+    "seconds": 0.07
+  }
+]

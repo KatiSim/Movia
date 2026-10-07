@@ -1,0 +1,40 @@
+[
+  {
+    "streamId": "stream:072cdf75b7cc744292762735",
+    "voice": "Оригинал (+субтитры)",
+    "checks": [
+      {
+        "scheme": "http",
+        "status": 403,
+        "contentType": "text/html",
+        "mp4Signature": false,
+        "hlsSignature": false,
+        "httpsOnlyMessage": false,
+        "bytesRead": 512
+      },
+      {
+        "scheme": "https",
+        "errorType": "SSLError"
+      }
+    ]
+  },
+  {
+    "streamId": "stream:369ac726e94d3b33372b9ea5",
+    "voice": "Оригинал (+субтитры)",
+    "checks": [
+      {
+        "scheme": "http",
+        "status": 403,
+        "contentType": "text/html",
+        "mp4Signature": false,
+        "hlsSignature": false,
+        "httpsOnlyMessage": false,
+        "bytesRead": 512
+      },
+      {
+        "scheme": "https",
+        "errorType": "SSLError"
+      }
+    ]
+  }
+]

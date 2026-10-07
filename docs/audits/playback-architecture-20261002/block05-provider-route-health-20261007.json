@@ -1,0 +1,21 @@
+[
+  {
+    "origin": "https://hdrezka.ag",
+    "status": 500,
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "origin": "http://hdrzk.org",
+    "status": 403,
+    "contentType": "text/html; charset=UTF-8"
+  },
+  {
+    "origin": "https://rezka.ag",
+    "errorType": "ConnectionError"
+  },
+  {
+    "origin": "https://www.cloudflare.com",
+    "status": 200,
+    "contentType": "text/html; charset=utf-8"
+  }
+]

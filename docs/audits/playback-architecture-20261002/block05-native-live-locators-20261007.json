@@ -1,0 +1,50 @@
+[
+  {
+    "streamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "status": 206,
+    "contentType": "video/mp4",
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:a03531516b353e38601ba3eb",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "status": 206,
+    "contentType": "video/mp4",
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:63cdf66023f6df31e3b3b40f",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "status": 206,
+    "contentType": "video/mp4",
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:38e3ed36fb1c861861472687",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "status": 206,
+    "contentType": "video/mp4",
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:9456e04b91c7fc530f322b29",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "status": "URLError",
+    "contentType": null,
+    "mp4Signature": false
+  },
+  {
+    "streamId": "provider-item:v2:0e3cc156dbed91860b68eaa9",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "status": "URLError",
+    "contentType": null,
+    "mp4Signature": false
+  }
+]

@@ -754,4 +754,34 @@ class DomainPlaybackResolverTest {
         published.await();job.cancel();job.join()
         val stopped=calls;kotlinx.coroutines.delay(150);assertEquals(stopped,calls);assertTrue(job.isCancelled)
     }
+    @Test fun reloadDoesNotAcceptTheUnchangedFailedRemoteLocatorAsFresh() = runBlocking {
+        val old=resolvedCandidate("same").copy(reloadSupported=true)
+        val backend=object:PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean)=PlaybackResolverBackendResponse(listOf(old))
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Title rebind")
+        }
+        assertNull(DomainPlaybackResolver.reloadStreamCandidateWithBackend(old,PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend))
+    }
+    @Test fun reloadWaitsForPendingDiscoveryToRotateLocatorWithoutRequeue() = runBlocking {
+        val old=resolvedCandidate("same").copy(reloadSupported=true)
+        val calls=mutableListOf<Boolean>()
+        val backend=object:PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls+=forceRefresh
+                return if(calls.size==1) PlaybackResolverBackendResponse(listOf(old),discoveryPending=true,retryAfterMs=100)
+                    else PlaybackResolverBackendResponse(listOf(old.copy(url="https://cdn.example/new-token.mp4")))
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Title rebind")
+        }
+        val fresh=DomainPlaybackResolver.reloadStreamCandidateWithBackend(old,PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),backend)
+        assertEquals("https://cdn.example/new-token.mp4",fresh?.url);assertEquals("same",fresh?.stableStreamId)
+        assertEquals(listOf(true,false),calls)
+    }
+    @Test fun reloadProfileChangeAndLocalGatewayRefreshAreDistinctFromRemoteNoOp() {
+        val old=resolvedCandidate("same")
+        assertFalse(DomainPlaybackResolver.hasFreshReloadLocator(old,old.copy(quality="720p")))
+        assertTrue(DomainPlaybackResolver.hasFreshReloadLocator(old,old.copy(headers=mapOf("Referer" to "https://provider.example"))))
+        val local=old.copy(url="http://127.0.0.1:8888/play/source",transport="local_gateway")
+        assertTrue(DomainPlaybackResolver.hasFreshReloadLocator(local,local))
+    }
 }

@@ -1,0 +1,72 @@
+[
+  {
+    "streamId": "provider-item:v2:0e3cc156dbed91860b68eaa9",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:93f0587859443de12062f2ba",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:3eff9e1a487351d9e408b4ee:9fd2542064e8bd4deafa4aae",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:acd49e5e2a55a710e834b217:225171f725f0aad93c51de94",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:d5d0aa8c5ea5ab42e70f39b5",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:716ef848404456b35a5d6172",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:a944ec0d20408ef17c9b8574",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:5af062eef08bae3a3665b43b",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:d573d5fb875ed42018f3e9fa",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  },
+  {
+    "streamId": "provider-item:v2:e241a9fd974c6ea9d1a2c608",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "status": 206,
+    "mp4Signature": true
+  }
+]

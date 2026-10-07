@@ -337,7 +337,7 @@ class PlaybackSession(context: Context) {
     private var activeConsumedUri: String? = null
     private val failedStreamIds = linkedSetOf<String>()
     private val problemTracker = StreamProblemTracker(maxEntries = MAX_PROBLEM_MEMORY)
-    private val reloadAttemptedStreamIds = linkedSetOf<String>()
+    private val reloadGuard = app.movia.android.domain.playback.StreamReloadGuard(MAX_PROBLEM_MEMORY)
     private var recoveryAttemptCount = 0
     private var recoveryAttemptBudget = 1
     private var watchdogJob: Job? = null
@@ -411,6 +411,11 @@ class PlaybackSession(context: Context) {
             }
 
             override fun onRenderedFirstFrame() {
+                activeCandidate?.let { decoded ->
+                    reloadGuard.onDecoded(decoded.stableStreamId)
+                    clearProblemMemory(decoded)
+                    recoveryAttemptCount = 0
+                }
                 if (firstFrameLatencyMs == null && requestStartedMs > 0L) {
                     firstFrameLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
                 }
@@ -754,14 +759,9 @@ class PlaybackSession(context: Context) {
         publishCandidateOptions()
     }
 
-    private fun rememberReloadAttempt(candidate: StreamCandidate): Boolean {
-        if (reloadAttemptedStreamIds.contains(candidate.stableStreamId)) return false
-        reloadAttemptedStreamIds += candidate.stableStreamId
-        while (reloadAttemptedStreamIds.size > MAX_PROBLEM_MEMORY) {
-            reloadAttemptedStreamIds.remove(reloadAttemptedStreamIds.first())
-        }
-        return true
-    }
+    private fun rememberReloadAttempt(candidate: StreamCandidate): Boolean =
+        reloadGuard.tryAcquire(candidate.stableStreamId)
+
 
     private fun replaceCandidate(previous: StreamCandidate, refreshed: StreamCandidate) {
         val index = candidates.indexOfFirst { it.stableStreamId == previous.stableStreamId }
@@ -1103,11 +1103,8 @@ class PlaybackSession(context: Context) {
             if (isCurrentGeneration(generation) && refreshed != null) {
                 replaceCandidate(failed, refreshed)
                 activeCandidate = refreshed
-                // A successful logical reload supersedes transient problem memory
-                // for the old locator and allows a later failure to refresh again.
-                failedStreamIds.remove(refreshed.stableStreamId)
-                problemTracker.clear(failed)
-                reloadAttemptedStreamIds.remove(refreshed.stableStreamId)
+                // Resolving/preparing a locator is not decoded playback evidence.
+                // Keep its reload attempt consumed until an actual video frame.
                 _state.value = _state.value.copy(
                     switchState = PlaybackSwitchState.RECOVERING,
                     statusMessage = "Проверяем более стабильный вариант…",
@@ -1116,10 +1113,7 @@ class PlaybackSession(context: Context) {
                         fallbackReason = "RELOADED_$reason",
                     ),
                 )
-                if (prepareCandidate(refreshed, request, resumePositionMs, generation)) {
-                    clearProblemMemory(refreshed)
-                    return
-                }
+                if (prepareCandidate(refreshed, request, resumePositionMs, generation)) return
                 // A refreshed candidate that cannot even be prepared is a
                 // structural/non-network failure, not the original network event.
                 recordFailure(refreshed, StreamFailureClass.NON_NETWORK)
@@ -1206,7 +1200,7 @@ class PlaybackSession(context: Context) {
         recoveryJob?.cancel()
         failedStreamIds.clear()
         problemTracker.reset()
-        reloadAttemptedStreamIds.clear()
+        reloadGuard.reset()
         recoveryAttemptCount = 0
         candidates = emptyList()
         activeCandidate = null
@@ -1461,7 +1455,7 @@ class PlaybackSession(context: Context) {
         // An explicit user choice starts a new bounded attempt for that ID.
         failedStreamIds.remove(candidate.stableStreamId)
         problemTracker.clear(candidate)
-        reloadAttemptedStreamIds.remove(candidate.stableStreamId)
+        reloadGuard.reset(candidate.stableStreamId)
         candidates = candidates.map {
             if (it.stableStreamId == candidate.stableStreamId) it.copy(isProblematic = false) else it
         }
@@ -1611,7 +1605,7 @@ class PlaybackSession(context: Context) {
         appliedTrackSelectionKey = null
         failedStreamIds.clear()
         problemTracker.reset()
-        reloadAttemptedStreamIds.clear()
+        reloadGuard.reset()
         _streamOptions.value = emptyList()
         _choices.value = PlaybackChoices()
         _state.value = PlaybackState()

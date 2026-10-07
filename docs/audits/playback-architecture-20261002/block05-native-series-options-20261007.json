@@ -1,0 +1,1212 @@
+[
+  {
+    "stream_id": "provider-item:v2:0e3cc156dbed91860b68eaa9",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:b1a98fd5299cd35b9d338fc0",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:93f0587859443de12062f2ba",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:6c0edf93201234787502961e",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:f53e1595f047fa84b18fca75",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:b64a01a3507b6ca90ab86968",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:4615fad11dec017a555f290b",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8c60f7dc0d6e6734418e76d8",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:fde4d99bb562add2b0c04b56",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:9fca1154ce68ccea46ace47f",
+    "voice": "HDrezka в Кубе (Kubik³)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3eff9e1a487351d9e408b4ee:9fd2542064e8bd4deafa4aae",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3a37bdf85ddfd33e03e5acb4:5f34298bdedb6042e872194a",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:acd49e5e2a55a710e834b217:225171f725f0aad93c51de94",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:6d317f9f0d567aabd1424fd9:6d7e1c3f990b9f0687bda2a0",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:9a7c63a707a0494261741d4d:6ce9affcc01e169ae2fc3e74",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d1c56308b31f749bc7c9c8ae:298efe0c6680fa11b0969686",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:9a7c63a707a0494261741d4d:23bcf3fee52f0c14ab0c9600",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d1c56308b31f749bc7c9c8ae:bb4690ff8e9cedcfb32220d7",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8105ac5b9c91b607815fb7d8:6a7efe241097fdf23aee9c31",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:4c2033270faa6eaaa6853817:ff722870757a4b8cf74f18f1",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:acd49e5e2a55a710e834b217:e091ee32afe15e0529078d3f",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:6d317f9f0d567aabd1424fd9:9510dca66b0dcda0a5524bff",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3eff9e1a487351d9e408b4ee:0c7e5780ab9fb8afec4d007c",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3a37bdf85ddfd33e03e5acb4:f09100d49614c2d4c1771e81",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8105ac5b9c91b607815fb7d8:ff31af6c772d1d65333abe77",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:4c2033270faa6eaaa6853817:127632af83c66df3342074b1",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ccc33706ea87d01dd1d2f012:e85671e2b77d9528c7c0b121",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:dc7e73b2c86ab080974bd849:99f74305a27160ff80b6e64d",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ccc33706ea87d01dd1d2f012:afa091a9e2f662863341b0f2",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:dc7e73b2c86ab080974bd849:ab2b2cc4185ff147f6ecf6c1",
+    "voice": "TVShows",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d5d0aa8c5ea5ab42e70f39b5",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:88a74ea4241c930e621f689c",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:716ef848404456b35a5d6172",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:965163489cbcf7ce1a76d7d3",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:769628eb6ad5a07b1e0b71d1",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:6712071cca755a9ad354bd37",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:7753725efc35a05d34de589f",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:b861a9899e81d3650655f7e6",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:982a76dd23f921271ff1eaf1",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:952870b9f1a467c509da5ce6",
+    "voice": "Амедиа (Amedia)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:a944ec0d20408ef17c9b8574",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:20af574ddb8ea0845ccc29b3",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:5af062eef08bae3a3665b43b",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:7f003014f36021de4f5c33aa",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:0bff93cc6941e8041bfdc6dd",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:0c3f2d9e30c98950c6e2d6eb",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:81c726ecbe2a87f08228f4b3",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:6e20df9b7de040643df2c4a3",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:4ddc1bd1e6322ff74d8457fe",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:09688317507f512db4d1d760",
+    "voice": "Гоблин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d573d5fb875ed42018f3e9fa",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:2cb3d1f32b625f98cc55e6b4",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:e241a9fd974c6ea9d1a2c608",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:0f5acf85a23425f17d4b9880",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:1e382a8991b657d56522f9e2",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d75b47d91b9eea7363faa93f",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:2033124ca4ad1a2f3fbb97d3",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ae039df0fc4f8595debf06c9",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:b979c2a5185ee846adc36948",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:e20ac384130b6b760a1535be",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:12190b304b3dba1074f5a2ed",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:25ea60afa3d5cca3785e9b0a",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:a36f34396f1aa444e9b88e6c",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8e5aeaa217207083b7d90b4b",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:091a93189a6d40566c49a7c7",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3681a03b8ee374d6730c7a72",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:beb67c5c51d0350ab45f5081",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:a7565e8c725906ddd1899e0d",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:26ce6549cd50aec88dcce9c0",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:e0ef136363b4b7cf37dc2815",
+    "voice": "лостфильм (LostFilm)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:74cf2922904e3a65e3b98fd0",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:b73c2f711812520c133c443a",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:86e2b2fd77792419666d9444",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:60ff86514b548b90bf4ec950",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:47e5bc8e1f74d32961a00051",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:300df177d052e23ec06e587d",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:cb7d761254c945ad4611e0e8",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:55210cb4e3377f6f1f6dc8c2",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d15aabbe3260b9941665e031",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:78095f5cbc48d712a26a20a9",
+    "voice": "Сербин",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ea19dd2a72f141e8818e9274",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:de20c7193cc0fc5db97cfa82",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:47cf7b23f74efcd1047ce477",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3ea68ba4845e676a4d0de976",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:be41fe5b8611c05752a7414e",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8ad0bfeaf924c7807cc57791",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:76598c464a52e8b8eb7f77db",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:02f35155e13edaa0eaa8e755",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ff05cbe70a1659d9ccab1853",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:fb4567394ea580c6da79bbef",
+    "voice": "Украинский многоголосый",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:016cafe2eca821dc1ef9128f",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ea5ba0894ff7dc5b2e065f26",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:a03531516b353e38601ba3eb",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:4f3bcef5b934f392ccaa2fbe",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:63cdf66023f6df31e3b3b40f",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:3da0d8410655d23b106988f9",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:38e3ed36fb1c861861472687",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:295675530908cf403dcffaa1",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:9456e04b91c7fc530f322b29",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "direct",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:c8a62ebf13351ac39b7299d1",
+    "voice": "Оригинал (+субтитры)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "hls",
+    "provider": "HDRezka",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ee922261bc9f35eafe4521dd",
+    "voice": "Original (с субтитрами)",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Apibay",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:ab9d13e3f9a92ae1e0192f4d",
+    "voice": "Не указано",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Apibay",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:506c710ec5ead29379f792a0",
+    "voice": "LostFilm",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:1f499e1a8590b180eedb6920",
+    "voice": "LostFilm",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:cdb55fc07a11d670c85adc36",
+    "voice": "LostFilm",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:30a492c0995275c39d2326fd",
+    "voice": "LostFilm",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:0cd9571b7e52014b061b427d",
+    "voice": "LostFilm",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:e6696802ad424afa6cd325ac",
+    "voice": "LostFilm",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:5919bab4299036f651ad2b3a",
+    "voice": "LostFilm",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:8acbfa32965809c6194081b8",
+    "voice": "LostFilm",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:e540258e9e4c21bf9890ef14",
+    "voice": "Авторский (Одноголосый)",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:786d7a5c5e344e2f3adf5326",
+    "voice": "Дубляж",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:0b532faa54304a1bfce89260",
+    "voice": "Дубляж",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:1260c3a1a64f180e361f5388",
+    "voice": "Дубляж",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d42410d66149d3c41c2c097f",
+    "voice": "Дубляж",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:7567a8d1ae41359b65e8788b",
+    "voice": "Кубик в Кубе",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:7cf9d53b9320e6a58fb01d07",
+    "voice": "Кубик в Кубе",
+    "quality": "Не указано",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:d2d1f3f17ff17f43842e68a1",
+    "voice": "Кубик в Кубе",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:9c8255e327752a84a0380943",
+    "voice": "Кубик в Кубе",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:f66c430946f411918e18f786",
+    "voice": "Не указано",
+    "quality": "1080p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  },
+  {
+    "stream_id": "provider-item:v2:75739ac787bba392fc4bff13",
+    "voice": "Не указано",
+    "quality": "720p",
+    "season": 1,
+    "episode": 2,
+    "transport": "torrent_p2p",
+    "provider": "Rutor",
+    "catalog_media_id": "159"
+  }
+]
