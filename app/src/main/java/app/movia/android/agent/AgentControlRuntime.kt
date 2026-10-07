@@ -978,8 +978,9 @@ object AgentControlRuntime {
                 val playbackPrefs = prefs.playbackPreferences.first()
                 val titlePrefs = prefs.titlePlaybackPreferences(content.title).first()
                 val progress = if (requested["resume"] == true) {
-                    library.progressByMediaRef.first()[MediaRef.storageKey(content.id, displayTitle)]
-                        ?: library.progressByTitle.first()[displayTitle]
+                    app.movia.android.domain.model.selectExactResumeProgress(
+                        MediaRef(content.id, season, episode), library.progressByMediaRef.first(),
+                    )
                 } else null
                 val streamId = requested["streamId"] as String?
                 val knownStreams = app.movia.android.domain.playback.catalogPlaybackStreams(content, MediaRef(content.id, season, episode))

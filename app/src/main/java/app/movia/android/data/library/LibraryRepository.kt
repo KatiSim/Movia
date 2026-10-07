@@ -12,6 +12,7 @@ import app.movia.android.data.database.WatchLaterEntity
 import app.movia.android.data.database.WaitingReleaseEntity
 import app.movia.android.data.catalog.DemoCatalogRepository
 import app.movia.android.domain.model.PlaybackProgress
+import app.movia.android.domain.model.storedProgressMediaRef
 import app.movia.android.domain.model.MediaRef
 import app.movia.android.domain.model.LibraryMediaRecord
 import app.movia.android.domain.repository.SavedMediaRepository
@@ -193,7 +194,7 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
         durationMs: Long,
         updatedAt: Long = now(),
     ) {
-        saveProgress(canonicalContentId(title).orEmpty(), title, positionMs, durationMs, updatedAt)
+        saveProgress("", title, positionMs, durationMs, updatedAt)
     }
 
     suspend fun saveProgress(
@@ -209,15 +210,14 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
             saveProgress(mediaRef, title, positionMs, durationMs, updatedAt)
             return
         }
-        val resolvedContentId = contentIdFor(contentId, title)
         dao.upsertProgress(
             PlaybackProgressEntity(
-                mediaKey = MediaRef.storageKey(resolvedContentId, title),
+                mediaKey = MediaRef.legacyStorageKey(title),
                 title = title,
                 positionMs = positionMs,
                 durationMs = durationMs,
                 updatedAt = updatedAt,
-                contentId = resolvedContentId,
+                contentId = null,
             ),
         )
     }
@@ -339,10 +339,10 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
             }
         }
         dao.progressMissingContentId().forEach { row ->
-            canonicalContentId(row.title)?.let { contentId ->
+            storedProgressMediaRef(row.mediaKey, row.contentId, row.title)?.let { mediaRef ->
                 dao.rekeyProgress(
                     row.mediaKey,
-                    row.copy(mediaKey = MediaRef.storageKey(contentId, row.title), contentId = contentId),
+                    row.copy(mediaKey = mediaRef.storageKey, contentId = mediaRef.contentId),
                 )
             }
         }
@@ -415,17 +415,12 @@ class LibraryRepository(context: Context) : SavedMediaRepository {
     }
 
     private fun PlaybackProgressEntity.toPlaybackProgress(): PlaybackProgress {
-        val keyRef = MediaRef.fromStorageKey(mediaKey)
-        val validContentId = contentId?.takeIf { id ->
-            MediaRef.from(id, title) != null || keyRef?.contentId == id
-        } ?: keyRef?.contentId ?: canonicalContentId(title)
-        val mediaRef = keyRef?.takeIf { validContentId == it.contentId }
-            ?: validContentId?.let { MediaRef.from(it, title) }
+        val mediaRef = storedProgressMediaRef(mediaKey, contentId, title)
         return PlaybackProgress(
             title = title,
             positionMs = positionMs,
             durationMs = durationMs,
-            contentId = validContentId,
+            contentId = mediaRef?.contentId,
             updatedAt = updatedAt,
             seasonNumber = mediaRef?.season,
             episodeNumber = mediaRef?.episode,

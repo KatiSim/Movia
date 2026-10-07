@@ -235,6 +235,21 @@ class ProviderContractTests(unittest.TestCase):
         self.assertEqual(_direct_stream_variant_identity(a), _direct_stream_variant_identity(b))
         self.assertEqual("logical-source", _direct_stream_variant_identity(a)[0])
 
+    def test_unknown_audio_language_stays_unknown_through_public_boundary(self):
+        article = self.article()
+        request = ProviderRequest("77", "Example", 2024)
+        rows = flatten_variant_tree(article, VariantFolder(children=[
+            VariantStream(url="https://media.example/original.mp4", voice="Original"),
+        ]), request)
+        self.assertEqual("und", rows[0]["language"])
+        self.assertEqual("und", sanitize_streams(rows, require_source=True)[0]["language"])
+
+    def test_explicit_audio_language_survives_studio_label(self):
+        rows = flatten_variant_tree(self.article(), VariantFolder(children=[
+            VariantStream(url="https://media.example/ja.mp4", voice="Original", language="ja"),
+        ]), ProviderRequest("77", "Example", 2024))
+        self.assertEqual("ja", rows[0]["language"])
+
     def test_partial_episode_coordinates_are_rejected(self):
         with self.assertRaises(ValueError):
             ProviderRequest(media_id="m1", title="Example", season=1)

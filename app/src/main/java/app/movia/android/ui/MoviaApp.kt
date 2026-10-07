@@ -663,10 +663,9 @@ private fun MoviaContent(
                             )
                     )?.toURI()?.toString()
                 } else null
-                val progressKey = mediaRef.storageKey
-                val saved = progressByMediaRef[progressKey]
-                    ?: progressByTitle[title]
-                    ?: lastProgress.takeIf { it.mediaRef == mediaRef || it.title == title }
+                val saved = app.movia.android.domain.model.selectExactResumeProgress(
+                    mediaRef, progressByMediaRef, lastProgress,
+                )
                 val titlePreferences = preferencesRepository.titlePlaybackPreferences(baseTitle).first()
                 val initialVoice = titlePreferences.audio ?: playbackPreferences.audio
                 val initialQuality = titlePreferences.quality ?: playbackPreferences.quality

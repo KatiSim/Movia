@@ -1,0 +1,31 @@
+{
+  "case": "live_exact_series_deferred_registry",
+  "searchMatches": 1,
+  "searchError": null,
+  "mediaId": "159",
+  "season": 1,
+  "episode": 2,
+  "resolveError": null,
+  "leaves": 100,
+  "voices": [
+    "HDrezka в Кубе (Kubik³)",
+    "TVShows",
+    "Амедиа (Amedia)",
+    "Гоблин",
+    "Дубляж",
+    "Оригинал (+субтитры)",
+    "Сербин",
+    "Украинский многоголосый",
+    "лостфильм (LostFilm)"
+  ],
+  "qualities": [
+    "480p",
+    "Не указано"
+  ],
+  "allExactEpisode": true,
+  "nativeIds": 100,
+  "languages": [
+    "und"
+  ],
+  "elapsedSeconds": 7.88
+}

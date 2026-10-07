@@ -16,7 +16,7 @@ from urllib.parse import quote,urlparse
 import requests
 from bs4 import BeautifulSoup
 from catalog_schema_v2 import normalize_ru_text
-from provider_contract import ProviderArticle,ProviderDefinition,ProviderRequest,ProviderRequestProfile,ProviderSearchResult,VariantFolder,VariantStream
+from provider_contract import DeferredVariantLoader, ProviderArticle,ProviderDefinition,ProviderRequest,ProviderRequestProfile,ProviderSearchResult,VariantFolder,VariantStream
 from hdrezka_transport import resolve_hdrezka as _resolve_hdrezka,HDREZKA_DEFAULT_USER_AGENT
 
 logger=logging.getLogger('hdrezka_provider_adapter')
@@ -86,6 +86,29 @@ def search_exact(title:str,year:Optional[int],accepted_titles=())->Tuple[List[Pr
     return list(uniq.values()),None
 
 
+
+class HDRezkaVariantLoadError(ValueError):
+    """A selected deferred article did not produce verified concrete leaves."""
+
+
+class _HDRezkaVariantLoader(DeferredVariantLoader):
+    def __init__(self, adapter, source, request):
+        self.adapter, self.source, self.request = adapter, source, request
+        self.children = None
+
+    def load(self, folder, request):
+        # Never reuse a source article for a different movie, year or episode.
+        if request != self.request:
+            raise HDRezkaVariantLoadError("HDREZKA_DEFERRED_IDENTITY_MISMATCH")
+        if self.children is None:
+            tree, article, error = self.adapter.resolve_source(self.source, request)
+            if error or tree is None or article is None:
+                raise HDRezkaVariantLoadError(error or "HDREZKA_NO_PLAYABLE_LEAVES")
+            if article.provider != self.source.provider or article.item_id != self.source.item_id:
+                raise HDRezkaVariantLoadError("HDREZKA_DEFERRED_ARTICLE_MISMATCH")
+            self.children = tuple(tree.children)
+        return self.children
+
 class HDRezkaProviderAdapter:
     definition=DEF
     def __init__(self,measure=measure_mp4,expected_duration=catalog_duration_seconds,measure_playlist=measure_hls_content):
@@ -113,6 +136,14 @@ class HDRezkaProviderAdapter:
         rows=list(found.values())
         logger.info('HDRezka exact search media_id=%s aliases=%s matches=%s error=%s',request.media_id,len(accepted),len(rows),error)
         return rows,error
+    def deferred_source(self, source:ProviderSearchResult, request:ProviderRequest):
+        article = ProviderArticle(DEF, source.item_id, source.title, source.year,
+                                  source.article_ref, source.content_ref)
+        # Exact coordinates allow flatten_variant_tree to prune before any HTTP.
+        root = VariantFolder(season=request.season, episode=request.episode,
+                             loader=_HDRezkaVariantLoader(self, source, request))
+        return root, article, None
+
     def resolve_source(self,source:ProviderSearchResult,request:ProviderRequest):
         streams,error=_resolve_hdrezka({'downloadLinkKey':source.item_id},fetch_text=_get,fetch_text_with_headers=_get_headers,fetch_post_form_text=_post,request_user_agent=HDREZKA_DEFAULT_USER_AGENT,season=request.season,episode=request.episode)
         if not streams:

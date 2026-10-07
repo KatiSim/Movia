@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-07T11:58:27.476652+00:00",
+  "health200": true,
+  "services": [
+    {
+      "action": "down",
+      "code": 0,
+      "status": ""
+    },
+    {
+      "action": "up",
+      "code": 0,
+      "status": ""
+    }
+  ],
+  "files": {
+    "provider_contract.py": "7ad6a868c22b010fad47c18cb214a9fff54fd7a0252f7cbd7c00cdaf83dff631",
+    "provider_discovery.py": "1f95af285b8b10af5841a14f1460c94950f89ff39a4f5177cfa06cf76f9a0752",
+    "hdrezka_provider_adapter.py": "b30c98420c9caa9b2932551196479ca662946da8b0611f82c4f075ec264f8a8e"
+  },
+  "flagsChanged": false,
+  "databaseMigration": false,
+  "healthPort": 8888
+}

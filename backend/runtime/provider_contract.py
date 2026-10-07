@@ -286,7 +286,7 @@ def _stream_row(
         "logical_source_id": logical_source_id,
         "url": _text(stream.url),
         "voice": voice,
-        "language": _text(stream.language) or "ru",
+        "language": _text(stream.language) or "und",
         "quality": quality,
         "headers": dict(stream.headers),
         "transport": _text(stream.transport) or "direct",

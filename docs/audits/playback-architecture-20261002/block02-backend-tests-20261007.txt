@@ -1,0 +1,74 @@
+........................................./data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f575300>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f5758a0>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f5755d0>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f575d50>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f575e40>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................................................................Collaps identity rejected media_id=77 reason=title_mismatch
+Collaps identity rejected media_id=77 reason=year_mismatch
+.................2026-10-07 13:51:34,942 - INFO - Torrent VariantTree persistence rewrite ID=77 input=2 leaves=1
+.2026-10-07 13:51:34,944 - INFO - Torrent VariantTree persistence rewrite ID=77 input=1 leaves=1
+......................................................................................../data/data/com.termux/files/usr/lib/python3.14/concurrent/futures/thread.py:231: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7235989120>
+  thread_name = '%s_%d' % (self._thread_name_prefix or self,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/concurrent/futures/thread.py:231: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f575030>
+  thread_name = '%s_%d' % (self._thread_name_prefix or self,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/concurrent/futures/thread.py:231: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722f66ab60>
+  thread_name = '%s_%d' % (self._thread_name_prefix or self,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....HDRezka content duration mismatch media_id=42 actual=60 expected=10140
+.HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+......HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+........................................................[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+...[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+[DEBUG] Zona balancer branch disabled: ProviderContract owns Zona discovery
+.[WARNING] [Balancer] Нет доступных потоков: status=UNKNOWN provider_errors=0 title=Example year=2024
+...2026-10-07 13:51:44,595 - INFO - Provider apibay skipped during reliability cooldown
+................/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d4e0>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d5d0>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d7b0>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d6c0>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d8a0>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:301: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d990>
+  if hasattr(lock, '_release_save'):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.............................Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+.........................<string>:28: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24d6c0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................<frozen importlib._bootstrap>:232: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x722d24e020>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..........................Zona identity rejected media_id=77 reason=title_mismatch
+Zona identity rejected media_id=77 reason=year_mismatch
+....
+----------------------------------------------------------------------
+Ran 418 tests in 17.996s
+
+OK
+Torrent resolve error or timeout: 

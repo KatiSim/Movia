@@ -18,7 +18,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, wait
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 from catalog_schema_v2 import normalize_ru_text
 from collaps_provider_adapter import CollapsProviderAdapter
@@ -92,19 +92,23 @@ def _normalized_titles(values: Sequence[Optional[str]]) -> set[str]:
     }
 
 
-def _discover_provider_streams(
-    *,
-    enabled_flags: frozenset[str],
-    title: str,
-    year: int = 0,
-    media_id: str,
-    media_type: str = "movie",
-    season: Optional[int] = None,
-    episode: Optional[int] = None,
-    original_title: Optional[str] = None,
-    fetch_text: Optional[TextFetcher] = None,
-    fetch_post_form_text: Optional[PostFormFetcher] = None,
-) -> ProviderDiscoveryOutcome:
+
+def _finish_discovery(attempted, collected_streams, terminal_statuses, error_count):
+    if collected_streams:
+        return ProviderDiscoveryOutcome(sanitize_streams(collected_streams, require_source=True),
+                                        "OK", tuple(attempted), error_count)
+    if not attempted:
+        return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
+    priority = ("AMBIGUOUS", "PLAYBACK_DECODER_REQUIRED", "PROVIDER_ERROR",
+                "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
+    status = next((value for value in priority if value in terminal_statuses),
+                  terminal_statuses[-1] if terminal_statuses else "NO_RESULTS")
+    return ProviderDiscoveryOutcome([], status, tuple(attempted), error_count)
+
+def _discover_zona_mobi(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
     clean_title = str(title or "").strip()
     if not clean_title or not str(media_id or "").strip():
         return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
@@ -120,242 +124,357 @@ def _discover_provider_streams(
     terminal_statuses: list[str] = []
     collected_streams: list[Dict[str, Any]] = []
 
-    if "MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT" in enabled_flags:
-        attempted.append("zona.mobi")
-        try:
-            request = ProviderRequest(str(media_id), clean_title, int(year) if int(year or 0) > 0 else None,
-                                      season, episode, "tv" if is_series else "movie")
-            adapter = ZonaMobiProviderAdapter()
-            results, search_error = adapter.search(request, aliases=(original_title,))
-            if search_error:
-                terminal_statuses.append(search_error)
-            elif len(results) != 1:
-                terminal_statuses.append("AMBIGUOUS" if results else "NO_MATCH")
+    attempted.append("zona.mobi")
+    try:
+        request = ProviderRequest(str(media_id), clean_title, int(year) if int(year or 0) > 0 else None,
+                                  season, episode, "tv" if is_series else "movie")
+        adapter = ZonaMobiProviderAdapter()
+        results, search_error = adapter.search(request, aliases=(original_title,))
+        if search_error:
+            terminal_statuses.append(search_error)
+        elif len(results) != 1:
+            terminal_statuses.append("AMBIGUOUS" if results else "NO_MATCH")
+        else:
+            tree, article, resolve_error = adapter.resolve_source(results[0], request)
+            if resolve_error or tree is None or article is None:
+                terminal_statuses.append(resolve_error or "PROVIDER_ERROR")
             else:
-                tree, article, resolve_error = adapter.resolve_source(results[0], request)
-                if resolve_error or tree is None or article is None:
-                    terminal_statuses.append(resolve_error or "PROVIDER_ERROR")
-                else:
-                    collected_streams.extend(sanitize_streams(flatten_variant_tree(article, tree, request), require_source=True))
-        except Exception:
+                collected_streams.extend(sanitize_streams(flatten_variant_tree(article, tree, request), require_source=True))
+    except Exception:
+        error_count += 1
+        terminal_statuses.append("PROVIDER_ERROR")
+
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
+    clean_title = str(title or "").strip()
+    if not clean_title or not str(media_id or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+
+    kind = str(media_type or "movie").strip().casefold().replace("-", "_")
+    is_series = season is not None or episode is not None or kind in {
+        "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
+    }
+    get_text = fetch_text or _fetch_text
+    post_form = fetch_post_form_text or _fetch_post_form_text
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
+
+    attempted.append("hdrezka")
+    try:
+        request = ProviderRequest(
+            media_id=str(media_id), title=clean_title,
+            year=int(year) if int(year or 0) > 0 else None,
+            season=season, episode=episode,
+            media_type="tv" if is_series else "movie",
+        )
+        adapter = HDRezkaProviderAdapter()
+        results, search_error = adapter.search(request, aliases=(original_title,))
+        if search_error:
             error_count += 1
             terminal_statuses.append("PROVIDER_ERROR")
-
-    if "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT" in enabled_flags:
-        attempted.append("hdrezka")
-        try:
-            request = ProviderRequest(
-                media_id=str(media_id), title=clean_title,
-                year=int(year) if int(year or 0) > 0 else None,
-                season=season, episode=episode,
-                media_type="tv" if is_series else "movie",
-            )
-            adapter = HDRezkaProviderAdapter()
-            results, search_error = adapter.search(request, aliases=(original_title,))
-            if search_error:
+        elif len(results) > 1:
+            terminal_statuses.append("AMBIGUOUS")
+        elif not results:
+            terminal_statuses.append("NO_MATCH")
+        else:
+            tree, article, resolve_error = adapter.deferred_source(results[0], request)
+            if resolve_error or tree is None or article is None:
                 error_count += 1
                 terminal_statuses.append("PROVIDER_ERROR")
-            elif len(results) > 1:
+            else:
+                rows = sanitize_streams(
+                    flatten_variant_tree(article, tree, request), require_source=True
+                )
+                if rows:
+                    collected_streams.extend(rows)
+                else:
+                    terminal_statuses.append("NO_RESULTS")
+    except Exception:
+        error_count += 1
+        terminal_statuses.append("PROVIDER_ERROR")
+
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+def _discover_collaps(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
+    clean_title = str(title or "").strip()
+    if not clean_title or not str(media_id or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+
+    kind = str(media_type or "movie").strip().casefold().replace("-", "_")
+    is_series = season is not None or episode is not None or kind in {
+        "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
+    }
+    get_text = fetch_text or _fetch_text
+    post_form = fetch_post_form_text or _fetch_post_form_text
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
+
+    attempted.append("collaps")
+    try:
+        request = ProviderRequest(
+            media_id=str(media_id),
+            title=clean_title,
+            year=int(year) if int(year or 0) > 0 else None,
+            season=season,
+            episode=episode,
+            media_type="tv" if is_series else "movie",
+        )
+        adapter = CollapsProviderAdapter()
+        selected, identity_error = adapter.exact_catalog_result(request)
+        if selected is None:
+            if identity_error in {"COLLAPS_IDENTITY_MISMATCH", "COLLAPS_CATALOG_LOOKUP_FAILED"}:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                terminal_statuses.append("NO_MATCH")
+        else:
+            tree, article, resolve_error = adapter.resolve_source(
+                selected, request, fetch_text=get_text,
+            )
+            if resolve_error or tree is None or article is None:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                rows = sanitize_streams(
+                    flatten_variant_tree(article, tree, request),
+                    require_source=True,
+                )
+                if rows:
+                    collected_streams.extend(rows)
+                else:
+                    terminal_statuses.append("NO_RESULTS")
+    except Exception:
+        error_count += 1
+        terminal_statuses.append("PROVIDER_ERROR")
+
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+def _discover_zona(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
+    clean_title = str(title or "").strip()
+    if not clean_title or not str(media_id or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+
+    kind = str(media_type or "movie").strip().casefold().replace("-", "_")
+    is_series = season is not None or episode is not None or kind in {
+        "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
+    }
+    get_text = fetch_text or _fetch_text
+    post_form = fetch_post_form_text or _fetch_post_form_text
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
+
+    attempted.append("zona")
+    try:
+        request = ProviderRequest(
+            media_id=str(media_id),
+            title=clean_title,
+            year=int(year) if int(year or 0) > 0 else None,
+            season=season,
+            episode=episode,
+            media_type="tv" if is_series else "movie",
+        )
+        adapter = ZonaProviderAdapter()
+        selected, identity_error = adapter.exact_catalog_result(request)
+        if selected is None:
+            if identity_error in {"ZONA_IDENTITY_MISMATCH", "ZONA_CATALOG_LOOKUP_FAILED"}:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                terminal_statuses.append("NO_MATCH")
+        else:
+            tree, article, resolve_error = adapter.resolve_source(selected, request)
+            if resolve_error or tree is None or article is None:
+                error_count += 1
+                terminal_statuses.append("PROVIDER_ERROR")
+            else:
+                rows = sanitize_streams(
+                    flatten_variant_tree(article, tree, request),
+                    require_source=True,
+                )
+                if rows:
+                    collected_streams.extend(rows)
+                else:
+                    terminal_statuses.append("NO_RESULTS")
+    except Exception:
+        error_count += 1
+        terminal_statuses.append("PROVIDER_ERROR")
+
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+def _discover_filmix(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
+    clean_title = str(title or "").strip()
+    if not clean_title or not str(media_id or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+
+    kind = str(media_type or "movie").strip().casefold().replace("-", "_")
+    is_series = season is not None or episode is not None or kind in {
+        "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
+    }
+    get_text = fetch_text or _fetch_text
+    post_form = fetch_post_form_text or _fetch_post_form_text
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
+
+    attempted.append("filmix")
+    if is_series:
+        terminal_statuses.append("UNSUPPORTED_SERIES")
+    else:
+        adapter = FilmixProviderAdapter()
+        expected_titles = _normalized_titles((clean_title, original_title))
+        results, search_error = adapter.search(clean_title, fetch_text=get_text)
+        if search_error:
+            error_count += 1
+            terminal_statuses.append("PROVIDER_ERROR")
+        else:
+            exact = []
+            for result in results:
+                if normalize_ru_text(result.title) not in expected_titles:
+                    continue
+                if int(year or 0) > 0 and (result.year is None or int(result.year) != int(year)):
+                    continue
+                exact.append(result)
+            exact = list({item.item_id: item for item in exact}.values())
+            if len(exact) > 1:
                 terminal_statuses.append("AMBIGUOUS")
-            elif not results:
+            elif not exact:
                 terminal_statuses.append("NO_MATCH")
             else:
-                tree, article, resolve_error = adapter.resolve_source(results[0], request)
-                if resolve_error or tree is None or article is None:
-                    error_count += 1
-                    terminal_statuses.append("PROVIDER_ERROR")
-                else:
-                    rows = sanitize_streams(
-                        flatten_variant_tree(article, tree, request), require_source=True
-                    )
-                    if rows:
-                        collected_streams.extend(rows)
-                    else:
-                        terminal_statuses.append("NO_RESULTS")
-        except Exception:
-            error_count += 1
-            terminal_statuses.append("PROVIDER_ERROR")
-
-    # Collaps is the first working provider rewritten natively onto the shared
-    # ProviderContract. Keep activation gated until a live non-zero differential
-    # confirms parity with the current production transport.
-    if "MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT" in enabled_flags:
-        attempted.append("collaps")
-        try:
-            request = ProviderRequest(
-                media_id=str(media_id),
-                title=clean_title,
-                year=int(year) if int(year or 0) > 0 else None,
-                season=season,
-                episode=episode,
-                media_type="tv" if is_series else "movie",
-            )
-            adapter = CollapsProviderAdapter()
-            selected, identity_error = adapter.exact_catalog_result(request)
-            if selected is None:
-                if identity_error in {"COLLAPS_IDENTITY_MISMATCH", "COLLAPS_CATALOG_LOOKUP_FAILED"}:
-                    error_count += 1
-                    terminal_statuses.append("PROVIDER_ERROR")
-                else:
-                    terminal_statuses.append("NO_MATCH")
-            else:
-                tree, article, resolve_error = adapter.resolve_source(
-                    selected, request, fetch_text=get_text,
-                )
-                if resolve_error or tree is None or article is None:
-                    error_count += 1
-                    terminal_statuses.append("PROVIDER_ERROR")
-                else:
-                    rows = sanitize_streams(
-                        flatten_variant_tree(article, tree, request),
-                        require_source=True,
-                    )
-                    if rows:
-                        collected_streams.extend(rows)
-                    else:
-                        terminal_statuses.append("NO_RESULTS")
-        except Exception:
-            error_count += 1
-            terminal_statuses.append("PROVIDER_ERROR")
-
-    if "MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT" in enabled_flags:
-        attempted.append("zona")
-        try:
-            request = ProviderRequest(
-                media_id=str(media_id),
-                title=clean_title,
-                year=int(year) if int(year or 0) > 0 else None,
-                season=season,
-                episode=episode,
-                media_type="tv" if is_series else "movie",
-            )
-            adapter = ZonaProviderAdapter()
-            selected, identity_error = adapter.exact_catalog_result(request)
-            if selected is None:
-                if identity_error in {"ZONA_IDENTITY_MISMATCH", "ZONA_CATALOG_LOOKUP_FAILED"}:
-                    error_count += 1
-                    terminal_statuses.append("PROVIDER_ERROR")
-                else:
-                    terminal_statuses.append("NO_MATCH")
-            else:
-                tree, article, resolve_error = adapter.resolve_source(selected, request)
-                if resolve_error or tree is None or article is None:
-                    error_count += 1
-                    terminal_statuses.append("PROVIDER_ERROR")
-                else:
-                    rows = sanitize_streams(
-                        flatten_variant_tree(article, tree, request),
-                        require_source=True,
-                    )
-                    if rows:
-                        collected_streams.extend(rows)
-                    else:
-                        terminal_statuses.append("NO_RESULTS")
-        except Exception:
-            error_count += 1
-            terminal_statuses.append("PROVIDER_ERROR")
-
-    # Filmix is kept disabled by default because its pinned 3.466 partner API
-    # now returns HTTP 403. The adapter remains fully testable behind the gate.
-    if "MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER" in enabled_flags:
-        attempted.append("filmix")
-        if is_series:
-            terminal_statuses.append("UNSUPPORTED_SERIES")
-        else:
-            adapter = FilmixProviderAdapter()
-            expected_titles = _normalized_titles((clean_title, original_title))
-            results, search_error = adapter.search(clean_title, fetch_text=get_text)
-            if search_error:
-                error_count += 1
-                terminal_statuses.append("PROVIDER_ERROR")
-            else:
-                exact = []
-                for result in results:
-                    if normalize_ru_text(result.title) not in expected_titles:
-                        continue
-                    if int(year or 0) > 0 and result.year is not None and int(result.year) != int(year):
-                        continue
-                    exact.append(result)
-                exact = list({item.item_id: item for item in exact}.values())
-                if len(exact) > 1:
-                    terminal_statuses.append("AMBIGUOUS")
-                elif not exact:
-                    terminal_statuses.append("NO_MATCH")
-                else:
-                    selected = exact[0]
-                    request = ProviderRequest(
-                        media_id=str(media_id),
-                        title=clean_title,
-                        year=int(year) if int(year or 0) > 0 else None,
-                        media_type="movie",
-                    )
-                    tree, article, resolve_error = adapter.resolve_source(
-                        {"downloadLinkKey": selected.item_id},
-                        request,
-                        fetch_text=get_text,
-                        fetch_post_form_text=post_form,
-                    )
-                    if resolve_error or tree is None or article is None:
-                        error_count += 1
-                        terminal_statuses.append("PROVIDER_ERROR")
-                    else:
-                        rows = sanitize_streams(
-                            flatten_variant_tree(article, tree, request),
-                            require_source=True,
-                        )
-                        if rows:
-                            collected_streams.extend(rows)
-                        else:
-                            terminal_statuses.append("NO_RESULTS")
-
-    # Octopus search and article transport are live, but its current iframe
-    # still needs a clean-room playback decoder. Discovery is available behind
-    # a separate diagnostic gate and never fabricates a voice/quality stream.
-    if "MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY" in enabled_flags:
-        attempted.append("octopus")
-        if is_series:
-            terminal_statuses.append("UNSUPPORTED_SERIES")
-        else:
-            adapter = OctopusProviderAdapter()
-            results, search_error = adapter.search(clean_title, fetch_text=get_text)
-            if search_error:
-                error_count += 1
-                terminal_statuses.append("PROVIDER_ERROR")
-            else:
-                selected, status = adapter.exact_match(
-                    results,
+                selected = exact[0]
+                request = ProviderRequest(
+                    media_id=str(media_id),
                     title=clean_title,
-                    original_title=original_title,
-                    year=int(year or 0),
+                    year=int(year) if int(year or 0) > 0 else None,
+                    media_type="movie",
                 )
-                if selected is None:
-                    terminal_statuses.append(status)
+                tree, article, resolve_error = adapter.resolve_source(
+                    {"downloadLinkKey": selected.item_id},
+                    request,
+                    fetch_text=get_text,
+                    fetch_post_form_text=post_form,
+                )
+                if resolve_error or tree is None or article is None:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
                 else:
-                    article, article_error = adapter.resolve_article(selected, fetch_text=get_text)
-                    if article_error or article is None:
-                        error_count += 1
-                        terminal_statuses.append("PROVIDER_ERROR")
+                    rows = sanitize_streams(
+                        flatten_variant_tree(article, tree, request),
+                        require_source=True,
+                    )
+                    if rows:
+                        collected_streams.extend(rows)
                     else:
-                        terminal_statuses.append("PLAYBACK_DECODER_REQUIRED")
+                        terminal_statuses.append("NO_RESULTS")
 
-    if collected_streams:
-        return ProviderDiscoveryOutcome(
-            sanitize_streams(collected_streams, require_source=True),
-            "OK",
-            tuple(attempted),
-            error_count,
-        )
-    if not attempted:
-        return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
-    priority = (
-        "AMBIGUOUS", "PLAYBACK_DECODER_REQUIRED", "PROVIDER_ERROR",
-        "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH",
-    )
-    status = next((value for value in priority if value in terminal_statuses), terminal_statuses[-1] if terminal_statuses else "NO_RESULTS")
-    return ProviderDiscoveryOutcome([], status, tuple(attempted), error_count)
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+def _discover_octopus(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
+    season: Optional[int] = None, episode: Optional[int] = None,
+    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
+    clean_title = str(title or "").strip()
+    if not clean_title or not str(media_id or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+
+    kind = str(media_type or "movie").strip().casefold().replace("-", "_")
+    is_series = season is not None or episode is not None or kind in {
+        "tv", "series", "serial", "tv_series", "limited_series", "dramas_asian",
+    }
+    get_text = fetch_text or _fetch_text
+    post_form = fetch_post_form_text or _fetch_post_form_text
+    attempted: list[str] = []
+    error_count = 0
+    terminal_statuses: list[str] = []
+    collected_streams: list[Dict[str, Any]] = []
+
+    attempted.append("octopus")
+    if is_series:
+        terminal_statuses.append("UNSUPPORTED_SERIES")
+    else:
+        adapter = OctopusProviderAdapter()
+        results, search_error = adapter.search(clean_title, fetch_text=get_text)
+        if search_error:
+            error_count += 1
+            terminal_statuses.append("PROVIDER_ERROR")
+        else:
+            selected, status = adapter.exact_match(
+                results,
+                title=clean_title,
+                original_title=original_title,
+                year=int(year or 0),
+            )
+            if selected is None:
+                terminal_statuses.append(status)
+            else:
+                article, article_error = adapter.resolve_article(selected, fetch_text=get_text)
+                if article_error or article is None:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
+                else:
+                    terminal_statuses.append("PLAYBACK_DECODER_REQUIRED")
+
+    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+
+@dataclass(frozen=True)
+class ProviderRegistration:
+    flag: str
+    name: str
+    discover: Callable[..., ProviderDiscoveryOutcome]
 
 
-_PROVIDER_FLAGS = ('MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT', 'MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT', 'MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT', 'MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT', 'MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER', 'MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY')
+PROVIDER_REGISTRY = (
+    ProviderRegistration('MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT', 'zona.mobi', _discover_zona_mobi),
+    ProviderRegistration('MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT', 'hdrezka', _discover_hdrezka),
+    ProviderRegistration('MOVIA_ENABLE_COLLAPS_PROVIDER_CONTRACT', 'collaps', _discover_collaps),
+    ProviderRegistration('MOVIA_ENABLE_ZONA_PROVIDER_CONTRACT', 'zona', _discover_zona),
+    ProviderRegistration('MOVIA_ENABLE_FILMIX_CLEAN_PROVIDER', 'filmix', _discover_filmix),
+    ProviderRegistration('MOVIA_ENABLE_OCTOPUS_DISCOVERY_ONLY', 'octopus', _discover_octopus),
+)
+if len({entry.flag for entry in PROVIDER_REGISTRY}) != len(PROVIDER_REGISTRY):
+    raise ValueError("DUPLICATE_PROVIDER_REGISTRATION")
+
+
+def _discover_provider_streams(*, enabled_flags: frozenset[str], **request) -> ProviderDiscoveryOutcome:
+    if not str(request.get("title") or "").strip() or not str(request.get("media_id") or "").strip():
+        return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
+    rows, attempted, statuses, errors = [], [], [], 0
+    for registration in PROVIDER_REGISTRY:
+        if registration.flag not in enabled_flags:
+            continue
+        attempted.append(registration.name)
+        try:
+            outcome = registration.discover(**request)
+            rows.extend(outcome.streams)
+            statuses.append(outcome.status)
+            errors += outcome.error_count
+        except Exception:
+            # Discovery-only and gated providers have the same isolation contract.
+            statuses.append("PROVIDER_ERROR")
+            errors += 1
+    return _finish_discovery(attempted, rows, statuses, errors)
+
+
+_PROVIDER_FLAGS = tuple(entry.flag for entry in PROVIDER_REGISTRY)
 _PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=24, thread_name_prefix="movia-provider")
 _PROVIDER_CACHE = OrderedDict()
 _PROVIDER_CACHE_LOCK = threading.Lock()

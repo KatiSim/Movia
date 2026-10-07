@@ -1,0 +1,12 @@
+{
+  "status": "OK",
+  "providers": [
+    "hdrezka"
+  ],
+  "errorCount": 0,
+  "leaves": 100,
+  "allExactEpisode": true,
+  "nativeIds": 100,
+  "elapsedSeconds": 8.87,
+  "budgetSeconds": 12
+}

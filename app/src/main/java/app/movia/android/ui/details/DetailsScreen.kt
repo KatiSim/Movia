@@ -274,9 +274,7 @@ fun DetailsScreen(
     val contentId = content?.id?.takeIf { it.isNotBlank() } ?: mediaId.takeIf { it.isNotBlank() }
     val releaseState = content?.let(::moviaMediaReleaseState) ?: MediaReleaseState.UNKNOWN
     val resume = latestProgress.takeIf { progress ->
-        (content?.id?.let { progress.contentId == it } == true) ||
-            (progress.contentId.isNullOrBlank() &&
-                (progress.title == title || progress.title.startsWith("$title · S")))
+        content?.id?.let { progress.contentId == it } == true
     }
     val initialSeason = resume?.seasonNumber
         ?.coerceIn(1, seasonEpisodeCounts.size.coerceAtLeast(1)) ?: 1
@@ -1284,9 +1282,11 @@ private fun SeasonEpisodesScreen(
                             season = season,
                             number = number,
                             durationMinutes = episodeDurationMinutes,
-                            progress = episodeRef?.let { progressByMediaRef[it.storageKey] }
-                                ?: progressByTitle[fullTitle]
-                                ?: PlaybackProgress(title = fullTitle),
+                            progress = (if (episodeRef != null) {
+                                app.movia.android.domain.model.selectExactResumeProgress(
+                                    episodeRef, progressByMediaRef,
+                                )
+                            } else progressByTitle[fullTitle]) ?: PlaybackProgress(title = fullTitle),
                         ),
                         onPlay = { episodeRef?.let { onPlay(it, fullTitle) } },
                     )
