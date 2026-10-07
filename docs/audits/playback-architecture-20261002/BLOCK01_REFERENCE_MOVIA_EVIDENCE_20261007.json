@@ -1,0 +1,1837 @@
+{
+  "block": 1,
+  "at_utc": "2026-10-07T09:14:30.195098+00:00",
+  "repo": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo",
+  "head_before": "106fbb0e17d016cb04f925dfce5027622f7b99ac",
+  "reference_root": "/data/data/com.termux/files/home/.cache/movia-implementation-20261001/lazy-decompiled/sources",
+  "reference_apk_sha256": "1e613dfe176821acf74150c0b134d61635d5cc5063278fe991a4ff8b990306e0",
+  "scope": "source audit and pure contract diagnostic; no runtime implementation",
+  "reference_sources": [
+    {
+      "path": "com/lazycatsoftware/mediaservices/Services.java",
+      "sha256": "ffae8ec554d51c7bc4def956914444e375638ecbc6e7d7388f391de7cc05434e",
+      "lines": 214,
+      "anchors": {
+        "sServers": [
+          61,
+          62,
+          128,
+          156,
+          174,
+          194,
+          198,
+          199,
+          200,
+          201
+        ],
+        "new vq0": [
+          69,
+          74,
+          75,
+          76,
+          77,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          91,
+          97,
+          123,
+          128
+        ],
+        "HDREZKA_Article": [
+          17,
+          83,
+          123
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/gs0.java",
+      "sha256": "604f32abef7d276ed6b7a0a30e25bf13a0a7e874fdcc4cd36787d6972537cd99",
+      "lines": 328,
+      "anchors": {
+        "class gs0": [
+          19
+        ],
+        "public gs0": [
+          133
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/vq0.java",
+      "sha256": "939fcae00178d9c07624a49b25131e43a4c86b400170fe4db4543453d6baa445",
+      "lines": 151,
+      "anchors": {
+        "class vq0": [
+          8
+        ],
+        "public Class": [
+          74,
+          98,
+          121,
+          129
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/k30.java",
+      "sha256": "f96bd9387befd6947311574ea5235b5eb7a098f8ac66d57ce0dd14161b1ab9b9",
+      "lines": 302,
+      "anchors": {
+        "class k30": [
+          8
+        ],
+        "h30": [
+          12,
+          42,
+          48,
+          214,
+          284,
+          285
+        ],
+        "OooO0o\\(": [
+          60,
+          106
+        ],
+        "OooOo00": [
+          143,
+          144,
+          147,
+          168
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/h30.java",
+      "sha256": "45088ef401365172b10f814986da919cbb531446033c96bc04db3deade25867a",
+      "lines": 24,
+      "anchors": {
+        "onParse": [
+          10,
+          20
+        ],
+        "OooO00o\\(k30": [
+          17
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/j30.java",
+      "sha256": "5b0ff9f83b53d59e2be086712ab5a6f941cc58880518c1b6dab54ac0a94d9f1f",
+      "lines": 434,
+      "anchors": {
+        "class j30": [
+          17
+        ],
+        "getFormat": [
+          242,
+          427
+        ],
+        "OooOOOo": [
+          24,
+          103,
+          106,
+          108,
+          121,
+          127,
+          132,
+          181,
+          201,
+          205,
+          212,
+          213,
+          216,
+          242,
+          245,
+          325,
+          373
+        ],
+        "internal_exo": [
+          52,
+          111,
+          112
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "obf/pl.java",
+      "sha256": "dc52d0b8e7d93d470e12a6900c9c78c66572338ad4ee9baa0889831eb6548fda",
+      "lines": 41,
+      "anchors": {
+        "doInBackground": [
+          18
+        ],
+        "onPostExecute": [
+          29
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "com/lazycatsoftware/lazymediadeluxe/models/service/OooO00o.java",
+      "sha256": "cc496ff7b38184ee6d9a14f91e171d540e7408b8fdc3c2ac5c40b8f52a67499b",
+      "lines": 418,
+      "anchors": {
+        "parseBase": [
+          106,
+          350
+        ],
+        "parseContent": [
+          146,
+          354
+        ],
+        "parseTorrent": [
+          216,
+          370
+        ],
+        "setCustomHeaders": [
+          382
+        ],
+        "destroy\\(": [
+          255
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "com/lazycatsoftware/mediaservices/content/HDREZKA_ListArticles.java",
+      "sha256": "441e39ac38b5239d6df2ad1b6af9062f96cbe54f14b41b3e4b095141477ba003",
+      "lines": 181,
+      "anchors": {
+        "parseSearchList": [
+          128
+        ],
+        "processingList": [
+          107,
+          117,
+          132,
+          157
+        ],
+        "parseGlobalSearchList": [
+          104
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "com/lazycatsoftware/mediaservices/content/HDREZKA_Article.java",
+      "sha256": "eb6f8ff9fe1df5b84522be4b6f702848ce59ac4ad7cb54b7c43e1f168e9de820",
+      "lines": 355,
+      "anchors": {
+        "parseContent": [
+          154,
+          156
+        ],
+        "onParse": [
+          166,
+          209,
+          221
+        ],
+        "getSerialTranslate": [
+          89,
+          258
+        ],
+        "parseMoviesFiles": [
+          169,
+          191,
+          201,
+          212,
+          274
+        ]
+      },
+      "decompiler_warning": true
+    },
+    {
+      "path": "com/lazycatsoftware/lazymediadeluxe/player/ActivityExoPlayer.java",
+      "sha256": "f0750e8e90cdb322a7f6bda71c4f70bc1f4d2f47fe54dad27941391dffe04a98",
+      "lines": 797,
+      "anchors": {
+        "Oooo0OO": [
+          100,
+          259,
+          311,
+          711,
+          788
+        ],
+        "OoooO0O": [
+          256,
+          338,
+          688,
+          691,
+          789
+        ],
+        "OooO0o\\(": [
+          189,
+          276,
+          342,
+          400,
+          414,
+          431,
+          452,
+          541,
+          571,
+          607,
+          636,
+          659,
+          673,
+          699
+        ],
+        "onPause": [
+          785,
+          786
+        ],
+        "onDestroy": [
+          709,
+          710
+        ]
+      },
+      "decompiler_warning": true
+    },
+    {
+      "path": "obf/p.java",
+      "sha256": "7c1fc5a4e2c19ea3cb23c34625c0a8f519b1c33bbdb42bc18150e7cadf2a32fe",
+      "lines": 510,
+      "anchors": {
+        "MappedTrackInfo": [
+          114,
+          115,
+          118,
+          119,
+          122,
+          124,
+          126,
+          327,
+          331,
+          334,
+          344,
+          420
+        ],
+        "TrackSelectionView": [
+          40,
+          345,
+          346,
+          347,
+          356,
+          357,
+          358
+        ],
+        "OoooOO0": [
+          393
+        ],
+        "HlsMediaSource": [
+          31,
+          97
+        ],
+        "DefaultHttpDataSource": [
+          43,
+          275
+        ]
+      },
+      "decompiler_warning": true
+    },
+    {
+      "path": "obf/o30.java",
+      "sha256": "5a8d6a08c6ea1701b2260b73309154d35fe86de3a5a3862ad06abc30c44485c9",
+      "lines": 200,
+      "anchors": {
+        "OooO0o0": [
+          96
+        ],
+        "OooOOo\\(": [
+          165
+        ],
+        "article_hash": [
+          49
+        ]
+      },
+      "decompiler_warning": false
+    }
+  ],
+  "movia_sources": [
+    {
+      "path": "backend/runtime/provider_contract.py",
+      "sha256": "e3be7dea4ca32a9ea3a6ca08d9f95752656f350990b57dba70740d1f60e02cd0",
+      "lines": 408,
+      "anchors": {
+        "class Provider": [
+          39,
+          73,
+          84,
+          100,
+          114
+        ],
+        "class Variant": [
+          140,
+          184
+        ],
+        "class Deferred": [
+          127
+        ],
+        "flatten_variant_tree": [
+          346
+        ],
+        "identity_parts": [
+          255,
+          267,
+          269
+        ],
+        "language.*ru": [
+          289
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/provider_discovery.py",
+      "sha256": "bd6823ded06ddf81b9fc4dc490be3a57f3c4b075919c1427b36181106a87529d",
+      "lines": 434,
+      "anchors": {
+        "def _cache_completed": [
+          364
+        ],
+        "def discover_provider_streams": [
+          378
+        ],
+        "_PROVIDER_FLAGS": [
+          358,
+          384
+        ],
+        "collected_streams.extend": [
+          139,
+          172,
+          214,
+          251,
+          307
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/hdrezka_provider_adapter.py",
+      "sha256": "414253f2c7e1a0c03213860dd2adfb5e3c5317d2bc4fa8cdccff5f563dee26e7",
+      "lines": 207,
+      "anchors": {
+        "def search": [
+          63,
+          95
+        ],
+        "def resolve_source": [
+          116
+        ],
+        "key=f": [
+          200
+        ],
+        "measured": [
+          194,
+          195,
+          196,
+          198,
+          199,
+          201
+        ],
+        "VariantFolder": [
+          19,
+          203,
+          205
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/hdrezka_transport.py",
+      "sha256": "94adff62032a3092f4bab741ec3edb89ee4d62e92bf7da53c08d3569d08126ef",
+      "lines": 347,
+      "anchors": {
+        "def translators": [
+          143
+        ],
+        "def playlist_leaves": [
+          95
+        ],
+        "def resolve_hdrezka": [
+          216
+        ],
+        "advertised_quality": [
+          194,
+          201
+        ],
+        "_TRANSLATOR": [
+          20,
+          21,
+          25,
+          27,
+          29
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/hdrezka_episode_identity.py",
+      "sha256": "81e53f2cd70827b7047843a2bc6887ef3fd63db0547d9a8f1eda3f1426ab2d34",
+      "lines": 34,
+      "anchors": {
+        "^def ": [
+          7,
+          18
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/torrent_provider_adapter.py",
+      "sha256": "28acfebeb5aca16c78f34466007e28855ef3e48c0fe350d3d1197df007756bea",
+      "lines": 230,
+      "anchors": {
+        "def _leaf_stream_key": [
+          89
+        ],
+        "def _build_provider_tree": [
+          106
+        ],
+        "def rewrite_torrent": [
+          201
+        ],
+        "audio_track_index": [
+          155
+        ],
+        "language=": [
+          153
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/catalog_stream_service.py",
+      "sha256": "804bc1001897b7de7089ee59889b38d94ae061e06a88f16c440869fadc43e9f4",
+      "lines": 85,
+      "anchors": {
+        "def _rows": [
+          29
+        ],
+        "def __call__": [
+          46
+        ],
+        "def _resolve": [
+          70
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/content_filler.py",
+      "sha256": "c3509e0e31772d98aadf292c9ba071ac72f4e4cf51d406b106fcb8a75c1dc0b4",
+      "lines": 958,
+      "anchors": {
+        "def _rewrite_torrent": [
+          500
+        ],
+        "discover_provider_streams": [
+          36,
+          573
+        ],
+        "_DIRECT": [
+          58,
+          63,
+          65
+        ],
+        "_TORRENT": [
+          70,
+          504,
+          568,
+          592
+        ],
+        "shared": [
+          634
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/media_content_probe.py",
+      "sha256": "0b3890ea83c799dd331805c2ff094b6602087a00d707fc3644d67fe644e0a75d",
+      "lines": 194,
+      "anchors": {
+        "^def ": [
+          22,
+          41,
+          48,
+          79,
+          94,
+          106,
+          128,
+          152,
+          192
+        ],
+        "_DIMENSION": [
+          16,
+          17,
+          18,
+          131,
+          133,
+          135,
+          136,
+          142,
+          145
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/streamer.py",
+      "sha256": "ffebed2acf10dee623f6ae3eed82788e9b1ce919538c263de88385ce92d3cae1",
+      "lines": 4951,
+      "anchors": {
+        "def resolve_on_demand_streams": [
+          2765
+        ],
+        "def persist_resolved": [
+          3057
+        ],
+        "def _torrserver_exact": [
+          1454
+        ],
+        "def _torrserver_prepare": [
+          1487
+        ],
+        "MOVIA_ENABLE_": [
+          2413,
+          2492,
+          2738
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/zona_provider_adapter.py",
+      "sha256": "fb54bd64dd9ff3095c0b01776f57ba5283b0929ecdd5f53a55a3b9df8a37e530",
+      "lines": 168,
+      "anchors": {
+        "def resolve_source": [
+          89
+        ],
+        "resolve_zona_for_title": [
+          90,
+          94
+        ],
+        "zona_playback_architecture": [
+          23
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/collaps_provider_adapter.py",
+      "sha256": "b40e88556971556e9a317ae7bb2cf8cf9368d0af167fc635f9785ad1eec4d3d8",
+      "lines": 298,
+      "anchors": {
+        "def resolve_source": [
+          257
+        ],
+        "VariantStream": [
+          29,
+          157,
+          159
+        ],
+        "audio_track_index": [
+          170
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/filmix_provider_adapter.py",
+      "sha256": "1f37b5ba48f3103494b12f9ad48db7dc19815aa0f78b5113c61380dbd75497bd",
+      "lines": 463,
+      "anchors": {
+        "def resolve_source": [
+          320
+        ],
+        "VariantStream": [
+          25,
+          411,
+          422
+        ],
+        "UNSUPPORTED": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/octopus_provider_adapter.py",
+      "sha256": "a3f04eb465f58ef38c03892330f184e33cb159112f8754d034e962378959ad1e",
+      "lines": 174,
+      "anchors": {
+        "def resolve_article": [
+          120
+        ],
+        "DECODER": [],
+        "iframe": [
+          48,
+          132,
+          133,
+          134,
+          138,
+          140,
+          141,
+          148
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/zona_mobi_provider_adapter.py",
+      "sha256": "8c6dd3dfed4858b5f6ee9dbaba5d06ccdce8d08e5094705c4baebd472a110183",
+      "lines": 287,
+      "anchors": {
+        "def resolve_source": [
+          205
+        ],
+        "VariantStream": [
+          24,
+          268
+        ],
+        "quality": [
+          267,
+          270
+        ],
+        "voice": [
+          4
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/zona_legacy_adapters.py",
+      "sha256": "d5803094ad4d0de509739d17e7edd381ebf2f2a2aa19237d5cea6ceedfc781b4",
+      "lines": 4547,
+      "anchors": {
+        "^def _resolve_": [
+          706,
+          1263,
+          1517,
+          1576,
+          1693,
+          1811,
+          1927,
+          2042,
+          2187,
+          2293,
+          2443,
+          2604,
+          2727,
+          2979,
+          3061,
+          3354,
+          3952,
+          4162,
+          4293
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/zona_playback_architecture.py",
+      "sha256": "9ee18300d1a396b1e343f2f4da922b5a973dc332508cc5839229730507cbd789",
+      "lines": 237,
+      "anchors": {
+        "^def ": [
+          125,
+          129,
+          145
+        ],
+        "^class ": [
+          17,
+          159
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/stream_validation.py",
+      "sha256": "dae291af611b6f96be929a496d91a23b5ccff8f0a4a92646b710d0978db870d6",
+      "lines": 727,
+      "anchors": {
+        "def bind_stream_identity": [
+          369
+        ],
+        "def sanitize_streams": [
+          535
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/stream_identity.py",
+      "sha256": "278715855685d25ee1f3d6b646dd5896d69945d9ce23805a5aaa4ee1c644f52f",
+      "lines": 162,
+      "anchors": {
+        "^def ": [
+          9,
+          23
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/playback_availability.py",
+      "sha256": "29f55f9dc6826257a90140e283a2e78c55e5d2074de3fcecc2ff301fffd9b179",
+      "lines": 718,
+      "anchors": {
+        "^def ": [
+          32,
+          40,
+          44,
+          48,
+          66,
+          70,
+          82,
+          99,
+          114,
+          128,
+          164,
+          225,
+          257,
+          273,
+          312,
+          377,
+          383,
+          390,
+          395,
+          439
+        ],
+        "^class ": [
+          508
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/runtime/provider_configuration.py",
+      "sha256": "f86e2dd2e60368c15e5ad596fcdf543d7ac4b5cd1980a83e6747f35d39f269a6",
+      "lines": 27,
+      "anchors": {
+        "^def ": [
+          5
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/provider/MoviaProviderRegistry.kt",
+      "sha256": "c65349c12406ca25aee39987403851d8f4fc27401a0e73aebae76f25c104d674",
+      "lines": 133,
+      "anchors": {
+        "class MoviaProviderRegistry": [
+          41
+        ],
+        "Deferred": [
+          23,
+          122
+        ],
+        "suspend fun discover": [
+          53
+        ],
+        "maximumNodes": [
+          46,
+          50,
+          118
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/provider/MoviaBackendProviderAdapter.kt",
+      "sha256": "4edd2d550b13faf753ca166ed0cfb2590026e2697fc9a3e3928ebc5ac3e1c138",
+      "lines": 35,
+      "anchors": {
+        "override suspend fun": [
+          17,
+          21
+        ],
+        "groupBy": [
+          27,
+          28,
+          29
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/legacy/LegacyPlaybackResolver.kt",
+      "sha256": "a011034418806f0b7592a9fb89b7021129b5de08c397c2e2fbfebf5cc1f08c76",
+      "lines": 65,
+      "anchors": {
+        "referenceRuntimeLoaded": [
+          28
+        ],
+        "registry": [
+          10,
+          16,
+          23,
+          27,
+          58
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt",
+      "sha256": "d4e347138c2e76cf1bc7b13d394b63f1e51d1253e8f6497245829a2d8a47f9fc",
+      "lines": 859,
+      "anchors": {
+        "resolveStreamsWithBackend": [
+          665,
+          763
+        ],
+        "matchesReloadIdentity": [
+          648,
+          773,
+          809
+        ],
+        "reloadStreamCandidate": [
+          800,
+          816
+        ],
+        "resolveByTitle": [
+          47,
+          69,
+          725
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/StreamRanker.kt",
+      "sha256": "f6b6cd6cc8a2b370f34072836307efc7082d9158bcdacf5d3b2f9b416e9228e0",
+      "lines": 344,
+      "anchors": {
+        "fun rank": [
+          272
+        ],
+        "measured": [
+          266,
+          268,
+          269
+        ],
+        "content": [
+          264,
+          265,
+          293
+        ],
+        "problem": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/StreamCandidate.kt",
+      "sha256": "ff6b8e8dbf4ab23a516096dbaf99e662b435494bce8fe728848574b79b4458a6",
+      "lines": 225,
+      "anchors": {
+        "logicalSourceId": [
+          9,
+          20,
+          83,
+          153,
+          222,
+          225
+        ],
+        "audioTrackIndex": [
+          41,
+          109,
+          206
+        ],
+        "reload": [
+          48,
+          49,
+          112,
+          113,
+          182,
+          209
+        ],
+        "fileIndex": [
+          26,
+          88,
+          158
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/StreamRequestProfile.kt",
+      "sha256": "0ee595d5411fc9b20625b59abb22d34914cbb8a316f1f50e50f91b03079c9465",
+      "lines": 136,
+      "anchors": {
+        "headersFor": [
+          19,
+          58
+        ],
+        "userAgent": [
+          12,
+          38,
+          46
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/StreamFailurePolicy.kt",
+      "sha256": "a34ec38025281d779db2d54f4a617ceb6e2f231d8c3a082c9d094914e3d6aeb1",
+      "lines": 80,
+      "anchors": {
+        "^internal": [],
+        "^fun ": [],
+        "^class ": [
+          46
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/playback/MediaContentIdentityPolicy.kt",
+      "sha256": "fbf7ea7534d689b5b3554c454c0591360caab197e77e63df4cc0de4ed7df4076",
+      "lines": 31,
+      "anchors": {
+        "fun ": [
+          7,
+          20
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/model/EpisodeNavigation.kt",
+      "sha256": "d3966541c2cb928c59f068c2988a8544ef65f85ff19a5c748348ae0a746d4494",
+      "lines": 22,
+      "anchors": {
+        "fun ": [
+          4,
+          14
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/domain/model/PlaybackProgress.kt",
+      "sha256": "319cc2bdf0cad58ccdf11dfbe7d2bfa32fdd2e4dca503255e9d69104a98f5cf0",
+      "lines": 23,
+      "anchors": {
+        "mediaRef": [
+          12
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/PlaybackSession.kt",
+      "sha256": "1f257d8286e8914908d1004f644b14e5d1864421b511d286fb14d86048a821d1",
+      "lines": 1756,
+      "anchors": {
+        "fun selectVoice": [
+          488
+        ],
+        "fun selectVideoQuality": [
+          460
+        ],
+        "fun switchToStream": [
+          1400,
+          1412
+        ],
+        "recoverFromFailure": [
+          1068,
+          1165
+        ],
+        "applyUserTrackPreferences": [
+          409,
+          470,
+          496,
+          526,
+          541,
+          556,
+          1488
+        ],
+        "fun stopAndClear": [
+          1595
+        ],
+        "MoviaPlaybackRegistry": [
+          67,
+          369,
+          1738
+        ],
+        "onTracksChanged": [
+          407
+        ],
+        "onPlayerError": [
+          431
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/StreamSettingsSelection.kt",
+      "sha256": "7ce4e6cf29ab3625e4ac8e051d858b0db85b80f6a36395bdf191665dc886a8e6",
+      "lines": 88,
+      "anchors": {
+        "fun select": [
+          38
+        ],
+        "firstOrNull": [
+          46,
+          50,
+          52,
+          54
+        ],
+        "isAdaptive": [
+          29,
+          51,
+          68
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/ProviderTrackSelection.kt",
+      "sha256": "a4942dde72f78ac18c1b938ebdbf9488ba6f6168d22ea119dcd9c88a98fc43f4",
+      "lines": 68,
+      "anchors": {
+        "providerTrackOverride": [
+          39
+        ],
+        "providerAudioOrdinals": [
+          10
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/LogicalAudioTracks.kt",
+      "sha256": "652eb806c19803a4e2cf4987807d833b4ab4a9d76ef8bc1a5e1b569eecb63116",
+      "lines": 32,
+      "anchors": {
+        "fun ": [
+          11
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/PlaybackChoices.kt",
+      "sha256": "2e42fe1fd3bf7fc329221e57c030caf5e3c028f0869d331562da5b5a5480cfa9",
+      "lines": 110,
+      "anchors": {
+        "fun playbackChoices": [
+          42
+        ],
+        "fun qualityMenu": [
+          84
+        ],
+        "fun voiceMenu": [
+          97
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt",
+      "sha256": "9d9bd276673dd0f9a245b4057e93efde4f5c0f722da0cb2e9924079cbfb40bbc",
+      "lines": 2693,
+      "anchors": {
+        "fun selectSubtitleTrack": [
+          587
+        ],
+        "fun selectAutomaticSubtitles": [
+          606
+        ],
+        "buildSubtitleTrackOptions": [
+          286,
+          541,
+          2548
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/ui/MoviaApp.kt",
+      "sha256": "c4cdfbe6919253933d1c0d0cf9f968f4218e889f0a0da358b4530a029eae014f",
+      "lines": 1351,
+      "anchors": {
+        "val saved = progressByMediaRef": [
+          670
+        ],
+        "progressByTitle\\[title\\]": [
+          671
+        ],
+        "lastProgress.takeIf": [
+          672
+        ],
+        "saveProgress": [
+          599,
+          729
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/data/library/LibraryRepository.kt",
+      "sha256": "378851aa5412975361c1dcfff9d463975f2052f916d1490251ae77c4ae7e2633",
+      "lines": 445,
+      "anchors": {
+        "fun saveProgress": [
+          190,
+          199,
+          225
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/data/download/DownloadPlaybackIdentity.kt",
+      "sha256": "f3f4df5362a413d63ceda9fe1555e59705202ce0e45794bfb2b359bce9d7876e",
+      "lines": 10,
+      "anchors": {
+        "^fun ": [],
+        "identity": [
+          5
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/data/download/OfflineVariantSelection.kt",
+      "sha256": "c1df45335d57b2c5769c96f48f35f7f95004539b55241ba6b25e1eddaa9359e1",
+      "lines": 73,
+      "anchors": {
+        "fun ": [
+          6,
+          24,
+          60
+        ],
+        "audio": [
+          10,
+          11,
+          13,
+          16,
+          17,
+          18,
+          19,
+          61,
+          63
+        ],
+        "quality": [
+          39,
+          44,
+          45,
+          50,
+          56,
+          59
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/data/download/AdaptiveOfflineDownloader.kt",
+      "sha256": "38e6d6cbea38cc218baeb1cd2da6d0d35e569d34fd559245122081c0687addc5",
+      "lines": 147,
+      "anchors": {
+        "fun ": [
+          48,
+          49,
+          50,
+          84,
+          90,
+          119
+        ],
+        "Track": [
+          14,
+          35,
+          71,
+          75,
+          88,
+          92,
+          98,
+          101,
+          103,
+          106,
+          108,
+          110,
+          112
+        ],
+        "override": [
+          84,
+          90,
+          92,
+          94,
+          98,
+          101,
+          103,
+          119
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/main/java/app/movia/android/data/download/OfflineDownloadWorker.kt",
+      "sha256": "19dae9d053912278a94e56f0116994ea87926cb7db0d51b8f57f96e9cb0a185e",
+      "lines": 159,
+      "anchors": {
+        "fun ": [
+          42,
+          127,
+          135,
+          150,
+          151,
+          152,
+          153
+        ],
+        "variant": [],
+        "quality": [
+          52,
+          53,
+          54,
+          68,
+          142,
+          150
+        ],
+        "audio": [
+          67,
+          90,
+          145,
+          146
+        ]
+      },
+      "decompiler_warning": false
+    }
+  ],
+  "existing_tests": [
+    {
+      "path": "backend/tests/test_provider_contract.py",
+      "sha256": "a5909be60bb7109fdf29012f5c7605423244261f2b36e971a8e0fb64dac99f14",
+      "lines": 246,
+      "anchors": {
+        "def test_": [
+          50,
+          75,
+          93,
+          115,
+          141,
+          164,
+          184,
+          199,
+          212,
+          225,
+          238
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_provider_discovery.py",
+      "sha256": "816d028de9bfc7839823f984abfadf6f3265d444e997d1c7df79583bf9319867",
+      "lines": 224,
+      "anchors": {
+        "def test_": [
+          13,
+          45,
+          69,
+          96,
+          121,
+          163,
+          174,
+          188,
+          204
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_hdrezka_native_transport.py",
+      "sha256": "ae7dd6c5bbd9e7158d96fe609eb1313259d37620eefe891f4ff99285dd0b083f",
+      "lines": 200,
+      "anchors": {
+        "def test_": [
+          35,
+          42,
+          48,
+          53,
+          58,
+          63,
+          75,
+          88,
+          95,
+          101,
+          107,
+          119,
+          131,
+          136,
+          141,
+          147,
+          154,
+          159,
+          165
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_hls_native_dimensions.py",
+      "sha256": "7534396606657ee39b526ce325bcfa9112fc3e38f337c3ab548230302bc08d97",
+      "lines": 68,
+      "anchors": {
+        "def test_": [
+          13,
+          22,
+          33,
+          39,
+          46
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_hdrezka_provider_adapter.py",
+      "sha256": "dbb1098f10357841bd90cc009aa5be89e779d6163b7a5b5970a86bb9a6ece5a2",
+      "lines": 87,
+      "anchors": {
+        "def test_": [
+          9,
+          17,
+          23,
+          29,
+          35,
+          41,
+          54
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_catalog_stream_service.py",
+      "sha256": "fde95a55685e9c84d0d483b481a4f5de505a8a612a9ee1a7b89e45737e3f1ba6",
+      "lines": 147,
+      "anchors": {
+        "def test_": [
+          44,
+          57,
+          67,
+          83,
+          89,
+          100,
+          104,
+          117,
+          121,
+          127,
+          132,
+          142
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_content_filler_provider_union.py",
+      "sha256": "995fafb2bc8fcbeb6d72b56c03df4d51c68cb4647bbcb21c4621a50b19483f6d",
+      "lines": 142,
+      "anchors": {
+        "def test_": [
+          26,
+          48,
+          66,
+          103
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "backend/tests/test_torrent_provider_contract_integration.py",
+      "sha256": "21751f15feb13fef302ce3ee8abef44eaed38c312c3f0ce87cab502afec6b688",
+      "lines": 31,
+      "anchors": {
+        "def test_": [
+          9,
+          23
+        ],
+        "@Test": [],
+        "fun ": []
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/domain/provider/MoviaProviderRegistryTest.kt",
+      "sha256": "a6285947980118cff1e087dcbbd8b4a8d7975a374d3823c03915d3f563b7f501",
+      "lines": 99,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          24,
+          34,
+          41,
+          49,
+          54,
+          66,
+          78,
+          86,
+          94
+        ],
+        "fun ": [
+          10,
+          14,
+          17,
+          21,
+          24,
+          34,
+          41,
+          49,
+          54,
+          57,
+          59,
+          66,
+          78,
+          86,
+          94
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/domain/playback/DomainPlaybackResolverTest.kt",
+      "sha256": "4c6ab006cbfc9f9039f2d2c9a00d1ed4c48341c030cce5e2767ef4afaef1d652",
+      "lines": 690,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          38,
+          46,
+          67,
+          106,
+          121,
+          139,
+          159,
+          173,
+          190,
+          206,
+          212,
+          271,
+          298,
+          325,
+          352,
+          385,
+          419,
+          461,
+          492,
+          523
+        ],
+        "fun ": [
+          18,
+          38,
+          47,
+          68,
+          107,
+          122,
+          140,
+          160,
+          174,
+          191,
+          207,
+          213,
+          272,
+          299,
+          326,
+          353,
+          356,
+          363,
+          386,
+          389
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/domain/playback/StreamContentEvidenceRankingTest.kt",
+      "sha256": "e8e039b66a5675fd7e882b5a85eed6026502d95d4c23be19e544ebff807c0cca",
+      "lines": 63,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          15,
+          21,
+          27,
+          34,
+          43,
+          49,
+          56
+        ],
+        "fun ": [
+          7,
+          15,
+          21,
+          27,
+          34,
+          43,
+          49,
+          56
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/ui/player/StreamSettingsSelectionTest.kt",
+      "sha256": "38d5b3f275be8005ec9256f33fc1e9258cda03dc1422501068c9e600bd8ac6c4",
+      "lines": 88,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          15,
+          25,
+          31,
+          39,
+          48,
+          52,
+          58,
+          61,
+          69,
+          83
+        ],
+        "fun ": [
+          16,
+          26,
+          32,
+          40,
+          48,
+          52,
+          58,
+          61,
+          69,
+          83
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/ui/player/LogicalAudioTracksTest.kt",
+      "sha256": "72741043f5b7f75680beb73a230d352560610790b66b4c9be4305bc5150017d0",
+      "lines": 28,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          5,
+          17,
+          20,
+          24
+        ],
+        "fun ": [
+          5,
+          17,
+          20,
+          24
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/ui/player/Media3PlaybackStabilizationTest.kt",
+      "sha256": "6c4d7f9d3ed83b6558018dee02f7657f63fdbf9c0b267b1001cb64887d917fc0",
+      "lines": 131,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          37,
+          57,
+          63,
+          113
+        ],
+        "fun ": [
+          23,
+          38,
+          58,
+          64,
+          114
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/data/download/OfflineVariantSelectionTest.kt",
+      "sha256": "b2c4163026cadb6b1f1992fbc11e287b5ca3bd784d3e37ee667cf002f7a73ccb",
+      "lines": 67,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          18,
+          21,
+          24,
+          27,
+          35,
+          42,
+          45,
+          48,
+          54,
+          58
+        ],
+        "fun ": [
+          11,
+          14,
+          18,
+          21,
+          24,
+          27,
+          35,
+          42,
+          45,
+          48,
+          54,
+          58
+        ]
+      },
+      "decompiler_warning": false
+    },
+    {
+      "path": "app/src/test/java/app/movia/android/domain/model/EpisodeNavigationTest.kt",
+      "sha256": "28a59d93e73850e9cb2570e2e942315dec02b9a396df3cd182d202e346a94f97",
+      "lines": 49,
+      "anchors": {
+        "def test_": [],
+        "@Test": [
+          8,
+          19,
+          28,
+          37,
+          41,
+          45
+        ],
+        "fun ": [
+          9,
+          20,
+          29,
+          37,
+          41,
+          45
+        ]
+      },
+      "decompiler_warning": false
+    }
+  ],
+  "missing_paths": [],
+  "backend_deferred_loader_implementations": [],
+  "diagnostic": {
+    "same_stream_key_quality_update_changes_logical_id": true,
+    "same_stream_key_quality_update_changes_provider_item_id": true,
+    "unknown_language_on_original_leaf": "ru"
+  },
+  "backend_live_file_parity": {
+    "provider_contract.py": true,
+    "provider_discovery.py": true,
+    "hdrezka_provider_adapter.py": true,
+    "hdrezka_transport.py": true,
+    "catalog_stream_service.py": true,
+    "content_filler.py": true,
+    "torrent_provider_adapter.py": true,
+    "zona_mobi_provider_adapter.py": true
+  },
+  "service_launch_flags": {
+    "movia-media-parser": [
+      [
+        "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT",
+        "1"
+      ],
+      [
+        "MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT",
+        "0"
+      ],
+      [
+        "MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT",
+        "1"
+      ]
+    ],
+    "movia-stream-enricher": [
+      [
+        "MOVIA_ENABLE_HDREZKA_PROVIDER_CONTRACT",
+        "1"
+      ],
+      [
+        "MOVIA_ENABLE_ZONA_MOBI_PROVIDER_CONTRACT",
+        "0"
+      ],
+      [
+        "MOVIA_ENABLE_TORRENT_PROVIDER_CONTRACT",
+        "1"
+      ]
+    ]
+  },
+  "health_http": 200,
+  "service_status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 5395) 42605s; run: log: (pid 6330) 147697s\nrun: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 5408) 42605s",
+  "dirty_before": " M app/src/main/java/app/movia/android/ui/MoviaApp.kt\n M app/src/main/java/app/movia/android/ui/components/MoviaChildTopBar.kt\n M app/src/main/java/app/movia/android/ui/components/MoviaHeaderCircleControl.kt\n M app/src/main/java/app/movia/android/ui/components/MoviaMediaCoverFeedback.kt\n M app/src/main/java/app/movia/android/ui/details/DetailsScreen.kt\n M app/src/main/java/app/movia/android/ui/details/PersonFilmographyScreen.kt\n M app/src/main/java/app/movia/android/ui/home/HomeScreen.kt\n M app/src/main/java/app/movia/android/ui/library/LibraryScreen.kt\n M app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt\n M app/src/main/java/app/movia/android/ui/settings/GeneralSettingsScreens.kt\n M app/src/main/java/app/movia/android/ui/settings/PlaybackSettingsScreen.kt\n M app/src/main/java/app/movia/android/ui/theme/Theme.kt\n M backend/runtime/background_network_budget.py\n M backend/runtime/database.py\n M backend/tests/test_background_network_budget.py\n?? app/schemas/app.movia.android.data.database.MoviaDatabase/5.json\n?? app/src/main/java/app/movia/android/ui/components/MoviaIcons.kt\n?? backend/tests/test_catalog_identity_barrier.py\n?? docs/audits/DESIGN_ICONS_2026-10-06.md\n?? docs/audits/DESIGN_NAV_HERO_2026-10-05.md",
+  "dirty_file_hashes_before": {
+    "app/src/main/java/app/movia/android/ui/MoviaApp.kt": "c4cdfbe6919253933d1c0d0cf9f968f4218e889f0a0da358b4530a029eae014f",
+    "app/src/main/java/app/movia/android/ui/components/MoviaChildTopBar.kt": "338af482575cb729c0b6212f4ae3b743362bef6a677604bd480252d2fb3805a4",
+    "app/src/main/java/app/movia/android/ui/components/MoviaHeaderCircleControl.kt": "56b8f58a5443f4faf5920d9c75cb600ec9abeda52e220d8fc10c41151f684fc2",
+    "app/src/main/java/app/movia/android/ui/components/MoviaMediaCoverFeedback.kt": "ea4cf84f8c7a165e90121d6b4b2d1fddb997649670fa5691ef50e7c946680e89",
+    "app/src/main/java/app/movia/android/ui/details/DetailsScreen.kt": "3968fd5dffc47ed1b6688362a68e54532406dabfd1bbd1ef2156379efa33f197",
+    "app/src/main/java/app/movia/android/ui/details/PersonFilmographyScreen.kt": "7032387ed8df0f312583c3c4f8640215821683fdcbc45c4a0edbd1e44b074491",
+    "app/src/main/java/app/movia/android/ui/home/HomeScreen.kt": "533cceb6870d117be0f98bb8921b301c8591b0410666b277bb3b308a413f0aea",
+    "app/src/main/java/app/movia/android/ui/library/LibraryScreen.kt": "f36daa875af123a348c9847d250a3da7614644da99275089924a5dc9079a0ab6",
+    "app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt": "9d9bd276673dd0f9a245b4057e93efde4f5c0f722da0cb2e9924079cbfb40bbc",
+    "app/src/main/java/app/movia/android/ui/settings/GeneralSettingsScreens.kt": "8ebf44961ec33c8947ce4736c6d1838cb34d0cae023bbec57be7b1db027e4544",
+    "app/src/main/java/app/movia/android/ui/settings/PlaybackSettingsScreen.kt": "181dc1a2885d2b2394148b7bc9423700e9a1b32cf30e1ab609644d0e642d24db",
+    "app/src/main/java/app/movia/android/ui/theme/Theme.kt": "cf9eaa0b57eec650ee295f80478429f29c9936cd60efcad6323582f6f68219e6",
+    "backend/runtime/background_network_budget.py": "94d5b09b7c516a97996f6d42fb3326587bafb544cb140679d238371a2d8bba0d",
+    "backend/runtime/database.py": "fcf063f8a4a4fa9bfc552af4c36f981d4424f19f612ff600e9ccbf8869342b68",
+    "backend/tests/test_background_network_budget.py": "5333cecef291c35923ea87796a416c7cdfbace3e18df21bc769b3b49c84c827c",
+    "app/schemas/app.movia.android.data.database.MoviaDatabase/5.json": "8a77e014bcce83106f446d6df415e5729036fafb31ca2c6c8f7bbfa29580f509",
+    "app/src/main/java/app/movia/android/ui/components/MoviaIcons.kt": "0d926e6f4b3645c9ce3f3dd55ba646b2198b96cdc7b2e589ad3e48350ee5c57d",
+    "backend/tests/test_catalog_identity_barrier.py": "2a74835c894bbdd8a5a80b7ff4f5d1071b555ee05524d853a4f349a6e750c999",
+    "docs/audits/DESIGN_ICONS_2026-10-06.md": "b47a1c4397cd24ebaabc80f22517fe60fd3710dc39b859e59796796a7726380d",
+    "docs/audits/DESIGN_NAV_HERO_2026-10-05.md": "010b2f797131369bb69970cf45a82fad4eaf42630de2db0842f47ae879542210"
+  },
+  "limitations": [
+    "Decompiled methods marked incorrect are not treated as complete executable truth.",
+    "Live playback evidence from 2026-10-06 was reviewed, not rerun in this block.",
+    "Provider endpoint availability is not inferred from source existence.",
+    "Source audit does not prove semantic studio identity by listening.",
+    "Reference APK SHA pins the local input; no bytecode-to-Java equivalence proof is claimed."
+  ],
+  "verification": {
+    "command": "PYTHONPATH=backend/runtime python -m unittest discover -s backend/tests -p test_provider_contract.py",
+    "tests": 11,
+    "passed": 11,
+    "duration_seconds": 0.006,
+    "result": "OK",
+    "at_utc": "2026-10-07T09:15:02Z"
+  },
+  "gap_ids": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12",
+    "G13",
+    "G14"
+  ]
+}
