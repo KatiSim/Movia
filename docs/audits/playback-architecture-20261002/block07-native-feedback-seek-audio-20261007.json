@@ -1,0 +1,50 @@
+{
+  "case": "native_v2_cold_movie_torrent_seek",
+  "mediaId": "158",
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "activeStreamId": "stream:16864c19f3f916d39357bf90",
+      "passed": false,
+      "elapsedSeconds": 80.37,
+      "mediaItemId": "158",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 10143947,
+      "positionMs": 38153,
+      "uriHost": "stream.voidboost.one",
+      "videoHeight": 720,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 921,
+      "activeVoice": "Дубляж",
+      "activeQuality": "720p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "ownProbeTaskRemovedStatus": 200,
+  "sidecarTaskAbsentBeforePlay": true,
+  "prewarmPerformed": false,
+  "pollErrors": [
+    "HTTPError",
+    "HTTPError"
+  ],
+  "decodedAudioTracks": [
+    {
+      "id": "track:1:1:0",
+      "voice": "Аудиодорожка 1",
+      "selected": true
+    }
+  ],
+  "decodedVideoTracks": [
+    {
+      "id": "track:2:0:0",
+      "quality": "720p",
+      "height": 720,
+      "selected": true
+    }
+  ],
+  "passed": false,
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": []
+}

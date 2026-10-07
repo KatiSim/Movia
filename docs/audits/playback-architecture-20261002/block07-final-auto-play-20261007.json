@@ -1,0 +1,14 @@
+{
+  "case": "automatic_movie_startup",
+  "mediaId": "158",
+  "steps": [],
+  "passed": true,
+  "automatic": true,
+  "seconds": 16.35,
+  "activeStreamId": "stream:044ea8c02e571dbc5feaf51f",
+  "frames": 23,
+  "durationMs": 10143957,
+  "mediaItemId": "158",
+  "state": "READY",
+  "videoHeight": 720
+}

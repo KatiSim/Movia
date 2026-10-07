@@ -1,0 +1,38 @@
+{
+  "mediaId": "158",
+  "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+  "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+  "sourceTruth": {
+    "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+    "verificationStatus": "VERIFIED",
+    "verificationMethod": "MEDIA3_SUCCESS",
+    "sourceType": "P2P",
+    "manifestType": null,
+    "actualQuality": "576p",
+    "actualQualities": [
+      "576p"
+    ],
+    "actualAudioTracks": [
+      {
+        "name": "DUB (Лицензия)",
+        "language": "ru",
+        "groupId": "",
+        "default": false,
+        "autoselect": false
+      },
+      {
+        "name": "Английский",
+        "language": "en",
+        "groupId": "",
+        "default": false,
+        "autoselect": false
+      }
+    ],
+    "allowedAudioLanguages": [
+      "ru"
+    ],
+    "expiresAt": null,
+    "qualityClaimConsistent": null
+  },
+  "seconds": 2.049
+}

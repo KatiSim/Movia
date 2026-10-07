@@ -49,4 +49,31 @@ class StartupReplacementTest {
     @Test fun onlyColdTorrentsLeaveNormalRecoveryAvailable() {
         assertNull(selectReadyHttpStartup(request, listOf(old.copy(transport = "torrent_p2p"))))
     }
+
+    @Test fun lateExactUserSourceReplacesAnAlreadyPlayingCachedFallback() {
+        val chosen = fresh.copy(stableStreamId = "chosen")
+        assertTrue(shouldHonorRequestedStream(request.copy(requestedStreamId = "chosen"), old,
+            chosen, app.movia.android.domain.playback.StreamRankingContext()))
+    }
+    @Test fun autoAndOtherLateSourcesDoNotRestartDecodedPlayback() {
+        val context = app.movia.android.domain.playback.StreamRankingContext()
+        assertFalse(shouldHonorRequestedStream(request, old, fresh, context))
+        assertFalse(shouldHonorRequestedStream(request.copy(requestedStreamId = "chosen"), old, fresh, context))
+        assertFalse(shouldHonorRequestedStream(request.copy(requestedStreamId = "same"), old, fresh, context))
+    }
+    @Test fun lateRequestedSourceCannotCrossCatalogOrEpisodeIdentity() {
+        val pinned = request.copy(requestedStreamId = "chosen")
+        val chosen = fresh.copy(stableStreamId = "chosen")
+        val context = app.movia.android.domain.playback.StreamRankingContext()
+        assertFalse(shouldHonorRequestedStream(pinned, old, chosen.copy(catalogMediaId = "43"), context))
+        assertFalse(shouldHonorRequestedStream(pinned, old, chosen.copy(seasonNumber = 1, episodeNumber = 2), context))
+    }
+    @Test fun lateFailedRequestedSourceDoesNotBypassRecoveryMemory() {
+        val pinned = request.copy(requestedStreamId = "chosen")
+        val chosen = fresh.copy(stableStreamId = "chosen")
+        assertFalse(shouldHonorRequestedStream(pinned, old, chosen,
+            app.movia.android.domain.playback.StreamRankingContext(failedStreamIds = setOf("chosen"))))
+        assertFalse(shouldHonorRequestedStream(pinned, old, chosen.copy(isProblematic = true),
+            app.movia.android.domain.playback.StreamRankingContext()))
+    }
 }

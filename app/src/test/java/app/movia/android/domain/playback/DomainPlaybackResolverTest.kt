@@ -784,4 +784,36 @@ class DomainPlaybackResolverTest {
         val local=old.copy(url="http://127.0.0.1:8888/play/source",transport="local_gateway")
         assertTrue(DomainPlaybackResolver.hasFreshReloadLocator(local,local))
     }
+
+    @Test fun nativeLeavesWithACommonLogicalSourceKeepTheirConcreteIds() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year = 2025)
+        val old = resolvedCandidate("provider-item:v2:a:voice-one").copy(
+            logicalSourceId = "logical-source:v2:a", providerId = "movia:provider", transport = "direct")
+        val fresh = old.copy(stableStreamId = "provider-item:v2:a:voice-two", voice = "Original")
+        val rows = DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old), listOf(fresh), request)
+        assertEquals(setOf(old.stableStreamId, fresh.stableStreamId), rows.map { it.stableStreamId }.toSet())
+        assertEquals("Original", rows.single { it.stableStreamId == fresh.stableStreamId }.voice)
+    }
+    @Test fun discoveryUpgradesAFlatCachedIdToTheExactNativeLeaf() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year = 2025)
+        val old = resolvedCandidate("stream:old").copy(logicalSourceId = "logical-source:v2:a",
+            providerId = "movia:provider", transport = "direct")
+        val fresh = old.copy(stableStreamId = "provider-item:v2:a:exact", sourceId = "src:exact",
+            url = "https://cdn.example/fresh.mp4")
+        val rows = DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old), listOf(fresh), request)
+        assertEquals(1, rows.size)
+        assertEquals(fresh.stableStreamId, rows.single().stableStreamId)
+        assertEquals("src:exact", rows.single().sourceId)
+        assertEquals(fresh.url, rows.single().url)
+    }
+    @Test fun aRotatedNativeLocatorStillKeepsTheSameConcreteId() {
+        val request = PlaybackRequest("42", "The Film", ContentType.MOVIE, year = 2025)
+        val old = resolvedCandidate("provider-item:v2:a:exact").copy(logicalSourceId = "logical-source:v2:a",
+            providerId = "movia:provider", transport = "direct")
+        val fresh = old.copy(url = "https://cdn.example/fresh.mp4")
+        val rows = DomainPlaybackResolver.preferDiscoveredCandidates(listOf(old), listOf(fresh), request)
+        assertEquals(1, rows.size)
+        assertEquals(old.stableStreamId, rows.single().stableStreamId)
+        assertEquals(fresh.url, rows.single().url)
+    }
 }

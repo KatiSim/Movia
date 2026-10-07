@@ -39,3 +39,16 @@ internal fun selectReadyHttpStartup(
     }
     return StreamRanker.selectBest(http, requestedVoice = request.requestedVoice, requestedQuality = request.requestedQuality, context = context)
 }
+
+/** An exact user choice can arrive after a cached fallback has already started. */
+internal fun shouldHonorRequestedStream(
+    request: PlaybackRequest,
+    active: StreamCandidate?,
+    desired: StreamCandidate,
+    context: StreamRankingContext,
+): Boolean {
+    val requested = request.requestedStreamId?.trim()?.takeIf { it.isNotBlank() } ?: return false
+    return desired.stableStreamId == requested && active?.stableStreamId != requested &&
+        !desired.isProblematic && requested !in context.failedStreamIds &&
+        DomainPlaybackResolver.validatedCandidates(request, listOf(desired)).isNotEmpty()
+}

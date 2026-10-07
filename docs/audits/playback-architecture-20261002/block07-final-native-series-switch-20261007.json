@@ -1,0 +1,30 @@
+{
+  "case": "native_v2_exact_series_switch",
+  "mediaId": "159",
+  "season": 1,
+  "episode": 2,
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "passed": true,
+      "elapsedSeconds": 8.06,
+      "mediaItemId": "159",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 2884904,
+      "positionMs": 295,
+      "videoHeight": 480,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 8,
+      "activeVoice": "Оригинал (+субтитры)",
+      "activeQuality": "480p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": [
+    "10-07 19:14:16.414  4815  4815 W MoviaPlayer: Playback candidate failed: id=stream:11eaf8e122a8e01e2694e7ea code=ERROR_CODE_IO_BAD_HTTP_STATUS"
+  ]
+}

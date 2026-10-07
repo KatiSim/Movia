@@ -80,6 +80,67 @@ class CatalogStreamServiceTests(unittest.TestCase):
         self.assertEqual('logical:test', body['streams'][0]['logical_source_id'])
         self.assertEqual('provider:test', body['streams'][0]['provider_item_id'])
 
+    def test_source_truth_overlay_receives_rewritten_exact_identity(self):
+        self.card['streams'] = [self.row('cached')]
+        calls = []
+        def rewrite(rows, card, season, episode):
+            return [dict(row, provider_item_id='native:leaf') for row in rows]
+        def annotate(card, rows, season, episode):
+            calls.append((card['id'], season, episode, rows[0]['provider_item_id']))
+            return [dict(row, sourceId='src:exact') for row in rows]
+        self.service.runtime._rewrite_torrent_candidates_for_identity = rewrite
+        self.service.runtime._annotate_streams_with_source_truth = annotate
+        code, body = self.service('7', None, None)
+        self.assertEqual(200, code)
+        self.assertEqual([('7', None, None, 'native:leaf')], calls)
+        self.assertEqual('src:exact', body['streams'][0]['sourceId'])
+        self.assertEqual('7', body['streams'][0]['catalog_media_id'])
+        self.assertEqual([], self.calls)
+
+    def test_source_truth_overlay_cannot_receive_a_different_episode(self):
+        self.card.update(media_type='tv', category='tv_series')
+        self.card['streams'] = [self.row('wrong', season=1, episode=3),
+                                self.row('right', season=1, episode=2)]
+        calls = []
+        def annotate(card, rows, season, episode):
+            calls.append((season, episode, [row['voice'] for row in rows]))
+            return [dict(row, sourceId='src:episode') for row in rows]
+        self.service.runtime._annotate_streams_with_source_truth = annotate
+        code, body = self.service('7', 1, 2)
+        self.assertEqual(200, code)
+        self.assertEqual([(1, 2, ['right'])], calls)
+        self.assertEqual('src:episode', body['streams'][0]['sourceId'])
+        self.assertEqual([], self.calls)
+
+    def test_discovery_registers_only_scoped_leaves_before_persistence(self):
+        self.card.update(media_type='tv', category='tv_series')
+        self.results = [self.row('wrong', season=1, episode=3), self.row('right', season=1, episode=2)]
+        order = []
+        def record(card, rows, season, episode, status, error):
+            order.append(('record', card['id'], season, episode, status,
+                          [row['voice'] for row in rows]))
+            self.assertEqual([], self.writes)
+        self.service.runtime._record_playback_availability_now = record
+        self.release.set()
+        self.assertTrue(self.service._resolve(('7', 1, 2)))
+        self.assertEqual([('record', '7', 1, 2, 'RESULTS', ['right'])], order)
+        self.assertEqual(['right'], [row['voice'] for row in self.writes[0][1]])
+
+    def test_cached_get_does_not_write_source_truth_or_start_provider_work(self):
+        self.card['streams'] = [self.row('cached')]
+        def record(*args): self.fail('A cached GET must not write Source Truth')
+        self.service.runtime._record_playback_availability_now = record
+        self.assertEqual('READY', self.service('7', None, None)[1]['status'])
+        self.assertEqual([], self.calls)
+
+    def test_empty_discovery_does_not_register_a_playable_source(self):
+        self.results = []
+        def record(*args): self.fail('Empty discovery is not a playable source')
+        self.service.runtime._record_playback_availability_now = record
+        self.release.set()
+        self.assertFalse(self.service._resolve(('7', None, None)))
+        self.assertEqual([], self.writes)
+
     def test_cached_ready_variants_do_not_trigger_provider_work(self):
         self.card['streams'] = [self.row('cached')]
         code, body = self.service('7',None,None)

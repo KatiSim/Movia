@@ -1,0 +1,14 @@
+{
+  "case": "native_v2_cold_movie_torrent_seek",
+  "mediaId": "158",
+  "steps": [],
+  "passed": true,
+  "automatic": true,
+  "seconds": 21.26,
+  "activeStreamId": "stream:044ea8c02e571dbc5feaf51f",
+  "frames": 28,
+  "durationMs": 10143957,
+  "mediaItemId": "158",
+  "state": "READY",
+  "videoHeight": 720
+}

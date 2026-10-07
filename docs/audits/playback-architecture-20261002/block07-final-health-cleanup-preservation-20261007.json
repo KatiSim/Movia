@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-07T17:19:27.176068+00:00",
+  "ownNewTorrentTaskRemovedStatus": 200,
+  "health": 200,
+  "state": "IDLE",
+  "uiAttached": false,
+  "unrelatedHashesChanged": [],
+  "preservedDirtyFileCount": 20,
+  "services": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 18790) 905s; run: log: (pid 6330) 176794s\nrun: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 7422) 11830s\nrun: /data/data/com.termux/files/usr/var/service/movia-torrserver: (pid 6374) 176794s; run: log: (pid 6373) 176794s\n",
+  "runtimeParity": true,
+  "installedSha256": "388b95aa2f1b52fef6538ed8ee17366a5d06a4425f84922421ade055b70fd96c",
+  "warpDnsUntouched": true
+}

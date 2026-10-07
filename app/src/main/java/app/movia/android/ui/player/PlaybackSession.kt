@@ -1360,7 +1360,8 @@ class PlaybackSession(context: Context) {
             !current.requestedQuality.equals("Auto", true) && desired.quality == current.requestedQuality &&
             activeCandidate?.quality != current.requestedQuality && player.videoFormat?.height != desired.resolutionHeight
         if (desired.stableStreamId != activeCandidate?.stableStreamId &&
-            (needsRecovery || preferredVoiceArrived || preferredQualityArrived)) {
+            (needsRecovery || preferredVoiceArrived || preferredQualityArrived ||
+                shouldHonorRequestedStream(current, activeCandidate, desired, requestContext(current)))) {
             val position = if (needsRecovery) _state.value.currentPositionMs else player.currentPosition
             switchToStream(desired.toStreamOption(), position.coerceAtLeast(0))
         }

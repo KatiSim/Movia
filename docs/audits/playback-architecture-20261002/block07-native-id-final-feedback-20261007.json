@@ -1,0 +1,100 @@
+{
+  "case": "native_v2_cold_movie_torrent_seek",
+  "mediaId": "158",
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "passed": true,
+      "elapsedSeconds": 10.83,
+      "mediaItemId": "158",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 10143968,
+      "positionMs": 249,
+      "uriHost": "127.0.0.1",
+      "videoHeight": 576,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 16,
+      "activeVoice": "Не указано",
+      "activeQuality": "576p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "sidecarTaskPresentBeforeWarmup": false,
+  "explicitWarmup": {
+    "metadataReady": true,
+    "seconds": 11.77,
+    "status": 206,
+    "bytes": 4096,
+    "ebml": "1a45dfa3"
+  },
+  "sidecarTaskReset": false,
+  "prewarmPerformed": true,
+  "decodedAudioTracks": [
+    {
+      "id": "track:1:1:0",
+      "voice": "DUB (Лицензия)",
+      "language": "ru",
+      "selected": true
+    },
+    {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": false
+    }
+  ],
+  "decodedVideoTracks": [
+    {
+      "id": "track:2:0:0",
+      "quality": "576p",
+      "height": 576,
+      "selected": true
+    }
+  ],
+  "passed": true,
+  "internalAudioSwitch": {
+    "passed": true,
+    "requestedTrack": {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": false
+    },
+    "selectedTrack": {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": true
+    },
+    "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "probeFramesBefore": 35,
+    "probeFramesAfter": 65,
+    "actionStatus": "completed",
+    "seconds": 4.31
+  },
+  "seek": {
+    "passed": true,
+    "targetMs": 60000,
+    "positionMs": 60349,
+    "probeFramesBefore": 70,
+    "probeFramesAfter": 85,
+    "seconds": 4.13,
+    "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "switchState": "READY"
+  },
+  "soak": {
+    "seconds": 20.1,
+    "problemStates": [],
+    "probeFramesBefore": 85,
+    "probeFramesAfter": 557,
+    "positionMs": 80049,
+    "isPlaying": true
+  },
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": [
+    "10-07 19:14:16.414  4815  4815 W MoviaPlayer: Playback candidate failed: id=stream:11eaf8e122a8e01e2694e7ea code=ERROR_CODE_IO_BAD_HTTP_STATUS"
+  ]
+}

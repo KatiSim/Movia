@@ -40,7 +40,13 @@ class CatalogStreamService:
                                      media_type=card.get("media_type"), season=season, episode=episode)
         rewrite = getattr(self.runtime, "_rewrite_torrent_candidates_for_identity", None)
         if callable(rewrite):
-            return rewrite(bound, card, season, episode)
+            bound = rewrite(bound, card, season, episode)
+        # Read-only Source Truth overlay belongs on the active service boundary.
+        # The former HTTP handler is bypassed by this service. A missing sourceId
+        # would prevent native Media3 first-frame feedback from being recorded.
+        annotate = getattr(self.runtime, "_annotate_streams_with_source_truth", None)
+        if callable(annotate):
+            bound = annotate(card, bound, season, episode)
         return bound
 
     def _load_card(self, movie_id, season, episode):
@@ -85,6 +91,11 @@ class CatalogStreamService:
             require_catalog_identity=True, _allow_stale_fast_path=False)
         rows = self._rows(card, rows, season, episode)
         if not rows: return False
+        # Register the scoped leaves once in the discovery worker, before the
+        # next GET overlay or native first-frame feedback can consume them.
+        record = getattr(self.runtime, "_record_playback_availability_now", None)
+        if callable(record):
+            record(card, rows, season, episode, "RESULTS", None)
         return bool(self.runtime.persist_resolved_streams_to_catalog(card["id"], rows))
 
     def close(self): return self.queue.close()

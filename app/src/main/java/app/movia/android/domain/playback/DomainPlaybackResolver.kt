@@ -633,7 +633,10 @@ object DomainPlaybackResolver {
             val old = initial.withIndex().firstOrNull { indexed ->
                 val previous = indexed.value
                 (previous.stableStreamId == fresh.stableStreamId ||
-                    (!previous.logicalSourceId.isNullOrBlank() && previous.logicalSourceId == fresh.logicalSourceId)) &&
+                    (!previous.logicalSourceId.isNullOrBlank() && previous.logicalSourceId == fresh.logicalSourceId &&
+                        !(previous.stableStreamId.startsWith("provider-item:v2:") &&
+                            fresh.stableStreamId.startsWith("provider-item:v2:") &&
+                            previous.stableStreamId != fresh.stableStreamId))) &&
                     (previous.providerId ?: previous.provider) == (fresh.providerId ?: fresh.provider) &&
                     previous.transport == fresh.transport &&
                     (if (previous.stableStreamId == fresh.stableStreamId) {
@@ -649,7 +652,13 @@ object DomainPlaybackResolver {
             }
             if (old == null) fresh else {
                 replaced += old.index
-                mergeReloadedCandidate(old.value, fresh)
+                val merged = mergeReloadedCandidate(old.value, fresh)
+                // Discovery upgrades a cached flat ID to the authoritative native
+                // concrete leaf. URL reload still preserves the selected ID.
+                if (fresh.stableStreamId.startsWith("provider-item:v2:") &&
+                    !old.value.stableStreamId.startsWith("provider-item:v2:")) {
+                    merged.copy(stableStreamId = fresh.stableStreamId)
+                } else merged
             }
         }
         return initial.filterIndexed { index, _ -> index !in replaced } + refreshed

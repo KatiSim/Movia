@@ -1,0 +1,63 @@
+{
+  "case": "native_v2_exact_series_switch",
+  "mediaId": "159",
+  "season": 1,
+  "episode": 2,
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "passed": true,
+      "elapsedSeconds": 8.72,
+      "mediaItemId": "159",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 2884904,
+      "positionMs": 431,
+      "videoHeight": 480,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 16,
+      "activeVoice": "Оригинал (+субтитры)",
+      "activeQuality": "480p",
+      "actionStatus": "accepted"
+    },
+    {
+      "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+      "activeStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+      "passed": true,
+      "elapsedSeconds": 13.14,
+      "mediaItemId": "159",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 2884904,
+      "positionMs": 1540,
+      "videoHeight": 240,
+      "probeFramesBefore": 23,
+      "probeFramesAfter": 48,
+      "activeVoice": "Оригинал (+субтитры)",
+      "activeQuality": "240p",
+      "actionStatus": "accepted"
+    },
+    {
+      "requestedStreamId": "provider-item:v2:0e3cc156dbed91860b68eaa9",
+      "activeStreamId": "provider-item:v2:0e3cc156dbed91860b68eaa9",
+      "passed": true,
+      "elapsedSeconds": 3.98,
+      "mediaItemId": "159",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 2884882,
+      "positionMs": 2587,
+      "videoHeight": 360,
+      "probeFramesBefore": 53,
+      "probeFramesAfter": 71,
+      "activeVoice": "HDrezka в Кубе (Kubik³)",
+      "activeQuality": "360p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "passed": true,
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": []
+}
