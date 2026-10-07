@@ -6,6 +6,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MoviaProviderRegistryTest {
+
+    @Test fun backendFailureRemainsProviderErrorRatherThanUnavailability() = runBlocking {
+        val service=MoviaBackendProviderAdapter { PlaybackResolverResult.Error("Backend failed") }
+        val result=MoviaProviderRegistry(listOf(service)).discover(request)
+        assertEquals("PROVIDER_ERROR",result.statuses[service.id])
+        assertTrue(result.candidates.isEmpty())
+    }
+
+    @Test fun backendNoSourceIsUnavailableAndDoesNotFabricateLeaves() = runBlocking {
+        val service=MoviaBackendProviderAdapter { PlaybackResolverResult.NoSource("No source") }
+        val result=MoviaProviderRegistry(listOf(service)).discover(request)
+        assertEquals("UNAVAILABLE",result.statuses[service.id])
+        assertTrue(result.candidates.isEmpty())
+    }
+
     private val request = PlaybackRequest(mediaId="77", title="Example", year=2024)
     private fun candidate(id: String, voice: String="Studio", quality: String="720p", mediaId: String="77") =
         StreamCandidate(stableStreamId=id, provider="Fixture", url="https://cdn.example/$id.mp4",

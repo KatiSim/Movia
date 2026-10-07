@@ -1,0 +1,216 @@
+{
+  "startedAt": "2026-10-07T19:27:43Z",
+  "recordedAt": "2026-10-07T20:25:59.068532+00:00",
+  "baseCheckpoint": 3439,
+  "baseCommit": "71866adc5f423419e1d8f1fd8df98b2df891af53",
+  "installedApkSha256": "6efd511cd1bbc513dbaff2cf8d17cd6a6b16cce58302bd95e411549b49b7554b",
+  "versionCode": 335,
+  "versionName": "0.0.1",
+  "androidUnitTests": {
+    "tests": 277,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "backendPreviousVerifiedTests": 501,
+  "backendTestsRerunThisHour": false,
+  "unrelatedFilesPreserved": 20,
+  "unrelatedChangedFiles": [],
+  "androidCoverage": {
+    "at": "2026-10-07T20:17:00.577104+00:00",
+    "target": 500,
+    "attemptedUniqueCards": 114,
+    "outcomes": {
+      "DECODED_FALLBACK": 5,
+      "PLAYBACK_TIMEOUT": 22,
+      "PLAYER_FAILED": 2,
+      "DECODED_NATIVE": 10,
+      "INTERRUPTED_FOR_INSTALL": 1,
+      "NO_NATIVE_AT_INITIAL_READ": 75
+    },
+    "decodedNativeCards": 10,
+    "decodedFallbackCards": 5,
+    "identityErrors": 0,
+    "concurrentDiscoveryAudit": true,
+    "finalForThisRun": true,
+    "gate500Complete": false,
+    "cardsWithPlaybackOperation": 39,
+    "discoveryUnconfirmedCards": 75,
+    "decodedUniqueCards": 15,
+    "auditCorrectionAt": "2026-10-07T20:18:31.878144+00:00"
+  },
+  "cohortT": {
+    "at": "2026-10-07T20:11:09.027350+00:00",
+    "cohortSize": 1000,
+    "idsSha256": "bf4da259457b0ca2c6bf6c9f197413e075869ec550ebfe1e085a8d0bea408a56",
+    "attempted": 1000,
+    "unattempted": 0,
+    "outcomes": {
+      "provider_unavailable": 581,
+      "completed_with_candidates": 417,
+      "pending_or_unconfirmed": 2
+    },
+    "foundLeaves": 2839,
+    "nativeConcreteLeaves": 2760,
+    "decodedLeaves": 3,
+    "identityErrors": 0,
+    "workers": 2,
+    "finalForThisRun": true,
+    "completeCohort": true,
+    "noPlaybackClaim": true
+  },
+  "projectComplete": false,
+  "physicalUiUsed": false,
+  "warpChanged": false,
+  "remaining": [
+    "Extend download/offline validation to other direct/adaptive sources, multiple real audio tracks, resume/cancel and native torrent selected files",
+    "Finish fresh cohort T and compare each cohort to its own baseline",
+    "Finish and investigate 500-card Android decoding audit, then adapter/track/quality switches",
+    "Live native provider gates: Zona, Collaps, Filmix, Octopus, Kinoplay, VideoCDN, Alloha",
+    "Investigate final exact-series 480p timeout/rejected quality request; controlled cold/repeat start, resources, subtitle/special-episode checks",
+    "Remove replaced wrappers only after parity, final APK and rollback signoff"
+  ],
+  "buildIncludesUnrelatedUserChanges": true,
+  "rebuildCaveat": "Twenty unchanged pre-existing user worktree files are deliberately excluded from the architecture commit; their hashes are recorded. The installed artifact was built with those inputs.",
+  "realOfflineSmoke": {
+    "passed": true,
+    "downloadCompleted": true,
+    "offlineSourceConfirmed": true,
+    "offlineSeek": {
+      "passed": true,
+      "positionMs": 30316,
+      "framesAfter": 412
+    },
+    "testDownloadCleanup": true,
+    "playerCleanup": true
+  },
+  "finalNativeRuntime": {
+    "at": 1791404560.2534006,
+    "cases": [
+      {
+        "seconds": 12.01,
+        "state": "READY",
+        "playing": true,
+        "mediaItemId": "158",
+        "activeId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+        "height": 576,
+        "durationMs": 10143968,
+        "probeFrames": 12,
+        "passed": true,
+        "case": "native_movie_evidence_to_android",
+        "requestToDecodedSeconds": 12.04,
+        "androidEvidence": {
+          "quality": "576p",
+          "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+          "healthScore": 0.5,
+          "startupLatencyMs": 10422,
+          "recentFailureCount": 0,
+          "transportMetadata": {
+            "playback_verification_status": "VERIFIED",
+            "playback_verification_method": "MEDIA3_SUCCESS",
+            "playback_decoded": "true",
+            "measured_quality": "576p",
+            "provider_reported_quality": "Не указано"
+          }
+        }
+      },
+      {
+        "seconds": 25.07,
+        "state": "SWITCHING_SOURCE",
+        "playing": false,
+        "mediaItemId": "159",
+        "activeId": null,
+        "height": 0,
+        "durationMs": 0,
+        "probeFrames": 64,
+        "passed": false,
+        "case": "exact_series_after_evidence_selection"
+      },
+      {
+        "seconds": 3.02,
+        "state": "READY",
+        "playing": true,
+        "mediaItemId": "159",
+        "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "height": 240,
+        "durationMs": 2884904,
+        "probeFrames": 82,
+        "passed": true,
+        "case": "explicit_lower_quality_preserves_user_choice"
+      }
+    ],
+    "installedApkSha256": "6efd511cd1bbc513dbaff2cf8d17cd6a6b16cce58302bd95e411549b49b7554b",
+    "sidecarTaskPresentBefore": false,
+    "backendEvidence": {
+      "stream_id": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "quality": "Не указано",
+      "health_score": 0.5,
+      "startup_latency_ms": 10422.0,
+      "recent_failure_count": 0,
+      "sourceTruth": {
+        "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+        "verificationStatus": "VERIFIED",
+        "verificationMethod": "MEDIA3_SUCCESS",
+        "decodedPlayback": true,
+        "lastSuccessAt": 1791401319.4211504,
+        "lastFailureAt": null,
+        "lastCheckedAt": 1791401319.4211504,
+        "healthScore": 0.5,
+        "consecutiveFailures": 0,
+        "startupLatencyMs": 10422.0,
+        "expiresAt": null,
+        "sourceType": "P2P",
+        "manifestType": null,
+        "actualQuality": "576p",
+        "actualQualities": [
+          "576p"
+        ],
+        "actualAudioTracks": [
+          {
+            "name": "DUB (Лицензия)",
+            "language": "ru",
+            "groupId": "",
+            "default": false,
+            "autoselect": false
+          },
+          {
+            "name": "Английский",
+            "language": "en",
+            "groupId": "",
+            "default": false,
+            "autoselect": false
+          }
+        ],
+        "allowedAudioLanguages": [
+          "ru"
+        ],
+        "qualityClaimConsistent": null
+      }
+    },
+    "actualAudioSwitch": {
+      "seconds": 1.11,
+      "state": "READY",
+      "playing": true,
+      "mediaItemId": "158",
+      "activeId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "height": 576,
+      "durationMs": 10143968,
+      "probeFrames": 34,
+      "passed": true,
+      "trackLanguage": "en",
+      "trackName": "Английский"
+    },
+    "seek": {
+      "passed": true,
+      "positionMs": 60711,
+      "framesBefore": 39,
+      "framesAfter": 63
+    },
+    "error": "HTTPError: HTTP Error 400: Bad Request",
+    "idleCleanup": true,
+    "uiAttached": false,
+    "ownedSidecarTaskRemoved": true,
+    "crashLines": [],
+    "referenceRuntimeLoaded": false
+  }
+}

@@ -6,6 +6,65 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class StreamSettingsSelectionTest {
+
+    @Test fun selected240pOverridesPrevious1080pRequest() {
+        val selected=StreamOption(voice="Original",quality="240p",url="https://example.test/240")
+        assertEquals("240p",StreamSettingsSelection.requestedQualityForSwitch(selected,"1080p",true))
+    }
+    @Test fun voiceOnlySwitchRetainsRequestedQualityAndAuto() {
+        val selected=StreamOption(voice="Studio",quality="720p",url="https://example.test/720")
+        assertEquals("1080p",StreamSettingsSelection.requestedQualityForSwitch(selected,"1080p",false))
+        assertEquals("Auto",StreamSettingsSelection.requestedQualityForSwitch(selected,"Auto",false))
+    }
+    @Test fun ExplicitAdaptiveVariantDoesNotInheritGlobal1080p() {
+        val selected=StreamOption(voice="Studio",quality="Auto",url="https://example.test/master.m3u8")
+        assertEquals("Auto",StreamSettingsSelection.requestedQualityForSwitch(selected,"1080p",true))
+    }
+    @Test fun UnknownSelectedQualityDoesNotBecomeAClaimOf1080p() {
+        val selected=StreamOption(voice="Studio",quality="Не указано",url="https://example.test/file")
+        assertEquals("Auto",StreamSettingsSelection.requestedQualityForSwitch(selected,"1080p",true))
+    }
+
+    @Test fun failedFirstLeafDoesNotHideHealthySameVoiceAndQuality() {
+        val failed = StreamOption("Studio", "720p", url = "https://example.test/failed", streamId = "failed",
+            transportMetadata = mapOf("playback_verification_status" to "COOLDOWN"))
+        val healthy = failed.copy(url = "https://example.test/healthy", streamId = "healthy", transportMetadata = emptyMap())
+        assertEquals(healthy, StreamSettingsSelection.select(listOf(failed, healthy), "Studio", "720p"))
+        assertEquals(listOf("720p"), StreamSettingsSelection.qualityOptions(listOf(failed, healthy)))
+    }
+    @Test fun rememberedFailedLeafIsNotRetriedByAVoiceChange() {
+        val failed = StreamOption("Studio", "720p", url = "https://example.test/a", streamId = "failed")
+        val healthy = failed.copy(url = "https://example.test/b", streamId = "healthy")
+        assertEquals(healthy, StreamSettingsSelection.select(listOf(failed, healthy), "Studio", "720p", setOf("failed")))
+        assertNull(StreamSettingsSelection.select(listOf(failed), "Studio", "720p", setOf("failed")))
+    }
+    @Test fun decoderVerifiedAlternativeWinsWithinSameVoiceQuality() {
+        val advertised = StreamOption("Studio", "720p", url = "https://example.test/a", streamId = "advertised")
+        val decoded = advertised.copy(url = "https://example.test/b", streamId = "decoded",
+            transportMetadata = mapOf("playback_verification_status" to "VERIFIED",
+                "playback_verification_method" to "MEDIA3_SUCCESS", "playback_decoded" to "true"))
+        assertEquals(decoded, StreamSettingsSelection.select(listOf(advertised, decoded), "Studio", "720p"))
+        assertEquals(decoded, StreamSettingsSelection.select(listOf(decoded, advertised), "Studio", "720p"))
+    }
+    @Test fun healthRankingDoesNotReplaceTheUsersAvailableVoice() {
+        val requested = StreamOption("Studio A", "720p", url = "https://example.test/a", streamId = "a", healthScore = 0.4)
+        val other = requested.copy(voice = "Studio B", url = "https://example.test/b", streamId = "b", healthScore = 1.0)
+        assertEquals(requested, StreamSettingsSelection.select(listOf(other, requested), "Studio A", "720p"))
+    }
+    @Test fun allUnavailableAlternativesAreNotReportedAsSelected() {
+        val expired = StreamOption("Studio", "720p", url = "https://example.test/a", streamId = "a",
+            transportMetadata = mapOf("playback_verification_status" to "EXPIRED"))
+        assertNull(StreamSettingsSelection.select(listOf(expired), "Studio", "720p"))
+    }
+    @Test fun wholeProfileAndTrackIdentityBelongToTheSelectedHealthyLeaf() {
+        val bad = StreamOption("Studio", "720p", url = "https://example.test/shared", streamId = "bad",
+            headers = mapOf("Referer" to "https://example.test/bad"), audioTrackIndex = 1,
+            transportMetadata = mapOf("playback_verification_status" to "FAILED"))
+        val good = bad.copy(streamId = "good", headers = mapOf("Referer" to "https://example.test/good"),
+            audioTrackIndex = 3, transportMetadata = emptyMap())
+        assertEquals(good, StreamSettingsSelection.select(listOf(bad, good), "Studio", "720p"))
+    }
+
     private val streams = listOf(
         StreamOption(voice = "LostFilm", quality = "1080p", url = "https://a.example/lf-1080", source = "p"),
         StreamOption(voice = "Кубик в Кубе", quality = "720p", url = "https://a.example/kubik-720", source = "p"),

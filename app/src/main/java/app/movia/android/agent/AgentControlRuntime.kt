@@ -1048,7 +1048,7 @@ object AgentControlRuntime {
                             val alreadyRequested = selection?.requestedStreamId == exactStream.streamId
                             val alreadyActive = selection?.activeStreamId == exactStream.streamId
                             if (!alreadyRequested && !alreadyActive) {
-                                playbackSession.switchToStream(exactStream)
+                                playbackSession.switchToStream(exactStream, adoptVariantQuality = true)
                             }
                         }
                     }
@@ -1255,7 +1255,7 @@ object AgentControlRuntime {
         publishOperation("OPERATION_ACCEPTED", operation)
         try {
             runOnMain {
-                if (isCurrentSelection(started.token)) session.switchToStream(candidate)
+                if (isCurrentSelection(started.token)) session.switchToStream(candidate, adoptVariantQuality = true)
             }
         } catch (throwable: Throwable) {
             val message = throwable.message ?: "Stream switch failed"
@@ -1453,8 +1453,11 @@ object AgentControlRuntime {
             runBlocking(Dispatchers.IO) { preferences?.playbackPreferences?.first()?.wifiOnlyDownloads } ?: true
         }
         val mediaRef = MediaRef.from(mediaId, title)
-        if (mediaRef != null) DownloadScheduler.enqueue(context, mediaRef, title, wifiOnly)
-        else DownloadScheduler.enqueue(context, title, wifiOnly, mediaId)
+        // Capturing the prepared audio selection reads Media3 and must use its owning thread.
+        runOnMain {
+            if (mediaRef != null) DownloadScheduler.enqueue(context, mediaRef, title, wifiOnly)
+            else DownloadScheduler.enqueue(context, title, wifiOnly, mediaId)
+        }
         eventBus?.publish("DOWNLOAD_ENQUEUED", details = mapOf("title" to title, "wifiOnly" to wifiOnly))
         return completed("downloads.enqueue", "title" to title, "wifiOnly" to wifiOnly)
     }

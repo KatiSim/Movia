@@ -70,9 +70,9 @@ def _effective_track(truth: Dict[str, Any], requested_audio: Any) -> Tuple[Optio
     mapped = truth.get("mappedAudioTrack")
     if (
         isinstance(mapped, dict)
-        and _text(truth.get("audioTrackMapping")) == "PROVIDER_INDEX_TO_MANIFEST_ORDER"
+        and _text(truth.get("audioTrackMapping")) in {"PROVIDER_INDEX_TO_MANIFEST_ORDER", "PROVIDER_TRACK_IDENTITY_TO_ACTUAL"}
     ):
-        return dict(mapped), "PROVIDER_INDEX_TO_MANIFEST_ORDER"
+        return dict(mapped), _text(truth.get("audioTrackMapping"))
 
     tracks = _actual_tracks(truth)
     if len(tracks) == 1:

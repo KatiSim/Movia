@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-07T20:25:56.678675+00:00",
+  "backendHealth": 200,
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 329475,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "playback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "libraryCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "apkSha256": "6efd511cd1bbc513dbaff2cf8d17cd6a6b16cce58302bd95e411549b49b7554b"
+}

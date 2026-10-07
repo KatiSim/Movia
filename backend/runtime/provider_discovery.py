@@ -17,7 +17,7 @@ from collections import OrderedDict
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor, wait
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 from catalog_schema_v2 import normalize_ru_text
@@ -494,12 +494,23 @@ def _cache_completed(key, future):
         pass
 
 
-def discover_provider_streams(*, budget_seconds=3.7, **request) -> ProviderDiscoveryOutcome:
+def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **request) -> ProviderDiscoveryOutcome:
     """Run enabled providers independently; publish the union within one budget.
 
     A slow provider cannot hide the completed leaves of another provider.
     Each task receives immutable flags rather than changing process environment.
     """
+    def publish_completed(future):
+        if not callable(on_provider_result): return
+        try:
+            outcome = future.result()
+            if outcome.streams:
+                on_provider_result(ProviderDiscoveryOutcome(
+                    [dict(row) for row in outcome.streams], outcome.status,
+                    outcome.providers, outcome.error_count))
+        except Exception:
+            # The normal provider result/cache remains available for retry.
+            pass
     enabled = [flag for flag in _PROVIDER_FLAGS if os.environ.get(flag, "0") == "1"]
     if not enabled:
         return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
@@ -518,9 +529,14 @@ def discover_provider_streams(*, budget_seconds=3.7, **request) -> ProviderDisco
                 entry = None
         if entry:
             cached.append(entry[1])
+            if callable(on_provider_result):
+                ready = Future()
+                ready.set_result(entry[1])
+                publish_completed(ready)
             continue
         future = _PROVIDER_EXECUTOR.submit(_discover_provider_streams, enabled_flags=frozenset({flag}), **request)
         futures.append(future)
+        if callable(on_provider_result): future.add_done_callback(publish_completed)
         if use_cache:
             future.add_done_callback(lambda f, key=key: _cache_completed(key, f))
     done, pending = wait(futures, timeout=min(12.0, max(0.1, float(budget_seconds))))

@@ -87,9 +87,9 @@ object DownloadScheduler {
             val current = manager.getWorkInfosForUniqueWork(uniqueWorkName(title, mediaRef))
                 .get()
                 .firstOrNull()
-            val info = current ?: manager.getWorkInfosForUniqueWork(legacyUniqueWorkName(title))
-                .get()
-                .firstOrNull()
+            val info = OfflineLookupPolicy.find(mediaRef, { current }) {
+                manager.getWorkInfosForUniqueWork(legacyUniqueWorkName(title)).get().firstOrNull()
+            }
             DownloadStatus(
                 state = info?.state,
                 progressPercent = info?.progress?.getInt(OfflineDownloadWorker.KEY_PROGRESS, 0) ?: 0,
@@ -109,11 +109,10 @@ object DownloadScheduler {
         if (mediaRef != null && OfflineMediaStore.request(context, mediaRef) != null) return OfflineMediaStore.marker(context, mediaRef)
         val directory = File(context.filesDir, "offline")
         val current = File(directory, OfflineDownloadWorker.fileNameFor(mediaRef, title))
-        if (current.isFile && current.length() > 0L) return current
-
-        // Continue to recognize files created by the title-keyed download implementation.
-        val legacy = File(directory, OfflineDownloadWorker.fileNameFor(title))
-        return legacy.takeIf { it.isFile && it.length() > 0L }
+        // A known catalog/episode identity never adopts an unbound title-only file.
+        return OfflineLookupPolicy.find(mediaRef, { current.takeIf { it.isFile && it.length() > 0L } }) {
+            File(directory, OfflineDownloadWorker.fileNameFor(title)).takeIf { it.isFile && it.length() > 0L }
+        }
     }
 
     fun delete(context: Context, title: String, contentId: String? = null): Boolean {
@@ -131,13 +130,12 @@ object DownloadScheduler {
             return false
         }
         val manager = WorkManager.getInstance(context)
-        manager.cancelUniqueWork(uniqueWorkName(title, mediaRef))
-        manager.cancelUniqueWork(legacyUniqueWorkName(title))
+        OfflineLookupPolicy.candidates(mediaRef, uniqueWorkName(title, mediaRef), legacyUniqueWorkName(title))
+            .forEach { manager.cancelUniqueWork(it) }
 
         val directory = File(context.filesDir, "offline")
-        val filenames = setOf(
-            OfflineDownloadWorker.fileNameFor(mediaRef, title),
-            OfflineDownloadWorker.fileNameFor(title),
+        val filenames = OfflineLookupPolicy.candidates(
+            mediaRef, OfflineDownloadWorker.fileNameFor(mediaRef, title), OfflineDownloadWorker.fileNameFor(title),
         )
         var allRemoved = mediaRef?.let { OfflineMediaStore.delete(context, it) } ?: true
         filenames.forEach { filename ->

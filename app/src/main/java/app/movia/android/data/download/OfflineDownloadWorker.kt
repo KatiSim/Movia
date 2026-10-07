@@ -121,7 +121,14 @@ class OfflineDownloadWorker(context: Context, params: WorkerParameters) : Corout
         } catch (selection: OfflineSelectionException) { failed(selection.code)
         } catch (_: IOException) {
             if (runAttemptCount < 2) Result.retry() else failed("NETWORK_RETRIES_EXHAUSTED")
-        } catch (_: Exception) { failed("DOWNLOAD_FAILED") }
+        } catch (error: Exception) {
+            // The diagnostic contains only exception class names, never signed locators or credentials.
+            val classes = generateSequence<Throwable>(error) { it.cause }.take(4)
+                .joinToString(" -> ") { it.javaClass.simpleName }
+            val frames = error.stackTrace.take(6).joinToString("; ") { "${it.className}.${it.methodName}:${it.lineNumber}" }
+            android.util.Log.w("MoviaOffline", "Download failed: " + classes + " at " + frames)
+            failed("DOWNLOAD_FAILED_" + error.javaClass.simpleName.uppercase(java.util.Locale.ROOT))
+        }
     }
 
     private fun downloadForeground(title: String): ForegroundInfo {

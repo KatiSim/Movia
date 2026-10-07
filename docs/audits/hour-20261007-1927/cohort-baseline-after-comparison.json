@@ -1,0 +1,40 @@
+{
+  "s": {
+    "cohortSize": 1000,
+    "comparedSameIds": 1000,
+    "unattempted": 0,
+    "idsSha256": "cc9d2db4b13b6f2c8df4fbb12b7edd3b9b69360d08e650fb12ff83ceaa07813f",
+    "baselineSubset": {
+      "cardsWithCandidates": 459,
+      "foundLeaves": 2518,
+      "nativeConcreteLeaves": 0
+    },
+    "afterSameSubset": {
+      "cardsWithCandidates": 476,
+      "foundLeaves": 3761,
+      "nativeConcreteLeaves": 3697,
+      "decodedLeaves": 1,
+      "identityErrors": 0
+    },
+    "interpretation": "Candidate coverage and migration to native scoped identities; no claim that all discovered leaves decoded or that native identity migration adds a new physical source."
+  },
+  "t": {
+    "cohortSize": 1000,
+    "comparedSameIds": 1000,
+    "unattempted": 0,
+    "idsSha256": "bf4da259457b0ca2c6bf6c9f197413e075869ec550ebfe1e085a8d0bea408a56",
+    "baselineSubset": {
+      "cardsWithCandidates": 410,
+      "foundLeaves": 2148,
+      "nativeConcreteLeaves": 0
+    },
+    "afterSameSubset": {
+      "cardsWithCandidates": 426,
+      "foundLeaves": 2839,
+      "nativeConcreteLeaves": 2760,
+      "decodedLeaves": 3,
+      "identityErrors": 0
+    },
+    "interpretation": "Candidate coverage and migration to native scoped identities; no claim that all discovered leaves decoded or that native identity migration adds a new physical source."
+  }
+}

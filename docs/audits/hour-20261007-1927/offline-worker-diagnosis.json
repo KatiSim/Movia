@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-07T20:10:06.327850+00:00",
+  "cleanColdHeadlessPlayer": true,
+  "enqueue": {
+    "status": "completed",
+    "action": "downloads.enqueue",
+    "title": "О птичках",
+    "wifiOnly": true,
+    "schemaVersion": 2,
+    "requestId": "hour-diagnose-0fc68ec93799456baf498bea61da4ddd"
+  },
+  "status": {
+    "http": 400,
+    "body": "{\"status\":\"failed\",\"code\":\"INVALID_ARGUMENT\",\"message\":\"arguments.mediaId: unknown field\",\"retryable\":false,\"context\":{},\"schemaVersion\":2,\"requestId\":\"hour-diagnose-0cc911b8502a42f9b851b2c538a88659\"}"
+  },
+  "safeExceptionLines": [
+    "10-07 22:10:07.582 26318 26673 W MoviaOffline: Download failed: IllegalArgumentException"
+  ],
+  "cleanup": {
+    "http": 400,
+    "body": "{\"status\":\"failed\",\"code\":\"INVALID_ARGUMENT\",\"message\":\"arguments.mediaId: unknown field\",\"retryable\":false,\"context\":{},\"schemaVersion\":2,\"requestId\":\"hour-diagnose-7a0d1ddb847449dc9b6bae42483e9bc1\"}"
+  }
+}

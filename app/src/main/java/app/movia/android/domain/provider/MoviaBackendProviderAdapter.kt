@@ -25,6 +25,7 @@ class MoviaBackendProviderAdapter(
             article.year==request.year) { "ARTICLE_IDENTITY_MISMATCH" }
         val result = resolve?.invoke(request) ?: DomainPlaybackResolver.resolveStreams(
             request, forceRefresh = true, onCandidates = publish)
+        if (result is PlaybackResolverResult.Error) throw IllegalStateException("PROVIDER_SERVICE_ERROR")
         val candidates=if (result is PlaybackResolverResult.Success) result.candidates else emptyList()
         return MoviaVariantNode.Folder("Providers",
             candidates.groupBy { it.providerId ?: it.provider }.map { (provider, rows) ->

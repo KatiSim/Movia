@@ -19,6 +19,7 @@ class DiscoveryQueue:
         self.completed = OrderedDict()
         self.closed = False
         self.finished = self.failures = self.accepted = 0
+        self.errors = 0
         self.threads = [threading.Thread(target=self._run, daemon=True, name=f"Movia-discovery-{index}")
                         for index in range(workers)]
         for thread in self.threads: thread.start()
@@ -51,26 +52,34 @@ class DiscoveryQueue:
                 if self.closed: return
                 key = self.pending.popleft()
                 self.active.add(key)
+            error_type = None
             try:
                 ready = bool(self.resolver(key))
-            except Exception:
+            except Exception as error:
                 ready = False
+                error_type = type(error).__name__[:80]
             with self.condition:
                 self.active.remove(key)
-                state = "READY" if ready else "UNAVAILABLE"
+                state = "ERROR" if error_type else ("READY" if ready else "UNAVAILABLE")
                 ttl = self.success_ttl if ready else self.failure_ttl
-                self.completed[key] = (state, self.clock() + max(0.0, ttl))
+                self.completed[key] = (state, self.clock() + max(0.0, ttl), error_type)
                 self.completed.move_to_end(key)
                 while len(self.completed) > self.remembered: self.completed.popitem(last=False)
                 self.finished += 1
                 self.failures += int(not ready)
+                self.errors += int(error_type is not None)
                 self.condition.notify_all()
+
+    def error(self, key):
+        with self.condition:
+            if self._status(key) != "ERROR": return None
+            return self.completed[key][2]
 
     def stats(self):
         with self.condition:
             return {"workers": len(self.threads), "active": len(self.active), "pending": len(self.pending),
                     "remembered": len(self.completed), "accepted": self.accepted, "finished": self.finished,
-                    "failures": self.failures, "closed": self.closed}
+                    "failures": self.failures, "errors": self.errors, "closed": self.closed}
 
     def close(self, timeout=5.0):
         with self.condition:

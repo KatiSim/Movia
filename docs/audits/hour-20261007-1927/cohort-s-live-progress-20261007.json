@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-07T19:14:35.862331+00:00",
+  "cohortSize": 1000,
+  "idsSha256": "cc9d2db4b13b6f2c8df4fbb12b7edd3b9b69360d08e650fb12ff83ceaa07813f",
+  "attempted": 1000,
+  "unattempted": 0,
+  "outcomes": {
+    "completed_with_candidates": 468,
+    "provider_unavailable": 530,
+    "pending_or_unconfirmed": 2
+  },
+  "foundLeaves": 3761,
+  "nativeConcreteLeaves": 3697,
+  "decodedLeaves": 1,
+  "identityErrors": 0,
+  "workers": 2,
+  "finalForThisRun": true,
+  "completeCohort": true,
+  "noPlaybackClaim": true
+}

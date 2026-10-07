@@ -51,6 +51,14 @@ internal fun selectOfflineCandidate(
         }
         if (pool.isEmpty()) throw OfflineSelectionException("QUALITY_UNAVAILABLE")
     }
+    val explicit = pin != null || voice != null || quality != null
+    val downloadable = pool.filter { source ->
+        val effective = if (explicit) source.copy(downloadUrl = null, downloadHeaders = emptyMap())
+            else offlineRequestSource(source, request.requestedQuality ?: "Auto")
+        effective.url.trim().let { it.startsWith("http://", true) || it.startsWith("https://", true) }
+    }
+    if (pool.isNotEmpty() && downloadable.isEmpty()) throw OfflineSelectionException("UNSUPPORTED_OFFLINE_TRANSPORT")
+    pool = downloadable
     val selected = app.movia.android.domain.playback.StreamRanker.selectBest(pool, request.requestedVoice, request.requestedQuality)
         ?: throw OfflineSelectionException("NO_SOURCE")
     return if (pin != null || voice != null || quality != null) selected.copy(downloadUrl = null, downloadHeaders = emptyMap()) else selected

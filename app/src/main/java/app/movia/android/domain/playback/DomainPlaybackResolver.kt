@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
+import app.movia.android.domain.backend.sourcePlaybackEvidence
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -398,7 +399,8 @@ object DomainPlaybackResolver {
                 providerReliability = sObj.optDouble("provider_reliability", Double.NaN)
                     .takeUnless { it.isNaN() }?.coerceIn(0.0, 1.0),
             )
-            result.add(StreamCandidate.fromStreamOption(option, season, episode))
+            result.add(StreamCandidate.fromStreamOption(
+                option.withMeasuredSourceEvidence(sourcePlaybackEvidence(sObj)), season, episode))
         }
         return result
     }

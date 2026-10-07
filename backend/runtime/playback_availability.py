@@ -396,7 +396,11 @@ def summarize_streams(streams: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     rows = [dict(item) for item in streams if isinstance(item, dict)]
     direct = [item for item in rows if _is_direct(item)]
     p2p = [item for item in rows if _is_p2p(item)]
-    verified_direct = [item for item in direct if bool(_manifest_metadata(item).get("manifest_verified"))]
+    inspected_direct = [item for item in direct if bool(_manifest_metadata(item).get("manifest_verified"))]
+    verified_direct = [item for item in direct if (
+        (item.get("sourceTruth") or {}).get("verificationStatus") == "VERIFIED"
+        and (item.get("sourceTruth") or {}).get("decodedPlayback") is True
+    )]
 
     quality_values: List[Any] = []
     voices: List[str] = []
@@ -417,6 +421,8 @@ def summarize_streams(streams: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
 
     if verified_direct:
         status = "VERIFIED_DIRECT"
+    elif inspected_direct:
+        status = "MANIFEST_INSPECTED"
     elif direct:
         status = "DIRECT_DISCOVERED"
     elif p2p:
@@ -430,6 +436,7 @@ def summarize_streams(streams: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
         "directCount": len(direct),
         "p2pCount": len(p2p),
         "verifiedDirectCount": len(verified_direct),
+        "inspectedManifestCount": len(inspected_direct),
         "qualities": _sorted_qualities(quality_values),
         "voices": _unique(voices),
         "sources": _unique(sources),

@@ -55,10 +55,12 @@ class DiscoveryQueueTests(unittest.TestCase):
         queue = DiscoveryQueue(fail, workers=1, failure_ttl=30, clock=lambda: clock[0])
         try:
             key = ('7', None, None); self.assertTrue(queue.submit(key))
-            self.wait(lambda: queue.status(key) == 'UNAVAILABLE')
+            self.wait(lambda: queue.status(key) == 'ERROR')
             self.assertFalse(queue.submit(key)); clock[0] = 131
             self.assertTrue(queue.submit(key)); self.wait(lambda: queue.stats()['finished'] == 2)
             self.assertEqual(2, queue.stats()['failures'])
+            self.assertEqual(2, queue.stats()['errors'])
+            self.assertEqual('RuntimeError',queue.error(key))
         finally: self.assertTrue(queue.close())
 
     def test_finished_job_metadata_does_not_grow_without_bound(self):

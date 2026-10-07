@@ -982,12 +982,18 @@ class PlaybackAvailabilityService:
         reason: str,
         cooldown: bool = False,
         now: Optional[float] = None,
+        observed_at: Optional[float] = None,
     ) -> Dict[str, Any]:
-        ts = time.time() if now is None else float(now)
+        ts = float(observed_at) if observed_at is not None else (time.time() if now is None else float(now))
         with self.repository.connection() as conn:
             row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
             if row is None:
                 raise KeyError(source_id)
+            watermark = max(float(row["last_success_at"] or 0), float(row["last_failure_at"] or 0))
+            # Native IO is asynchronous. An older failure cannot overwrite a
+            # newer first frame or a newer failed attempt for this exact source.
+            if observed_at is not None and ts < watermark:
+                return self._recompute(str(row["media_key"]), now=watermark)
             status = STATUS_COOLDOWN if cooldown else STATUS_FAILED
             conn.execute(
                 """

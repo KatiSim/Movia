@@ -111,11 +111,28 @@ object StreamRanker {
     private fun coldP2pPenalty(candidate: StreamCandidate): Int =
         if (isP2p(candidate) && candidate.startupLatencyMs == null) 1 else 0
 
+    private fun hasDecodedEvidence(candidate: StreamCandidate): Boolean =
+        candidate.transportMetadata["playback_verification_status"] == "VERIFIED" &&
+            candidate.transportMetadata["playback_verification_method"] == "MEDIA3_SUCCESS" &&
+            candidate.transportMetadata["playback_decoded"] == "true" &&
+            candidate.recentFailureCount == 0
+
+    private fun evidencePreferredPool(
+        candidates: List<StreamCandidate>, context: StreamRankingContext,
+    ): List<StreamCandidate> {
+        val proven = candidates.filter { hasDecodedEvidence(it) &&
+            requestedVoiceMatches(it, activeRequestedVoice(context)) &&
+            requestedQualityMatches(it, activeRequestedQuality(context)) &&
+            codecPenalty(it, context) == 0 }
+        return proven.ifEmpty { candidates }
+    }
+
     private fun healthyPool(
         candidates: List<StreamCandidate>,
         failedStreamIds: Set<String>,
     ): List<StreamCandidate> = candidates.filter {
-        !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic
+        !failedStreamIds.contains(it.stableStreamId) && !it.isProblematic &&
+            it.transportMetadata["playback_verification_status"] !in setOf("FAILED", "COOLDOWN", "EXPIRED")
     }
 
     private fun preferredVoicePool(candidates: List<StreamCandidate>, context: StreamRankingContext): List<StreamCandidate> {
@@ -285,6 +302,7 @@ object StreamRanker {
                 .thenBy { voiceLanguageRank(it, effectiveContext.preferredLanguage) }
                 .thenBy { codecPenalty(it, effectiveContext) }
                 .thenBy { healthPenalty(it) }
+                .thenBy { if (hasDecodedEvidence(it)) 0 else 1 }
                 .thenBy { it.startupLatencyMs?.coerceAtLeast(0L) ?: Long.MAX_VALUE }
                 .thenBy { coldP2pPenalty(it) }
                 .thenBy { if (hasPeers(it)) 0 else 1 }
@@ -311,7 +329,7 @@ object StreamRanker {
             requestedQuality = requestedQuality,
             failedStreamIds = context.failedStreamIds + failedStreamIds,
         )
-        val preferred = preferredVoicePool(candidates, effectiveContext)
+        val preferred = evidencePreferredPool(preferredVoicePool(candidates, effectiveContext), effectiveContext)
         val strict = strictBestGroup(preferred, effectiveContext)
         if (strict.isNotEmpty()) {
             return rankCandidates(strict, context = effectiveContext).firstOrNull()
@@ -335,6 +353,10 @@ object StreamRanker {
                 if (seen.add(candidate.stableStreamId)) ordered += candidate
             }
         }
+        appendRanked(preferred.filter { hasDecodedEvidence(it) &&
+            requestedQualityMatches(it, activeRequestedQuality(context)) &&
+            requestedVoiceMatches(it, activeRequestedVoice(context)) &&
+            codecPenalty(it, context) == 0 })
         appendRanked(better)
         appendRanked(strict)
         appendRanked(preferred)

@@ -71,12 +71,16 @@ class CatalogStreamService:
         if rows: status = "READY"
         elif discovery in {"QUEUED", "RUNNING"}: status = "DISCOVERY_PENDING"
         elif discovery == "UNAVAILABLE": status = "UNAVAILABLE"
+        elif discovery == "ERROR": status = "ERROR"
         elif discovery == "STOPPED": status = "TEMPORARILY_UNAVAILABLE"
         else: status = "BUSY"
-        return 200, {"streams": rows, "status": status, "discoveryStatus": discovery,
+        response = {"streams": rows, "status": status, "discoveryStatus": discovery,
                      "refreshing": discovery in {"QUEUED", "RUNNING"}, "retryAfterMs": 350,
                      "mediaId": str(card["id"]), "title":card.get("title"), "year":card.get("year"),
                      "season": season, "episode": episode}
+        if discovery == "ERROR":
+            response.update(errorCode="DISCOVERY_ERROR", discoveryError=self.queue.error(key))
+        return 200, response
 
     def _resolve(self, key):
         movie_id, season, episode = key

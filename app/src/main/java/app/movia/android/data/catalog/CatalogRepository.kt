@@ -11,6 +11,8 @@ import app.movia.android.domain.model.MediaContent
 import app.movia.android.domain.model.Person
 import app.movia.android.domain.model.StreamAdvertisement
 import app.movia.android.domain.model.StreamOption
+import app.movia.android.domain.backend.sourcePlaybackEvidence
+import app.movia.android.domain.playback.withMeasuredSourceEvidence
 import app.movia.android.domain.model.StreamSkipInterval
 import app.movia.android.domain.model.StreamSubtitle
 import app.movia.android.data.database.CachedMediaEntity
@@ -1144,6 +1146,7 @@ object DemoCatalogRepository : CatalogRepository {
                 val stableStreamId = sObj.optString("stream_id").takeIf { it.isNotBlank() }
                     ?: sObj.optString("streamId").takeIf { it.isNotBlank() }.orEmpty()
                 val streamLanguageEvidence = listOf(streamVoice, stableStreamId).joinToString(" ")
+                val measuredEvidence = sourcePlaybackEvidence(sObj)
                 streamsList.add(
                     StreamOption(
                         voice = streamVoice,
@@ -1266,7 +1269,7 @@ object DemoCatalogRepository : CatalogRepository {
                         ).coerceAtLeast(0),
                         providerReliability = sObj.optDouble("provider_reliability", Double.NaN)
                             .takeUnless { it.isNaN() }?.coerceIn(0.0, 1.0),
-                    )
+                    ).withMeasuredSourceEvidence(measuredEvidence)
                 )
             }
         }

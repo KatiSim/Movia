@@ -475,9 +475,11 @@ class PlaybackSession(context: Context) {
             return true
         }
         val voice = _state.value.activeStreamSelection?.activeVoice
-        val option = streamOptions.value.firstOrNull {
-            qualityHeight(it.quality) == wantedHeight && (voice.isNullOrBlank() || it.voice.equals(voice, true))
-        } ?: return false
+        val option = StreamSettingsSelection.select(
+            streamOptions.value.filter {
+                qualityHeight(it.quality) == wantedHeight && (voice.isNullOrBlank() || it.voice.equals(voice, true))
+            }, voice, quality, failedStreamIds.toSet(),
+        ) ?: return false
         val prepared = activeCandidate
         if (tracks.video.isNotEmpty() && prepared != null && option.url == prepared.url &&
             option.headers == prepared.headers && option.userAgent == prepared.userAgent
@@ -508,7 +510,7 @@ class PlaybackSession(context: Context) {
                 canSwitchTracksInPlace(activeCandidate, StreamCandidate.fromStreamOption(
                     option, _state.value.seasonNumber, _state.value.episodeNumber))
         } else null
-        val option = preparedVoice ?: StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality)
+        val option = preparedVoice ?: StreamSettingsSelection.select(streamOptions.value, voice, requestedVideoQuality, failedStreamIds.toSet())
         if (option != null && option.voice.equals(voice, true)) {
             val optionCandidate = StreamCandidate.fromStreamOption(option, _state.value.seasonNumber, _state.value.episodeNumber)
             if (player.currentTracks.groups.isNotEmpty() && option.audioTrackIndex != null &&
@@ -612,6 +614,32 @@ class PlaybackSession(context: Context) {
                     connection.setRequestProperty("Content-Type", "application/json")
                     connection.setRequestProperty("Authorization", "Bearer " + token)
                     connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
+                    connection.inputStream.use { it.readBytes() }
+                } finally { connection.disconnect() }
+            }
+        }
+    }
+
+
+    /** Report actual failed attempts; cancellation and user stop never enter this path. */
+    private fun recordNativeFailure(candidate: StreamCandidate, failureClass: StreamFailureClass) {
+        val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() } ?: return
+        if (isOffline) return
+        val payload = org.json.JSONObject().put("sourceId", sourceId).put("reason", failureClass.name)
+            .put("observedAt", System.currentTimeMillis() / 1000.0).toString()
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val token = java.io.File(appContext.filesDir, "agent/movia-agent.token").readText().trim()
+                val connection = java.net.URL("http://127.0.0.1:8888/internal/playback-availability/media3-failure")
+                    .openConnection() as java.net.HttpURLConnection
+                try {
+                    connection.requestMethod = "POST"
+                    connection.connectTimeout = 2000
+                    connection.readTimeout = 3000
+                    connection.doOutput = true
+                    connection.setRequestProperty("Content-Type", "application/json")
+                    connection.setRequestProperty("Authorization", "Bearer " + token)
+                    connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
                     connection.inputStream.use { it.readBytes() }
                 } finally { connection.disconnect() }
             }
@@ -740,6 +768,7 @@ class PlaybackSession(context: Context) {
 
     private fun recordFailure(candidate: StreamCandidate?, failureClass: StreamFailureClass) {
         candidate ?: return
+        recordNativeFailure(candidate, failureClass)
         if (problemTracker.shouldMarkProblem(candidate, failureClass)) {
             markProblem(candidate)
         }
@@ -1402,10 +1431,15 @@ class PlaybackSession(context: Context) {
         switchToStream(option, resumePositionMs)
     }
 
-    fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L) {
+    fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L, adoptVariantQuality: Boolean = false) {
         startupHandoverJob?.cancel()
         startupHandoverUsed = true
         if (stream.url.isBlank() || !_state.value.hasMedia) return
+        requestedVideoQuality = StreamSettingsSelection.requestedQualityForSwitch(
+            stream, requestedVideoQuality, adoptVariantQuality,
+        )
+        if (adoptVariantQuality) userSelectedAutoQuality = requestedVideoQuality.equals("Auto", true)
+
         val generation = nextPlaybackGeneration()
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()

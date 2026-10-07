@@ -15,7 +15,7 @@ import sqlite3
 import hashlib
 import urllib.parse
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from bounded_executor import BoundedExecutor
 from torrserver_file_selection import select_concrete_file_id
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -387,7 +387,7 @@ def _annotate_streams_with_source_truth(
     season: Optional[int],
     episode: Optional[int],
 ) -> List[Dict[str, Any]]:
-    """Add verified Source Truth facts without changing legacy resolver fields/order."""
+    """Add scoped runtime facts while preserving source IDs, provider claims and order."""
     global _PLAYBACK_AVAILABILITY_READ_ERRORS_TOTAL
     result = [dict(item) for item in streams if isinstance(item, dict)]
     index = PLAYBACK_SOURCE_TRUTH_INDEX
@@ -415,6 +415,7 @@ def _annotate_streams_with_source_truth(
     observed_at = time.time()
     source_ids_by_fingerprint: Dict[Tuple[str, str], str] = {}
     verified_by_fingerprint: Dict[Tuple[str, str], Dict[str, Any]] = {}
+    evidence_by_fingerprint: Dict[Tuple[str, str], Dict[str, Any]] = {}
     for source in state.get("sources") or []:
         if not isinstance(source, dict):
             continue
@@ -423,8 +424,12 @@ def _annotate_streams_with_source_truth(
         if not locator_hash:
             continue
         source_id = str(source.get("sourceId") or "").strip()
+        # Runtime evidence is separate from provider quality/voice claims.
         if source_id:
             source_ids_by_fingerprint[(provider, locator_hash)] = source_id
+        from source_playback_evidence import source_runtime_evidence
+        evidence_by_fingerprint[(provider, locator_hash)] = source_runtime_evidence(
+            source, observed_at, index.expiry_margin_seconds)
         # A stable ID permits native feedback; it is not proof of playback.
         if source.get("verificationStatus") != "VERIFIED":
             continue
@@ -463,25 +468,36 @@ def _annotate_streams_with_source_truth(
         source_id = source_ids_by_fingerprint.get((provider, locator_hash))
         if source_id:
             item["sourceId"] = source_id
+        evidence = evidence_by_fingerprint.get((provider, locator_hash))
+        if evidence:
+            item["sourceTruth"] = dict(evidence)
+            item["health_score"] = evidence["healthScore"]
+            item["recent_failure_count"] = evidence["consecutiveFailures"]
+            item["startup_latency_ms"] = evidence["startupLatencyMs"]
+            raw_meta = item.get("transport_metadata") or item.get("transportMetadata") or {}
+            meta = dict(raw_meta) if isinstance(raw_meta, dict) else {}
+            meta.update({
+                "playback_verification_status": evidence["verificationStatus"],
+                "playback_verification_method": evidence["verificationMethod"],
+                "playback_decoded": evidence["decodedPlayback"],
+            })
+            item["transport_metadata"] = meta
         facts = verified_by_fingerprint.get((provider, locator_hash))
         if facts is None:
             continue
-        overlay = dict(facts)
+        overlay = {**(evidence or {}), **facts}
         provider_audio_index = item.get("audio_track_index", item.get("audioTrackIndex"))
         try:
             provider_audio_index = int(provider_audio_index) if provider_audio_index is not None else None
         except (TypeError, ValueError):
             provider_audio_index = None
         actual_audio_tracks = overlay.get("actualAudioTracks") or []
-        if (
-            provider_audio_index is not None
-            and provider_audio_index >= 0
-            and provider_audio_index < len(actual_audio_tracks)
-            and isinstance(actual_audio_tracks[provider_audio_index], dict)
-        ):
+        from source_playback_evidence import map_manifest_audio_identity
+        mapped_audio = map_manifest_audio_identity(item, actual_audio_tracks)
+        if mapped_audio is not None:
             overlay["providerAudioTrackIndex"] = provider_audio_index
-            overlay["mappedAudioTrack"] = dict(actual_audio_tracks[provider_audio_index])
-            overlay["audioTrackMapping"] = "PROVIDER_INDEX_TO_MANIFEST_ORDER"
+            overlay["mappedAudioTrack"] = mapped_audio
+            overlay["audioTrackMapping"] = "PROVIDER_TRACK_IDENTITY_TO_ACTUAL"
         actual_qualities = {
             _source_truth_quality(value)
             for value in overlay.get("actualQualities") or []
@@ -2450,6 +2466,7 @@ def _resolve_clean_provider_registry(
     original_title: Optional[str],
     catalog_media_id: Any,
     media_type: str,
+    publish_result=None,
 ) -> List[Dict[str, Any]]:
     try:
         from provider_discovery import discover_provider_streams
@@ -2462,6 +2479,7 @@ def _resolve_clean_provider_registry(
             season=season,
             episode=episode,
             budget_seconds=12.0,
+            on_provider_result=publish_result,
         )
         return outcome.streams
     except Exception as exc:
@@ -2945,6 +2963,13 @@ def resolve_on_demand_streams(
                 canonical_media_type,
                 force_refresh,
             )
+            # Inner provider tasks may finish beyond the registry's own
+            # twelve-second budget. Publish each completed exact result.
+            def publish_registry_result(outcome):
+                completed = Future()
+                completed.set_result(outcome.streams)
+                _persist_late_provider_results(
+                    completed, cache_key, dict(catalog_identity), season, episode)
             registry_future = pool.submit(
                 _resolve_clean_provider_registry,
                 canonical_title,
@@ -2954,6 +2979,7 @@ def resolve_on_demand_streams(
                 canonical_original_title,
                 canonical_id or catalog_media_id,
                 canonical_media_type,
+                publish_registry_result if catalog_identity else None,
             )
             if P2P_ENABLED and not CLOUD_MODE:
                 torrent_future = pool.submit(
@@ -3052,6 +3078,8 @@ def _persist_late_provider_results(future, cache_key, identity, season, episode)
         fresh = _scope_streams_to_catalog_card(future.result(), identity, season, episode)
         fresh = rank_playback_streams(cloud_exposable_streams(filter_streams_for_episode(fresh, season, episode)))
         if not fresh: return
+        indexed = _rewrite_torrent_candidates_for_identity(fresh, identity, season, episode)
+        _record_playback_availability_now(identity, indexed, season, episode, "RESULTS", None)
         with lock:
             current = get_cached_streams(cache_key) or []
             variants = {row["stream_id"]: row for row in sanitize_streams(current, require_source=True)}
@@ -3320,7 +3348,8 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
     def _handle_post_internal(self) -> None:
         parsed = urllib.parse.urlparse(self.path)
         legacy_feedback = parsed.path == "/internal/playback-availability/legacy-media3-success"
-        if not legacy_feedback and parsed.path != "/internal/playback-availability/media3-success":
+        failure_feedback = parsed.path == "/internal/playback-availability/media3-failure"
+        if not legacy_feedback and not failure_feedback and parsed.path != "/internal/playback-availability/media3-success":
             self._send_json(404, {"error": "not_found"})
             return
         if not _is_loopback_client_address(self.client_address):
@@ -3356,7 +3385,11 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             if len(raw) != length:
                 raise ValueError("incomplete_body")
             payload = json.loads(raw.decode("utf-8"))
-            if legacy_feedback:
+            if failure_feedback:
+                from source_playback_evidence import sanitize_media3_failure_payload
+                clean = sanitize_media3_failure_payload(payload)
+                result = index.record_source_failure(clean["sourceId"], reason=clean["reason"], cooldown=clean["cooldown"], observed_at=clean["observedAt"])
+            elif legacy_feedback:
                 legacy = _sanitize_legacy_media3_payload(payload)
                 result = _record_legacy_media3_success(index, legacy)
                 clean = {"sourceId": result["sourceId"]}
@@ -3387,7 +3420,7 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             "sourceId": clean["sourceId"],
             "mediaKey": result.get("mediaKey") if isinstance(result, dict) else None,
             "status": result.get("status") if isinstance(result, dict) else None,
-            "verificationMethod": "MEDIA3_SUCCESS",
+            "verificationMethod": "MEDIA3_FAILURE" if failure_feedback else "MEDIA3_SUCCESS",
             "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
         })
 

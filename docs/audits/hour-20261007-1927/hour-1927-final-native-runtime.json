@@ -1,0 +1,129 @@
+{
+  "at": 1791404560.2534006,
+  "cases": [
+    {
+      "seconds": 12.01,
+      "state": "READY",
+      "playing": true,
+      "mediaItemId": "158",
+      "activeId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "height": 576,
+      "durationMs": 10143968,
+      "probeFrames": 12,
+      "passed": true,
+      "case": "native_movie_evidence_to_android",
+      "requestToDecodedSeconds": 12.04,
+      "androidEvidence": {
+        "quality": "576p",
+        "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+        "healthScore": 0.5,
+        "startupLatencyMs": 10422,
+        "recentFailureCount": 0,
+        "transportMetadata": {
+          "playback_verification_status": "VERIFIED",
+          "playback_verification_method": "MEDIA3_SUCCESS",
+          "playback_decoded": "true",
+          "measured_quality": "576p",
+          "provider_reported_quality": "Не указано"
+        }
+      }
+    },
+    {
+      "seconds": 25.07,
+      "state": "SWITCHING_SOURCE",
+      "playing": false,
+      "mediaItemId": "159",
+      "activeId": null,
+      "height": 0,
+      "durationMs": 0,
+      "probeFrames": 64,
+      "passed": false,
+      "case": "exact_series_after_evidence_selection"
+    },
+    {
+      "seconds": 3.02,
+      "state": "READY",
+      "playing": true,
+      "mediaItemId": "159",
+      "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+      "height": 240,
+      "durationMs": 2884904,
+      "probeFrames": 82,
+      "passed": true,
+      "case": "explicit_lower_quality_preserves_user_choice"
+    }
+  ],
+  "installedApkSha256": "6efd511cd1bbc513dbaff2cf8d17cd6a6b16cce58302bd95e411549b49b7554b",
+  "sidecarTaskPresentBefore": false,
+  "backendEvidence": {
+    "stream_id": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "quality": "Не указано",
+    "health_score": 0.5,
+    "startup_latency_ms": 10422.0,
+    "recent_failure_count": 0,
+    "sourceTruth": {
+      "sourceId": "src:d3dd427046000bba92ca60e09d813f29",
+      "verificationStatus": "VERIFIED",
+      "verificationMethod": "MEDIA3_SUCCESS",
+      "decodedPlayback": true,
+      "lastSuccessAt": 1791401319.4211504,
+      "lastFailureAt": null,
+      "lastCheckedAt": 1791401319.4211504,
+      "healthScore": 0.5,
+      "consecutiveFailures": 0,
+      "startupLatencyMs": 10422.0,
+      "expiresAt": null,
+      "sourceType": "P2P",
+      "manifestType": null,
+      "actualQuality": "576p",
+      "actualQualities": [
+        "576p"
+      ],
+      "actualAudioTracks": [
+        {
+          "name": "DUB (Лицензия)",
+          "language": "ru",
+          "groupId": "",
+          "default": false,
+          "autoselect": false
+        },
+        {
+          "name": "Английский",
+          "language": "en",
+          "groupId": "",
+          "default": false,
+          "autoselect": false
+        }
+      ],
+      "allowedAudioLanguages": [
+        "ru"
+      ],
+      "qualityClaimConsistent": null
+    }
+  },
+  "actualAudioSwitch": {
+    "seconds": 1.11,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "158",
+    "activeId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "height": 576,
+    "durationMs": 10143968,
+    "probeFrames": 34,
+    "passed": true,
+    "trackLanguage": "en",
+    "trackName": "Английский"
+  },
+  "seek": {
+    "passed": true,
+    "positionMs": 60711,
+    "framesBefore": 39,
+    "framesAfter": 63
+  },
+  "error": "HTTPError: HTTP Error 400: Bad Request",
+  "idleCleanup": true,
+  "uiAttached": false,
+  "ownedSidecarTaskRemoved": true,
+  "crashLines": [],
+  "referenceRuntimeLoaded": false
+}

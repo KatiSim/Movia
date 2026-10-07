@@ -9,6 +9,7 @@ only an explicit media URL or a magnet is playable.
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
@@ -40,7 +41,13 @@ _VOICE_ALIASES = (
 )
 
 
+class _FoldedFields(dict):
+    """A per-call normalized field view, never a persisted marker."""
+
+
 def _casefold_key_map(value: Any) -> Dict[str, Any]:
+    if isinstance(value, _FoldedFields):
+        return value
     if not isinstance(value, dict):
         return {}
     return {str(key).casefold(): item for key, item in value.items()}
@@ -128,14 +135,23 @@ def _contains_marker(text: str, marker: str) -> bool:
     return bool(re.search(r"(?<![\w])" + re.escape(marker) + r"(?![\w])", lowered))
 
 
-def _detected_voices(text: str) -> List[str]:
+def _uncached_voice_names(text: str) -> tuple[str, ...]:
     if not text:
-        return []
-    found: List[str] = []
-    for canonical, aliases in _VOICE_ALIASES:
-        if any(_contains_marker(text, alias) for alias in aliases):
-            found.append(canonical)
-    return found
+        return ()
+    lowered = text.casefold()
+    return tuple(canonical for canonical, aliases in _VOICE_ALIASES
+                 if any(_contains_marker(lowered, alias) for alias in aliases))
+
+
+@lru_cache(maxsize=1024)
+def _cached_voice_names(text: str) -> tuple[str, ...]:
+    return _uncached_voice_names(text)
+
+
+def _detected_voices(text: str) -> List[str]:
+    # Large external strings do not occupy a bounded but potentially huge cache.
+    names = _cached_voice_names(text) if len(text) <= 4096 else _uncached_voice_names(text)
+    return list(names)
 
 
 def normalize_voice(value: Any) -> str:
@@ -295,9 +311,11 @@ def normalize_lampa_result(raw: Any) -> Dict[str, Any]:
         return {}
 
     result = dict(raw)
+    raw = _FoldedFields(_casefold_key_map(raw))
     info = _first_value(raw, "Info", "info")
     if not isinstance(info, dict):
         info = {}
+    info = _FoldedFields(_casefold_key_map(info))
 
     title = (
         _first_text(raw, "title", "Title", "name", "release_name", "releaseName")

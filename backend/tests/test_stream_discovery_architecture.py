@@ -121,7 +121,49 @@ class DiscoveryPersistenceTest(unittest.TestCase):
         source=self.row('Studio')
         with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',Index()):
             row=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)[0]
-        self.assertEqual('expired',row['sourceId']);self.assertNotIn('sourceTruth',row)
+        self.assertEqual('expired',row['sourceId'])
+        self.assertEqual('EXPIRED',row['sourceTruth']['verificationStatus'])
+        self.assertFalse(row['sourceTruth']['decodedPlayback'])
+        self.assertNotIn('actualQuality',row['sourceTruth'])
+
+    def test_decoded_evidence_reaches_active_scoped_rows_without_replacing_provider_claim(self):
+        source=self.row('Studio')
+        import hashlib
+        class Index:
+            expiry_margin_seconds=15
+            def get_by_key(inner,key,**kwargs):
+                return {'sources':[{'sourceId':'src:known','provider':'fixture',
+                    'locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'verificationStatus':'VERIFIED','verificationMethod':'MEDIA3_SUCCESS',
+                    'healthScore':.98,'startupLatencyMs':2345,'consecutiveFailures':0,
+                    'actualQuality':'576p','actualQualities':['576p'],'expiresAt':None}]}
+        with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',Index()):
+            row=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)[0]
+        self.assertEqual(source['quality'],row['quality'])
+        self.assertEqual('576p',row['sourceTruth']['actualQuality'])
+        self.assertTrue(row['sourceTruth']['decodedPlayback'])
+        self.assertEqual(2345,row['startup_latency_ms'])
+        self.assertEqual(.98,row['health_score'])
+        self.assertTrue(row['transport_metadata']['playback_decoded'])
+
+    def test_failed_locator_exposes_health_without_reusing_success_latency(self):
+        source=self.row('Studio')
+        import hashlib
+        class Index:
+            expiry_margin_seconds=15
+            def get_by_key(inner,key,**kwargs):
+                return {'sources':[{'sourceId':'src:failed','provider':'fixture',
+                    'locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
+                    'verificationStatus':'COOLDOWN','verificationMethod':'MEDIA3_SUCCESS',
+                    'healthScore':.1,'startupLatencyMs':2345,'consecutiveFailures':3,
+                    'actualQuality':'576p','expiresAt':None}]}
+        with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',Index()):
+            row=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)[0]
+        self.assertEqual('COOLDOWN',row['sourceTruth']['verificationStatus'])
+        self.assertFalse(row['sourceTruth']['decodedPlayback'])
+        self.assertIsNone(row['startup_latency_ms'])
+        self.assertEqual(3,row['recent_failure_count'])
+        self.assertNotIn('actualQuality',row['sourceTruth'])
 
     def test_memory_cache_and_identity_locks_stay_bounded_for_large_catalog(self):
         locks = {id(streamer._resolve_lock_for(str(index))) for index in range(5000)}

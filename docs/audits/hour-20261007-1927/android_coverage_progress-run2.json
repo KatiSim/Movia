@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-07T20:17:00.577104+00:00",
+  "target": 500,
+  "attemptedUniqueCards": 114,
+  "outcomes": {
+    "DECODED_FALLBACK": 5,
+    "PLAYBACK_TIMEOUT": 22,
+    "PLAYER_FAILED": 2,
+    "DECODED_NATIVE": 10,
+    "INTERRUPTED_FOR_INSTALL": 1,
+    "NO_NATIVE_CANDIDATE": 75
+  },
+  "decodedNativeCards": 10,
+  "decodedFallbackCards": 5,
+  "identityErrors": 0,
+  "concurrentDiscoveryAudit": true,
+  "finalForThisRun": true,
+  "gate500Complete": false
+}

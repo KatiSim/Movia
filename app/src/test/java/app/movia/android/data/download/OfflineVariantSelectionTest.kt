@@ -64,4 +64,16 @@ class OfflineVariantSelectionTest {
         val same=offlineRequestSource(row.copy(downloadUrl="https://media.example/download.mp4",downloadHeaders=emptyMap()),"Auto")
         assertEquals("original-fixture-cookie",same.headers["Cookie"])
     }
+    @Test fun automaticDownloadChoosesSupportedHttpWithoutAttemptingMagnet() {
+        val torrent=source("torrent",quality="4K").copy(url="magnet:?xt=urn:btih:"+"a".repeat(40),transport="torrent_p2p")
+        assertEquals("http",selectOfflineCandidate(request,listOf(torrent,source("http")),null,null,null).stableStreamId)
+    }
+    @Test fun pinnedUnsupportedTransportCannotDownloadAnotherLeaf() {
+        val torrent=source("torrent").copy(url="magnet:?xt=urn:btih:"+"a".repeat(40),transport="torrent_p2p")
+        failure("UNSUPPORTED_OFFLINE_TRANSPORT") { selectOfflineCandidate(request.copy(requestedStreamId="torrent"),listOf(torrent,source("http")),null,null,null) }
+    }
+    @Test fun implicitDownloadMayUseItsProvenHttpDownloadLocator() {
+        val torrent=source("torrent").copy(url="magnet:?xt=urn:btih:"+"a".repeat(40),transport="torrent_p2p",downloadUrl="https://media.example/owned.mp4")
+        assertEquals("torrent",selectOfflineCandidate(request,listOf(torrent),null,null,null).stableStreamId)
+    }
 }

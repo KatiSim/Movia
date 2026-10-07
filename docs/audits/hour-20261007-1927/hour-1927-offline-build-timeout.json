@@ -1,0 +1,8 @@
+{
+  "job": "job_20261007_195132_2967ea17",
+  "tests": 274,
+  "failures": 0,
+  "timeoutSeconds": 720,
+  "remaining": "DEX/APK and instrumentation compilation",
+  "compilationSucceeded": true
+}

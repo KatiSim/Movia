@@ -1,0 +1,4112 @@
+{
+  "seed": 3442,
+  "rows": [
+    {
+      "mediaId": "33888",
+      "title": "Демон",
+      "year": 1985,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13390",
+      "title": "Голодные игры: Сойка-пересмешница. Часть 2",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "42662",
+      "title": "Аустерлиц",
+      "year": 1960,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35770",
+      "title": "Жена в отпуске... любовница в городе",
+      "year": 1980,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30739",
+      "title": "Мой личный штат Айдахо",
+      "year": 1991,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39646",
+      "title": "Метелло",
+      "year": 1970,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43551",
+      "title": "Безжалостное время",
+      "year": 1957,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59581",
+      "title": "Смелые люди",
+      "year": 1950,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20373",
+      "title": "Первое воскресенье",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28104",
+      "title": "Колдовство",
+      "year": 1996,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20445",
+      "title": "Я и Орсон Уэллс",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11588",
+      "title": "Ограбление века",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3714",
+      "title": "Отвязные дворняги",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45656",
+      "title": "Сеньора инфлюенсер",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29270",
+      "title": "Игра на выживание",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41185",
+      "title": "Мираж",
+      "year": 1965,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11385",
+      "title": "Замок из песка",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15850",
+      "title": "Берлинское дело",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "335",
+      "title": "Легенда о Хэй",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2442",
+      "title": "Большая гонка. Ауди против Лянчи",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "54179",
+      "title": "Мастер расследований: Обвинен в убийстве",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "19505",
+      "title": "Звёздный крейсер Галактика: План",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "474",
+      "title": "Форс-мажоры",
+      "year": 2011,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "461",
+      "title": "Винченцо",
+      "year": 2021,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "574",
+      "title": "C.S.I.: Майами",
+      "year": 2002,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "661",
+      "title": "Волчонок",
+      "year": 2011,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "122",
+      "title": "Менталист",
+      "year": 2008,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "424",
+      "title": "Очень странные дела",
+      "year": 2016,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "450",
+      "title": "Наша планета",
+      "year": 2019,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "245",
+      "title": "Чёрный список",
+      "year": 2013,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "1713",
+      "title": "Оно: Добро пожаловать в Дерри",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "267",
+      "title": "Декстер",
+      "year": 2006,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "356",
+      "title": "Хватай Сон Джэ и беги",
+      "year": 2024,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "271",
+      "title": "Вечернее шоу с Дэвидом Леттерманом",
+      "year": 1993,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "136",
+      "title": "Морская полиция: Спецотдел",
+      "year": 2003,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "383",
+      "title": "Мерли",
+      "year": 2015,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "358",
+      "title": "Гоблин",
+      "year": 2016,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "297",
+      "title": "Доктор Кто",
+      "year": 2005,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "525",
+      "title": "Re:ZERO – Жизнь с нуля в альтернативном мире",
+      "year": 2016,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "559",
+      "title": "Король шаманов",
+      "year": 2001,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "526",
+      "title": "Секретные материалы",
+      "year": 1993,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "1714",
+      "title": "Одна из многих",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "274",
+      "title": "Леди Баг и Супер-кот",
+      "year": 2015,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "570",
+      "title": "Холм одного дерева",
+      "year": 2003,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "184",
+      "title": "Ван-Пис",
+      "year": 1999,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "142",
+      "title": "Цвет счастья",
+      "year": 2007,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "152",
+      "title": "Извне",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "506",
+      "title": "Космос",
+      "year": 2014,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "604",
+      "title": "Торжество мести",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "181",
+      "title": "Если судьба преподносит тебе мандарины",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "1707",
+      "title": "Гангстерленд",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "467",
+      "title": "С добрым мифическим утром",
+      "year": 2012,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "328",
+      "title": "Энн",
+      "year": 2017,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "277",
+      "title": "Переполнение",
+      "year": 2020,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "651",
+      "title": "Президент студсовета — горничная!",
+      "year": 2010,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "357",
+      "title": "Гравити Фолз",
+      "year": 2012,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "176",
+      "title": "Суперчудаки",
+      "year": 2026,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "505",
+      "title": "Шерлок",
+      "year": 2010,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "576",
+      "title": "Дневники вампира",
+      "year": 2009,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "1712",
+      "title": "Четыре времени года",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "501",
+      "title": "Сумеречная зона",
+      "year": 1959,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "617",
+      "title": "Стрела",
+      "year": 2012,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "292",
+      "title": "Полиция Гавайев",
+      "year": 2010,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "562",
+      "title": "Необычный адвокат У Ён У",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "182",
+      "title": "Вернуться в 1988-й",
+      "year": 2015,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "290",
+      "title": "Лаки",
+      "year": 2026,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "503",
+      "title": "Охотничьи псы",
+      "year": 2023,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "563",
+      "title": "Выходи замуж за моего супруга!",
+      "year": 2024,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "620",
+      "title": "Остаться в живых",
+      "year": 2004,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "471",
+      "title": "S.W.A.T.: Спецназ города ангелов",
+      "year": 2017,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "137",
+      "title": "Сверхъестественное",
+      "year": 2005,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "520",
+      "title": "Викинги",
+      "year": 2013,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "616",
+      "title": "Детство Шелдона",
+      "year": 2017,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "417",
+      "title": "С любовью, Виктор",
+      "year": 2020,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "470",
+      "title": "Йеллоустоун",
+      "year": 2018,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "130",
+      "title": "Дом Дракона",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "332",
+      "title": "Планета Земля 2",
+      "year": 2016,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "622",
+      "title": "Плен",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "360",
+      "title": "Приятного аппетита, Ваше Величество",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "423",
+      "title": "Гачиакута",
+      "year": 2025,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "674",
+      "title": "Морская полиция: Лос-Анджелес",
+      "year": 2009,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "289",
+      "title": "Закон и порядок. Преступное намерение",
+      "year": 2001,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "518",
+      "title": "Звёздные врата: ЗВ-1",
+      "year": 1997,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "160",
+      "title": "Чернобыль",
+      "year": 2019,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "572",
+      "title": "Место преступления",
+      "year": 1970,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "159",
+      "title": "Во все тяжкие",
+      "year": 2008,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "611",
+      "title": "Магазин для киллеров",
+      "year": 2024,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "329",
+      "title": "Голубая планета 2",
+      "year": 2017,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "513",
+      "title": "Флэш",
+      "year": 2014,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "190",
+      "title": "Слабый герой",
+      "year": 2022,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "156",
+      "title": "Бесстыжие",
+      "year": 2011,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "473",
+      "title": "Два с половиной человека",
+      "year": 2003,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "621",
+      "title": "Смерть в раю",
+      "year": 2011,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "596",
+      "title": "Ферма Кларксона",
+      "year": 2021,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "677",
+      "title": "Завтра принадлежит нам",
+      "year": 2017,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "173",
+      "title": "Истинное образование",
+      "year": 2026,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "465",
+      "title": "Отель «Дель Луна»",
+      "year": 2019,
+      "type": "tv",
+      "season": 1,
+      "episode": 2,
+      "episodeSelectionBasis": "catalog season_episode_counts; generic package prohibited"
+    },
+    {
+      "mediaId": "15049",
+      "title": "Хулиган",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "9107",
+      "title": "Тайны в маленьком городке",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15618",
+      "title": "Малавита",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32292",
+      "title": "Музей восковых фигур",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35542",
+      "title": "Дворец крушений",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2430",
+      "title": "За год до смерти я встретил тебя",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22932",
+      "title": "Учебник любви",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25870",
+      "title": "Танцующая в темноте",
+      "year": 2000,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30435",
+      "title": "Друзья Питера",
+      "year": 1992,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "40552",
+      "title": "Тигр",
+      "year": 1967,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "44785",
+      "title": "Аленький цветочек",
+      "year": 1952,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "18872",
+      "title": "Последний неандерталец",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13800",
+      "title": "Кунг Фьюри",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "33732",
+      "title": "Царь Давид",
+      "year": 1985,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13572",
+      "title": "Корона на Рождество",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "42999",
+      "title": "Оглянись во гневе",
+      "year": 1959,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59729",
+      "title": "Охота",
+      "year": 1979,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "31750",
+      "title": "Невероятные приключения Билла и Теда",
+      "year": 1989,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53783",
+      "title": "Предел",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53651",
+      "title": "Безграничный туман",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59509",
+      "title": "Иерей-сан. Исповедь самурая",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25003",
+      "title": "Битва за Эль-Аламейн",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45309",
+      "title": "Сердце пармы",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35338",
+      "title": "Сын белой лошади",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "17356",
+      "title": "Рота Шарпа",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27917",
+      "title": "Информатор",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36054",
+      "title": "Жестяной барабан",
+      "year": 1979,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3954",
+      "title": "Враг",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2413",
+      "title": "Наёмный убийца",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "549",
+      "title": "La passione",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1151162",
+      "title": "Compound",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "9139",
+      "title": "Фабрика грёз",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11120",
+      "title": "Валериан и город тысячи планет",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "18386",
+      "title": "Я плюю на ваши могилы",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2658",
+      "title": "Дева Мария: Мать Христа",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "52740",
+      "title": "Пароль: Хаус",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34981",
+      "title": "Укуренные 4",
+      "year": 1982,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59861",
+      "title": "Мы, нижеподписавшиеся",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "4808",
+      "title": "Фантастические твари: Тайны Дамблдора",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "38459",
+      "title": "Смертельные преследователи",
+      "year": 1973,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "33455",
+      "title": "Мелодрама",
+      "year": 1986,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2239765",
+      "title": "Рождественская мелодия",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "58494",
+      "title": "Король обольщения",
+      "year": 2012,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "4016",
+      "title": "Мой Хатико",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2415",
+      "title": "Партенопа",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53468",
+      "title": "Маленький Цезарь",
+      "year": 1931,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59746",
+      "title": "Небесные ласточки",
+      "year": 1976,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34721",
+      "title": "Дом потерянных женщин",
+      "year": 1983,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "23320",
+      "title": "Пробуждение смерти",
+      "year": 2004,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15571",
+      "title": "Тайное влечение",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22478",
+      "title": "Звёздные войны: Эпизод 3 - Месть Ситхов",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11386",
+      "title": "Дикий пёс",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "6808",
+      "title": "Смурфики",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30859",
+      "title": "Бинго",
+      "year": 1991,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "12682",
+      "title": "Кристин",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15652",
+      "title": "Барби: Балерина в розовых пуантах",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47580",
+      "title": "Не её мужчина",
+      "year": 1950,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39102",
+      "title": "Страсть к вампиру",
+      "year": 1971,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26760",
+      "title": "Джеки Чан: Мои трюки",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "395779",
+      "title": "Дэнни Цепной пёс",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3615",
+      "title": "Леди Баг и Супер-Кот: Пробуждение силы",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29486",
+      "title": "Баскетбольные мечты",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27442",
+      "title": "Бэзил",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34630",
+      "title": "Пауло Роберто Котекиньо голевой центральный нападающий",
+      "year": 1983,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "46939",
+      "title": "Руины",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37996",
+      "title": "Машины, которые съели Париж",
+      "year": 1974,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34495",
+      "title": "Силквуд",
+      "year": 1983,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55746",
+      "title": "Мистер Крокет",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "19744",
+      "title": "Очень испанское кино",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "180498",
+      "title": "Sonunda Sen",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2",
+      "title": "Одиссея",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55415",
+      "title": "Роман в Ледовом дворце",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15894",
+      "title": "Дом Хемингуэй",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55517",
+      "title": "Любовь на миллион",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "7600",
+      "title": "Психушка: ужасающие и фантастические истории",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24010",
+      "title": "Гудбай, Ленин!",
+      "year": 2003,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25366",
+      "title": "Аттила-завоеватель",
+      "year": 2001,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32229",
+      "title": "Восставший из ада 2",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30522",
+      "title": "Второе дыхание",
+      "year": 1992,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35479",
+      "title": "Чертёнок",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "12547",
+      "title": "Барби и Космическое приключение",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "18960",
+      "title": "Believe in Me",
+      "year": 2006,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "647",
+      "title": "Ярость",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26835",
+      "title": "Вавилон 5: Призыв к оружию",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43587",
+      "title": "Поющее, звенящее деревце",
+      "year": 1957,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30856",
+      "title": "Доктор",
+      "year": 1991,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53314",
+      "title": "Языческая мадонна",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3927",
+      "title": "Снайпер: Глобальная группа реагирования и разведки",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "6287",
+      "title": "Агнец",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "140215",
+      "title": "Курьер",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37369",
+      "title": "Табор уходит в небо",
+      "year": 1976,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22641",
+      "title": "Привет семье!",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1316",
+      "title": "Игра вдовы",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "12738",
+      "title": "Лего Супергерои DC: Лига Справедливости – Космическая битва",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "12325",
+      "title": "Аисты",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15794",
+      "title": "Букашки. Приключение в Долине муравьев",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20444",
+      "title": "Пожираемые заживо",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "52897",
+      "title": "Девушка без рук",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27762",
+      "title": "Мандрагора",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20250",
+      "title": "Мертвячка",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "6433",
+      "title": "Остров Бергмана",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "16969",
+      "title": "1453 Завоевание",
+      "year": 2012,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41637",
+      "title": "Зал ожидания на небеса",
+      "year": 1964,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20128",
+      "title": "Гран Торино",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2142093",
+      "title": "Planet Earth II: A World of Wonder",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27873",
+      "title": "Месть Шарпа",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20178",
+      "title": "Дорога перемен",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59948",
+      "title": "Любимая женщина механика Гаврилова",
+      "year": 1982,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26728",
+      "title": "Исповедь",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29894",
+      "title": "Придорожное заведение",
+      "year": 1993,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24312",
+      "title": "Отец и сыновья",
+      "year": 2003,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "44482",
+      "title": "Голая шпора",
+      "year": 1953,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14973",
+      "title": "Пришельцы",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36893",
+      "title": "Качая железо",
+      "year": 1977,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1178",
+      "title": "Токсичный мститель",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "46556",
+      "title": "Дорогой баскетбол",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53000",
+      "title": "Волшебное серебро",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22643",
+      "title": "Казанова",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1659",
+      "title": "Как заработать на убийстве",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32369",
+      "title": "Хорошая мать",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59193",
+      "title": "Молодой человек",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "56064",
+      "title": "Батальонъ",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "7663",
+      "title": "Подольские курсанты",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "19364",
+      "title": "Без имени",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "51071",
+      "title": "Цена прощания",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36539",
+      "title": "Глубокий сон",
+      "year": 1978,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13682",
+      "title": "Лондонские каникулы",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59526",
+      "title": "Час пик",
+      "year": 2006,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "30889",
+      "title": "Коллективный иск",
+      "year": 1991,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "44035",
+      "title": "В ад и назад",
+      "year": 1955,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37052",
+      "title": "Невезучий папарацци",
+      "year": 1977,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22473",
+      "title": "Сорокалетний девственник",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "56029",
+      "title": "Мухаммад: Посланник Бога",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3817",
+      "title": "Туристический путеводитель по любви",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39604",
+      "title": "Сад наслаждений",
+      "year": 1970,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34473",
+      "title": "Полина на пляже",
+      "year": 1983,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47228",
+      "title": "Найти и уничтожить",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "44301",
+      "title": "Доктор в доме",
+      "year": 1954,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "54851",
+      "title": "Гамлет",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "882217",
+      "title": "Couple Friendly",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45223",
+      "title": "Последняя посадка",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "42360",
+      "title": "Команчерос",
+      "year": 1961,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43461",
+      "title": "Лицо в толпе",
+      "year": 1957,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55128",
+      "title": "Рождество в Вашингтоне",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25470",
+      "title": "Центр мира",
+      "year": 2001,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "610",
+      "title": "We Live Together 20",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "8637",
+      "title": "Порно",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35080",
+      "title": "Шлюха",
+      "year": 1982,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45833",
+      "title": "Мариус",
+      "year": 1931,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13815",
+      "title": "Близкое расстояние",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53730",
+      "title": "Похищение искусства",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24589",
+      "title": "Комната страха",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36088",
+      "title": "Странники",
+      "year": 1979,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32160",
+      "title": "Танец проклятых",
+      "year": 1989,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "208802",
+      "title": "Джейсон Борн",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "42371",
+      "title": "Колодец и маятник",
+      "year": 1961,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22009",
+      "title": "Второй в команде",
+      "year": 2006,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15053",
+      "title": "Чёрные души",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29372",
+      "title": "Ночной сторож",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "54724",
+      "title": "Любимая ученица",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "12265",
+      "title": "Тарзан. Легенда",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22535",
+      "title": "Автостопом по галактике",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24335",
+      "title": "Счастливый час",
+      "year": 2003,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "5461",
+      "title": "Дампир",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "546",
+      "title": "Астрал: Глава 3",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "31222",
+      "title": "Танцующий с волками",
+      "year": 1990,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "23563",
+      "title": "Дом страха",
+      "year": 2004,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "17508",
+      "title": "Смурфики",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29779",
+      "title": "Таинственный сад",
+      "year": 1993,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "158735",
+      "title": "Socias por accidente",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "645",
+      "title": "Minecraft в кино",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27029",
+      "title": "Затерянные в космосе",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14787",
+      "title": "Мисс Медоуз",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37016",
+      "title": "Мы все отправимся в рай",
+      "year": 1977,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14476",
+      "title": "Заложница 3",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36589",
+      "title": "Священник",
+      "year": 1978,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "49302",
+      "title": "Линда Ронстадт: Звук моего голоса",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41858",
+      "title": "Вороний квартал",
+      "year": 1963,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15926",
+      "title": "Тачка No19",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22760",
+      "title": "Доказательство",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21585",
+      "title": "Шумиха",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32435",
+      "title": "Канзас",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "57135",
+      "title": "Дестри снова в седле",
+      "year": 1939,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "17584",
+      "title": "Дневник слабака 2: Правила Родрика",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "902",
+      "title": "Материнский инстинкт",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "54914",
+      "title": "Весёлая ферма",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1794",
+      "title": "Moto 6: The Movie",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24596",
+      "title": "Барби и дракон",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "764",
+      "title": "Динк",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "58367",
+      "title": "Зазеркалье",
+      "year": 2003,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "7671",
+      "title": "Под ударом",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "272357",
+      "title": "Falling into Place",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53811",
+      "title": "Наш общий отец",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21280",
+      "title": "Сигнал",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "202158",
+      "title": "Звёздные войны: Эпизод 6 - Возвращение Джедая",
+      "year": 1983,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26103",
+      "title": "Люди Икс",
+      "year": 2000,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "5441",
+      "title": "Тор: Бог грома",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13630",
+      "title": "Белль и Себастьян: Приключения продолжаются",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15249",
+      "title": "Обещание сына",
+      "year": 1990,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35236",
+      "title": "Экскалибур",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "4175",
+      "title": "Лебедь",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "23568",
+      "title": "Охотник за головами",
+      "year": 2004,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20925",
+      "title": "Гангстер",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "33369",
+      "title": "Мы всегда говорим до свидания",
+      "year": 1986,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48531",
+      "title": "Безумная дорога",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "88",
+      "title": "Назад в будущее",
+      "year": 1985,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "586",
+      "title": "Касабланка",
+      "year": 1943,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "631872",
+      "title": "Звонок: Вирус",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37978",
+      "title": "Возвращение высокого блондина",
+      "year": 1974,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1124",
+      "title": "М3ГАН 2.0",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29287",
+      "title": "Неглубокая могила",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "31831",
+      "title": "Триумф духа",
+      "year": 1989,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "16044",
+      "title": "Славные ублюдки",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "17554",
+      "title": "Зеленый Шершень",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20596",
+      "title": "Мы из будущего",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48764",
+      "title": "МегаДок",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3893",
+      "title": "Старушки за Брэйди",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "8748",
+      "title": "Рост Джоди",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "52874",
+      "title": "Исчезнувшее время: Мальчик, который вернулся",
+      "year": 2016,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14492",
+      "title": "Прежде чем я усну",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "160406",
+      "title": "Глаза",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24740",
+      "title": "Под прицелом",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "642",
+      "title": "Город героев",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1191",
+      "title": "Всемирный потоп",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22114",
+      "title": "Мой лучший друг",
+      "year": 2006,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27121",
+      "title": "Я буду дома к Рождеству",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11095",
+      "title": "Оно",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "685665",
+      "title": "Кабеса де Вака",
+      "year": 1991,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13804",
+      "title": "Мой маленький пони: Девочки из Эквестрии – Игры дружбы",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35284",
+      "title": "Волки",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2252294",
+      "title": "Мой фальшивый парень",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "46682",
+      "title": "Щелкунчик и волшебная флейта",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48750",
+      "title": "За утопией",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43218",
+      "title": "Время любить и время умирать",
+      "year": 1958,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53059",
+      "title": "Астрал. Ночной кошмар",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "394126",
+      "title": "Зомби-нацисты",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32544",
+      "title": "Кингсайз",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "57936",
+      "title": "Консольные войны",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "16539",
+      "title": "Жизнь Пи",
+      "year": 2012,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43066",
+      "title": "Последний разгневанный человек",
+      "year": 1959,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11234",
+      "title": "Парижская опера",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21012",
+      "title": "5 сантиметров в секунду",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "43701",
+      "title": "Собор Парижской Богоматери",
+      "year": 1956,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32297",
+      "title": "Наблюдатели",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48123",
+      "title": "Ночная жизнь",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1077906",
+      "title": "Летучие мыши",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41315",
+      "title": "Гений дзюдо",
+      "year": 1965,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48622",
+      "title": "Мой отец — убийца СПУ",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1427311",
+      "title": "Анна Кири",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25221",
+      "title": "Атлантида Затерянный мир",
+      "year": 2001,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48038",
+      "title": "Серенада трех сердец",
+      "year": 1933,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2235585",
+      "title": "Chinas",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13523",
+      "title": "Дрожь земли 5: Кровное родство",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45146",
+      "title": "Битва за Лахад-Дату",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21165",
+      "title": "До смерти",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22534",
+      "title": "Честь дракона",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59095",
+      "title": "Компенсация",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "16979",
+      "title": "Полный беспредел",
+      "year": 2012,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14687",
+      "title": "Пирамида",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "10047",
+      "title": "Долгий день уходит в ночь",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26927",
+      "title": "Брат",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "33667",
+      "title": "Исследователи",
+      "year": 1985,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27159",
+      "title": "Войны Пентагона",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "475883",
+      "title": "Мистер Крутой",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "40018",
+      "title": "Белые волки",
+      "year": 1969,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "31267",
+      "title": "Смерти вопреки",
+      "year": 1990,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28506",
+      "title": "Песня Карлы",
+      "year": 1996,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37185",
+      "title": "Судья",
+      "year": 1976,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "5123",
+      "title": "Взрывная игра",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "5677",
+      "title": "Добро пожаловать в Тяжелые Времена",
+      "year": 1967,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "7754",
+      "title": "Колдун: мечта о вечности",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "11394",
+      "title": "Опасное расследование",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20282",
+      "title": "Бобро поржаловать",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "10380",
+      "title": "Дочери Солнца",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1268",
+      "title": "Только во сне",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36450",
+      "title": "Прелестное дитя",
+      "year": 1978,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "56050",
+      "title": "Квислинг: Последние дни",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "742",
+      "title": "Примат",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "5398",
+      "title": "План урока",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39843",
+      "title": "Тинтин и Храм Солнца",
+      "year": 1969,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "530",
+      "title": "Невинные голоса",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "57133",
+      "title": "Стрелок",
+      "year": 1950,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22507",
+      "title": "Мемуары гейши",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1631",
+      "title": "Воскресенья",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "342",
+      "title": "Одержимость",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39969",
+      "title": "Капризная принцесса",
+      "year": 1969,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "291294",
+      "title": "Neil Peart: No One's Disciple",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27279",
+      "title": "Собор Парижской Богоматери",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "10102",
+      "title": "22 июля",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24098",
+      "title": "Большая пустота",
+      "year": 2003,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28670",
+      "title": "Пока ты спал",
+      "year": 1995,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47124",
+      "title": "Петровы в гриппе",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14469",
+      "title": "Голодные игры: Сойка-пересмешница. Часть 1",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1099740",
+      "title": "Каспер встречает Венди",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21298",
+      "title": "Под покровом Ночи",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47825",
+      "title": "Печальная история любви",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "17549",
+      "title": "Красная шапочка",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "171813",
+      "title": "Убойное свидание",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "914987",
+      "title": "Обитель зла: Вырождение",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "49395",
+      "title": "Джордж Карлин: Что я делаю в Нью-Джерси?",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26772",
+      "title": "Моя веселая жизнь",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35689",
+      "title": "Суперполицейский",
+      "year": 1980,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28210",
+      "title": "Множество",
+      "year": 1996,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2127",
+      "title": "Kärlek 3000",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2567",
+      "title": "Обратно во мрак",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59224",
+      "title": "Решала: Нулевые",
+      "year": 2019,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "40517",
+      "title": "Любой ценой",
+      "year": 1967,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26988",
+      "title": "Принц Египта",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "58393",
+      "title": "Моя могучая принцесса",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "49405",
+      "title": "Короткая игра",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1143",
+      "title": "Эдем",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45237",
+      "title": "Время",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "51789",
+      "title": "Нино",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "20573",
+      "title": "Голубой пирог 2: Парни идут вразнос!",
+      "year": 2008,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "23296",
+      "title": "Бриджит Джонс: Грани разумного",
+      "year": 2004,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53695",
+      "title": "Хардкор бессмертен",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "38183",
+      "title": "Партизаны",
+      "year": 1974,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "13619",
+      "title": "Лига Справедливости: Трон Атлантиды",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47594",
+      "title": "Фредди",
+      "year": 2022,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "730",
+      "title": "Свист",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "36488",
+      "title": "Аморальность",
+      "year": 1978,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "38593",
+      "title": "Наемный работник",
+      "year": 1973,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35644",
+      "title": "Братья Блюз",
+      "year": 1980,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25828",
+      "title": "Динозавр",
+      "year": 2000,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41636",
+      "title": "Комната 13",
+      "year": 1964,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "51324",
+      "title": "Счастливые праздники на Черри Лейн",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2895",
+      "title": "Обитель страха",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "23366",
+      "title": "Любовная лихорадка",
+      "year": 2004,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15830",
+      "title": "Полной грудью",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "4034",
+      "title": "Сидя в барах с тортом",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47404",
+      "title": "Мясник",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24826",
+      "title": "Третий лишний",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "52677",
+      "title": "Тяжело быть рожденными",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "52974",
+      "title": "Кладбище блеска",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "6397",
+      "title": "Рука Бога",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47818",
+      "title": "Случайная знакомая",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45207",
+      "title": "Люди Икс: Первый класс",
+      "year": 2011,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "37397",
+      "title": "Докторша под простыней",
+      "year": 1976,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "6121",
+      "title": "Новые боги: Возрождение Нэчжи",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39620",
+      "title": "Малыш Фаусс и Большой Хэлси",
+      "year": 1970,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1124209",
+      "title": "The Nice Ones",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "686825",
+      "title": "Простите нас",
+      "year": 1931,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15535",
+      "title": "G.I. Joe: Бросок кобры 2",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1046066",
+      "title": "Вторжение динозавра",
+      "year": 2006,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39609",
+      "title": "Кража",
+      "year": 1970,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "53643",
+      "title": "Убейте жокея",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "26449",
+      "title": "Королевы убийства",
+      "year": 1999,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "40208",
+      "title": "Проект X",
+      "year": 1968,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "32430",
+      "title": "Удачное наследство",
+      "year": 1988,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41256",
+      "title": "Прекрасным летним утром",
+      "year": 1965,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27635",
+      "title": "Мужской стриптиз",
+      "year": 1997,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "35509",
+      "title": "Три брата",
+      "year": 1981,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "40245",
+      "title": "Кто просил возмездия?",
+      "year": 1968,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "7516",
+      "title": "Милашка вроде тебя",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2324",
+      "title": "Анора",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "16080",
+      "title": "Гагарин. Первый в космосе",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "14934",
+      "title": "Меню",
+      "year": 2014,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15815",
+      "title": "Джастин и рыцари доблести",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "256",
+      "title": "Охота за тенью",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "59858",
+      "title": "Обратная связь",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "49283",
+      "title": "Ноам Хомский: Реквием по американской мечте",
+      "year": 2015,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "18589",
+      "title": "Братство танца: Возвращение домой",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28360",
+      "title": "Екатерина Великая",
+      "year": 1996,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "24582",
+      "title": "Звёздные войны: Эпизод 2 - Атака клонов",
+      "year": 2002,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "33454",
+      "title": "Тихая прохлада",
+      "year": 1986,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "3588",
+      "title": "Братья Супер Марио в кино",
+      "year": 2023,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "25894",
+      "title": "Базз Лайтер из звёздной команды: Приключения начинаются",
+      "year": 2000,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55666",
+      "title": "Клинический случай",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "18613",
+      "title": "Семейка Джонсов",
+      "year": 2010,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29220",
+      "title": "Прямая и явная угроза",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48664",
+      "title": "Четыре часа в Капитолии",
+      "year": 2021,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "39453",
+      "title": "Вкус крови Дракулы",
+      "year": 1970,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "31595",
+      "title": "Фантоцци берет реванш",
+      "year": 1990,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "58049",
+      "title": "Топ Гир: Худший автомобиль во всемирной истории",
+      "year": 2012,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "54152",
+      "title": "Тайны Авроры Тигарден: Урок убийства",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "45758",
+      "title": "Побег из брака",
+      "year": 2020,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "10146",
+      "title": "Голая Джульетта",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "50526",
+      "title": "Восточный ветер 3: Наследие Оры",
+      "year": 2017,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "703",
+      "title": "Крик 7",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "132155",
+      "title": "Горящая тень",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "47222",
+      "title": "Красавчик под прикрытием, или Супершпион",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "19706",
+      "title": "Хранитель",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "46372",
+      "title": "Афёра",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "38567",
+      "title": "Много шума из ничего",
+      "year": 1973,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1814888",
+      "title": "Beauty from Surrender",
+      "year": 2026,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "48382",
+      "title": "Мортимеры",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "19246",
+      "title": "Ледниковый период 3: Эра динозавров",
+      "year": 2009,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "10212",
+      "title": "Собачьи дни",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "15572",
+      "title": "Игра Эндера",
+      "year": 2013,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "34096",
+      "title": "У подножия вулкана",
+      "year": 1984,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "1118",
+      "title": "Дожить до рассвета",
+      "year": 2025,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21470",
+      "title": "Нет секса - нет денег",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28456",
+      "title": "Мужчина моей жизни",
+      "year": 1996,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "29288",
+      "title": "Дилетанты",
+      "year": 1994,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "21057",
+      "title": "Спасительный рассвет",
+      "year": 2007,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "55672",
+      "title": "Наш дом",
+      "year": 2018,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2507",
+      "title": "Дети леса",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "22660",
+      "title": "Последние дни Софии Шолль",
+      "year": 2005,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "41503",
+      "title": "Пляж бикини",
+      "year": 1964,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "28759",
+      "title": "Байки из склепа: Демон ночи",
+      "year": 1995,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "27122",
+      "title": "Превратности любви",
+      "year": 1998,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "437514",
+      "title": "Death Stranding",
+      "year": 0,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    },
+    {
+      "mediaId": "2323",
+      "title": "Табу: Семейные тайны",
+      "year": 2024,
+      "type": "movie",
+      "season": null,
+      "episode": null
+    }
+  ],
+  "size": 500,
+  "idsSha256": "7c7edc4d22ed2fc84807b6865c79d2d320ef1c2d5c0359e93d02e8042ba9472e",
+  "extension": {
+    "at": "2026-10-07T19:55:06.657320+00:00",
+    "previousSize": 486,
+    "previousSha256": "23358ce752cc34f7d461db1e9cc40e341d6c9f45b0d23ae00813b0f45eb3fc9e",
+    "seed": 3443,
+    "reason": "Append real catalog candidates to reach 500; missing native candidates remain an explicit failure.",
+    "addedIds": [
+      "26",
+      "1",
+      "39",
+      "61",
+      "75",
+      "9",
+      "50",
+      "41",
+      "38",
+      "10",
+      "7",
+      "53",
+      "59",
+      "21"
+    ]
+  },
+  "seriesAmendment": {
+    "at": "2026-10-07T19:56:52.411248+00:00",
+    "previousSha256": "0d3ee1aa54898f352dd4f24f16662ab72830c9304bf419fc537dbbf3778199f1",
+    "reason": "Use saved episode metadata and require exact native S/E from live scoped endpoint. All attempted cards preserved.",
+    "seriesCount": 75,
+    "seed": 3450
+  }
+}
