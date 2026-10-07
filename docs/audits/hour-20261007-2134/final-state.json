@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-07T22:28:16.896903+00:00",
+  "installedSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "builtSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "shaMatches": true,
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 1778456,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "playback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "playerIdle": true,
+  "libraryCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "libraryCountsPreserved": true,
+  "nativeArchitecture": "movia-provider-registry",
+  "referenceRuntimeLoaded": false,
+  "backendHealth": 200,
+  "services": {
+    "movia-media-parser": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 28141) 2117s; run: log: (pid 6330) 195323s"
+    },
+    "movia-stream-enricher": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 28151) 2116s"
+    }
+  },
+  "runtimeParity": {
+    "catalog_stream_service.py": true,
+    "media_content_probe.py": true,
+    "native_variant_feedback.py": true,
+    "playback_availability_index.py": true,
+    "source_playback_evidence.py": true,
+    "streamer.py": true,
+    "discovery_queue.py": true,
+    "discovery_outcome.py": true,
+    "provider_discovery.py": true
+  },
+  "crashOrAnrLines": [],
+  "unrelatedFilesPreserved": 20,
+  "unrelatedChangedFiles": [],
+  "passed": true
+}

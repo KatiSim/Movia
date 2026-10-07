@@ -16,8 +16,9 @@ class OnDemandRegistryTests(unittest.TestCase):
         with patch.dict("os.environ", env), patch.object(module, "_discover_provider_streams", resolve):
             rows = streamer._resolve_clean_provider_registry(
                 "Example", 2008, None, None, None, "native-budget-test", "movie")
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["catalog_media_id"], "native-budget-test")
+        self.assertEqual(rows.status,"OK")
+        self.assertEqual(len(rows.streams), 1)
+        self.assertEqual(rows.streams[0]["catalog_media_id"], "native-budget-test")
 
     def test_playback_unions_registry_balancer_and_torrent_for_exact_card(self):
         identity = {"id": 77777, "title": "Example", "year": 2008,

@@ -1,6 +1,7 @@
 """Identity-bound cached playback API with bounded server-side discovery."""
 import time
 from discovery_queue import DiscoveryQueue
+from discovery_outcome import DiscoveryJobResult
 from stream_validation import bind_stream_identity
 
 
@@ -70,15 +71,16 @@ class CatalogStreamService:
             updated = self._load_card(movie_id, season, episode)
             if updated: rows = self._rows(updated, updated.get("streams", []), season, episode)
         if rows: status = "READY"
-        elif discovery in {"QUEUED", "RUNNING"}: status = "DISCOVERY_PENDING"
+        elif discovery in {"QUEUED", "RUNNING", "PENDING"}: status = "DISCOVERY_PENDING"
         elif discovery == "UNAVAILABLE": status = "UNAVAILABLE"
         elif discovery == "ERROR": status = "ERROR"
         elif discovery == "STOPPED": status = "TEMPORARILY_UNAVAILABLE"
         else: status = "BUSY"
         response = {"streams": rows, "status": status, "discoveryStatus": discovery,
-                     "refreshing": discovery in {"QUEUED", "RUNNING"}, "retryAfterMs": 350,
+                     "refreshing": discovery in {"QUEUED", "RUNNING", "PENDING"}, "retryAfterMs": 350,
                      "mediaId": str(card["id"]), "title":card.get("title"), "year":card.get("year"),
                      "season": season, "episode": episode}
+        response.update({k:v for k,v in self.queue.details(key).items() if k != "hasScopedResults"})
         if discovery == "ERROR":
             response.update(errorCode="DISCOVERY_ERROR", discoveryError=self.queue.error(key))
         return 200, response
@@ -94,13 +96,16 @@ class CatalogStreamService:
             force_refresh=True, original_title=card.get("original_title"),
             catalog_media_id=card["id"], media_type=card.get("media_type"),
             require_catalog_identity=True, _allow_stale_fast_path=False)
+        trace = getattr(rows,"discovery_trace",None)
         rows = self._rows(card, rows, season, episode)
-        if not rows: return False
+        if not rows:return DiscoveryJobResult(False,trace=trace) if trace is not None else False
         # Register the scoped leaves once in the discovery worker, before the
         # next GET overlay or native first-frame feedback can consume them.
         record = getattr(self.runtime, "_record_playback_availability_now", None)
         if callable(record):
             record(card, rows, season, episode, "RESULTS", None)
-        return bool(self.runtime.persist_resolved_streams_to_catalog(card["id"], rows))
+        persisted = bool(self.runtime.persist_resolved_streams_to_catalog(card["id"],rows))
+        if not persisted:raise RuntimeError("catalog_persistence_failed")
+        return DiscoveryJobResult(True,trace=trace) if trace is not None else True
 
     def close(self): return self.queue.close()

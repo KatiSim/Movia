@@ -2457,8 +2457,8 @@ def _resolve_torrent_provider(
             return direct_rows + rewritten
         return rows
     except Exception as exc:
-        print(f"Torrent resolve error: {exc}")
-        return []
+        print(f"Torrent resolve error: {type(exc).__name__}")
+        raise
 
 
 def _resolve_clean_provider_registry(
@@ -2470,7 +2470,7 @@ def _resolve_clean_provider_registry(
     catalog_media_id: Any,
     media_type: str,
     publish_result=None,
-) -> List[Dict[str, Any]]:
+):
     try:
         from provider_discovery import discover_provider_streams
         outcome = discover_provider_streams(
@@ -2484,10 +2484,11 @@ def _resolve_clean_provider_registry(
             budget_seconds=12.0,
             on_provider_result=publish_result,
         )
-        return outcome.streams
+        return outcome
     except Exception as exc:
-        print(f"[DEBUG] Clean provider registry error: {type(exc).__name__}: {exc}")
-        return []
+        print(f"[DEBUG] Clean provider registry error: {type(exc).__name__}")
+        from provider_discovery import ProviderDiscoveryOutcome
+        return ProviderDiscoveryOutcome([], "PROVIDER_ERROR", error_count=1)
 
 
 def _resolve_balancer_provider(
@@ -2522,8 +2523,8 @@ def _resolve_balancer_provider(
             force_refresh=force_refresh,
         ) or []
     except Exception as exc:
-        print(f"[DEBUG] Balancer query error: {exc}")
-        return []
+        print(f"[DEBUG] Balancer query error: {type(exc).__name__}")
+        raise
 
 def _schedule_zona_playback_enrichment(
     *,
@@ -2805,6 +2806,7 @@ def resolve_on_demand_streams(
     require_catalog_identity: bool = False,
     _allow_stale_fast_path: bool = True,
 ) -> List[Dict[str, Any]]:
+    from discovery_outcome import DiscoveryTrace, ResolvedStreams, result_streams
     clean_title = str(title or "").strip()
     clean_category = str(category or "movies").strip().lower()
     normalized_title = normalize_ru_text(clean_title) or clean_title.casefold()
@@ -2970,7 +2972,7 @@ def resolve_on_demand_streams(
             # twelve-second budget. Publish each completed exact result.
             def publish_registry_result(outcome):
                 completed = Future()
-                completed.set_result(outcome.streams)
+                completed.set_result(outcome)
                 _persist_late_provider_results(
                     completed, cache_key, dict(catalog_identity), season, episode)
             registry_future = pool.submit(
@@ -2990,16 +2992,21 @@ def resolve_on_demand_streams(
                     canonical_title, canonical_year, clean_category, season, episode,
                     canonical_id or catalog_media_id, canonical_media_type,
                 )
+            branches = {"balancer":balancer_future,"registry":registry_future}
+            if P2P_ENABLED and not CLOUD_MODE:branches["torrent"] = torrent_future
+            trace = DiscoveryTrace(branches,validator=lambda rows:bool(
+                filter_streams_for_episode(_scope_streams_to_catalog_card(
+                    rows,catalog_identity,season,episode),season,episode)))
             direct_budget_started = time.monotonic()
             try:
-                direct_streams = balancer_future.result(timeout=4.0) if balancer_future else []
+                direct_streams = result_streams(balancer_future.result(timeout=4.0)) if balancer_future else []
                 direct_consumed = True
             except Exception as exc:
                 print(f"[DEBUG] Balancer query error or timeout: {exc}")
                 direct_streams = []
             remaining_registry_budget = max(0.05, 4.0 - (time.monotonic() - direct_budget_started))
             try:
-                registry_streams = registry_future.result(timeout=remaining_registry_budget) if registry_future else []
+                registry_streams = result_streams(registry_future.result(timeout=remaining_registry_budget)) if registry_future else []
                 registry_consumed = True
             except Exception as exc:
                 print(f"[DEBUG] Clean provider registry timeout/error: {type(exc).__name__}")
@@ -3013,7 +3020,7 @@ def resolve_on_demand_streams(
                 )
             try:
                 torrent_timeout = 0.5 if direct_streams else 3.5
-                torrent_streams = torrent_future.result(timeout=torrent_timeout) if torrent_future else []
+                torrent_streams = result_streams(torrent_future.result(timeout=torrent_timeout)) if torrent_future else []
                 torrent_consumed = True
             except Exception as exc:
                 print(f"Torrent resolve error or timeout: {exc}")
@@ -3069,7 +3076,7 @@ def resolve_on_demand_streams(
         for future in late_futures:
             future.add_done_callback(lambda done: _persist_late_provider_results(
                 done, cache_key, catalog_identity, season, episode))
-        return get_cached_streams(cache_key) or streams
+        return ResolvedStreams(get_cached_streams(cache_key) or streams,trace=trace)
     finally:
         resolve_lock.release()
 
@@ -3078,7 +3085,8 @@ def _persist_late_provider_results(future, cache_key, identity, season, episode)
     if not identity: return
     lock = _resolve_lock_for(cache_key)
     try:
-        fresh = _scope_streams_to_catalog_card(future.result(), identity, season, episode)
+        from discovery_outcome import result_streams
+        fresh = _scope_streams_to_catalog_card(result_streams(future.result()), identity, season, episode)
         fresh = rank_playback_streams(cloud_exposable_streams(filter_streams_for_episode(fresh, season, episode)))
         if not fresh: return
         indexed = _rewrite_torrent_candidates_for_identity(fresh, identity, season, episode)
@@ -3353,7 +3361,8 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
         legacy_feedback = parsed.path == "/internal/playback-availability/legacy-media3-success"
         failure_feedback = parsed.path == "/internal/playback-availability/media3-failure"
         variant_feedback = parsed.path == "/internal/playback-availability/native-variant-success"
-        if not variant_feedback and not legacy_feedback and not failure_feedback and parsed.path != "/internal/playback-availability/media3-success":
+        variant_failure_feedback = parsed.path == "/internal/playback-availability/native-variant-failure"
+        if not variant_failure_feedback and not variant_feedback and not legacy_feedback and not failure_feedback and parsed.path != "/internal/playback-availability/media3-success":
             self._send_json(404, {"error": "not_found"})
             return
         if not _is_loopback_client_address(self.client_address):
@@ -3389,7 +3398,13 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             if len(raw) != length:
                 raise ValueError("incomplete_body")
             payload = json.loads(raw.decode("utf-8"))
-            if failure_feedback:
+            if variant_failure_feedback:
+                from native_variant_feedback import record_native_variant_failure
+                from stream_identity import filter_streams_for_content
+                result = record_native_variant_failure(index,payload,
+                    catalog_api.get_movie_playback_card_scoped,filter_streams_for_content)
+                clean = {"sourceId":result["sourceId"]}
+            elif failure_feedback:
                 from source_playback_evidence import sanitize_media3_failure_payload
                 clean = sanitize_media3_failure_payload(payload)
                 result = index.record_source_failure(clean["sourceId"], reason=clean["reason"], cooldown=clean["cooldown"], observed_at=clean["observedAt"], expected_locator_hash=clean.get("locatorHash"), expected_profile_hash=clean.get("profileHash"))
@@ -3430,8 +3445,9 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
             "ok": True,
             "sourceId": clean["sourceId"],
             "mediaKey": result.get("mediaKey") if isinstance(result, dict) else None,
+            "observationApplied": result.get("observationApplied",True) if isinstance(result,dict) else True,
             "status": result.get("status") if isinstance(result, dict) else None,
-            "verificationMethod": "MEDIA3_FAILURE" if failure_feedback else "MEDIA3_SUCCESS",
+            "verificationMethod": "MEDIA3_FAILURE" if failure_feedback or variant_failure_feedback else "MEDIA3_SUCCESS",
             "resolverReadPath": PLAYBACK_AVAILABILITY_READ_PATH,
         })
 

@@ -1,0 +1,238 @@
+{
+  "at": 1791410501.7819517,
+  "cases": [
+    {
+      "seconds": 1.64,
+      "mediaId": "26041",
+      "season": null,
+      "episode": null,
+      "state": "READY",
+      "playing": true,
+      "height": 346,
+      "positionMs": 319,
+      "frames": 6,
+      "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+        "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "346p",
+        "activeVoice": "Не указано",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "346p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "nativeFeedback-26041",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-573609c1-e590-4aae-a996-0748742a8e69"
+      },
+      "backendBefore": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "346p",
+        "lastSuccessAt": 1791410331.305,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "preflightSeconds": 0.08,
+      "requestToDecodedSeconds": 1.64,
+      "sourceIdAttachedToActiveOptionsAfterPolling": true,
+      "sourceIdVisibleOnDecodedFrame": true,
+      "sourceIdCheckPassed": true,
+      "backendAfter": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "346p",
+        "lastSuccessAt": 1791410503.037,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "freshFeedbackPassed": true
+    },
+    {
+      "seconds": 1.92,
+      "mediaId": "1168",
+      "season": null,
+      "episode": null,
+      "state": "READY",
+      "playing": true,
+      "height": 534,
+      "positionMs": 462,
+      "frames": 21,
+      "activeId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+        "activeStreamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "534p",
+        "activeVoice": "Дубляж",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "534p",
+      "sourceIdPresent": false,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "nativeFeedback-1168",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-1aec6b9e-e15e-41b3-b732-ac5a8b5d8979"
+      },
+      "backendBefore": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "534p",
+        "lastSuccessAt": 1791410335.614,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "preflightSeconds": 0.38,
+      "requestToDecodedSeconds": 1.93,
+      "sourceIdAttachedToActiveOptionsAfterPolling": true,
+      "sourceIdVisibleOnDecodedFrame": false,
+      "sourceIdCheckPassed": true,
+      "backendAfter": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "534p",
+        "lastSuccessAt": 1791410505.401,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "freshFeedbackPassed": true
+    },
+    {
+      "seconds": 4.71,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "READY",
+      "playing": true,
+      "height": 480,
+      "positionMs": 1263,
+      "frames": 49,
+      "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "requestedQuality": "Auto",
+        "requestedVoice": "Auto",
+        "activeQuality": "480p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "480p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "nativeFeedback-159",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-77d536cd-db44-4068-86f1-ff9593d1e4ed"
+      },
+      "backendBefore": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "480p",
+        "lastSuccessAt": 1791410367.957,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "preflightSeconds": 0.85,
+      "requestToDecodedSeconds": 4.71,
+      "sourceIdAttachedToActiveOptionsAfterPolling": true,
+      "sourceIdVisibleOnDecodedFrame": true,
+      "sourceIdCheckPassed": true,
+      "backendAfter": {
+        "status": "READY",
+        "sourceIdPresent": true,
+        "decoded": true,
+        "actualQuality": "480p",
+        "lastSuccessAt": 1791410511.357,
+        "verificationMethod": "MEDIA3_SUCCESS"
+      },
+      "freshFeedbackPassed": true
+    },
+    {
+      "seconds": 0.63,
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "state": "READY",
+      "playing": true,
+      "height": 480,
+      "positionMs": 30437,
+      "frames": 113,
+      "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+      "selection": {
+        "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "requestedQuality": "480p",
+        "requestedVoice": "Auto",
+        "activeQuality": "480p",
+        "activeVoice": "Оригинал (+субтитры)",
+        "source": "HDRezka"
+      },
+      "candidateQuality": "480p",
+      "sourceIdPresent": true,
+      "localDecoded": "true",
+      "referenceRuntimeLoaded": false,
+      "passed": true,
+      "case": "measured480AfterRediscovery",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "positionPreserved": true
+    }
+  ],
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "initialCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "finalCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "finalPlayback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "allRequiredPassed": true
+}

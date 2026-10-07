@@ -1,0 +1,22 @@
+{
+  "app/src/main/java/app/movia/android/ui/MoviaApp.kt": "d2f95950327c9c9dd12173e31c8e31c1e4320125d6baaf825d74865261aafa0f",
+  "app/src/main/java/app/movia/android/ui/components/MoviaChildTopBar.kt": "338af482575cb729c0b6212f4ae3b743362bef6a677604bd480252d2fb3805a4",
+  "app/src/main/java/app/movia/android/ui/components/MoviaHeaderCircleControl.kt": "56b8f58a5443f4faf5920d9c75cb600ec9abeda52e220d8fc10c41151f684fc2",
+  "app/src/main/java/app/movia/android/ui/components/MoviaMediaCoverFeedback.kt": "ea4cf84f8c7a165e90121d6b4b2d1fddb997649670fa5691ef50e7c946680e89",
+  "app/src/main/java/app/movia/android/ui/details/DetailsScreen.kt": "24c94200d581f02902dd337762887f4375a9323fc7494aaf6e0e7dc1086cb5e3",
+  "app/src/main/java/app/movia/android/ui/details/PersonFilmographyScreen.kt": "7032387ed8df0f312583c3c4f8640215821683fdcbc45c4a0edbd1e44b074491",
+  "app/src/main/java/app/movia/android/ui/home/HomeScreen.kt": "533cceb6870d117be0f98bb8921b301c8591b0410666b277bb3b308a413f0aea",
+  "app/src/main/java/app/movia/android/ui/library/LibraryScreen.kt": "f36daa875af123a348c9847d250a3da7614644da99275089924a5dc9079a0ab6",
+  "app/src/main/java/app/movia/android/ui/player/PlayerScreen.kt": "9d9bd276673dd0f9a245b4057e93efde4f5c0f722da0cb2e9924079cbfb40bbc",
+  "app/src/main/java/app/movia/android/ui/settings/GeneralSettingsScreens.kt": "8ebf44961ec33c8947ce4736c6d1838cb34d0cae023bbec57be7b1db027e4544",
+  "app/src/main/java/app/movia/android/ui/settings/PlaybackSettingsScreen.kt": "181dc1a2885d2b2394148b7bc9423700e9a1b32cf30e1ab609644d0e642d24db",
+  "app/src/main/java/app/movia/android/ui/theme/Theme.kt": "cf9eaa0b57eec650ee295f80478429f29c9936cd60efcad6323582f6f68219e6",
+  "backend/runtime/background_network_budget.py": "94d5b09b7c516a97996f6d42fb3326587bafb544cb140679d238371a2d8bba0d",
+  "backend/runtime/database.py": "fcf063f8a4a4fa9bfc552af4c36f981d4424f19f612ff600e9ccbf8869342b68",
+  "backend/tests/test_background_network_budget.py": "5333cecef291c35923ea87796a416c7cdfbace3e18df21bc769b3b49c84c827c",
+  "app/schemas/app.movia.android.data.database.MoviaDatabase/5.json": "8a77e014bcce83106f446d6df415e5729036fafb31ca2c6c8f7bbfa29580f509",
+  "app/src/main/java/app/movia/android/ui/components/MoviaIcons.kt": "0d926e6f4b3645c9ce3f3dd55ba646b2198b96cdc7b2e589ad3e48350ee5c57d",
+  "backend/tests/test_catalog_identity_barrier.py": "2a74835c894bbdd8a5a80b7ff4f5d1071b555ee05524d853a4f349a6e750c999",
+  "docs/audits/DESIGN_ICONS_2026-10-06.md": "b47a1c4397cd24ebaabc80f22517fe60fd3710dc39b859e59796796a7726380d",
+  "docs/audits/DESIGN_NAV_HERO_2026-10-05.md": "010b2f797131369bb69970cf45a82fad4eaf42630de2db0842f47ae879542210"
+}

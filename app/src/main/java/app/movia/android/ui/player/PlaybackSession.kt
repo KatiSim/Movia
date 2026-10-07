@@ -37,6 +37,9 @@ import app.movia.android.domain.model.sameRequestedVariant
 import app.movia.android.domain.legacy.LegacyPlaybackResolver
 import app.movia.android.domain.playback.withLocalDecodedMeasurement
 import app.movia.android.domain.playback.nativeFeedbackScope
+import app.movia.android.domain.playback.withNativeFeedbackSourceId
+import app.movia.android.domain.playback.PlaybackRecoveryBudget
+import app.movia.android.domain.playback.DecoderFeedbackGate
 import app.movia.android.domain.playback.DomainPlaybackResolver
 import app.movia.android.domain.playback.PlaybackRequest
 import app.movia.android.domain.playback.PlaybackResolverResult
@@ -323,7 +326,7 @@ class PlaybackSession(context: Context) {
         frameProbe?.close()
         frameProbe = if (enabled) PlaybackFrameProbe(player) else null
     }
-    private var feedbackGeneration = -1L
+    private val decoderFeedbackGate = DecoderFeedbackGate()
     private var requestStartedMs = 0L
     var readyLatencyMs: Long? = null
         private set
@@ -338,8 +341,7 @@ class PlaybackSession(context: Context) {
     private val failedStreamIds = linkedSetOf<String>()
     private val problemTracker = StreamProblemTracker(maxEntries = MAX_PROBLEM_MEMORY)
     private val reloadGuard = app.movia.android.domain.playback.StreamReloadGuard(MAX_PROBLEM_MEMORY)
-    private var recoveryAttemptCount = 0
-    private var recoveryAttemptBudget = 1
+    private val recoveryBudget = PlaybackRecoveryBudget()
     private var watchdogJob: Job? = null
     private var stallWatchdogJob: Job? = null
     private var recoveryJob: Job? = null
@@ -420,7 +422,7 @@ class PlaybackSession(context: Context) {
                     activeCandidate = decoded
                     reloadGuard.onDecoded(decoded.stableStreamId)
                     clearProblemMemory(decoded)
-                    recoveryAttemptCount = 0
+                    recoveryBudget.reset()
                 }
                 if (firstFrameLatencyMs == null && requestStartedMs > 0L) {
                     firstFrameLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
@@ -531,7 +533,7 @@ class PlaybackSession(context: Context) {
             ) return false
             userSelectedAutoAudio = false
             requestedAudioTrack = null
-            if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option)
+            if (activeCandidate?.stableStreamId != option.streamId) switchToStream(option, resetRecoveryBudget = false)
             else {
                 // Selecting the same voice after Auto still has to restore its override.
                 appliedTrackSelectionKey = null
@@ -599,10 +601,12 @@ class PlaybackSession(context: Context) {
             candidate.catalogMediaId == request.mediaId
         val nativeScope = if (nativeVariant) nativeFeedbackScope(candidate) else null
         if (sourceId == null && !isLegacy && !nativeVariant) return
-        if (feedbackGeneration == playbackGeneration || isOffline) return
-        feedbackGeneration = playbackGeneration
+        if (isOffline || !decoderFeedbackGate.claimFirstFrame()) return
+        val preparation = decoderFeedbackGate.attemptId()
+        val observedAt = System.currentTimeMillis() / 1000.0
+        val generation = playbackGeneration
         val observation = org.json.JSONObject().put("sourceId", sourceId)
-            .put("startupLatencyMs", firstFrameLatencyMs ?: readyLatencyMs ?: 0L)
+            .put("startupLatencyMs", decoderFeedbackGate.latencyMs(SystemClock.elapsedRealtime()))
             .put("actualQuality", player.videoFormat?.height?.takeIf { it > 0 }?.let { "${it}p" } ?: "Auto")
             .put("actualQualities", org.json.JSONArray(choices.value.video.map { it.label }))
             .put("actualAudioTracks", org.json.JSONArray().apply { choices.value.audio.forEach {
@@ -620,7 +624,9 @@ class PlaybackSession(context: Context) {
                     val facts = org.json.JSONObject(observation.toString()).apply { remove("sourceId") }
                     LegacyPlaybackResolver.firstFramePayload(candidate, request, facts)
                 } else if (nativeVariant) {
-                    val facts = org.json.JSONObject(observation.toString()).apply { remove("sourceId") }
+                    val facts = org.json.JSONObject(observation.toString()).apply {
+                        remove("sourceId"); put("observedAt", observedAt)
+                    }
                     org.json.JSONObject().put("mediaId", request.mediaId)
                         .put("season", request.seasonNumber ?: org.json.JSONObject.NULL)
                         .put("episode", request.episodeNumber ?: org.json.JSONObject.NULL)
@@ -638,7 +644,18 @@ class PlaybackSession(context: Context) {
                     connection.setRequestProperty("Content-Type", "application/json")
                     connection.setRequestProperty("Authorization", "Bearer " + token)
                     connection.outputStream.use { it.write(payload.toString().toByteArray(Charsets.UTF_8)) }
-                    connection.inputStream.use { it.readBytes() }
+                    val response = connection.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
+                    if (nativeVariant) {
+                        val returnedId = org.json.JSONObject(response).optString("sourceId")
+                        withContext(Dispatchers.Main) {
+                            if (isCurrentGeneration(generation) && decoderFeedbackGate.isCurrent(preparation)) {
+                                candidates = candidates.map { it.withNativeFeedbackSourceId(candidate, returnedId) }
+                                activeCandidate = activeCandidate?.withNativeFeedbackSourceId(candidate, returnedId)
+                                publishCandidateOptions()
+                                publishSnapshot()
+                            }
+                        }
+                    }
                 } finally { connection.disconnect() }
             }
         }
@@ -647,19 +664,30 @@ class PlaybackSession(context: Context) {
 
     /** Report actual failed attempts; cancellation and user stop never enter this path. */
     private fun recordNativeFailure(candidate: StreamCandidate, failureClass: StreamFailureClass) {
-        val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() } ?: return
+        val request = playbackRequest ?: return
         if (isOffline) return
-        val facts = org.json.JSONObject().put("sourceId", sourceId).put("reason", failureClass.name)
+        val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() }
+        val nativeVariant = candidate.stableStreamId.startsWith("provider-item:v2:") &&
+            candidate.catalogMediaId == request.mediaId &&
+            candidate.seasonNumber == request.seasonNumber && candidate.episodeNumber == request.episodeNumber
+        if (!nativeVariant && sourceId == null) return
+        val observation = org.json.JSONObject().put("reason", failureClass.name)
             .put("observedAt", System.currentTimeMillis() / 1000.0)
-        if (candidate.stableStreamId.startsWith("provider-item:v2:")) {
-            val scope = nativeFeedbackScope(candidate)
-            facts.put("locatorHash", scope.locatorHash).put("profileHash", scope.profileHash)
-        }
-        val payload = facts.toString()
+        val endpoint = if (nativeVariant) "native-variant-failure" else "media3-failure"
+        val payload = if (nativeVariant) {
+            val preparedScope = nativeFeedbackScope(candidate)
+            org.json.JSONObject().put("mediaId", request.mediaId)
+                .put("season", request.seasonNumber ?: org.json.JSONObject.NULL)
+                .put("episode", request.episodeNumber ?: org.json.JSONObject.NULL)
+                .put("streamId", candidate.stableStreamId)
+                .put("locatorHash", preparedScope.locatorHash).put("profileHash", preparedScope.profileHash)
+                .put("observation", observation)
+        } else observation.put("sourceId", sourceId)
+        val encoded = payload.toString()
         scope.launch(Dispatchers.IO) {
             runCatching {
                 val token = java.io.File(appContext.filesDir, "agent/movia-agent.token").readText().trim()
-                val connection = java.net.URL("http://127.0.0.1:8888/internal/playback-availability/media3-failure")
+                val connection = java.net.URL("http://127.0.0.1:8888/internal/playback-availability/$endpoint")
                     .openConnection() as java.net.HttpURLConnection
                 try {
                     connection.requestMethod = "POST"
@@ -668,7 +696,7 @@ class PlaybackSession(context: Context) {
                     connection.doOutput = true
                     connection.setRequestProperty("Content-Type", "application/json")
                     connection.setRequestProperty("Authorization", "Bearer " + token)
-                    connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
+                    connection.outputStream.use { it.write(encoded.toByteArray(Charsets.UTF_8)) }
                     connection.inputStream.use { it.readBytes() }
                 } finally { connection.disconnect() }
             }
@@ -1050,6 +1078,7 @@ class PlaybackSession(context: Context) {
                 source = candidate.provider,
             ),
         )
+        decoderFeedbackGate.prepare(SystemClock.elapsedRealtime())
         return try {
             player.stop()
             player.clearMediaItems()
@@ -1129,8 +1158,7 @@ class PlaybackSession(context: Context) {
     ) {
         if (!isCurrentGeneration(generation)) return
         val failed = activeCandidate
-        recoveryAttemptCount += 1
-        if (recoveryAttemptCount > recoveryAttemptBudget) {
+        if (recoveryBudget.isExhausted(SystemClock.elapsedRealtime())) {
             recordFailure(failed, failureClass)
             failPlayback("EXHAUSTED_$reason")
             return
@@ -1150,6 +1178,11 @@ class PlaybackSession(context: Context) {
         if (reason != "CONTENT_DURATION_MISMATCH" && failed != null && request != null && rememberReloadAttempt(failed) &&
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
+            if (!recoveryBudget.tryAcquire(SystemClock.elapsedRealtime())) {
+                recordFailure(failed, failureClass)
+                failPlayback("EXHAUSTED_$reason")
+                return
+            }
             val refreshed = withTimeoutOrNull(RELOAD_TIMEOUT_MS) {
                 val refreshRequest = request.copy(startPositionMs = resumePositionMs.coerceAtLeast(0L), attempt = request.attempt + 1)
                 if (failed.transportMetadata["legacy_engine"] == "3.466") {
@@ -1192,6 +1225,10 @@ class PlaybackSession(context: Context) {
         )
         for (candidate in next) {
             if (!isCurrentGeneration(generation)) return
+            if (!recoveryBudget.tryAcquire(SystemClock.elapsedRealtime())) {
+                failPlayback("EXHAUSTED_$reason")
+                return
+            }
             _state.value = _state.value.copy(
                 switchState = PlaybackSwitchState.SWITCHING_SOURCE,
                 statusMessage = "Нашли более стабильный источник. Переключаемся…",
@@ -1257,7 +1294,7 @@ class PlaybackSession(context: Context) {
         failedStreamIds.clear()
         problemTracker.reset()
         reloadGuard.reset()
-        recoveryAttemptCount = 0
+        recoveryBudget.reset()
         candidates = emptyList()
         activeCandidate = null
         activeConsumedUri = null
@@ -1401,7 +1438,7 @@ class PlaybackSession(context: Context) {
             StreamDeduplicator.deduplicate(DomainPlaybackResolver.preferDiscoveredCandidates(candidates, validated, current)),
             context = requestContext(current))
         publishCandidateOptions()
-        recoveryAttemptBudget = candidates.size.coerceAtLeast(1) * 2 + 1
+        if (needsRecovery && recoveryBudget.isExhausted(SystemClock.elapsedRealtime())) return
         val desired = selectInitialCandidate(current) ?: return
         if (activeCandidate == null) {
             _state.value = _state.value.copy(
@@ -1421,7 +1458,7 @@ class PlaybackSession(context: Context) {
             (needsRecovery || preferredVoiceArrived || preferredQualityArrived ||
                 shouldHonorRequestedStream(current, activeCandidate, desired, requestContext(current)))) {
             val position = if (needsRecovery) _state.value.currentPositionMs else player.currentPosition
-            switchToStream(desired.toStreamOption(), position.coerceAtLeast(0))
+            switchToStream(desired.toStreamOption(), position.coerceAtLeast(0), resetRecoveryBudget = false)
         }
     }
 
@@ -1460,10 +1497,14 @@ class PlaybackSession(context: Context) {
         switchToStream(option, resumePositionMs)
     }
 
-    fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L, adoptVariantQuality: Boolean = false) {
+    fun switchToStream(stream: StreamOption, resumePositionMs: Long = -1L, adoptVariantQuality: Boolean = false, resetRecoveryBudget: Boolean = true) {
         startupHandoverJob?.cancel()
         startupHandoverUsed = true
         if (stream.url.isBlank() || !_state.value.hasMedia) return
+        if (!resetRecoveryBudget && !recoveryBudget.tryAcquire(SystemClock.elapsedRealtime())) {
+            failPlayback("EXHAUSTED_AUTOMATIC_SWITCH")
+            return
+        }
         requestedVideoQuality = StreamSettingsSelection.requestedQualityForSwitch(
             stream, requestedVideoQuality, adoptVariantQuality,
         )
@@ -1473,7 +1514,7 @@ class PlaybackSession(context: Context) {
         watchdogJob?.cancel()
         stallWatchdogJob?.cancel()
         recoveryJob?.cancel()
-        recoveryAttemptCount = 0
+        if (resetRecoveryBudget) recoveryBudget.reset()
         val position = if (resumePositionMs >= 0L) resumePositionMs else {
             player.currentPosition.coerceAtLeast(0L)
         }
@@ -1531,7 +1572,6 @@ class PlaybackSession(context: Context) {
             attempt = 1,
         )
         playbackRequest = request
-        recoveryAttemptBudget = (candidates.size.coerceAtLeast(1) * 2) + 1
 
         val previousCandidate = activeCandidate
         val canSwitchInPlace = player.currentMediaItem != null &&

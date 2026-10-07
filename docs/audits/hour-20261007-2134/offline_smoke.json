@@ -1,0 +1,201 @@
+{
+  "at": "2026-10-07T22:05:04.011033+00:00",
+  "mediaId": "26041",
+  "title": "О птичках",
+  "year": 2000,
+  "realCatalogContent": true,
+  "requestWifiOnly": false,
+  "schedulingBudgetSeconds": 120,
+  "selectedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+  "online": {
+    "seconds": 2.27,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+    "framesBefore": 0,
+    "framesAfter": 17,
+    "durationMs": 205259,
+    "selection": {
+      "requestedStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "activeStreamId": "provider-item:v2:045fb4de1875f54020947bf8:8ea4e1f6fd8787bb7bab5a2e",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "HDRezka"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "enqueueStatus": "completed",
+  "testOwnedDownload": true,
+  "downloadStatus": {
+    "status": "completed",
+    "action": "downloads.status",
+    "title": "О птичках",
+    "state": "SUCCEEDED",
+    "progressPercent": 0,
+    "errorCode": null,
+    "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+    "schemaVersion": 2,
+    "requestId": "hour-offline-96bf9479bbbd496c8cbdeea596baf637"
+  },
+  "downloadCompleted": true,
+  "downloadStateChanges": [
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-91a90d461d0843ccb02be87d05cb2e7b"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-a1b7d2a66a4849498efb416abd35acb1"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-f06e790753514fce8a0b05b919c0cdcd"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-3d0a6431db0740f8b7119d0d346f2f18"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "ENQUEUED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-8fd7201099c14eee868c9ee05afa8232"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-7885dfbdc7694b48a0f5ad0338822aa5"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 13,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-bf81a98e8b244bfebcee815b7cec8512"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 50,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-e88a75da61ea4e7ca5b1b7214447ba04"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "RUNNING",
+      "progressPercent": 75,
+      "errorCode": null,
+      "localFile": null,
+      "schemaVersion": 2,
+      "requestId": "hour-offline-e8db3e31be2b49958e52f3d24f83d18f"
+    },
+    {
+      "status": "completed",
+      "action": "downloads.status",
+      "title": "О птичках",
+      "state": "SUCCEEDED",
+      "progressPercent": 0,
+      "errorCode": null,
+      "localFile": "/data/user/0/app.movia.android/files/offline/603d964c036487107ccb5d92072d1c42.offline",
+      "schemaVersion": 2,
+      "requestId": "hour-offline-96bf9479bbbd496c8cbdeea596baf637"
+    }
+  ],
+  "offline": {
+    "seconds": 0.66,
+    "height": 346,
+    "state": "READY",
+    "playing": true,
+    "mediaItemId": "26041",
+    "activeId": "offline:media:5:26041:s0:e0",
+    "framesBefore": 663,
+    "framesAfter": 671,
+    "durationMs": 205259,
+    "selection": {
+      "activeStreamId": "offline:media:5:26041:s0:e0",
+      "requestedQuality": "Auto",
+      "requestedVoice": "Auto",
+      "activeQuality": "346p",
+      "activeVoice": "Не указано",
+      "source": "offline"
+    },
+    "audioTracks": [
+      {
+        "id": "track:1:1:0",
+        "language": null,
+        "selected": true
+      }
+    ],
+    "passed": true
+  },
+  "offlineSourceConfirmed": true,
+  "offlineSeek": {
+    "passed": true,
+    "positionMs": 30349,
+    "framesAfter": 681
+  },
+  "passed": true,
+  "playerCleanup": true,
+  "testDownloadCleanup": true,
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb"
+}

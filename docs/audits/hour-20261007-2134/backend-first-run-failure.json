@@ -1,0 +1,7 @@
+{
+  "tests": 549,
+  "failures": 1,
+  "test": "test_empty_provider_result_never_creates_synthetic_leaf",
+  "reason": "Callback contract intentionally now carries empty status outcomes; test updated to require zero leaves while observing NO_RESULTS.",
+  "resolvedByLaterFullRun": true
+}

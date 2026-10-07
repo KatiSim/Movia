@@ -1,0 +1,142 @@
+{
+  "at": 1791410044.5434916,
+  "realCatalogResponses": true,
+  "cases": [
+    {
+      "mediaId": "474",
+      "season": 1,
+      "episode": 2,
+      "identityPreserved": true,
+      "states": [
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "QUEUED",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "RUNNING",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "ERROR",
+          "discoveryStatus": "ERROR",
+          "refreshing": false,
+          "providerErrorCount": 1,
+          "pendingProviderCount": 0,
+          "providerStatuses": [
+            "NO_RESULTS",
+            "PROVIDER_ERROR"
+          ],
+          "errorCode": "DISCOVERY_ERROR",
+          "discoveryError": "PROVIDER_ERROR"
+        }
+      ],
+      "nativeCandidates": 0,
+      "seconds": 2.4,
+      "errorWasNotClassifiedAsUnavailability": true
+    },
+    {
+      "mediaId": "461",
+      "season": 1,
+      "episode": 2,
+      "identityPreserved": true,
+      "states": [
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "QUEUED",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "RUNNING",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "ERROR",
+          "discoveryStatus": "ERROR",
+          "refreshing": false,
+          "providerErrorCount": 1,
+          "pendingProviderCount": 0,
+          "providerStatuses": [
+            "NO_RESULTS",
+            "PROVIDER_ERROR"
+          ],
+          "errorCode": "DISCOVERY_ERROR",
+          "discoveryError": "PROVIDER_ERROR"
+        }
+      ],
+      "nativeCandidates": 0,
+      "seconds": 2.12,
+      "errorWasNotClassifiedAsUnavailability": true
+    },
+    {
+      "mediaId": "574",
+      "season": 1,
+      "episode": 2,
+      "identityPreserved": true,
+      "states": [
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "QUEUED",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "DISCOVERY_PENDING",
+          "discoveryStatus": "RUNNING",
+          "refreshing": true,
+          "providerErrorCount": null,
+          "pendingProviderCount": null,
+          "providerStatuses": null,
+          "errorCode": null,
+          "discoveryError": null
+        },
+        {
+          "status": "ERROR",
+          "discoveryStatus": "ERROR",
+          "refreshing": false,
+          "providerErrorCount": 1,
+          "pendingProviderCount": 0,
+          "providerStatuses": [
+            "NO_RESULTS",
+            "PROVIDER_ERROR"
+          ],
+          "errorCode": "DISCOVERY_ERROR",
+          "discoveryError": "PROVIDER_ERROR"
+        }
+      ],
+      "nativeCandidates": 0,
+      "seconds": 1.62,
+      "errorWasNotClassifiedAsUnavailability": true
+    }
+  ],
+  "playerActions": false,
+  "allIdentityPreserved": true,
+  "providerErrorsObserved": 3,
+  "allObservedErrorsSeparated": true
+}

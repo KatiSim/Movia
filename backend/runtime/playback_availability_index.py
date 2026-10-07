@@ -871,6 +871,8 @@ class PlaybackAvailabilityService:
         startup_latency_ms: Optional[float] = None,
         health_score: Optional[float] = None,
         success: bool = False,
+        expected_locator_hash: Optional[str] = None,
+        expected_profile_hash: Optional[str] = None,
         now: Optional[float] = None,
     ) -> Dict[str, Any]:
         """Atomically ensure a physical candidate exists, then verify it.
@@ -894,22 +896,29 @@ class PlaybackAvailabilityService:
         if not locator:
             raise ValueError("candidate locator is required")
         self.repository.ensure_media(key, now=ts)
+        from native_variant_feedback import feedback_fingerprints
+        fp = feedback_fingerprints(candidate)
+        if expected_locator_hash is not None and fp["native_feedback_locator_hash"] != expected_locator_hash:
+            raise ValueError("success_locator_scope_mismatch")
+        if expected_profile_hash is not None and fp["native_feedback_profile_hash"] != expected_profile_hash:
+            raise ValueError("success_profile_scope_mismatch")
         with self.repository.connection() as conn:
-            source_id = self._upsert_discovered_source_conn(
-                conn, key, dict(candidate or {}), locator, discovery_method, ts
-            )
-        return self.mark_source_verified(
-            source_id,
-            verification_method=method,
-            actual_quality=actual_quality,
-            actual_qualities=actual_qualities,
-            actual_audio_tracks=actual_audio_tracks,
-            manifest_type=manifest_type,
-            startup_latency_ms=startup_latency_ms,
-            health_score=health_score,
-            success=success,
-            now=ts,
-        )
+            conn.execute("BEGIN IMMEDIATE")
+            old = None
+            if expected_profile_hash is not None:
+                provider = _text(candidate.get("provider") or candidate.get("source")) or "unknown"
+                old = conn.execute("SELECT source_id,request_profile_hash FROM playback_sources "
+                    "WHERE media_key=? AND provider=? AND locator_hash=?",
+                    (key.value,provider,fp["native_feedback_locator_hash"])).fetchone()
+                if old is not None and old["request_profile_hash"] not in {"",expected_profile_hash}:
+                    raise ValueError("success_profile_scope_mismatch")
+            source_id = str(old["source_id"]) if old is not None and old["request_profile_hash"] == expected_profile_hash else self._upsert_discovered_source_conn(
+                conn,key,dict(candidate or {}),locator,discovery_method,ts)
+            key_value,applied = self._mark_source_verified_conn(conn,source_id,
+                verification_method=method,actual_quality=actual_quality,actual_qualities=actual_qualities,
+                actual_audio_tracks=actual_audio_tracks,manifest_type=manifest_type,
+                startup_latency_ms=startup_latency_ms,health_score=health_score,success=success,now=ts)
+        return dict(self._recompute(key_value,now=ts),observationApplied=applied)
 
     def mark_source_verified(
         self,
@@ -925,45 +934,70 @@ class PlaybackAvailabilityService:
         success: bool = False,
         now: Optional[float] = None,
     ) -> Dict[str, Any]:
+        ts = time.time() if now is None else float(now)
+        with self.repository.connection() as conn:
+            key_value,applied = self._mark_source_verified_conn(conn,source_id,
+                verification_method=verification_method,actual_quality=actual_quality,
+                actual_qualities=actual_qualities,actual_audio_tracks=actual_audio_tracks,
+                manifest_type=manifest_type,startup_latency_ms=startup_latency_ms,
+                health_score=health_score,success=success,now=ts)
+        return dict(self._recompute(key_value,now=ts),observationApplied=applied)
+
+    def _mark_source_verified_conn(
+        self,
+        conn,
+        source_id: str,
+        *,
+        verification_method: str,
+        actual_quality: Optional[str] = None,
+        actual_qualities: Optional[Sequence[Any]] = None,
+        actual_audio_tracks: Optional[Sequence[Any]] = None,
+        manifest_type: Optional[str] = None,
+        startup_latency_ms: Optional[float] = None,
+        health_score: Optional[float] = None,
+        success: bool = False,
+        now: Optional[float] = None,
+    ) -> tuple[str,bool]:
         method = _text(verification_method).upper()
         if method not in VERIFICATION_METHODS - {VERIFICATION_NONE}:
             raise ValueError("verification_method must provide explicit evidence")
         ts = time.time() if now is None else float(now)
-        with self.repository.connection() as conn:
-            row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
-            if row is None:
-                raise KeyError(source_id)
-            expiry = _finite_float(row["expires_at"])
-            status = STATUS_EXPIRED if expiry is not None and expiry <= ts + self.expiry_margin_seconds else STATUS_VERIFIED
+        row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
+        if row is None:
+            raise KeyError(source_id)
+        if success and ts < max(float(row["last_success_at"] or 0),float(row["last_failure_at"] or 0)):
+            return str(row["media_key"]),False
+        expiry = _finite_float(row["expires_at"])
+        status = STATUS_EXPIRED if expiry is not None and expiry <= ts + self.expiry_margin_seconds else STATUS_VERIFIED
+        conn.execute(
+            """
+            UPDATE playback_sources SET
+                verification_status=?,verification_method=?,actual_quality=COALESCE(?,actual_quality),
+                actual_qualities_json=COALESCE(?,actual_qualities_json),
+                actual_audio_json=COALESCE(?,actual_audio_json),
+                manifest_type=COALESCE(?,manifest_type),last_checked_at=?,last_success_at=CASE WHEN ? THEN ? ELSE last_success_at END,
+                startup_latency_ms=COALESCE(?,startup_latency_ms),
+                consecutive_failures=CASE WHEN ? THEN 0 ELSE consecutive_failures END,
+                failure_reason=CASE WHEN ? THEN NULL ELSE failure_reason END,
+                health_score=COALESCE(?,health_score),updated_at=?
+            WHERE source_id=?
+            """,
+            (
+                status, method, _text(actual_quality) or None,
+                (_json_list(actual_qualities) if actual_qualities is not None else None),
+                (_json_list(actual_audio_tracks) if actual_audio_tracks is not None else None),
+                _text(manifest_type) or None, ts, 1 if success else 0, ts,
+                _finite_float(startup_latency_ms), 1 if success else 0, 1 if success else 0,
+                _finite_float(health_score), ts, source_id,
+            ),
+        )
+        key_value = str(row["media_key"])
+        if success:
             conn.execute(
-                """
-                UPDATE playback_sources SET
-                    verification_status=?,verification_method=?,actual_quality=COALESCE(?,actual_quality),
-                    actual_qualities_json=COALESCE(?,actual_qualities_json),
-                    actual_audio_json=COALESCE(?,actual_audio_json),
-                    manifest_type=COALESCE(?,manifest_type),last_checked_at=?,last_success_at=CASE WHEN ? THEN ? ELSE last_success_at END,
-                    startup_latency_ms=COALESCE(?,startup_latency_ms),
-                    consecutive_failures=CASE WHEN ? THEN 0 ELSE consecutive_failures END,
-                    failure_reason=CASE WHEN ? THEN NULL ELSE failure_reason END,
-                    health_score=COALESCE(?,health_score),updated_at=?
-                WHERE source_id=?
-                """,
-                (
-                    status, method, _text(actual_quality) or None,
-                    (_json_list(actual_qualities) if actual_qualities is not None else None),
-                    (_json_list(actual_audio_tracks) if actual_audio_tracks is not None else None),
-                    _text(manifest_type) or None, ts, 1 if success else 0, ts,
-                    _finite_float(startup_latency_ms), 1 if success else 0, 1 if success else 0,
-                    _finite_float(health_score), ts, source_id,
-                ),
+                "UPDATE playback_availability SET last_success_at=?,updated_at=? WHERE media_key=?",
+                (ts, ts, key_value),
             )
-            key_value = str(row["media_key"])
-            if success:
-                conn.execute(
-                    "UPDATE playback_availability SET last_success_at=?,updated_at=? WHERE media_key=?",
-                    (ts, ts, key_value),
-                )
-        return self._recompute(key_value, now=ts)
+        return key_value,True
 
     def record_playback_success(
         self,
@@ -986,52 +1020,80 @@ class PlaybackAvailabilityService:
             now=now,
         )
 
+    def _record_source_failure_conn(self, conn, source_id, *, reason, cooldown, ts,
+                                    observed_at, expected_locator_hash, expected_profile_hash):
+        row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
+        if row is None:
+            raise KeyError(source_id)
+        if expected_locator_hash is not None and row["locator_hash"] != expected_locator_hash:
+            raise ValueError("failure_locator_scope_mismatch")
+        if expected_profile_hash is not None and row["request_profile_hash"] != expected_profile_hash:
+            raise ValueError("failure_profile_scope_mismatch")
+        watermark = max(float(row["last_success_at"] or 0), float(row["last_failure_at"] or 0))
+        if observed_at is not None and ts < watermark:
+            return str(row["media_key"]), watermark
+        update = conn.execute(
+            """
+            UPDATE playback_sources SET verification_status=?,last_checked_at=?,last_failure_at=?,
+                consecutive_failures=consecutive_failures+1,failure_reason=?,updated_at=?
+            WHERE source_id=?
+              AND (? IS NULL OR locator_hash=?)
+              AND (? IS NULL OR request_profile_hash=?)
+              AND (? IS NULL OR COALESCE(last_success_at,0)<=?)
+              AND (? IS NULL OR COALESCE(last_failure_at,0)<=?)
+            """,
+            (STATUS_COOLDOWN if cooldown else STATUS_FAILED, ts, ts, _text(reason) or "UNKNOWN",
+             ts, source_id, expected_locator_hash, expected_locator_hash,
+             expected_profile_hash, expected_profile_hash, observed_at, ts, observed_at, ts))
+        if update.rowcount != 1:
+            raise ValueError("failure_scope_or_watermark_changed")
+        return str(row["media_key"]), ts
+
     def record_source_failure(
-        self,
-        source_id: str,
-        *,
-        reason: str,
-        cooldown: bool = False,
-        now: Optional[float] = None,
-        observed_at: Optional[float] = None,
-        expected_locator_hash: Optional[str] = None,
-        expected_profile_hash: Optional[str] = None,
+        self, source_id: str, *, reason: str, cooldown: bool = False,
+        now: Optional[float] = None, observed_at: Optional[float] = None,
+        expected_locator_hash: Optional[str] = None, expected_profile_hash: Optional[str] = None,
     ) -> Dict[str, Any]:
         ts = float(observed_at) if observed_at is not None else (time.time() if now is None else float(now))
         with self.repository.connection() as conn:
-            row = conn.execute("SELECT * FROM playback_sources WHERE source_id=?", (source_id,)).fetchone()
-            if row is None:
-                raise KeyError(source_id)
-            # The same locator can be rediscovered with a different request
-            # profile while an old Android error is still in flight.
-            if expected_locator_hash is not None and row["locator_hash"] != expected_locator_hash:
-                raise ValueError("failure_locator_scope_mismatch")
-            if expected_profile_hash is not None and row["request_profile_hash"] != expected_profile_hash:
+            key, timestamp = self._record_source_failure_conn(conn,source_id,reason=reason,
+                cooldown=cooldown,ts=ts,observed_at=observed_at,
+                expected_locator_hash=expected_locator_hash,expected_profile_hash=expected_profile_hash)
+        return self._recompute(key,now=timestamp)
+
+    def record_candidate_failure(
+        self, media_id: Any, candidate: Dict[str, Any], *, kind: str,
+        season: Optional[int] = None, episode: Optional[int] = None,
+        reason: str, cooldown: bool, observed_at: float,
+        expected_locator_hash: str, expected_profile_hash: str,
+    ) -> Dict[str, Any]:
+        """Index a cached failed leaf without claiming successful content verification.
+        Existing evidence is never reset by delayed failure feedback. The insert,
+        scope comparison and failure watermark update share one write transaction.
+        """
+        from native_variant_feedback import feedback_fingerprints
+        fp = feedback_fingerprints(candidate)
+        if (fp["native_feedback_locator_hash"],fp["native_feedback_profile_hash"]) != (
+                expected_locator_hash,expected_profile_hash):
+            raise ValueError("failure_candidate_scope_mismatch")
+        key = PlaybackMediaKey(_text(media_id),kind,season,episode)
+        ts = float(observed_at)
+        locator = _text(candidate.get("url") or candidate.get("playback_url"))
+        provider = _text(candidate.get("provider") or candidate.get("source")) or "unknown"
+        self.repository.ensure_media(key,now=ts)
+        with self.repository.connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute("SELECT source_id,request_profile_hash FROM playback_sources "
+                "WHERE media_key=? AND provider=? AND locator_hash=?",
+                (key.value,provider,expected_locator_hash)).fetchone()
+            if row is not None and row["request_profile_hash"] not in {"",expected_profile_hash}:
                 raise ValueError("failure_profile_scope_mismatch")
-            watermark = max(float(row["last_success_at"] or 0), float(row["last_failure_at"] or 0))
-            # Native IO is asynchronous. An older failure cannot overwrite a
-            # newer first frame or a newer failed attempt for this exact source.
-            if observed_at is not None and ts < watermark:
-                return self._recompute(str(row["media_key"]), now=watermark)
-            status = STATUS_COOLDOWN if cooldown else STATUS_FAILED
-            update = conn.execute(
-                """
-                UPDATE playback_sources SET verification_status=?,last_checked_at=?,last_failure_at=?,
-                    consecutive_failures=consecutive_failures+1,failure_reason=?,updated_at=?
-                WHERE source_id=?
-                  AND (? IS NULL OR locator_hash=?)
-                  AND (? IS NULL OR request_profile_hash=?)
-                """,
-                (status, ts, ts, _text(reason) or "UNKNOWN", ts, source_id,
-                 expected_locator_hash, expected_locator_hash, expected_profile_hash, expected_profile_hash),
-            )
-            # SELECT does not start a SQLite write transaction. Recheck in the
-            # UPDATE itself so a concurrent discovery cannot change the scope
-            # between validation and recording the error.
-            if update.rowcount != 1:
-                raise ValueError("failure_scope_changed")
-            key_value = str(row["media_key"])
-        return self._recompute(key_value, now=ts)
+            source_id = str(row["source_id"]) if row is not None and row["request_profile_hash"] else self._upsert_discovered_source_conn(
+                conn,key,dict(candidate),locator,"PROVIDER_SEARCH",ts)
+            media_key,timestamp = self._record_source_failure_conn(conn,source_id,reason=reason,
+                cooldown=cooldown,ts=ts,observed_at=observed_at,
+                expected_locator_hash=expected_locator_hash,expected_profile_hash=expected_profile_hash)
+        return dict(self._recompute(media_key,now=timestamp),sourceId=source_id)
 
     def set_no_source(
         self,

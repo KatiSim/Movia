@@ -1,0 +1,820 @@
+{
+  "startedAt": "2026-10-07T21:34:11Z",
+  "recordedAt": "2026-10-07T22:28:43.263379+00:00",
+  "baseCheckpoint": 3441,
+  "baseCommit": "1238a6d72b4e7b364ac05688492e70fb4d798435",
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "versionName": "0.0.1",
+  "versionCode": 335,
+  "androidUnitTests": {
+    "tests": 301,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "backendTests": 561,
+  "instrumentationCompiled": true,
+  "instrumentationExecuted": false,
+  "backendWarnings": "Existing ResourceWarnings remain; the suite is not claimed warning-free.",
+  "nativeFeedbackProof": {
+    "allRequiredPassed": true,
+    "cases": 4
+  },
+  "offlineSmoke": {
+    "passed": true,
+    "downloadCompleted": true,
+    "offlineSourceConfirmed": true,
+    "offlineSeek": {
+      "passed": true,
+      "positionMs": 30349,
+      "framesAfter": 681
+    },
+    "testDownloadCleanup": true,
+    "playerCleanup": true
+  },
+  "androidCoverageCumulative": {
+    "at": "2026-10-07T22:28:00.267335+00:00",
+    "target": 500,
+    "attemptedUniqueCards": 237,
+    "resolvedUniqueCards": 52,
+    "cardsWithPlaybackOperation": 175,
+    "discoveryUnconfirmedCards": 0,
+    "latestOutcomes": {
+      "DECODED_FALLBACK": 18,
+      "PLAYBACK_TIMEOUT": 110,
+      "PLAYER_FAILED": 13,
+      "DECODED_NATIVE": 34,
+      "DISCOVERY_ERROR": 62
+    },
+    "allAttemptOutcomes": {
+      "DECODED_FALLBACK": 18,
+      "PLAYBACK_TIMEOUT": 110,
+      "PLAYER_FAILED": 13,
+      "DECODED_NATIVE": 34,
+      "INTERRUPTED_FOR_INSTALL": 4,
+      "NO_NATIVE_AT_INITIAL_READ": 101,
+      "NO_NATIVE_TERMINAL": 62,
+      "DISCOVERY_ERROR": 62
+    },
+    "decodedNativeCards": 34,
+    "decodedFallbackCards": 18,
+    "identityErrors": 0,
+    "buildShas": [
+      "1a2b06c49d0adfdac834a7a453bbde8326a02c65a2e6c5c2ed89bd5a1f3593c2",
+      "30242dbac563ce4a1ac26e86aa655ce18fb23b03f3c4d0114b2e56da64c5fb84",
+      "5547032b19daf5349719b683004c5f30d430d66ed959f124452a9961189e32df",
+      "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+      "e3cf73e4de136e63ee4dd597302e222d40b21111d9e54aa275e33021bbc15fa2"
+    ],
+    "concurrentDiscoveryAudit": true,
+    "finalForThisRun": true,
+    "checked500Cards": false,
+    "gate500Definition": "500 latest outcomes resolved as decoded playback or explicit terminal absence; discovery/player/harness errors and timeouts remain unresolved. Full transport matrix is a separate gate.",
+    "gate500Complete": false,
+    "unresolvedCards": 185,
+    "discoveryErrorCards": 62
+  },
+  "androidCoverageCurrentInstalledBuild": {
+    "uniqueCards": 130,
+    "attempts": 130,
+    "latestOutcomes": {
+      "DISCOVERY_ERROR": 62,
+      "PLAYBACK_TIMEOUT": 51,
+      "DECODED_NATIVE": 10,
+      "DECODED_FALLBACK": 5,
+      "PLAYER_FAILED": 2
+    },
+    "cardsWithPlaybackOperations": 68,
+    "freshFailureFeedbackObserved": 31,
+    "freshUnindexedFailureFeedbackObserved": 29
+  },
+  "newDiscoveryErrorResults": 62,
+  "new1000IdCohortStartedThisHour": false,
+  "previous1000IdCohorts": "S/T inventory snapshots are retained at checkpoint 3441; old negative classifications are not upgraded to verified unavailability.",
+  "finalState": {
+    "at": "2026-10-07T22:28:16.896903+00:00",
+    "installedSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "builtSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "shaMatches": true,
+    "app": {
+      "package": "app.movia.android",
+      "version": "0.0.1",
+      "versionCode": 335,
+      "foreground": false,
+      "processAlive": true,
+      "processUptimeMs": 1778456,
+      "uiAttached": false,
+      "screen": "HEADLESS"
+    },
+    "playback": {
+      "status": "IDLE",
+      "switchState": "IDLE",
+      "playing": false,
+      "playWhenReady": false,
+      "mediaId": "",
+      "title": "",
+      "positionMs": 0,
+      "durationMs": 0,
+      "bufferedMs": 0,
+      "mediaItemId": "",
+      "fullscreen": false,
+      "pip": false
+    },
+    "playerIdle": true,
+    "libraryCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "libraryCountsPreserved": true,
+    "nativeArchitecture": "movia-provider-registry",
+    "referenceRuntimeLoaded": false,
+    "backendHealth": 200,
+    "services": {
+      "movia-media-parser": {
+        "exitCode": 0,
+        "status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 28141) 2117s; run: log: (pid 6330) 195323s"
+      },
+      "movia-stream-enricher": {
+        "exitCode": 0,
+        "status": "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 28151) 2116s"
+      }
+    },
+    "runtimeParity": {
+      "catalog_stream_service.py": true,
+      "media_content_probe.py": true,
+      "native_variant_feedback.py": true,
+      "playback_availability_index.py": true,
+      "source_playback_evidence.py": true,
+      "streamer.py": true,
+      "discovery_queue.py": true,
+      "discovery_outcome.py": true,
+      "provider_discovery.py": true
+    },
+    "crashOrAnrLines": [],
+    "unrelatedFilesPreserved": 20,
+    "unrelatedChangedFiles": [],
+    "passed": true
+  },
+  "unrelatedFilesPreserved": 20,
+  "unrelatedChangedFiles": [],
+  "rebuildInputsArchive": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/hour-2134-rebuild-inputs.zip",
+  "rebuildInputsSha256": "d9586edc7e8f543fb58ca5658e6cbfe56a0b01d07e2f02d3d8daa2188d633891",
+  "rebuildCaveat": "Installed APK includes twenty unchanged pre-existing UI/database/network inputs deliberately excluded from this architecture commit. Their hashes and private phone archive preserve the inputs; bit-identical rebuild is not claimed.",
+  "projectComplete": false,
+  "remaining": [
+    "Finish saved 500-card real decoder audit; repeat affected failures and verify the installed build.",
+    "Complete each active transport voice/quality/audio/subtitle/episode/resume/download/offline matrix.",
+    "Migrate SourceTruth evidence to distinct request profiles for parallel representations sharing one physical URI; current physical key stores one profile.",
+    "Verify accessible live provider references/gates and replace remaining active legacy wrappers after parity.",
+    "Measure controlled CPU/RAM/queues/cancellation and cold/warm startup; general <=5-second gate remains open."
+  ],
+  "typedDiscoveryLiveProof": {
+    "at": 1791410044.5434916,
+    "realCatalogResponses": true,
+    "cases": [
+      {
+        "mediaId": "474",
+        "season": 1,
+        "episode": 2,
+        "identityPreserved": true,
+        "states": [
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "QUEUED",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "RUNNING",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "ERROR",
+            "discoveryStatus": "ERROR",
+            "refreshing": false,
+            "providerErrorCount": 1,
+            "pendingProviderCount": 0,
+            "providerStatuses": [
+              "NO_RESULTS",
+              "PROVIDER_ERROR"
+            ],
+            "errorCode": "DISCOVERY_ERROR",
+            "discoveryError": "PROVIDER_ERROR"
+          }
+        ],
+        "nativeCandidates": 0,
+        "seconds": 2.4,
+        "errorWasNotClassifiedAsUnavailability": true
+      },
+      {
+        "mediaId": "461",
+        "season": 1,
+        "episode": 2,
+        "identityPreserved": true,
+        "states": [
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "QUEUED",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "RUNNING",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "ERROR",
+            "discoveryStatus": "ERROR",
+            "refreshing": false,
+            "providerErrorCount": 1,
+            "pendingProviderCount": 0,
+            "providerStatuses": [
+              "NO_RESULTS",
+              "PROVIDER_ERROR"
+            ],
+            "errorCode": "DISCOVERY_ERROR",
+            "discoveryError": "PROVIDER_ERROR"
+          }
+        ],
+        "nativeCandidates": 0,
+        "seconds": 2.12,
+        "errorWasNotClassifiedAsUnavailability": true
+      },
+      {
+        "mediaId": "574",
+        "season": 1,
+        "episode": 2,
+        "identityPreserved": true,
+        "states": [
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "QUEUED",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "DISCOVERY_PENDING",
+            "discoveryStatus": "RUNNING",
+            "refreshing": true,
+            "providerErrorCount": null,
+            "pendingProviderCount": null,
+            "providerStatuses": null,
+            "errorCode": null,
+            "discoveryError": null
+          },
+          {
+            "status": "ERROR",
+            "discoveryStatus": "ERROR",
+            "refreshing": false,
+            "providerErrorCount": 1,
+            "pendingProviderCount": 0,
+            "providerStatuses": [
+              "NO_RESULTS",
+              "PROVIDER_ERROR"
+            ],
+            "errorCode": "DISCOVERY_ERROR",
+            "discoveryError": "PROVIDER_ERROR"
+          }
+        ],
+        "nativeCandidates": 0,
+        "seconds": 1.62,
+        "errorWasNotClassifiedAsUnavailability": true
+      }
+    ],
+    "playerActions": false,
+    "allIdentityPreserved": true,
+    "providerErrorsObserved": 3,
+    "allObservedErrorsSeparated": true
+  },
+  "negativeScopeLiveProof": {
+    "at": "2026-10-07T22:05:29.533623+00:00",
+    "mediaId": "1168",
+    "streamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+    "httpStatus": 400,
+    "expectedStaleScopeRejected": true,
+    "before": {
+      "sourceId": "src:963a404ec4c59019955f3596fde31bf6",
+      "verificationStatus": "VERIFIED",
+      "verificationMethod": "MEDIA3_SUCCESS",
+      "lastSuccessAt": 1791410505.401,
+      "lastFailureAt": null,
+      "consecutiveFailures": 0
+    },
+    "after": {
+      "sourceId": "src:963a404ec4c59019955f3596fde31bf6",
+      "verificationStatus": "VERIFIED",
+      "verificationMethod": "MEDIA3_SUCCESS",
+      "lastSuccessAt": 1791410505.401,
+      "lastFailureAt": null,
+      "consecutiveFailures": 0
+    },
+    "sourceStateUnchanged": true,
+    "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "passed": true
+  },
+  "realFailureFeedback": {
+    "at": 1791410778.965742,
+    "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "cases": [
+      {
+        "mediaId": "35770",
+        "season": null,
+        "episode": null,
+        "requestedStreamId": "provider-item:v2:89094d8c41a44ec4f52a9d94",
+        "sourceIdPresentBefore": false,
+        "before": {
+          "verificationStatus": null,
+          "lastFailureAt": null,
+          "lastSuccessAt": null,
+          "consecutiveFailures": null
+        },
+        "playbackAttempted": true,
+        "lastPlayback": {
+          "state": "READY",
+          "height": 480,
+          "frames": 13,
+          "activeId": "provider-item:v2:eac2ae33255900708782ce3a",
+          "fallbackReason": "BUFFERING_TIMEOUT"
+        },
+        "seconds": 12.23,
+        "identityPreserved": true,
+        "after": {
+          "verificationStatus": "COOLDOWN",
+          "lastFailureAt": 1791410789.468,
+          "lastSuccessAt": null,
+          "consecutiveFailures": 1
+        },
+        "samePhysicalScope": true,
+        "actualFailureObserved": true,
+        "failureFeedbackConfirmed": true
+      },
+      {
+        "mediaId": "2430",
+        "season": null,
+        "episode": null,
+        "requestedStreamId": "provider-item:v2:90213ea85fc4a469655c6ae1",
+        "sourceIdPresentBefore": false,
+        "before": {
+          "verificationStatus": null,
+          "lastFailureAt": null,
+          "lastSuccessAt": null,
+          "consecutiveFailures": null
+        },
+        "playbackAttempted": true,
+        "lastPlayback": {
+          "state": "FAILED",
+          "height": 0,
+          "frames": 17,
+          "activeId": null,
+          "fallbackReason": "EXHAUSTED_BUFFERING_TIMEOUT"
+        },
+        "seconds": 10.28,
+        "identityPreserved": true,
+        "after": {
+          "verificationStatus": "COOLDOWN",
+          "lastFailureAt": 1791410801.758,
+          "lastSuccessAt": null,
+          "consecutiveFailures": 1
+        },
+        "samePhysicalScope": true,
+        "actualFailureObserved": true,
+        "failureFeedbackConfirmed": true
+      }
+    ],
+    "initialCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "finalCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "countsPreserved": true,
+    "realFailureFeedbackObserved": true,
+    "unindexedFailureFeedbackObserved": true
+  },
+  "qualitySwitchMatrix": {
+    "autoCriterion": "Preserves requested Auto and decodes an actual positive height; no highest-quality claim.",
+    "at": 1791410807.974045,
+    "cases": [
+      {
+        "seconds": 5.26,
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "state": "READY",
+        "playing": true,
+        "height": 240,
+        "positionMs": 1159,
+        "frames": 15,
+        "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "activeStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "activeQuality": "240p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka"
+        },
+        "candidateQuality": "240p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true,
+        "case": "exact240Start",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "accepted",
+          "error": null,
+          "operationId": "operation-34e041fb-0773-4512-b0c7-08571a3fab2d"
+        }
+      },
+      {
+        "seconds": 4.65,
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "state": "READY",
+        "playing": true,
+        "height": 480,
+        "positionMs": 31899,
+        "frames": 37,
+        "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "requestedQuality": "480p",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "activeQuality": "480p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka"
+        },
+        "candidateQuality": "480p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true,
+        "case": "select-480p",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "completed",
+          "error": null,
+          "operationId": null
+        },
+        "requestedQualityPreserved": true,
+        "providerVoiceBranchPreserved": true,
+        "positionPreserved": true
+      },
+      {
+        "seconds": 34.6,
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "state": "SWITCHING_SOURCE",
+        "playing": false,
+        "height": 0,
+        "positionMs": 32420,
+        "frames": 43,
+        "activeId": null,
+        "selection": {
+          "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedQuality": "240p",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka",
+          "fallbackReason": "BUFFERING_TIMEOUT"
+        },
+        "candidateQuality": null,
+        "sourceIdPresent": false,
+        "localDecoded": null,
+        "referenceRuntimeLoaded": false,
+        "passed": false,
+        "case": "select-240p",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "completed",
+          "error": null,
+          "operationId": null
+        },
+        "requestedQualityPreserved": true,
+        "providerVoiceBranchPreserved": false,
+        "positionPreserved": true
+      },
+      {
+        "seconds": 1.33,
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "state": "READY",
+        "playing": true,
+        "height": 480,
+        "positionMs": 32523,
+        "frames": 50,
+        "activeId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "activeStreamId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "activeQuality": "480p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka"
+        },
+        "candidateQuality": "480p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true,
+        "case": "select-Auto",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "completed",
+          "error": null,
+          "operationId": null
+        },
+        "requestedQualityPreserved": true,
+        "providerVoiceBranchPreserved": true,
+        "positionPreserved": true
+      }
+    ],
+    "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "initialCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "countsPreserved": true,
+    "allRequiredPassed": false
+  },
+  "parallelProfileInventory": {
+    "at": "2026-10-07T22:08:53.078119+00:00",
+    "sampleIds": 500,
+    "readCards": 500,
+    "nativeLeaves": 10332,
+    "physicalGroups": 9690,
+    "parallelProfileGroups": 0,
+    "cardsWithParallelProfiles": 0,
+    "invalidJsonCards": 0,
+    "examples": [],
+    "meaning": "Inventory snapshot only. Distinct profile counts are not verified audio/video-track mappings. Zero collisions in this sample does not certify other providers or gated adapters."
+  },
+  "resourceObservation": {
+    "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "samples": [
+      {
+        "at": "2026-10-07T22:09:52.859604+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 233460.0,
+        "threadCount": 60,
+        "cpuOneCorePercent": null
+      },
+      {
+        "at": "2026-10-07T22:10:39.532063+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 220464.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 25.51
+      },
+      {
+        "at": "2026-10-07T22:11:26.319542+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 237188.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 22.41
+      },
+      {
+        "at": "2026-10-07T22:12:12.999171+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 227128.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 39.38
+      },
+      {
+        "at": "2026-10-07T22:12:59.769449+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 221124.0,
+        "threadCount": 69,
+        "cpuOneCorePercent": 26.19
+      },
+      {
+        "at": "2026-10-07T22:13:46.546286+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 214768.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 28.35
+      },
+      {
+        "at": "2026-10-07T22:14:33.246586+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 239908.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 51.25
+      },
+      {
+        "at": "2026-10-07T22:15:19.681053+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 240720.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 14.35
+      },
+      {
+        "at": "2026-10-07T22:16:06.250494+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 223100.0,
+        "threadCount": 61,
+        "cpuOneCorePercent": 12.54
+      },
+      {
+        "at": "2026-10-07T22:16:53.024077+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 223104.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 36.96
+      },
+      {
+        "at": "2026-10-07T22:17:39.951075+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 272612.0,
+        "threadCount": 67,
+        "cpuOneCorePercent": 46.52
+      },
+      {
+        "at": "2026-10-07T22:18:26.664406+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 249160.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 30.49
+      },
+      {
+        "at": "2026-10-07T22:19:13.465896+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 249020.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 28.02
+      },
+      {
+        "at": "2026-10-07T22:20:00.319304+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 259656.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 23.2
+      },
+      {
+        "at": "2026-10-07T22:20:46.873569+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 222796.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 25.59
+      },
+      {
+        "at": "2026-10-07T22:21:33.717725+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 229152.0,
+        "threadCount": 75,
+        "cpuOneCorePercent": 19.35
+      },
+      {
+        "at": "2026-10-07T22:22:20.654344+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 231708.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 20.73
+      },
+      {
+        "at": "2026-10-07T22:23:07.236449+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 226472.0,
+        "threadCount": 63,
+        "cpuOneCorePercent": 18.83
+      },
+      {
+        "at": "2026-10-07T22:23:53.663345+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 218844.0,
+        "threadCount": 65,
+        "cpuOneCorePercent": 18.0
+      },
+      {
+        "at": "2026-10-07T22:24:40.157559+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 229592.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 18.88
+      },
+      {
+        "at": "2026-10-07T22:25:26.755424+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 212108.0,
+        "threadCount": 65,
+        "cpuOneCorePercent": 20.35
+      },
+      {
+        "at": "2026-10-07T22:26:13.523387+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 233480.0,
+        "threadCount": 64,
+        "cpuOneCorePercent": 28.76
+      },
+      {
+        "at": "2026-10-07T22:27:00.104527+00:00",
+        "exitCode": 0,
+        "pid": 15086,
+        "rssKiB": 222124.0,
+        "threadCount": 65,
+        "cpuOneCorePercent": 17.51
+      }
+    ],
+    "sampleIntervalSeconds": 45,
+    "clockTicksPerSecond": 100,
+    "pageSize": 4096,
+    "final": true,
+    "rssPeakKiB": 272612.0,
+    "cpuPeakOneCorePercent": 51.25,
+    "limitations": "Passive app /proc RSS/CPU during audit and active background services, not PSS or a controlled cold/warm benchmark. No general startup <=5s claim."
+  },
+  "activeProviderSearchObservation": {
+    "at": "2026-10-07T22:12:22.460805+00:00",
+    "provider": "HDRezka",
+    "searchOnly": true,
+    "cases": [
+      {
+        "mediaId": "461",
+        "season": 1,
+        "episode": 2,
+        "resultCount": 0,
+        "error": "HTTP_ERROR:500",
+        "seconds": 1.15
+      },
+      {
+        "mediaId": "474",
+        "season": 1,
+        "episode": 2,
+        "resultCount": 0,
+        "error": "HTTP_ERROR:500",
+        "seconds": 1.12
+      }
+    ],
+    "limitations": "Two search-only observations; do not establish all 62 discovery errors, article availability, or successful decoder playback."
+  }
+}

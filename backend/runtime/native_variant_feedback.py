@@ -1,4 +1,4 @@
-"""Authenticated native frame feedback for cached, not-yet-indexed leaves.
+"""Authenticated native decoder feedback for cached, not-yet-indexed leaves.
 
 No locator is accepted from the caller. Resolve the exact catalog variant and
 match both locator and request-profile fingerprints before recording evidence.
@@ -29,7 +29,7 @@ def attach_feedback_scope(row):
         result["transport_metadata"]={**(row.get("transport_metadata") or row.get("transportMetadata") or {}),**feedback_fingerprints(row)}
     return result
 
-def record_native_variant_success(index,payload,load_card,content_filter,sanitize_observation):
+def _resolve_native_variant(payload,load_card,content_filter,sanitize_observation):
     allowed={"mediaId","season","episode","streamId","locatorHash","profileHash","observation"}
     if not isinstance(payload,dict) or set(payload)!=allowed:raise ValueError("invalid_native_feedback")
     media=payload["mediaId"];sid=payload["streamId"]
@@ -57,11 +57,33 @@ def record_native_variant_success(index,payload,load_card,content_filter,sanitiz
         fp=feedback_fingerprints(row)
         if fp["native_feedback_locator_hash"]==payload["locatorHash"] and fp["native_feedback_profile_hash"]==payload["profileHash"]:matches.append(row)
     if len(matches)!=1:raise ValueError("variant_scope_mismatch")
-    candidate=matches[0]
+    return media,season,episode,series,matches[0],facts
+
+def record_native_variant_success(index,payload,load_card,content_filter,sanitize_observation):
+    from source_playback_evidence import sanitize_media3_failure_payload
+    import time
+    def frame_facts(observation):
+        fields = dict(observation)
+        stamp = fields.pop("observedAt",time.time())
+        checked = sanitize_media3_failure_payload({"sourceId":"src:native-variant",
+            "reason":"NETWORK","observedAt":stamp})
+        facts = sanitize_observation(fields)
+        return dict(facts,observedAt=checked["observedAt"])
+    media,season,episode,series,candidate,facts = _resolve_native_variant(payload,load_card,content_filter,frame_facts)
     result=index.verify_candidate(media,candidate,kind="EPISODE" if series else "MOVIE",season=season,episode=episode,
         discovery_method="PROVIDER_SEARCH",verification_method="MEDIA3_SUCCESS",success=True,
         startup_latency_ms=facts.get("startupLatencyMs"),actual_quality=facts.get("actualQuality"),
-        actual_qualities=facts.get("actualQualities"),actual_audio_tracks=facts.get("actualAudioTracks"))
-    source=next((x for x in result.get("sources",[]) if x.get("locatorHash")==payload["locatorHash"] and str(x.get("provider") or "").casefold()==str(candidate.get("provider") or candidate.get("source") or "").casefold()),None)
+        actual_qualities=facts.get("actualQualities"),actual_audio_tracks=facts.get("actualAudioTracks"),
+        expected_locator_hash=payload["locatorHash"],expected_profile_hash=payload["profileHash"],
+        now=facts["observedAt"])
+    source=next((x for x in result.get("sources",[]) if x.get("locatorHash")==payload["locatorHash"] and x.get("requestProfileHash")==payload["profileHash"] and str(x.get("provider") or "").casefold()==str(candidate.get("provider") or candidate.get("source") or "").casefold()),None)
     if not source:raise ValueError("missing_native_source")
     return dict(result,sourceId=source["sourceId"])
+def record_native_variant_failure(index,payload,load_card,content_filter):
+    from source_playback_evidence import sanitize_media3_failure_payload
+    media,season,episode,series,candidate,facts = _resolve_native_variant(
+        payload,load_card,content_filter,sanitize_media3_failure_payload)
+    return index.record_candidate_failure(media,candidate,kind="EPISODE" if series else "MOVIE",
+        season=season,episode=episode,reason=facts["reason"],cooldown=facts["cooldown"],
+        observed_at=facts["observedAt"],expected_locator_hash=payload["locatorHash"],
+        expected_profile_hash=payload["profileHash"])

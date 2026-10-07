@@ -1,0 +1,87 @@
+{
+  "at": 1791410778.965742,
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "cases": [
+    {
+      "mediaId": "35770",
+      "season": null,
+      "episode": null,
+      "requestedStreamId": "provider-item:v2:89094d8c41a44ec4f52a9d94",
+      "sourceIdPresentBefore": false,
+      "before": {
+        "verificationStatus": null,
+        "lastFailureAt": null,
+        "lastSuccessAt": null,
+        "consecutiveFailures": null
+      },
+      "playbackAttempted": true,
+      "lastPlayback": {
+        "state": "READY",
+        "height": 480,
+        "frames": 13,
+        "activeId": "provider-item:v2:eac2ae33255900708782ce3a",
+        "fallbackReason": "BUFFERING_TIMEOUT"
+      },
+      "seconds": 12.23,
+      "identityPreserved": true,
+      "after": {
+        "verificationStatus": "COOLDOWN",
+        "lastFailureAt": 1791410789.468,
+        "lastSuccessAt": null,
+        "consecutiveFailures": 1
+      },
+      "samePhysicalScope": true,
+      "actualFailureObserved": true,
+      "failureFeedbackConfirmed": true
+    },
+    {
+      "mediaId": "2430",
+      "season": null,
+      "episode": null,
+      "requestedStreamId": "provider-item:v2:90213ea85fc4a469655c6ae1",
+      "sourceIdPresentBefore": false,
+      "before": {
+        "verificationStatus": null,
+        "lastFailureAt": null,
+        "lastSuccessAt": null,
+        "consecutiveFailures": null
+      },
+      "playbackAttempted": true,
+      "lastPlayback": {
+        "state": "FAILED",
+        "height": 0,
+        "frames": 17,
+        "activeId": null,
+        "fallbackReason": "EXHAUSTED_BUFFERING_TIMEOUT"
+      },
+      "seconds": 10.28,
+      "identityPreserved": true,
+      "after": {
+        "verificationStatus": "COOLDOWN",
+        "lastFailureAt": 1791410801.758,
+        "lastSuccessAt": null,
+        "consecutiveFailures": 1
+      },
+      "samePhysicalScope": true,
+      "actualFailureObserved": true,
+      "failureFeedbackConfirmed": true
+    }
+  ],
+  "initialCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "finalCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "countsPreserved": true,
+  "realFailureFeedbackObserved": true,
+  "unindexedFailureFeedbackObserved": true
+}

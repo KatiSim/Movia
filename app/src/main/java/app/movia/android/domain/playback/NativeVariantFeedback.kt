@@ -41,3 +41,12 @@ internal fun nativeFeedbackScope(candidate: StreamCandidate): NativeFeedbackScop
         .digest(value.toByteArray(Charsets.UTF_8)).joinToString("") { (it.toInt() and 255).toString(16).padStart(2, '0') }
     return NativeFeedbackScope(digest(candidate.url.trim()), digest(profile))
 }
+
+/** A delayed HTTP reply cannot attach an ID to a rotated source or another episode. */
+internal fun StreamCandidate.withNativeFeedbackSourceId(prepared: StreamCandidate, sourceId: String): StreamCandidate {
+    if (!sourceId.matches(Regex("src:[A-Za-z0-9:_-]{1,124}"))) return this
+    if (stableStreamId != prepared.stableStreamId || catalogMediaId != prepared.catalogMediaId ||
+        seasonNumber != prepared.seasonNumber || episodeNumber != prepared.episodeNumber ||
+        nativeFeedbackScope(this) != nativeFeedbackScope(prepared)) return this
+    return copy(sourceId = sourceId)
+}

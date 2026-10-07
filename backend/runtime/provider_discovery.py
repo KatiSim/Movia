@@ -47,6 +47,7 @@ class ProviderDiscoveryOutcome:
     status: str
     providers: tuple[str, ...] = ()
     error_count: int = 0
+    pending_futures: tuple = ()
 
 
 def _read_bounded(response) -> str:
@@ -504,10 +505,9 @@ def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **
         if not callable(on_provider_result): return
         try:
             outcome = future.result()
-            if outcome.streams:
-                on_provider_result(ProviderDiscoveryOutcome(
-                    [dict(row) for row in outcome.streams], outcome.status,
-                    outcome.providers, outcome.error_count))
+            on_provider_result(ProviderDiscoveryOutcome(
+                [dict(row) for row in outcome.streams], outcome.status,
+                outcome.providers, outcome.error_count))
         except Exception:
             # The normal provider result/cache remains available for retry.
             pass
@@ -545,7 +545,7 @@ def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **
         rows.extend(result.streams)
         providers.extend(result.providers)
         statuses.append(result.status)
-    errors = len(pending)
+    errors = sum(result.error_count for result in cached)
     for future in pending:
         future.cancel()
     for future in futures:
@@ -561,9 +561,9 @@ def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **
             errors += 1
             statuses.append("PROVIDER_ERROR")
     if rows:
-        return ProviderDiscoveryOutcome(sanitize_streams(rows, require_source=True), "OK", tuple(providers), errors)
+        return ProviderDiscoveryOutcome(sanitize_streams(rows, require_source=True), "OK", tuple(providers), errors, tuple(pending))
     if pending:
-        return ProviderDiscoveryOutcome([], "PROVIDER_TIMEOUT", tuple(providers), errors)
+        return ProviderDiscoveryOutcome([], "PROVIDER_TIMEOUT", tuple(providers), errors, tuple(pending))
     priority = ("INVALID_REQUEST", "AMBIGUOUS", "EXACT_EPISODE_REQUIRED", "PROVIDER_ERROR", "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
     status = next((x for x in priority if x in statuses), statuses[-1] if statuses else "NO_RESULTS")
     return ProviderDiscoveryOutcome([], status, tuple(providers), errors)

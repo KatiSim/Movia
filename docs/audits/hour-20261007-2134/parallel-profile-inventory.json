@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-07T22:08:53.078119+00:00",
+  "sampleIds": 500,
+  "readCards": 500,
+  "nativeLeaves": 10332,
+  "physicalGroups": 9690,
+  "parallelProfileGroups": 0,
+  "cardsWithParallelProfiles": 0,
+  "invalidJsonCards": 0,
+  "examples": [],
+  "meaning": "Inventory snapshot only. Distinct profile counts are not verified audio/video-track mappings. Zero collisions in this sample does not certify other providers or gated adapters."
+}

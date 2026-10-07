@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-07T22:05:29.533623+00:00",
+  "mediaId": "1168",
+  "streamId": "provider-item:v2:5bb7aa1f9c86016954c1ee85",
+  "httpStatus": 400,
+  "expectedStaleScopeRejected": true,
+  "before": {
+    "sourceId": "src:963a404ec4c59019955f3596fde31bf6",
+    "verificationStatus": "VERIFIED",
+    "verificationMethod": "MEDIA3_SUCCESS",
+    "lastSuccessAt": 1791410505.401,
+    "lastFailureAt": null,
+    "consecutiveFailures": 0
+  },
+  "after": {
+    "sourceId": "src:963a404ec4c59019955f3596fde31bf6",
+    "verificationStatus": "VERIFIED",
+    "verificationMethod": "MEDIA3_SUCCESS",
+    "lastSuccessAt": 1791410505.401,
+    "lastFailureAt": null,
+    "consecutiveFailures": 0
+  },
+  "sourceStateUnchanged": true,
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "passed": true
+}

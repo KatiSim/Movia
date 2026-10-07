@@ -1,0 +1,196 @@
+{
+  "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "samples": [
+    {
+      "at": "2026-10-07T22:09:52.859604+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 233460.0,
+      "threadCount": 60,
+      "cpuOneCorePercent": null
+    },
+    {
+      "at": "2026-10-07T22:10:39.532063+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 220464.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 25.51
+    },
+    {
+      "at": "2026-10-07T22:11:26.319542+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 237188.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 22.41
+    },
+    {
+      "at": "2026-10-07T22:12:12.999171+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 227128.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 39.38
+    },
+    {
+      "at": "2026-10-07T22:12:59.769449+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 221124.0,
+      "threadCount": 69,
+      "cpuOneCorePercent": 26.19
+    },
+    {
+      "at": "2026-10-07T22:13:46.546286+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 214768.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 28.35
+    },
+    {
+      "at": "2026-10-07T22:14:33.246586+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 239908.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 51.25
+    },
+    {
+      "at": "2026-10-07T22:15:19.681053+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 240720.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 14.35
+    },
+    {
+      "at": "2026-10-07T22:16:06.250494+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 223100.0,
+      "threadCount": 61,
+      "cpuOneCorePercent": 12.54
+    },
+    {
+      "at": "2026-10-07T22:16:53.024077+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 223104.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 36.96
+    },
+    {
+      "at": "2026-10-07T22:17:39.951075+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 272612.0,
+      "threadCount": 67,
+      "cpuOneCorePercent": 46.52
+    },
+    {
+      "at": "2026-10-07T22:18:26.664406+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 249160.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 30.49
+    },
+    {
+      "at": "2026-10-07T22:19:13.465896+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 249020.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 28.02
+    },
+    {
+      "at": "2026-10-07T22:20:00.319304+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 259656.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 23.2
+    },
+    {
+      "at": "2026-10-07T22:20:46.873569+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 222796.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 25.59
+    },
+    {
+      "at": "2026-10-07T22:21:33.717725+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 229152.0,
+      "threadCount": 75,
+      "cpuOneCorePercent": 19.35
+    },
+    {
+      "at": "2026-10-07T22:22:20.654344+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 231708.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 20.73
+    },
+    {
+      "at": "2026-10-07T22:23:07.236449+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 226472.0,
+      "threadCount": 63,
+      "cpuOneCorePercent": 18.83
+    },
+    {
+      "at": "2026-10-07T22:23:53.663345+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 218844.0,
+      "threadCount": 65,
+      "cpuOneCorePercent": 18.0
+    },
+    {
+      "at": "2026-10-07T22:24:40.157559+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 229592.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 18.88
+    },
+    {
+      "at": "2026-10-07T22:25:26.755424+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 212108.0,
+      "threadCount": 65,
+      "cpuOneCorePercent": 20.35
+    },
+    {
+      "at": "2026-10-07T22:26:13.523387+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 233480.0,
+      "threadCount": 64,
+      "cpuOneCorePercent": 28.76
+    },
+    {
+      "at": "2026-10-07T22:27:00.104527+00:00",
+      "exitCode": 0,
+      "pid": 15086,
+      "rssKiB": 222124.0,
+      "threadCount": 65,
+      "cpuOneCorePercent": 17.51
+    }
+  ],
+  "sampleIntervalSeconds": 45,
+  "clockTicksPerSecond": 100,
+  "pageSize": 4096,
+  "final": true,
+  "rssPeakKiB": 272612.0,
+  "cpuPeakOneCorePercent": 51.25,
+  "limitations": "Passive app /proc RSS/CPU during audit and active background services, not PSS or a controlled cold/warm benchmark. No general startup <=5s claim."
+}

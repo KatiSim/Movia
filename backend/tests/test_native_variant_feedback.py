@@ -160,3 +160,169 @@ class ScopedNativeFailureTests(unittest.TestCase):
         source=self.index.get("42",kind="MOVIE")["sources"][0]
         self.assertEqual("DISCOVERED",source["verificationStatus"])
         self.assertEqual(0,source["consecutiveFailures"])
+
+class CachedNativeFailureTests(unittest.TestCase):
+    setUp=NativeVariantFeedbackTests.setUp
+    record=NativeVariantFeedbackTests.record
+
+    def failure(self,payload=None):
+        import time
+        from native_variant_feedback import record_native_variant_failure
+        request=dict(self.payload,observation={"reason":"NETWORK","observedAt":time.time()})
+        return record_native_variant_failure(self.index,payload or request,
+            lambda *args:copy.deepcopy(self.card),lambda rows,card:rows)
+
+    def test_unindexed_cached_leaf_records_failure_without_faking_verification(self):
+        result=self.failure()
+        source=next(x for x in result["sources"] if x["sourceId"]==result["sourceId"])
+        self.assertEqual("COOLDOWN",source["verificationStatus"])
+        self.assertEqual("NONE",source["verificationMethod"])
+        self.assertEqual(1,source["consecutiveFailures"])
+        self.assertIsNone(source["actualQuality"])
+        self.assertIsNone(source["lastSuccessAt"])
+
+    def test_decoder_failure_is_not_transient_network_cooldown(self):
+        import time
+        result=self.failure(dict(self.payload,observation={"reason":"NON_NETWORK","observedAt":time.time()}))
+        self.assertEqual("FAILED",result["sources"][0]["verificationStatus"])
+
+    def test_wrong_profile_failure_does_not_create_a_source(self):
+        with self.assertRaises(ValueError):
+            self.failure(dict(self.payload,profileHash="0"*64,observation={"reason":"NETWORK","observedAt":__import__('time').time()}))
+        self.assertIsNone(self.index.get("42",kind="MOVIE"))
+
+    def test_failure_cannot_accept_caller_locator(self):
+        import time
+        with self.assertRaises(ValueError):
+            self.failure(dict(self.payload,url="https://other.example/a.mp4",observation={"reason":"NETWORK","observedAt":time.time()}))
+
+    def test_failure_rejects_wrong_episode_and_catalog_without_mutation(self):
+        import time
+        for changes in [{"mediaId":"43"},{"season":1,"episode":2},{"streamId":"provider-item:v2:other"}]:
+            with self.subTest(changes=changes),self.assertRaises(ValueError):
+                self.failure(dict(self.payload,**changes,observation={"reason":"NETWORK","observedAt":time.time()}))
+        self.assertIsNone(self.index.get("42",kind="MOVIE"))
+
+    def test_existing_different_profile_is_not_reset_by_old_cached_failure(self):
+        changed=copy.deepcopy(self.row);changed["headers"]={"Referer":"https://fresh.example"}
+        before=self.index.record_discovery("42",[changed],kind="MOVIE")
+        with self.assertRaises(ValueError):self.failure()
+        self.assertEqual(before,self.index.get("42",kind="MOVIE"))
+
+    def test_out_of_order_failure_keeps_newer_decoded_success(self):
+        import time
+        now=time.time()
+        self.record()
+        self.index.record_playback_success(self.index.get("42",kind="MOVIE")["sources"][0]["sourceId"],now=now+1)
+        result=self.failure(dict(self.payload,observation={"reason":"NETWORK","observedAt":now-1}))
+        source=result["sources"][0]
+        self.assertEqual("VERIFIED",source["verificationStatus"])
+        self.assertEqual(0,source["consecutiveFailures"])
+        self.assertEqual("480p",source["actualQuality"])
+
+    def test_same_profile_failure_keeps_previous_failure_count(self):
+        self.failure()
+        result=self.failure()
+        self.assertEqual(2,result["sources"][0]["consecutiveFailures"])
+
+    def test_newer_success_between_select_and_update_cannot_be_overwritten(self):
+        import time
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        source_id=self.record()["sourceId"];stamp=time.time()
+        original=self.index.repository.connection;index=self.index;injected=[False]
+        class Cursor:
+            def __init__(self,real):self.real=real
+            def fetchone(self):
+                rows=self.real.fetchall();injected[0]=True
+                index.record_playback_success(source_id,now=stamp+1)
+                return rows[0] if rows else None
+        class Connection:
+            def __init__(self,real):self.real=real
+            def execute(self,sql,params=()):
+                cursor=self.real.execute(sql,params)
+                if not injected[0] and sql.startswith("SELECT * FROM playback_sources WHERE source_id="):
+                    return Cursor(cursor)
+                return cursor
+        @contextmanager
+        def connection():
+            with original() as real:yield Connection(real)
+        with patch.object(self.index.repository,"connection",connection),self.assertRaises(ValueError):
+            self.index.record_source_failure(source_id,reason="NETWORK",observed_at=stamp)
+        source=self.index.get("42",kind="MOVIE")["sources"][0]
+        self.assertEqual("VERIFIED",source["verificationStatus"])
+        self.assertEqual(0,source["consecutiveFailures"])
+
+class NativeSuccessTransactionTests(unittest.TestCase):
+    setUp=NativeVariantFeedbackTests.setUp
+    record=NativeVariantFeedbackTests.record
+    def test_delayed_success_does_not_revert_a_newer_index_profile(self):
+        changed=copy.deepcopy(self.row);changed["headers"]={"Referer":"https://newer.example"}
+        before=self.index.record_discovery("42",[changed],kind="MOVIE")
+        with self.assertRaises(ValueError):self.record()
+        self.assertEqual(before,self.index.get("42",kind="MOVIE"))
+    def test_migrated_unknown_profile_can_receive_fresh_native_success(self):
+        result=self.index.record_discovery("42",[self.row],kind="MOVIE")
+        with self.index.repository.connection() as conn:
+            conn.execute("UPDATE playback_sources SET request_profile_hash='' WHERE source_id=?",(result["sources"][0]["sourceId"],))
+        source=self.record()["sources"][0]
+        self.assertEqual("VERIFIED",source["verificationStatus"])
+        self.assertEqual(self.payload["profileHash"],source["requestProfileHash"])
+    def test_migrated_unknown_profile_does_not_keep_old_quality_after_failure(self):
+        result=self.record()
+        with self.index.repository.connection() as conn:
+            conn.execute("UPDATE playback_sources SET request_profile_hash='' WHERE source_id=?",(result["sourceId"],))
+        source=CachedNativeFailureTests.failure(self)["sources"][0]
+        self.assertEqual("COOLDOWN",source["verificationStatus"])
+        self.assertIsNone(source["actualQuality"])
+        self.assertIsNone(source["lastSuccessAt"])
+    def test_concurrent_discovery_cannot_split_indexing_from_verification(self):
+        import threading
+        from unittest.mock import patch
+        entered=threading.Event();finished=threading.Event();errors=[]
+        changed=copy.deepcopy(self.row);changed["headers"]={"Referer":"https://concurrent.example"}
+        def discover():
+            entered.set()
+            try:self.index.record_discovery("42",[changed],kind="MOVIE")
+            except Exception as error:errors.append(error)
+            finally:finished.set()
+        original=self.index._mark_source_verified_conn;threads=[]
+        def paused(conn,*args,**kwargs):
+            thread=threading.Thread(target=discover);threads.append(thread);thread.start()
+            self.assertTrue(entered.wait(1))
+            self.assertFalse(finished.wait(.03),"Concurrent writer entered the verification transaction")
+            return original(conn,*args,**kwargs)
+        with patch.object(self.index,"_mark_source_verified_conn",side_effect=paused):self.record()
+        for thread in threads:thread.join(3)
+        self.assertTrue(finished.is_set());self.assertEqual([],errors)
+        source=self.index.get("42",kind="MOVIE")["sources"][0]
+        self.assertEqual("DISCOVERED",source["verificationStatus"])
+        self.assertIsNone(source["actualQuality"])
+    def test_late_first_frame_cannot_erase_a_newer_failure(self):
+        import time
+        self.record();before=CachedNativeFailureTests.failure(self)["sources"][0]
+        observation=dict(self.payload["observation"],observedAt=before["lastFailureAt"]-1)
+        result=self.record(dict(self.payload,observation=observation))
+        source=result["sources"][0]
+        self.assertFalse(result["observationApplied"])
+        self.assertEqual(before["verificationStatus"],source["verificationStatus"])
+        self.assertEqual(before["consecutiveFailures"],source["consecutiveFailures"])
+        self.assertEqual(before["lastSuccessAt"],source["lastSuccessAt"])
+    def test_newer_first_frame_recovers_the_same_failed_scope(self):
+        before=CachedNativeFailureTests.failure(self)["sources"][0]
+        observation=dict(self.payload["observation"],observedAt=before["lastFailureAt"]+.001)
+        result=self.record(dict(self.payload,observation=observation))
+        self.assertTrue(result["observationApplied"])
+        self.assertEqual("VERIFIED",result["sources"][0]["verificationStatus"])
+        self.assertEqual(0,result["sources"][0]["consecutiveFailures"])
+    def test_invalid_frame_observation_time_is_rejected_before_storage(self):
+        import time
+        for stamp in [True,time.time()-301,time.time()+6]:
+            with self.subTest(stamp=stamp),self.assertRaises(ValueError):
+                self.record(dict(self.payload,observation=dict(self.payload["observation"],observedAt=stamp)))
+        self.assertIsNone(self.index.get("42",kind="MOVIE"))
+    def test_frame_uses_observation_time_instead_of_http_arrival_time(self):
+        import time
+        stamp=time.time()-2
+        result=self.record(dict(self.payload,observation=dict(self.payload["observation"],observedAt=stamp)))
+        self.assertEqual(stamp,result["sources"][0]["lastSuccessAt"])

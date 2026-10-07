@@ -2,6 +2,7 @@
 from collections import OrderedDict, deque
 import threading
 import time
+from discovery_outcome import DiscoveryJobResult
 
 
 class DiscoveryQueue:
@@ -29,7 +30,16 @@ class DiscoveryQueue:
         if key in self.pending: return "QUEUED"
         old = self.completed.get(key)
         if old:
-            if self.clock() < old[1]: return old[0]
+            if self.clock() < old[1]:
+                state,expires,error,job = old
+                if job is not None:
+                    state,error = self._job_status(job)
+                    if state != old[0]:
+                        if state == "ERROR":self.errors += 1
+                        if state in {"ERROR","UNAVAILABLE"}:self.failures += 1
+                        expires = self.clock() + (self.success_ttl if state == "READY" else self.failure_ttl)
+                        self.completed[key] = (state,expires,error,job)
+                return state
             del self.completed[key]
         return "STOPPED" if self.closed else "IDLE"
 
@@ -53,22 +63,45 @@ class DiscoveryQueue:
                 key = self.pending.popleft()
                 self.active.add(key)
             error_type = None
+            job = None
             try:
-                ready = bool(self.resolver(key))
+                result = self.resolver(key)
+                if isinstance(result,DiscoveryJobResult):
+                    job = result
+                    state,error_type = self._job_status(job)
+                else:state = "READY" if bool(result) else "UNAVAILABLE"
             except Exception as error:
-                ready = False
+                state = "ERROR"
                 error_type = type(error).__name__[:80]
             with self.condition:
                 self.active.remove(key)
-                state = "ERROR" if error_type else ("READY" if ready else "UNAVAILABLE")
-                ttl = self.success_ttl if ready else self.failure_ttl
-                self.completed[key] = (state, self.clock() + max(0.0, ttl), error_type)
+                ttl = self.success_ttl if state == "READY" else self.failure_ttl
+                self.completed[key] = (state,self.clock()+max(0.0,ttl),error_type,job)
                 self.completed.move_to_end(key)
-                while len(self.completed) > self.remembered: self.completed.popitem(last=False)
+                while len(self.completed) > self.remembered:self.completed.popitem(last=False)
                 self.finished += 1
-                self.failures += int(not ready)
-                self.errors += int(error_type is not None)
+                self.failures += int(state in {"ERROR","UNAVAILABLE"})
+                self.errors += int(state == "ERROR")
                 self.condition.notify_all()
+
+    @staticmethod
+    def _job_status(job):
+        if job.error:return "ERROR",job.error
+        detail = job.trace.snapshot() if job.trace is not None else {}
+        if detail.get("pendingProviderCount",0):return "PENDING",None
+        if detail.get("providerErrorCount",0):
+            statuses=detail.get("providerStatuses",[])
+            code="DISCOVERY_TIMEOUT" if "DISCOVERY_TIMEOUT" in statuses else "PROVIDER_ERROR"
+            return "ERROR",code
+        return ("READY",None) if job.ready or detail.get("hasScopedResults") else ("UNAVAILABLE",None)
+
+    def details(self,key):
+        with self.condition:
+            self._status(key)
+            old=self.completed.get(key)
+            if old and old[3] is not None and old[3].trace is not None:
+                return old[3].trace.snapshot()
+            return {}
 
     def error(self, key):
         with self.condition:

@@ -24,4 +24,29 @@ class NativeVariantFeedbackTest {
         assertNotEquals(before.locatorHash,nativeFeedbackScope(leaf().copy(url="https://cdn.example/new.mp4")).locatorHash)
         assertNotEquals(before.profileHash,nativeFeedbackScope(leaf().copy(headers=mapOf("Referer" to "https://other.example"))).profileHash)
     }
+
+    @Test fun scopedFeedbackAttachesSourceIdWithoutChangingIdentity() {
+        val current = leaf().copy(quality="480p")
+        val attached = current.withNativeFeedbackSourceId(leaf(),"src:decoded")
+        assertEquals("src:decoded",attached.sourceId)
+        assertEquals(current.stableStreamId,attached.stableStreamId)
+        assertEquals(current.quality,attached.quality)
+    }
+    @Test fun staleReplyCannotAttachToRotatedUrlOrChangedHeaders() {
+        val prepared = leaf()
+        for (current in listOf(prepared.copy(url="https://cdn.example/new.mp4"),
+            prepared.copy(headers=mapOf("Referer" to "https://new.example")))) {
+            assertEquals(current,current.withNativeFeedbackSourceId(prepared,"src:old"))
+        }
+    }
+    @Test fun feedbackCannotAttachToAnotherMovieOrEpisode() {
+        val prepared=leaf().copy(seasonNumber=1,episodeNumber=2)
+        for (current in listOf(prepared.copy(catalogMediaId="43"),prepared.copy(episodeNumber=3),
+            prepared.copy(stableStreamId="provider-item:v2:other"))) {
+            assertEquals(current,current.withNativeFeedbackSourceId(prepared,"src:old"))
+        }
+    }
+    @Test fun malformedResponseDoesNotAttachSourceId() {
+        assertEquals(leaf(),leaf().withNativeFeedbackSourceId(leaf(),"https://invalid.example/source"))
+    }
 }

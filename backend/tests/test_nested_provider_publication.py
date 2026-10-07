@@ -59,4 +59,19 @@ class NestedProviderPublicationTests(unittest.TestCase):
         with patch.dict(module.os.environ,{**self.env,module._PROVIDER_FLAGS[1]:"0"}),patch.object(module,"_discover_provider_streams",return_value=module.ProviderDiscoveryOutcome([],"NO_RESULTS")):
             seen=[]
             result=module.discover_provider_streams(title="Film",media_id="7",on_provider_result=seen.append)
-        self.assertEqual([],seen);self.assertEqual([],result.streams)
+        self.assertEqual(1,len(seen));self.assertEqual("NO_RESULTS",seen[0].status)
+        self.assertEqual([],seen[0].streams);self.assertEqual([],result.streams)
+    def test_empty_provider_error_status_reaches_callback_without_a_fake_leaf(self):
+        with patch.dict(module.os.environ,{**self.env,module._PROVIDER_FLAGS[1]:"0"}),patch.object(module,"_discover_provider_streams",return_value=module.ProviderDiscoveryOutcome([],"PROVIDER_ERROR",error_count=1)):
+            seen=[]
+            result=module.discover_provider_streams(title="Film",media_id="7",on_provider_result=seen.append)
+        self.assertEqual(1,len(seen));self.assertEqual("PROVIDER_ERROR",seen[0].status)
+        self.assertEqual([],seen[0].streams);self.assertEqual(1,result.error_count)
+    def test_cached_partial_success_keeps_its_error_count(self):
+        partial=module.ProviderDiscoveryOutcome(self.outcome("partial").streams,"OK",error_count=2)
+        request={"title":"Partial film","media_id":"81","media_type":"movie"}
+        with patch.dict(module.os.environ,{**self.env,module._PROVIDER_FLAGS[1]:"0"}),patch.object(module,"_discover_provider_streams",return_value=partial):
+            module.discover_provider_streams(**request)
+            result=module.discover_provider_streams(**request)
+        self.assertEqual(2,result.error_count)
+        self.assertTrue(result.streams)

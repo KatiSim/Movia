@@ -238,3 +238,26 @@ class EpisodeDiscoveryIdentityTest(unittest.TestCase):
         valid=dict(base,season='01',episode='02')
         self.assertEqual(1,len(filter_streams_for_content([valid],card)))
         self.assertEqual(1,len(bind_stream_identity([valid],catalog_media_id=7,title='Fixture',year=2020,media_type='tv',season=1,episode=2)))
+
+class ResolverOutcomePropagationTests(unittest.TestCase):
+    setUp=DiscoveryPersistenceTest.setUp
+    tearDown=DiscoveryPersistenceTest.tearDown
+    row=DiscoveryPersistenceTest.row
+    def resolve(self,outcome):
+        pool=BoundedExecutor(workers=2,max_pending=2,name="test-outcome-propagation")
+        try:
+            with patch.object(streamer,"_PROVIDER_EXECUTOR",pool),patch.object(streamer,"P2P_ENABLED",False),patch.object(streamer,"_catalog_identity_for_request",return_value=("OK",self.card)),patch.object(streamer,"get_recent_stale_direct_streams",return_value=[]),patch.object(streamer,"_resolve_balancer_provider",return_value=[]),patch.object(streamer,"_resolve_clean_provider_registry",return_value=outcome):
+                return streamer.resolve_on_demand_streams("Fixture",2020,catalog_media_id=7,media_type="movie",force_refresh=True,_allow_stale_fast_path=False)
+        finally:pool.close()
+    def test_actual_resolver_keeps_empty_provider_error(self):
+        from provider_discovery import ProviderDiscoveryOutcome
+        result=self.resolve(ProviderDiscoveryOutcome([],"PROVIDER_ERROR",error_count=1))
+        self.assertEqual([],result)
+        self.assertEqual(1,result.discovery_trace.snapshot()["providerErrorCount"])
+    def test_actual_resolver_keeps_late_future_and_its_error(self):
+        from provider_discovery import ProviderDiscoveryOutcome
+        late=Future()
+        result=self.resolve(ProviderDiscoveryOutcome([],"PROVIDER_TIMEOUT",pending_futures=(late,)))
+        self.assertEqual(1,result.discovery_trace.snapshot()["pendingProviderCount"])
+        late.set_exception(RuntimeError("private backend URI"))
+        self.assertEqual(1,result.discovery_trace.snapshot()["providerErrorCount"])
