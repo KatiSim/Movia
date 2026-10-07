@@ -667,6 +667,7 @@ object DomainPlaybackResolver {
         initialCandidates: List<StreamCandidate> = emptyList(),
         forceRefresh: Boolean = false,
         backend: PlaybackResolverBackend,
+        onCandidates: (suspend (List<StreamCandidate>) -> Unit)? = null,
     ): PlaybackResolverResult = withContext(Dispatchers.IO) {
         try {
             val localOnly = initialCandidates.any { it.url.startsWith("file://", ignoreCase = true) }
@@ -686,22 +687,34 @@ object DomainPlaybackResolver {
             val initial = usableCandidates(request, initialCandidates)
 
             var sawPending = false
+            var latestCandidates = emptyList<StreamCandidate>()
+            suspend fun publishResponse(response: PlaybackResolverBackendResponse) {
+                val rows = usableCandidates(request, response.candidates)
+                if (rows.isNotEmpty()) {
+                    latestCandidates = preferDiscoveredCandidates(latestCandidates, rows, request)
+                    onCandidates?.invoke(StreamDeduplicator.deduplicate(
+                        preferDiscoveredCandidates(initial, latestCandidates, request)))
+                }
+            }
             val identityResponse = withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
                 var response = backend.resolveByIdentity(request, forceRefresh)
+                publishResponse(response)
                 while (response.discoveryPending &&
-                    usableCandidates(request, response.candidates).isEmpty()
+                    (onCandidates != null || usableCandidates(request, response.candidates).isEmpty())
                 ) {
                     sawPending = true
                     delay(response.retryAfterMs.coerceIn(100L, 800L))
                     // A poll observes the same job; it must not request a new
                     // forced provider lookup for every HTTP read.
                     response = backend.resolveByIdentity(request, false)
+                    publishResponse(response)
                 }
                 response
             } ?: PlaybackResolverBackendResponse(
                 errorCode = if (sawPending) "DISCOVERY_PENDING_TIMEOUT" else "PROVIDER_TIMEOUT",
             )
-            val identityCandidates = usableCandidates(request, identityResponse.candidates)
+            val identityCandidates = preferDiscoveredCandidates(
+                latestCandidates, usableCandidates(request, identityResponse.candidates), request)
 
             val discoveredCandidates: List<StreamCandidate>
             val errors = mutableListOf<String>()
@@ -760,11 +773,13 @@ object DomainPlaybackResolver {
         request: PlaybackRequest,
         initialCandidates: List<StreamCandidate> = emptyList(),
         forceRefresh: Boolean = false,
+        onCandidates: (suspend (List<StreamCandidate>) -> Unit)? = null,
     ): PlaybackResolverResult = resolveStreamsWithBackend(
         request = request,
         initialCandidates = initialCandidates,
         forceRefresh = forceRefresh,
         backend = httpBackend,
+        onCandidates = onCandidates,
     )
 
     private fun isStructurallyValidCandidate(candidate: StreamCandidate): Boolean =

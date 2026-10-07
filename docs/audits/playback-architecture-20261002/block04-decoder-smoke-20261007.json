@@ -1,0 +1,21 @@
+{
+  "case": "post_install_exact_v2_torrent_decode",
+  "mediaId": "158",
+  "requestedStreamId": "provider-item:v2:9ede95bbfc62adc6b860c65e",
+  "actionStatus": "accepted",
+  "passed": false,
+  "elapsedSeconds": 100.57,
+  "mediaItemId": "158",
+  "isPlaying": false,
+  "switchState": "RECOVERING",
+  "durationMs": 0,
+  "videoHeight": 0,
+  "probeFrames": 0,
+  "activeVoice": null,
+  "activeQuality": null,
+  "activeStreamId": null,
+  "nativePublicId": false,
+  "transportMetadataKeys": [],
+  "idleCleanup": true,
+  "crashLines": []
+}

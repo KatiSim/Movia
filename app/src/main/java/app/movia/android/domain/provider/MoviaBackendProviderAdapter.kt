@@ -8,9 +8,7 @@ import app.movia.android.domain.playback.*
  * Android receives concrete leaves and retains their track and transport data.
  */
 class MoviaBackendProviderAdapter(
-    private val resolve: suspend (PlaybackRequest) -> PlaybackResolverResult = {
-        DomainPlaybackResolver.resolveStreams(it, forceRefresh = true)
-    },
+    private val resolve: (suspend (PlaybackRequest) -> PlaybackResolverResult)? = null,
 ) : MoviaProviderAdapter {
     override val id = "movia:provider-service"
 
@@ -18,10 +16,15 @@ class MoviaBackendProviderAdapter(
         if (request.mediaId.isBlank()) emptyList()
         else listOf(MoviaProviderArticle(id,request.canonicalEpisodeKey,request.mediaId,request.year,request.isSeries))
 
-    override suspend fun variants(article: MoviaProviderArticle, request: PlaybackRequest): MoviaVariantNode {
+    override suspend fun variants(article: MoviaProviderArticle, request: PlaybackRequest): MoviaVariantNode =
+        variants(article, request) {}
+
+    override suspend fun variants(article: MoviaProviderArticle, request: PlaybackRequest,
+        publish: suspend (List<StreamCandidate>) -> Unit): MoviaVariantNode {
         require(article.catalogMediaId==request.mediaId && article.isSeries==request.isSeries &&
             article.year==request.year) { "ARTICLE_IDENTITY_MISMATCH" }
-        val result=resolve(request)
+        val result = resolve?.invoke(request) ?: DomainPlaybackResolver.resolveStreams(
+            request, forceRefresh = true, onCandidates = publish)
         val candidates=if (result is PlaybackResolverResult.Success) result.candidates else emptyList()
         return MoviaVariantNode.Folder("Providers",
             candidates.groupBy { it.providerId ?: it.provider }.map { (provider, rows) ->

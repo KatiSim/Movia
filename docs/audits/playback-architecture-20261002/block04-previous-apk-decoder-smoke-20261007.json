@@ -1,0 +1,22 @@
+{
+  "case": "post_install_exact_series_decode",
+  "mediaId": "159",
+  "season": 1,
+  "episode": 2,
+  "actionStatus": "accepted",
+  "passed": false,
+  "elapsedSeconds": 50.43,
+  "mediaItemId": "159",
+  "isPlaying": false,
+  "switchState": "RECOVERING",
+  "durationMs": 0,
+  "videoHeight": 0,
+  "probeFrames": 0,
+  "activeVoice": null,
+  "activeQuality": null,
+  "activeStreamId": null,
+  "nativePublicId": false,
+  "nativeTransport": null,
+  "idleCleanup": true,
+  "crashLines": []
+}

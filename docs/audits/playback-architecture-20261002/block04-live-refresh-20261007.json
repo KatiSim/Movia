@@ -1,0 +1,23 @@
+[
+  {
+    "elapsed": 2.72,
+    "status": "READY",
+    "discoveryStatus": "QUEUED",
+    "rows": 138,
+    "v2": 21
+  },
+  {
+    "elapsed": 10.81,
+    "status": "READY",
+    "discoveryStatus": "RUNNING",
+    "rows": 138,
+    "v2": 21
+  },
+  {
+    "elapsed": 17.63,
+    "status": "READY",
+    "discoveryStatus": "READY",
+    "rows": 138,
+    "v2": 21
+  }
+]

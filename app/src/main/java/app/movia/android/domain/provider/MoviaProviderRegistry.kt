@@ -27,6 +27,8 @@ interface MoviaProviderAdapter {
     val id: String
     suspend fun search(request: PlaybackRequest): List<MoviaProviderArticle>
     suspend fun variants(article: MoviaProviderArticle, request: PlaybackRequest): MoviaVariantNode
+    suspend fun variants(article: MoviaProviderArticle, request: PlaybackRequest,
+        publish: suspend (List<StreamCandidate>) -> Unit): MoviaVariantNode = variants(article, request)
 }
 data class MoviaProviderResult(
     val candidates: List<StreamCandidate>,
@@ -80,7 +82,15 @@ class MoviaProviderRegistry(
                                         mutex.withLock { statuses[adapter.id] = if (articles.isEmpty()) "NO_EXACT_MATCH" else "AMBIGUOUS" }
                                         return@withTimeoutOrNull emptyList<StreamCandidate>()
                                     }
-                                    flatten(adapter.variants(articles.single(), request), request)
+                                    flatten(adapter.variants(articles.single(), request) { incoming ->
+                                        val safe = DomainPlaybackResolver.validatedCandidates(request, incoming)
+                                        if (safe.isNotEmpty()) mutex.withLock {
+                                            found[adapter.id] = StreamDeduplicator.deduplicate(
+                                                DomainPlaybackResolver.preferDiscoveredCandidates(
+                                                    found[adapter.id].orEmpty(), safe, request))
+                                            publish(StreamDeduplicator.deduplicate(found.values.flatten()))
+                                        }
+                                    }, request)
                                 } catch (cancelled: CancellationException) {
                                     throw cancelled
                                 } catch (error: VariantLimitException) {
@@ -95,8 +105,9 @@ class MoviaProviderRegistry(
                                 if (result == null) statuses[adapter.id] = "TIMEOUT"
                                 else {
                                     statuses.putIfAbsent(adapter.id, if (result.isEmpty()) "UNAVAILABLE" else "RESOLVED")
-                                    found[adapter.id] = result
-                                    if (result.isNotEmpty()) publish(StreamDeduplicator.deduplicate(found.values.flatten()))
+                                    found[adapter.id] = StreamDeduplicator.deduplicate(
+                                        DomainPlaybackResolver.preferDiscoveredCandidates(found[adapter.id].orEmpty(), result, request))
+                                    if (found[adapter.id].orEmpty().isNotEmpty()) publish(StreamDeduplicator.deduplicate(found.values.flatten()))
                                 }
                             }
                         }

@@ -1,0 +1,14 @@
+{
+  "preexistingPaths": 20,
+  "unchanged": true,
+  "ownedPaths": [
+    "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt",
+    "app/src/main/java/app/movia/android/domain/provider/MoviaProviderRegistry.kt",
+    "app/src/main/java/app/movia/android/domain/provider/MoviaBackendProviderAdapter.kt",
+    "app/src/test/java/app/movia/android/domain/playback/DomainPlaybackResolverTest.kt",
+    "app/src/test/java/app/movia/android/domain/provider/MoviaProviderRegistryTest.kt",
+    "backend/runtime/catalog_api.py",
+    "backend/runtime/catalog_stream_service.py",
+    "backend/tests/test_scoped_playback_card.py"
+  ]
+}

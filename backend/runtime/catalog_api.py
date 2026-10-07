@@ -946,6 +946,10 @@ def _lookup_movie_row(conn: sqlite3.Connection, movie_id: str) -> Optional[sqlit
 
 
 def get_movie_playback_card(movie_id: str) -> Optional[Dict[str, Any]]:
+    return get_movie_playback_card_scoped(movie_id)
+
+
+def get_movie_playback_card_scoped(movie_id: str, season=None, episode=None) -> Optional[Dict[str, Any]]:
     """Read an exact internal ID without localization, lookup or enrichment side effects."""
     value = str(movie_id).strip()
     if not re.fullmatch(r"(?:m_)?[0-9]{1,12}", value):
@@ -957,7 +961,17 @@ def get_movie_playback_card(movie_id: str) -> Optional[Dict[str, Any]]:
             return None
         # Feed visibility/localization is independent from playing an exact,
         # existing catalog identity. No TMDB/title fallback may rebind the ID.
-        return map_row_to_media(row, compact=False)
+        data = dict(row)
+        if season is not None or episode is not None:
+            from stream_validation import episode_coordinate
+            wanted = (episode_coordinate(season), episode_coordinate(episode))
+            raw = parse_json_safely(data.get("streams"), [])
+            if not isinstance(raw, list): raw = []
+            # Prune only explicit coordinates; validation still follows below.
+            data["streams"] = [item for item in raw if isinstance(item, dict) and
+                None not in wanted and
+                (episode_coordinate(item.get("season")), episode_coordinate(item.get("episode"))) == wanted]
+        return map_row_to_media(data, compact=False)
 
 
 def get_movie_details(movie_id: str, *, enrich: bool = True) -> Optional[Dict[str, Any]]:

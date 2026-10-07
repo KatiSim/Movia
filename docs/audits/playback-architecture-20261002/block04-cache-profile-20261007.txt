@@ -1,0 +1,26 @@
+         3318535 function calls (3311666 primitive calls) in 11.010 seconds
+
+   Ordered by: cumulative time
+   List reduced from 751 to 18 due to restriction <18>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.002    0.002   11.010   11.010 catalog_api.py:947(get_movie_playback_card)
+        1    0.005    0.005   10.975   10.975 catalog_api.py:102(map_row_to_media)
+        1    0.002    0.002   10.926   10.926 catalog_api.py:51(_validated_row_streams)
+        2    0.478    0.239    9.864    4.932 stream_validation.py:535(sanitize_streams)
+     1238    0.192    0.000    6.194    0.005 lampa_compat.py:292(normalize_lampa_result)
+        1    0.003    0.003    6.097    6.097 stream_validation.py:369(bind_stream_identity)
+        1    0.036    0.036    4.793    4.793 stream_identity.py:23(filter_streams_for_content)
+     1320    0.229    0.000    3.296    0.002 lampa_compat.py:131(_detected_voices)
+   111840    0.228    0.000    3.065    0.000 lampa_compat.py:136(<genexpr>)
+    84120    1.125    0.000    2.838    0.000 lampa_compat.py:121(_contains_marker)
+     1238    0.013    0.000    2.693    0.002 lampa_compat.py:141(normalize_voice)
+    22522    0.198    0.000    2.054    0.000 lampa_compat.py:49(_first_value)
+    22522    0.989    0.000    1.639    0.000 lampa_compat.py:43(_casefold_key_map)
+     1238    0.050    0.000    1.141    0.001 stream_validation.py:149(stream_variant_key)
+   673101    1.020    0.000    1.020    0.000 {method 'casefold' of 'str' objects}
+     8472    0.100    0.000    1.003    0.000 lampa_compat.py:80(_first_text)
+      194    0.016    0.000    0.828    0.004 lampa_compat.py:255(parse_lampa_release_title)
+    37462    0.127    0.000    0.697    0.000 __init__.py:174(search)
+
+

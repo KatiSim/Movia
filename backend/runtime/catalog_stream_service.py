@@ -43,8 +43,13 @@ class CatalogStreamService:
             return rewrite(bound, card, season, episode)
         return bound
 
+    def _load_card(self, movie_id, season, episode):
+        scoped = getattr(self.catalog, "get_movie_playback_card_scoped", None)
+        raw = scoped(movie_id, season, episode) if callable(scoped) else self.catalog.get_movie_playback_card(movie_id)
+        return self._card(raw)
+
     def __call__(self, movie_id, season, episode, *, force_refresh=False):
-        card = self._card(self.catalog.get_movie_playback_card(movie_id))
+        card = self._load_card(movie_id, season, episode)
         if not card: return 404, {"code": "NOT_FOUND"}
         if (season is None) != (episode is None) or (self._is_series(card) and season is None):
             return 400, {"code": "EXACT_EPISODE_REQUIRED"}
@@ -55,7 +60,7 @@ class CatalogStreamService:
         if not rows or force_refresh: self.queue.submit(key)
         discovery = self.queue.status(key)
         if not rows and discovery == "READY":
-            updated = self._card(self.catalog.get_movie_playback_card(movie_id))
+            updated = self._load_card(movie_id, season, episode)
             if updated: rows = self._rows(updated, updated.get("streams", []), season, episode)
         if rows: status = "READY"
         elif discovery in {"QUEUED", "RUNNING"}: status = "DISCOVERY_PENDING"
@@ -69,7 +74,7 @@ class CatalogStreamService:
 
     def _resolve(self, key):
         movie_id, season, episode = key
-        card = self._card(self.catalog.get_movie_playback_card(movie_id))
+        card = self._load_card(movie_id, season, episode)
         if not card: return False
         rows = self.runtime.resolve_on_demand_streams(
             title=card.get("title") or "", year=int(card.get("year") or 0),

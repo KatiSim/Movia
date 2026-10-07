@@ -1,0 +1,16 @@
+{
+  "health": 200,
+  "latenciesSeconds": [
+    1.498,
+    0.785,
+    0.828
+  ],
+  "rows": 146,
+  "exactEpisode": true,
+  "liveUnrelatedChangesPreserved": true,
+  "files": {
+    "catalog_api.py": "5c9af71eb86fe459e92fcc3acaa5f5bd42dd7fc42293ee4870c541172a1ae935",
+    "catalog_stream_service.py": "2f51cbcbfbca6cce80b34727e8a2c1746003b5a9fd902190bd0e44415d0aa611"
+  },
+  "services": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 7435) 12s; run: log: (pid 6330) 164976s\nrun: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 7422) 12s\n"
+}

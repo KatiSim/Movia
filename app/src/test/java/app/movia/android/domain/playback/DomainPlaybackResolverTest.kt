@@ -12,6 +12,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 class DomainPlaybackResolverTest {
 
@@ -700,5 +701,57 @@ class DomainPlaybackResolverTest {
         val before = resolvedCandidate("old").copy(logicalSourceId = "logical-source:v2:same", audioTrackIndex = 0)
         assertFalse(DomainPlaybackResolver.matchesReloadIdentity(before, before.copy(audioTrackIndex = 1), request))
         assertFalse(DomainPlaybackResolver.matchesReloadIdentity(before, before.copy(catalogMediaId = "43"), request))
+    }
+    @Test fun progressiveDiscoveryPublishesCacheThenLateVariantsWithoutRequeue() = runBlocking {
+        val calls = mutableListOf<Boolean>()
+        val publications = mutableListOf<List<String>>()
+        val cached = resolvedCandidate("cached")
+        val late = resolvedCandidate("late").copy(voice="Studio B")
+        val backend = object : PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request: PlaybackRequest, forceRefresh: Boolean): PlaybackResolverBackendResponse {
+                calls += forceRefresh
+                return if (calls.size == 1) PlaybackResolverBackendResponse(listOf(cached), discoveryPending=true, retryAfterMs=100)
+                else PlaybackResolverBackendResponse(listOf(cached.copy(url="https://cdn.example/fresh.mp4"), late,
+                    late.copy(stableStreamId="foreign",catalogMediaId="43")))
+            }
+            override suspend fun resolveByTitle(request: PlaybackRequest, forceRefresh: Boolean)=error("Title rebind")
+        }
+        val result = DomainPlaybackResolver.resolveStreamsWithBackend(
+            PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),forceRefresh=true,backend=backend,
+            onCandidates={ rows -> publications += rows.map { it.stableStreamId } }) as PlaybackResolverResult.Success
+        assertEquals(listOf(true,false),calls)
+        assertEquals(listOf("cached"),publications.first())
+        assertEquals(setOf("cached","late"),publications.last().toSet())
+        assertEquals("https://cdn.example/fresh.mp4",result.candidates.first { it.stableStreamId=="cached" }.url)
+    }
+
+    @Test fun progressiveTerminalFailureKeepsAlreadyPublishedSafeCache() = runBlocking {
+        var calls=0
+        val backend=object: PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls++
+                return if(calls==1) PlaybackResolverBackendResponse(listOf(resolvedCandidate("cached")),discoveryPending=true,retryAfterMs=100)
+                else PlaybackResolverBackendResponse(errorCode="DISCOVERY_UNAVAILABLE")
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Title rebind")
+        }
+        val result=DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),
+            backend=backend,onCandidates={}) as PlaybackResolverResult.Success
+        assertEquals("cached",result.candidates.single().stableStreamId)
+        assertEquals(2,calls)
+    }
+    @Test fun progressivePollingCancelsAfterCachePublication() = runBlocking {
+        var calls=0
+        val backend=object:PlaybackResolverBackend {
+            override suspend fun resolveByIdentity(request:PlaybackRequest,forceRefresh:Boolean):PlaybackResolverBackendResponse {
+                calls++;return PlaybackResolverBackendResponse(listOf(resolvedCandidate("cached")),discoveryPending=true,retryAfterMs=100)
+            }
+            override suspend fun resolveByTitle(request:PlaybackRequest,forceRefresh:Boolean)=error("Title rebind")
+        }
+        val published=kotlinx.coroutines.CompletableDeferred<Unit>()
+        val job=launch { DomainPlaybackResolver.resolveStreamsWithBackend(PlaybackRequest("42","The Film",ContentType.MOVIE,year=2025),
+            backend=backend,onCandidates={published.complete(Unit)}) }
+        published.await();job.cancel();job.join()
+        val stopped=calls;kotlinx.coroutines.delay(150);assertEquals(stopped,calls);assertTrue(job.isCancelled)
     }
 }

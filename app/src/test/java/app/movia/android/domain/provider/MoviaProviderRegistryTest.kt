@@ -96,4 +96,39 @@ class MoviaProviderRegistryTest {
             .discover(request.copy(mediaType=app.movia.android.domain.model.ContentType.SERIES))
         assertEquals("EXACT_EPISODE_REQUIRED",result.statuses["one"])
     }
+    @Test fun partialProviderPublishesBeforeCompletionAndKeepsRowsAfterBudget() = runBlocking {
+        val provider=object: MoviaProviderAdapter {
+            override val id="progressive"
+            override suspend fun search(request:PlaybackRequest)=listOf(MoviaProviderArticle(id,"article",request.mediaId,request.year,request.isSeries))
+            override suspend fun variants(article:MoviaProviderArticle,request:PlaybackRequest):MoviaVariantNode=error("Progressive route required")
+            override suspend fun variants(article:MoviaProviderArticle,request:PlaybackRequest,publish:suspend(List<StreamCandidate>)->Unit):MoviaVariantNode {
+                publish(listOf(candidate("cached"),candidate("foreign",mediaId="78")))
+                delay(500)
+                return MoviaVariantNode.Leaf(candidate("late"))
+            }
+        }
+        val seen=mutableListOf<List<String>>()
+        val result=MoviaProviderRegistry(listOf(provider),providerBudgetMs=100,totalBudgetMs=1000).discover(request) { rows -> seen+=rows.map { it.stableStreamId } }
+        assertEquals(listOf("cached"),seen.first())
+        assertEquals("cached",result.candidates.single().stableStreamId)
+        assertEquals("TIMEOUT",result.statuses[provider.id])
+    }
+
+    @Test fun partialProviderRefreshesLocatorAndAddsLateVoice() = runBlocking {
+        val provider=object: MoviaProviderAdapter {
+            override val id="progressive"
+            override suspend fun search(request:PlaybackRequest)=listOf(MoviaProviderArticle(id,"article",request.mediaId,request.year,request.isSeries))
+            override suspend fun variants(article:MoviaProviderArticle,request:PlaybackRequest):MoviaVariantNode=error("Progressive route required")
+            override suspend fun variants(article:MoviaProviderArticle,request:PlaybackRequest,publish:suspend(List<StreamCandidate>)->Unit):MoviaVariantNode {
+                publish(listOf(candidate("cached")))
+                return MoviaVariantNode.Folder("all",listOf(MoviaVariantNode.Leaf(candidate("cached").copy(url="https://cdn.example/fresh.mp4")),
+                    MoviaVariantNode.Leaf(candidate("late",voice="Studio B"))))
+            }
+        }
+        val seen=mutableListOf<List<String>>()
+        val result=MoviaProviderRegistry(listOf(provider)).discover(request) { rows -> seen+=rows.map { it.stableStreamId } }
+        assertEquals(listOf("cached"),seen.first())
+        assertEquals(setOf("cached","late"),seen.last().toSet())
+        assertEquals("https://cdn.example/fresh.mp4",result.candidates.first { it.stableStreamId=="cached" }.url)
+    }
 }
