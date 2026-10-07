@@ -1,0 +1,12 @@
+[
+  {
+    "streamId": "provider-item:v2:99bd90be3e45f1e4b3688113",
+    "wasPresentBeforeProbe": false,
+    "cleanupHttpStatus": 404
+  },
+  {
+    "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "wasPresentBeforeProbe": false,
+    "cleanupHttpStatus": 404
+  }
+]

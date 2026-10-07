@@ -1,0 +1,12 @@
+{
+  "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+  "filesCount": 1,
+  "filePath": "Interstellar.2014.D.BDRip.AVC.ExKinoRay.mkv",
+  "fileId": 1,
+  "httpStatus": 206,
+  "contentType": "video/x-matroska",
+  "contentRange": "bytes 0-4095/3405332305",
+  "bytesRead": 4096,
+  "ebmlSignature": true,
+  "seconds": 0.38
+}

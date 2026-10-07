@@ -1,0 +1,69 @@
+{
+  "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+  "mediaId": "158",
+  "exitCode": 0,
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_type": "video",
+        "height": 576,
+        "tags": {
+          "language": "eng",
+          "title": "Enigma"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "ac3",
+        "codec_type": "audio",
+        "tags": {
+          "language": "rus",
+          "title": "DUB (Лицензия)"
+        }
+      },
+      {
+        "index": 2,
+        "codec_name": "ac3",
+        "codec_type": "audio",
+        "tags": {
+          "language": "eng"
+        }
+      },
+      {
+        "index": 3,
+        "codec_name": "subrip",
+        "codec_type": "subtitle",
+        "tags": {
+          "language": "rus",
+          "title": "Forced"
+        }
+      },
+      {
+        "index": 4,
+        "codec_name": "subrip",
+        "codec_type": "subtitle",
+        "tags": {
+          "language": "rus",
+          "title": "Full"
+        }
+      },
+      {
+        "index": 5,
+        "codec_name": "subrip",
+        "codec_type": "subtitle",
+        "tags": {
+          "language": "eng"
+        }
+      }
+    ],
+    "format": {
+      "duration": "10143.968000"
+    }
+  },
+  "stderrLinesCount": 0,
+  "seconds": 2.74
+}

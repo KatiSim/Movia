@@ -1,0 +1,34 @@
+{
+  "case": "native_v2_real_movie_torrent",
+  "mediaId": "158",
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "passed": true,
+      "elapsedSeconds": 6.55,
+      "mediaItemId": "158",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 10143968,
+      "positionMs": 199,
+      "uriHost": "127.0.0.1",
+      "videoHeight": 576,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 11,
+      "activeVoice": "Не указано",
+      "activeQuality": "576p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "metadataAlreadyReady": true,
+  "metadataPrewarmSeconds": 0.0,
+  "metadataFilesCount": 1,
+  "pollErrors": [
+    "HTTPError"
+  ],
+  "passed": true,
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": []
+}

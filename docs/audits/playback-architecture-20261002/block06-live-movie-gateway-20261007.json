@@ -1,0 +1,12 @@
+{
+  "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+  "mediaId": "158",
+  "metadataWarm": true,
+  "gatewayStatus": 302,
+  "engine": "torrserver",
+  "mediaStatus": 206,
+  "bytesRead": 4096,
+  "ebmlSignature": true,
+  "contentType": "video/x-matroska",
+  "seconds": 0.38
+}

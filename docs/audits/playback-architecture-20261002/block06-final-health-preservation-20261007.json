@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-07T15:06:43.093071+00:00",
+  "healthHttpStatus": 200,
+  "health": {
+    "status": "ok",
+    "service": "movia-p2p-streamer-on-demand",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "cloudMode": false,
+    "p2pEnabled": true,
+    "security": "isolated-localhost"
+  },
+  "media3State": "IDLE",
+  "uiAttached": false,
+  "crashLines": [],
+  "unrelatedDirtyFilesPreserved": 20,
+  "runtimeFileParity": {
+    "streamer.py": true,
+    "torrserver_file_selection.py": true
+  },
+  "services": [
+    "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 13090) 833s; run: log: (pid 6330) 168830s",
+    "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 7422) 3866s",
+    "run: /data/data/com.termux/files/usr/var/service/movia-torrserver: (pid 6374) 168830s; run: log: (pid 6373) 168830s"
+  ]
+}

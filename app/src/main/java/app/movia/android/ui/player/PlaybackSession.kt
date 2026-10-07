@@ -23,7 +23,6 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.extractor.DefaultExtractorsFactory
-import androidx.media3.extractor.mkv.MatroskaExtractor
 import androidx.media3.session.MediaSession
 import app.movia.android.domain.model.ActiveStreamSelection
 import app.movia.android.domain.model.MediaRef
@@ -272,7 +271,6 @@ class PlaybackSession(context: Context) {
     private val appContext = context.applicationContext
     private val extractorsFactory = DefaultExtractorsFactory().apply {
         setConstantBitrateSeekingEnabled(true)
-        setMatroskaExtractorFlags(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES)
     }
 
     private val dataSourceFactory = DynamicHeaderDataSourceFactory(appContext)

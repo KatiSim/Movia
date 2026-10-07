@@ -17,6 +17,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from bounded_executor import BoundedExecutor
+from torrserver_file_selection import select_concrete_file_id
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from pathlib import Path
@@ -1445,91 +1446,98 @@ def _torrserver_post(payload: Dict[str, Any], timeout: float = TORRSERVER_RPC_TI
         headers={"Content-Type": "application/json", "Accept": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=max(0.1, float(timeout))) as response:
+    with urllib.request.urlopen(request, timeout=max(0.001, float(timeout))) as response:
         raw = response.read().decode("utf-8", "replace")
     parsed = json.loads(raw) if raw else {}
     return parsed if isinstance(parsed, dict) else {}
 
 
-def _torrserver_exact_episode_file_id(
-    torrent_info: Dict[str, Any],
-    season: Optional[int],
-    episode: Optional[int],
-) -> Optional[str]:
+def _torrserver_concrete_file_id(torrent_info, season, episode, file_index=None):
+    return select_concrete_file_id(
+        torrent_info, season=season, episode=episode, file_index=file_index,
+        is_media=_torrent_path_is_media, episode_matches=episode_path_matches,
+    )
+
+
+def _torrserver_exact_episode_file_id(torrent_info, season, episode):
     if season is None or episode is None:
         return None
-    files = torrent_info.get("file_stats") or torrent_info.get("files") or []
-    if not isinstance(files, list):
-        return None
-    for item in files:
-        if not isinstance(item, dict):
-            continue
-        if not episode_path_matches(item.get("path") or item.get("name"), season, episode):
-            continue
-        file_id = item.get("id")
-        if file_id is None:
-            continue
-        return str(file_id)
-    return None
+    return _torrserver_concrete_file_id(torrent_info, season, episode)
 
 
-def _torrserver_add_magnet(magnet: str) -> bool:
+def _torrserver_add_magnet(magnet: str, timeout: float = TORRSERVER_RPC_TIMEOUT_SECONDS) -> bool:
     try:
         result = _torrserver_post(
             {"action": "add", "link": magnet, "save_to_db": False},
-            timeout=TORRSERVER_RPC_TIMEOUT_SECONDS,
+            timeout=timeout,
         )
         return bool(result.get("hash") or result.get("stat") is not None)
     except Exception:
         return False
 
 
-def _torrserver_prepare_episode_stream(
+def _torrserver_prepare_stream(
     info_hash: str,
     magnet: str,
     season: Optional[int],
     episode: Optional[int],
     timeout_sec: float = TORRSERVER_DISCOVERY_SECONDS,
+    file_index: Optional[int] = None,
 ) -> Optional[str]:
-    """Return a local TorrServer exact-episode URL, otherwise fail closed to aria2.
+    """Return a verified movie/episode URL, otherwise fall back to aria2.
 
     TorrServer file ids are engine-local and are not interchangeable with aria2
     torrent indexes. Exact S/E identity is therefore resolved from file paths.
     """
-    if not _torrserver_enabled() or season is None or episode is None:
+    if not _torrserver_enabled() or file_index is not None or (season is None) != (episode is None):
         return None
     normalized_hash = _normalize_torrent_info_hash(info_hash)
     if not re.fullmatch(r"[0-9a-f]{40}", normalized_hash):
         return None
-    deadline = time.monotonic() + max(0.1, float(timeout_sec))
+    budget = max(0.0, float(timeout_sec))
+    if budget == 0:
+        return None
+    deadline = time.monotonic() + budget
     torrent_info: Dict[str, Any] = {}
     try:
         torrent_info = _torrserver_post(
             {"action": "get", "hash": normalized_hash},
-            timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.1, deadline - time.monotonic())),
+            timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.001, deadline - time.monotonic())),
         )
     except Exception:
         pass
-    file_id = _torrserver_exact_episode_file_id(torrent_info, season, episode)
+    if str(torrent_info.get("hash") or "").lower() != normalized_hash:
+        torrent_info = {}
+    file_id = _torrserver_concrete_file_id(torrent_info, season, episode, file_index)
     if file_id is None:
-        if not _torrserver_add_magnet(magnet):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not _torrserver_add_magnet(magnet, timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, remaining)):
             return None
         while time.monotonic() < deadline:
             remaining = deadline - time.monotonic()
             try:
                 torrent_info = _torrserver_post(
                     {"action": "get", "hash": normalized_hash},
-                    timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.1, remaining)),
+                    timeout=min(TORRSERVER_RPC_TIMEOUT_SECONDS, max(0.001, remaining)),
                 )
             except Exception:
                 torrent_info = {}
-            file_id = _torrserver_exact_episode_file_id(torrent_info, season, episode)
+            if str(torrent_info.get("hash") or "").lower() != normalized_hash:
+                torrent_info = {}
+            file_id = _torrserver_concrete_file_id(torrent_info, season, episode, file_index)
             if file_id is not None:
                 break
             time.sleep(min(TORRENT_DISCOVERY_SLEEP_SECONDS, max(0.0, deadline - time.monotonic())))
     if file_id is None:
         return None
     return f"{TORRSERVER_URL}/play/{normalized_hash}/{urllib.parse.quote(file_id, safe='')}"
+
+
+def _torrserver_prepare_episode_stream(info_hash, magnet, season, episode,
+                                       timeout_sec=TORRSERVER_DISCOVERY_SECONDS):
+    if season is None or episode is None:
+        return None
+    return _torrserver_prepare_stream(info_hash, magnet, season, episode, timeout_sec)
 
 
 def get_or_create_torrent_gid(info_hash: str, magnet: str, task_dir: Path) -> str:
@@ -4318,15 +4326,16 @@ class StreamRequestHandler(BaseHTTPRequestHandler):
                     else None
                 )
 
-                # Purpose-built local torrent streaming sidecar. It resolves the
-                # exact episode by filename and redirects Media3 directly to the
+                # Movia selects one concrete movie file or exact episode from
+                # actual sidecar metadata, then redirects Media3 directly to the
                 # localhost stream. If unavailable/slow, retain the established
                 # aria2 path below as a bounded fallback.
-                torrserver_stream_url = _torrserver_prepare_episode_stream(
+                torrserver_stream_url = _torrserver_prepare_stream(
                     info_hash,
                     sanitized_magnet,
                     requested_season,
                     requested_episode,
+                    file_index=requested_file_index,
                 )
                 if torrserver_stream_url:
                     self.send_response(302)

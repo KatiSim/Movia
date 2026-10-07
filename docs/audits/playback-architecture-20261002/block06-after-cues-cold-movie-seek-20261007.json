@@ -1,0 +1,91 @@
+{
+  "case": "native_v2_cold_movie_torrent_seek",
+  "mediaId": "158",
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "passed": true,
+      "elapsedSeconds": 10.93,
+      "mediaItemId": "158",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 10143968,
+      "positionMs": 1048,
+      "uriHost": "127.0.0.1",
+      "videoHeight": 576,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 15,
+      "activeVoice": "Не указано",
+      "activeQuality": "576p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "ownProbeTaskRemovedStatus": 200,
+  "sidecarTaskAbsentBeforePlay": true,
+  "prewarmPerformed": false,
+  "decodedAudioTracks": [
+    {
+      "id": "track:1:1:0",
+      "voice": "DUB (Лицензия)",
+      "language": "ru",
+      "selected": true
+    },
+    {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": false
+    }
+  ],
+  "decodedVideoTracks": [
+    {
+      "id": "track:2:0:0",
+      "quality": "576p",
+      "height": 576,
+      "selected": true
+    }
+  ],
+  "passed": true,
+  "internalAudioSwitch": {
+    "passed": true,
+    "requestedTrack": {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": false
+    },
+    "selectedTrack": {
+      "id": "track:1:2:0",
+      "voice": "Английский",
+      "language": "en",
+      "selected": true
+    },
+    "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "probeFramesBefore": 21,
+    "probeFramesAfter": 28,
+    "actionStatus": "completed",
+    "seconds": 0.61
+  },
+  "seek": {
+    "passed": true,
+    "targetMs": 60000,
+    "positionMs": 60079,
+    "probeFramesBefore": 31,
+    "probeFramesAfter": 37,
+    "seconds": 2.65,
+    "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "switchState": "READY"
+  },
+  "soak": {
+    "seconds": 20.25,
+    "problemStates": [],
+    "probeFramesBefore": 37,
+    "probeFramesAfter": 520,
+    "positionMs": 80211,
+    "isPlaying": true
+  },
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": []
+}

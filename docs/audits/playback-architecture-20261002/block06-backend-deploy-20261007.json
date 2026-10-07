@@ -1,0 +1,20 @@
+{
+  "backendDeploySuccess": true,
+  "health": {
+    "status": "ok",
+    "service": "movia-p2p-streamer-on-demand",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "cloudMode": false,
+    "p2pEnabled": true,
+    "security": "isolated-localhost"
+  },
+  "files": {
+    "streamer.py": "790a0c79f2a52f703e8b01ba1e4fe34c7ce7f113af4e51dd2d94d41ae6a41fd3",
+    "torrserver_file_selection.py": "f3a8f24e4673ac55fc9649e7c0786f0acffc1e0231d3fb3133acd42bb2ab9d69"
+  },
+  "services": [
+    "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 13090) 1s; run: log: (pid 6330) 167998s",
+    "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 7422) 3034s"
+  ]
+}

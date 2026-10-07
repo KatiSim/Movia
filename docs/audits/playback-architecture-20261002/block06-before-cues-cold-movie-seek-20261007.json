@@ -1,0 +1,41 @@
+{
+  "case": "native_v2_cold_movie_torrent_seek",
+  "mediaId": "158",
+  "steps": [
+    {
+      "requestedStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "passed": true,
+      "elapsedSeconds": 5.66,
+      "mediaItemId": "158",
+      "isPlaying": true,
+      "switchState": "READY",
+      "durationMs": 10143968,
+      "positionMs": 147,
+      "uriHost": "127.0.0.1",
+      "videoHeight": 576,
+      "probeFramesBefore": 0,
+      "probeFramesAfter": 13,
+      "activeVoice": "Не указано",
+      "activeQuality": "576p",
+      "actionStatus": "accepted"
+    }
+  ],
+  "ownProbeTaskRemovedStatus": 200,
+  "sidecarTaskAbsentBeforePlay": true,
+  "prewarmPerformed": false,
+  "passed": true,
+  "seek": {
+    "passed": false,
+    "targetMs": 60000,
+    "positionMs": 34705,
+    "probeFramesBefore": 17,
+    "probeFramesAfter": 804,
+    "seconds": 35.41,
+    "activeStreamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+    "switchState": "READY"
+  },
+  "idleCleanup": true,
+  "crashLines": [],
+  "candidateErrors": []
+}

@@ -1,0 +1,66 @@
+{
+  "seconds": 4.06,
+  "cases": [
+    {
+      "streamId": "provider-item:v2:99bd90be3e45f1e4b3688113",
+      "provider": "Apibay",
+      "reportedSeeders": 130,
+      "wasPresent": false,
+      "filesCount": 0,
+      "status": "Torrent getting info",
+      "statusCode": 1,
+      "statusKeys": [
+        "title",
+        "category",
+        "poster",
+        "timestamp",
+        "name",
+        "hash",
+        "stat",
+        "stat_string",
+        "total_peers",
+        "pending_peers",
+        "half_open_peers"
+      ],
+      "files": []
+    },
+    {
+      "streamId": "provider-item:v2:3f5bcc5ccecdf1324f3d76c1:605e6bcb4e121618cb9c02bf",
+      "provider": "Rutor",
+      "reportedSeeders": 45,
+      "wasPresent": false,
+      "filesCount": 1,
+      "status": "Torrent working",
+      "statusCode": 3,
+      "statusKeys": [
+        "title",
+        "category",
+        "poster",
+        "timestamp",
+        "name",
+        "hash",
+        "torrs_hash",
+        "stat",
+        "stat_string",
+        "torrent_size",
+        "download_speed",
+        "upload_speed",
+        "total_peers",
+        "pending_peers",
+        "active_peers",
+        "connected_seeders",
+        "half_open_peers",
+        "bytes_written",
+        "bytes_read",
+        "file_stats"
+      ],
+      "files": [
+        {
+          "id": 1,
+          "path": "Interstellar.2014.D.BDRip.AVC.ExKinoRay.mkv",
+          "length": 3405332305
+        }
+      ]
+    }
+  ]
+}
