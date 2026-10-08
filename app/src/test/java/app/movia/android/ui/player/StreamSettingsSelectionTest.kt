@@ -144,4 +144,20 @@ class StreamSettingsSelectionTest {
         val other=prepared.copy(voice="Studio B",headers=mapOf("Referer" to "https://b.example"))
         assertEquals(listOf("Studio A"),StreamSettingsSelection.voiceOptions(listOf(prepared,other),"720p",prepared.url,setOf(360,720),prepared))
     }
+
+    @Test fun manualQualityAfterFallbackAdoptsPreparedLeafWithoutRebindingEpisode() {
+        val r=app.movia.android.domain.playback.PlaybackRequest(mediaId="42",title="Series",seasonNumber=1,episodeNumber=2,requestedStreamId="failed-480",requestedVoice="Studio",requestedQuality="480p")
+        val q=StreamSettingsSelection.withPreparedQuality(r,"240p","prepared-240")
+        assertEquals("prepared-240",q.requestedStreamId);assertEquals("240p",q.requestedQuality)
+        assertEquals(r.copy(requestedQuality="240p",requestedStreamId="prepared-240"),q)
+    }
+    @Test fun explicitAutoAfterFallbackDoesNotRetainOldFailedLeafPin() {
+        val r=app.movia.android.domain.playback.PlaybackRequest(mediaId="42",title="Film",requestedStreamId="failed")
+        val q=StreamSettingsSelection.withPreparedQuality(r,"Auto","playing")
+        assertEquals("playing",q.requestedStreamId);assertEquals("Auto",q.requestedQuality)
+    }
+    @Test fun absentPreparedLeafDoesNotInventAnotherLogicalSource() {
+        val r=app.movia.android.domain.playback.PlaybackRequest(mediaId="42",title="Film",requestedStreamId="known")
+        assertEquals("known",StreamSettingsSelection.withPreparedQuality(r,"Auto",null).requestedStreamId)
+    }
 }

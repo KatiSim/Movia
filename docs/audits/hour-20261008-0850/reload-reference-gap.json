@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-08T07:27:44.208804+00:00",
+  "searchBypassImplemented": false,
+  "observations": [
+    {
+      "mediaId": "159",
+      "season": 1,
+      "episode": 2,
+      "nativeLeafCount": 246,
+      "reloadSupportedLeaves": 246,
+      "leavesWithReloadData": 0,
+      "leavesWithArticleReference": 0
+    },
+    {
+      "mediaId": "26041",
+      "season": null,
+      "episode": null,
+      "nativeLeafCount": 18,
+      "reloadSupportedLeaves": 18,
+      "leavesWithReloadData": 0,
+      "leavesWithArticleReference": 0
+    }
+  ],
+  "sourceEvidence": [
+    "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt:reloadStreamCandidateWithBackend uses force-refresh discovery",
+    "backend/runtime/provider_contract.py:_stream_row hashes article.item_id into identity and does not publish article_ref/content_ref",
+    "backend/runtime/hdrezka_provider_adapter.py:resolve_source accepts actual ProviderSearchResult.item_id"
+  ],
+  "limitation": "API observations do not prove all provider paths lack reload references or that known articles are currently reachable. Never reconstruct/guess an article URL from a hash."
+}

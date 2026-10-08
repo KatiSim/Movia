@@ -27,4 +27,40 @@ class DecoderFeedbackGateTest {
         gate.prepare(200)
         assertFalse(gate.isCurrent(old));assertTrue(gate.isCurrent(gate.attemptId()))
     }
+
+    @Test fun playingWithoutRenderedFrameStillRequiresStartupRecovery() {
+        val gate=DecoderFeedbackGate();gate.prepare(100)
+        assertTrue(gate.shouldRecoverStartup(true));assertFalse(gate.hasRenderedFrame())
+    }
+    @Test fun pauseDoesNotCountAsFailedVideoStartup() {
+        val gate=DecoderFeedbackGate();gate.prepare(100)
+        assertFalse(gate.shouldRecoverStartup(false));assertTrue(gate.shouldRecoverStartup(true))
+    }
+    @Test fun renderedFrameSuppressesOnlyItsOwnPreparationTimeout() {
+        val gate=DecoderFeedbackGate();gate.prepare(100);gate.onRenderedFrame()
+        assertFalse(gate.shouldRecoverStartup(true));assertTrue(gate.hasRenderedFrame())
+        gate.prepare(200);assertTrue(gate.shouldRecoverStartup(true));assertFalse(gate.hasRenderedFrame())
+    }
+    @Test fun strayFrameBeforeAnyPreparationDoesNotStartOrSatisfyAWatchdog() {
+        val gate=DecoderFeedbackGate();gate.onRenderedFrame()
+        assertFalse(gate.hasRenderedFrame());assertFalse(gate.shouldRecoverStartup(true))
+    }
+
+    @Test fun frameDuringPendingReloadSupersedesTheOriginalFailure() {
+        val gate=DecoderFeedbackGate();gate.prepare(100)
+        val attempt=gate.attemptId();val version=gate.renderedFrameVersion()
+        assertTrue(gate.recoveryIsCurrent(attempt,version))
+        gate.onRenderedFrame()
+        assertFalse(gate.recoveryIsCurrent(attempt,version))
+    }
+    @Test fun segmentFailureAfterAnEarlierFrameMayRecoverUntilAnotherFrameOrPreparation() {
+        val gate=DecoderFeedbackGate();gate.prepare(100);gate.onRenderedFrame()
+        val attempt=gate.attemptId();val version=gate.renderedFrameVersion()
+        assertTrue(gate.recoveryIsCurrent(attempt,version))
+        gate.prepare(200)
+        assertFalse(gate.recoveryIsCurrent(attempt,version))
+    }
+    @Test fun decoderStartupTimeoutHasTransientRetryIntent() {
+        assertEquals(StreamFailureClass.NETWORK, StreamFailureClassifier.fromReason("DECODER_STARTUP_TIMEOUT"))
+    }
 }

@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-08T07:28:57.849145+00:00",
+  "samples": [
+    {
+      "at": "2026-10-08T07:28:57.849175+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [
+        "TOTAL PSS:   205683            TOTAL RSS:   253048       TOTAL SWAP PSS:    74988"
+      ],
+      "totalPssKb": 205683,
+      "totalRssKb": 253048,
+      "cpuReadExitCode": 0,
+      "appCpuLines": [
+        "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+      ]
+    },
+    {
+      "at": "2026-10-08T07:29:15.951635+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [
+        "TOTAL PSS:   172029            TOTAL RSS:   220472       TOTAL SWAP PSS:    74701"
+      ],
+      "totalPssKb": 172029,
+      "totalRssKb": 220472,
+      "cpuReadExitCode": 0,
+      "appCpuLines": [
+        "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+      ]
+    },
+    {
+      "at": "2026-10-08T07:29:34.275497+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [],
+      "cpuReadExitCode": 0,
+      "appCpuLines": []
+    },
+    {
+      "at": "2026-10-08T07:29:51.360309+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [],
+      "cpuReadExitCode": 0,
+      "appCpuLines": []
+    },
+    {
+      "at": "2026-10-08T07:30:09.287943+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [],
+      "cpuReadExitCode": 0,
+      "appCpuLines": []
+    },
+    {
+      "at": "2026-10-08T07:30:27.039922+00:00",
+      "memoryReadExitCode": 0,
+      "memoryTotals": [
+        "TOTAL PSS:   189214            TOTAL RSS:   238052       TOTAL SWAP PSS:    74313"
+      ],
+      "totalPssKb": 189214,
+      "totalRssKb": 238052,
+      "cpuReadExitCode": 0,
+      "appCpuLines": [
+        "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+      ]
+    }
+  ],
+  "limitations": "Concurrent mass-audit observations only. No cold/warm comparative benchmark, no CPU peak/queue/cancellation gate, no <=5s claim."
+}

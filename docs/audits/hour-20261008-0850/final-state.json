@@ -1,0 +1,100 @@
+{
+  "at": "2026-10-08T07:45:47.713129+00:00",
+  "installedSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "builtSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "shaMatches": true,
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 1697137,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "playback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "playerIdle": true,
+  "libraryCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "libraryCountsPreserved": true,
+  "nativeArchitecture": "movia-provider-registry",
+  "referenceRuntimeLoaded": false,
+  "backendHealth": 200,
+  "services": {
+    "movia-media-parser": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 28141) 35568s; run: log: (pid 6330) 228774s"
+    },
+    "movia-stream-enricher": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 28151) 35567s"
+    }
+  },
+  "runtimeParity": {
+    "catalog_stream_service.py": true,
+    "media_content_probe.py": true,
+    "native_variant_feedback.py": true,
+    "playback_availability_index.py": true,
+    "source_playback_evidence.py": true,
+    "streamer.py": true,
+    "discovery_queue.py": true,
+    "discovery_outcome.py": true,
+    "provider_discovery.py": true
+  },
+  "crashOrAnrLines": [],
+  "shellReadEvidence": [
+    {
+      "commandType": "pm",
+      "exitCode": 0,
+      "stdoutBytes": 97,
+      "stderrBytes": 0
+    },
+    {
+      "commandType": "sha256sum",
+      "exitCode": 0,
+      "stdoutBytes": 155,
+      "stderrBytes": 0
+    },
+    {
+      "commandType": "pidof",
+      "exitCode": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 6
+    },
+    {
+      "commandType": "logcat",
+      "exitCode": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    },
+    {
+      "commandType": "logcat",
+      "exitCode": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    }
+  ],
+  "logLimitations": "No matching lines alone do not prove complete crash/ANR visibility.",
+  "unrelatedFilesPreserved": 20,
+  "unrelatedChangedFiles": [],
+  "passed": true
+}

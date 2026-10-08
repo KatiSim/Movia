@@ -1,0 +1,1111 @@
+{
+  "startedAt": "2026-10-08T06:50:53Z",
+  "recordedAt": "2026-10-08T07:49:49.347228+00:00",
+  "baseCheckpoint": 3442,
+  "baseCommit": "b192f5664ff758a1f5f2c1cc6e9b90f94d6542b8",
+  "installedApkSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "versionName": "0.0.1",
+  "versionCode": 335,
+  "androidUnitTests": {
+    "tests": 319,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "backendTests": 561,
+  "instrumentationCompiled": true,
+  "instrumentationExecuted": false,
+  "backendWarnings": "Existing ResourceWarnings remain. No backend code deployed this hour.",
+  "nativeFeedbackProof": {
+    "allRequiredPassed": false,
+    "cases": 4
+  },
+  "qualitySwitchMatrix": {
+    "autoCriterion": "Preserves requested Auto and decodes an actual positive height; no highest-quality claim.",
+    "at": 1791444117.1965337,
+    "cases": [
+      {
+        "seconds": 35.24,
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "state": "RECOVERING",
+        "playing": false,
+        "height": 0,
+        "positionMs": 0,
+        "frames": 0,
+        "activeId": null,
+        "selection": {
+          "requestedStreamId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "source": "HDRezka",
+          "fallbackReason": "PLAYER_ERROR"
+        },
+        "candidateQuality": null,
+        "sourceIdPresent": false,
+        "localDecoded": null,
+        "referenceRuntimeLoaded": false,
+        "passed": false,
+        "case": "exact240Start",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "accepted",
+          "error": null,
+          "operationId": "operation-1ce0169d-9470-4010-b62d-ab4ca38ed6dc"
+        },
+        "sourceLoadEvidence": {
+          "opens": 0,
+          "errors": 0,
+          "closedRequestBytes": 0,
+          "events": [],
+          "maxEvents": 32,
+          "classification": "Filename suffix only; OPEN/bytes are not decoder evidence"
+        }
+      }
+    ],
+    "installedApkSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+    "initialCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "switchesNotRun": "Exact 240p did not decode within the bounded wait; a 480p fallback is not a 240->480 switch proof.",
+    "countsPreserved": true,
+    "allRequiredPassed": false
+  },
+  "offlineSmoke": {
+    "passed": true,
+    "downloadCompleted": true,
+    "offlineSourceConfirmed": true,
+    "offlineSeek": {
+      "passed": true,
+      "positionMs": 30373,
+      "framesAfter": 379
+    },
+    "testDownloadCleanup": true,
+    "playerCleanup": true
+  },
+  "androidCoverageCumulative": {
+    "at": "2026-10-08T07:44:00.290991+00:00",
+    "target": 500,
+    "attemptedUniqueCards": 277,
+    "resolvedUniqueCards": 73,
+    "cardsWithPlaybackOperation": 215,
+    "unresolvedCards": 204,
+    "discoveryUnconfirmedCards": 0,
+    "discoveryErrorCards": 62,
+    "latestOutcomes": {
+      "DECODED_FALLBACK": 35,
+      "PLAYBACK_TIMEOUT": 126,
+      "PLAYER_FAILED": 16,
+      "DECODED_NATIVE": 38,
+      "DISCOVERY_ERROR": 62
+    },
+    "allAttemptOutcomes": {
+      "DECODED_FALLBACK": 35,
+      "PLAYBACK_TIMEOUT": 126,
+      "PLAYER_FAILED": 16,
+      "DECODED_NATIVE": 38,
+      "INTERRUPTED_FOR_INSTALL": 4,
+      "NO_NATIVE_AT_INITIAL_READ": 101,
+      "NO_NATIVE_TERMINAL": 62,
+      "DISCOVERY_ERROR": 62
+    },
+    "decodedNativeCards": 38,
+    "decodedFallbackCards": 35,
+    "identityErrors": 0,
+    "buildShas": [
+      "1a2b06c49d0adfdac834a7a453bbde8326a02c65a2e6c5c2ed89bd5a1f3593c2",
+      "30242dbac563ce4a1ac26e86aa655ce18fb23b03f3c4d0114b2e56da64c5fb84",
+      "5547032b19daf5349719b683004c5f30d430d66ed959f124452a9961189e32df",
+      "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+      "e3cf73e4de136e63ee4dd597302e222d40b21111d9e54aa275e33021bbc15fa2",
+      "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6"
+    ],
+    "concurrentDiscoveryAudit": true,
+    "finalForThisRun": true,
+    "checked500Cards": false,
+    "gate500Definition": "500 latest outcomes resolved as decoded playback or explicit terminal absence; discovery/player/harness errors and timeouts remain unresolved. Full transport matrix is a separate gate.",
+    "gate500Complete": false
+  },
+  "androidCoverageCurrentInstalledBuild": {
+    "uniqueCards": 40,
+    "attempts": 40,
+    "latestOutcomes": {
+      "DECODED_FALLBACK": 17,
+      "PLAYBACK_TIMEOUT": 16,
+      "PLAYER_FAILED": 3,
+      "DECODED_NATIVE": 4
+    },
+    "cardsWithPlaybackOperations": 40,
+    "freshFailureFeedbackObserved": 23,
+    "decodedWithoutReferenceRuntime": 21
+  },
+  "playbackObservationBudgetSeconds": 45,
+  "new1000IdCohortStartedThisHour": false,
+  "latencyLimitations": "First frame and READY measure different events. They do not establish sustained playback or audio readiness; per-source startupLatencyMs and request-to-playing timing are separate.",
+  "finalState": {
+    "at": "2026-10-08T07:45:47.713129+00:00",
+    "installedSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+    "builtSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+    "shaMatches": true,
+    "app": {
+      "package": "app.movia.android",
+      "version": "0.0.1",
+      "versionCode": 335,
+      "foreground": false,
+      "processAlive": true,
+      "processUptimeMs": 1697137,
+      "uiAttached": false,
+      "screen": "HEADLESS"
+    },
+    "playback": {
+      "status": "IDLE",
+      "switchState": "IDLE",
+      "playing": false,
+      "playWhenReady": false,
+      "mediaId": "",
+      "title": "",
+      "positionMs": 0,
+      "durationMs": 0,
+      "bufferedMs": 0,
+      "mediaItemId": "",
+      "fullscreen": false,
+      "pip": false
+    },
+    "playerIdle": true,
+    "libraryCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "libraryCountsPreserved": true,
+    "nativeArchitecture": "movia-provider-registry",
+    "referenceRuntimeLoaded": false,
+    "backendHealth": 200,
+    "services": {
+      "movia-media-parser": {
+        "exitCode": 0,
+        "status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 28141) 35568s; run: log: (pid 6330) 228774s"
+      },
+      "movia-stream-enricher": {
+        "exitCode": 0,
+        "status": "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 28151) 35567s"
+      }
+    },
+    "runtimeParity": {
+      "catalog_stream_service.py": true,
+      "media_content_probe.py": true,
+      "native_variant_feedback.py": true,
+      "playback_availability_index.py": true,
+      "source_playback_evidence.py": true,
+      "streamer.py": true,
+      "discovery_queue.py": true,
+      "discovery_outcome.py": true,
+      "provider_discovery.py": true
+    },
+    "crashOrAnrLines": [],
+    "shellReadEvidence": [
+      {
+        "commandType": "pm",
+        "exitCode": 0,
+        "stdoutBytes": 97,
+        "stderrBytes": 0
+      },
+      {
+        "commandType": "sha256sum",
+        "exitCode": 0,
+        "stdoutBytes": 155,
+        "stderrBytes": 0
+      },
+      {
+        "commandType": "pidof",
+        "exitCode": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 6
+      },
+      {
+        "commandType": "logcat",
+        "exitCode": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      {
+        "commandType": "logcat",
+        "exitCode": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      }
+    ],
+    "logLimitations": "No matching lines alone do not prove complete crash/ANR visibility.",
+    "unrelatedFilesPreserved": 20,
+    "unrelatedChangedFiles": [],
+    "passed": true
+  },
+  "unrelatedFilesPreserved": 20,
+  "unrelatedChangedFiles": [],
+  "rebuildInputsArchive": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/hour-0850-rebuild-inputs.zip",
+  "rebuildInputsSha256": "d9586edc7e8f543fb58ca5658e6cbfe56a0b01d07e2f02d3d8daa2188d633891",
+  "rebuildCaveat": "APK includes twenty unchanged pre-existing UI/database/network inputs deliberately excluded from this commit. Private archive preserves them; bit-identical rebuild not claimed.",
+  "projectComplete": false,
+  "remaining": [
+    "Complete 500-title decoder audit and repeat failures affected by these changes on installed SHA.",
+    "Finish each active transport voice/quality/audio/subtitle/exact-episode/resume/download/offline matrix.",
+    "Migrate SourceTruth evidence to request-profile-specific rows when multiple representations share one physical URI.",
+    "Verify provider references and gates; investigate exact known-article refresh when provider search fails.",
+    "Remove remaining legacy wrappers after functional parity.",
+    "Measure CPU/RAM/inner queues/cancellation and cold/warm startup; <=5-second gate remains open."
+  ],
+  "active-provider-search-observation": {
+    "at": "2026-10-08T07:14:13.199851+00:00",
+    "provider": "HDRezka",
+    "searchOnly": true,
+    "cases": [
+      {
+        "mediaId": "461",
+        "season": 1,
+        "episode": 2,
+        "resultCount": 0,
+        "error": "HTTP_ERROR:500",
+        "seconds": 1.15
+      },
+      {
+        "mediaId": "474",
+        "season": 1,
+        "episode": 2,
+        "resultCount": 0,
+        "error": "HTTP_ERROR:500",
+        "seconds": 1.23
+      }
+    ],
+    "limitations": "Two search-only observations; do not establish all 62 discovery errors, article availability, or successful decoder playback."
+  },
+  "baseline-reproduction": {
+    "at": "2026-10-08T06:54:37.900868+00:00",
+    "installedApkSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "cases": [
+      {
+        "case": "240-start",
+        "last": {
+          "seconds": 11.29,
+          "state": "READY",
+          "media3": "READY",
+          "playing": true,
+          "playWhenReady": true,
+          "height": 240,
+          "positionMs": 652,
+          "frames": 18,
+          "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "activeVoice": "Оригинал (+субтитры)",
+          "fallbackReason": null,
+          "errorCode": null,
+          "errorCause": null,
+          "mediaId": "159",
+          "season": 1,
+          "episode": 2,
+          "firstFrameMs": 10106,
+          "passed": true
+        },
+        "timeline": [
+          {
+            "seconds": 0.08,
+            "state": "IDLE",
+            "media3": "IDLE",
+            "playing": false,
+            "playWhenReady": false,
+            "height": 0,
+            "positionMs": 0,
+            "frames": 0,
+            "activeId": null,
+            "requestedId": null,
+            "requestedQuality": null,
+            "requestedVoice": null,
+            "activeVoice": null,
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "",
+            "season": null,
+            "episode": null,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 0.62,
+            "state": "SEARCHING_SOURCE",
+            "media3": "IDLE",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 0,
+            "frames": 0,
+            "activeId": null,
+            "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeVoice": null,
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 5.09,
+            "state": "SEARCHING_SOURCE",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 0,
+            "frames": 0,
+            "activeId": null,
+            "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeVoice": null,
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 5.64,
+            "state": "PREBUFFERING",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 0,
+            "frames": 0,
+            "activeId": null,
+            "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeVoice": null,
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 10.72,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 113,
+            "frames": 4,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 10106
+          },
+          {
+            "seconds": 11.29,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 652,
+            "frames": 18,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 10106,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "case": "480-at-30s",
+        "last": {
+          "seconds": 14.84,
+          "state": "READY",
+          "media3": "READY",
+          "playing": true,
+          "playWhenReady": true,
+          "height": 240,
+          "positionMs": 30918,
+          "frames": 43,
+          "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "requestedQuality": "480p",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "activeVoice": "Оригинал (+субтитры)",
+          "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+          "errorCode": null,
+          "errorCause": null,
+          "mediaId": "159",
+          "season": 1,
+          "episode": 2,
+          "firstFrameMs": 14355,
+          "passed": false
+        },
+        "timeline": [
+          {
+            "seconds": 0.08,
+            "state": "SWITCHING_SOURCE",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 30000,
+            "frames": 19,
+            "activeId": null,
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": null,
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 9.74,
+            "state": "RECOVERING",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 30000,
+            "frames": 19,
+            "activeId": null,
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": null,
+            "fallbackReason": "BUFFERING_TIMEOUT",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 12.2,
+            "state": "SWITCHING_SOURCE",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 30000,
+            "frames": 19,
+            "activeId": null,
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": null,
+            "fallbackReason": "BUFFERING_TIMEOUT",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 13.25,
+            "state": "SWITCHING_SOURCE",
+            "media3": "BUFFERING",
+            "playing": false,
+            "playWhenReady": true,
+            "height": 0,
+            "positionMs": 30000,
+            "frames": 19,
+            "activeId": null,
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": null,
+            "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": null
+          },
+          {
+            "seconds": 14.3,
+            "state": "SWITCHING_SOURCE",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 30014,
+            "frames": 26,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": null,
+            "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355
+          },
+          {
+            "seconds": 14.84,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 30918,
+            "frames": 43,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355,
+            "passed": false
+          },
+          {
+            "seconds": 14.84,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 30918,
+            "frames": 43,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "480p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": "QUALITY_UNAVAILABLE_FOR_VOICE",
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355,
+            "passed": false
+          }
+        ]
+      },
+      {
+        "case": "240-return-at-30s",
+        "last": {
+          "seconds": 0.71,
+          "state": "READY",
+          "media3": "READY",
+          "playing": true,
+          "playWhenReady": true,
+          "height": 240,
+          "positionMs": 32336,
+          "frames": 79,
+          "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "requestedQuality": "240p",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "activeVoice": "Оригинал (+субтитры)",
+          "fallbackReason": null,
+          "errorCode": null,
+          "errorCause": null,
+          "mediaId": "159",
+          "season": 1,
+          "episode": 2,
+          "firstFrameMs": 14355,
+          "passed": true
+        },
+        "timeline": [
+          {
+            "seconds": 0.13,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 31799,
+            "frames": 64,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "240p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355
+          },
+          {
+            "seconds": 0.71,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 32336,
+            "frames": 79,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "240p",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355,
+            "passed": true
+          }
+        ]
+      },
+      {
+        "case": "Auto",
+        "last": {
+          "seconds": 0.71,
+          "state": "READY",
+          "media3": "READY",
+          "playing": true,
+          "playWhenReady": true,
+          "height": 240,
+          "positionMs": 33501,
+          "frames": 105,
+          "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+          "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Оригинал (+субтитры)",
+          "activeVoice": "Оригинал (+субтитры)",
+          "fallbackReason": null,
+          "errorCode": null,
+          "errorCause": null,
+          "mediaId": "159",
+          "season": 1,
+          "episode": 2,
+          "firstFrameMs": 14355,
+          "passed": true
+        },
+        "timeline": [
+          {
+            "seconds": 0.15,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 32951,
+            "frames": 93,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355
+          },
+          {
+            "seconds": 0.71,
+            "state": "READY",
+            "media3": "READY",
+            "playing": true,
+            "playWhenReady": true,
+            "height": 240,
+            "positionMs": 33501,
+            "frames": 105,
+            "activeId": "provider-item:v2:a03531516b353e38601ba3eb",
+            "requestedId": "provider-item:v2:016cafe2eca821dc1ef9128f",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Оригинал (+субтитры)",
+            "activeVoice": "Оригинал (+субтитры)",
+            "fallbackReason": null,
+            "errorCode": null,
+            "errorCause": null,
+            "mediaId": "159",
+            "season": 1,
+            "episode": 2,
+            "firstFrameMs": 14355,
+            "passed": true
+          }
+        ]
+      }
+    ],
+    "mode": "baseline-longer-observation",
+    "initialCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "countsPreserved": true,
+    "sanitizedLogLines": 0
+  },
+  "selection-after-fallback-proof": {
+    "at": "2026-10-08T07:44:33.999319+00:00",
+    "installedApkSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+    "cases": [
+      {
+        "mediaId": "41858",
+        "season": null,
+        "episode": null,
+        "requestedStreamId": "provider-item:v2:07c89cf7c84b49cfea803332:453735343b0da5847d346c58",
+        "action": {
+          "httpStatus": null,
+          "code": null,
+          "status": "accepted",
+          "error": null,
+          "operationId": "operation-b4f8e8ce-7314-4542-b506-8880046e4dc6"
+        },
+        "beforeManualChoice": {
+          "seconds": 28.86,
+          "mediaId": "41858",
+          "season": null,
+          "episode": null,
+          "state": "READY",
+          "playing": true,
+          "height": 622,
+          "positionMs": 372,
+          "frames": 10,
+          "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "selection": {
+            "requestedStreamId": "provider-item:v2:07c89cf7c84b49cfea803332:453735343b0da5847d346c58",
+            "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeQuality": "622p",
+            "activeVoice": "Оригинал (+субтитры)",
+            "source": "HDRezka",
+            "fallbackReason": "BUFFERING_TIMEOUT"
+          },
+          "candidateQuality": "622p",
+          "sourceIdPresent": true,
+          "localDecoded": "true",
+          "referenceRuntimeLoaded": false,
+          "passed": true
+        },
+        "actualFallbackObserved": true,
+        "afterAuto": {
+          "seconds": 1.72,
+          "mediaId": "41858",
+          "season": null,
+          "episode": null,
+          "state": "READY",
+          "playing": true,
+          "height": 622,
+          "positionMs": 30379,
+          "frames": 22,
+          "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "selection": {
+            "requestedStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+            "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+            "requestedQuality": "Auto",
+            "requestedVoice": "Auto",
+            "activeQuality": "622p",
+            "activeVoice": "Оригинал (+субтитры)",
+            "source": "HDRezka"
+          },
+          "candidateQuality": "622p",
+          "sourceIdPresent": true,
+          "localDecoded": "true",
+          "referenceRuntimeLoaded": false,
+          "passed": true
+        },
+        "autoAction": {
+          "httpStatus": null,
+          "code": null,
+          "status": "completed",
+          "error": null,
+          "operationId": null
+        },
+        "autoPassed": true,
+        "afterExistingQuality": {
+          "seconds": 0.12,
+          "mediaId": "41858",
+          "season": null,
+          "episode": null,
+          "state": "READY",
+          "playing": true,
+          "height": 622,
+          "positionMs": 30656,
+          "frames": 29,
+          "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "selection": {
+            "requestedStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+            "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+            "requestedQuality": "622p",
+            "requestedVoice": "Auto",
+            "activeQuality": "622p",
+            "activeVoice": "Оригинал (+субтитры)",
+            "source": "HDRezka"
+          },
+          "candidateQuality": "622p",
+          "sourceIdPresent": true,
+          "localDecoded": "true",
+          "referenceRuntimeLoaded": false,
+          "passed": true
+        },
+        "qualityAction": {
+          "httpStatus": null,
+          "code": null,
+          "status": "completed",
+          "error": null,
+          "operationId": null
+        },
+        "existingQualityPassed": true,
+        "passed": true,
+        "sourceLoadEvidence": {
+          "opens": 7,
+          "errors": 0,
+          "closedRequestBytes": 3012064,
+          "events": [
+            {
+              "event": "OPEN",
+              "phase": "MANIFEST_SUFFIX",
+              "elapsedMs": 641,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "MANIFEST_SUFFIX",
+              "elapsedMs": 797,
+              "bytes": 48568
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 112,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 348,
+              "bytes": 650104
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 128,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 266,
+              "bytes": 695224
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 112,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 634,
+              "bytes": 194256
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 266,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 515,
+              "bytes": 120696
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 130,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 347,
+              "bytes": 463608
+            },
+            {
+              "event": "OPEN",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 147,
+              "bytes": 0
+            },
+            {
+              "event": "CLOSE",
+              "phase": "SEGMENT_SUFFIX",
+              "elapsedMs": 428,
+              "bytes": 839608
+            }
+          ],
+          "maxEvents": 32,
+          "classification": "Filename suffix only; OPEN/bytes are not decoder evidence"
+        }
+      }
+    ],
+    "criterion": "Observe actual fallback, then Auto and existing decoded height must adopt prepared leaf and preserve exact identity/voice/position. Does not prove a different-quality transition.",
+    "initialCounts": {
+      "favorites": 12,
+      "watchLater": 0,
+      "history": 8,
+      "downloads": 0,
+      "recentSearches": 3
+    },
+    "countsPreserved": true,
+    "passed": true
+  },
+  "reload-reference-gap": {
+    "at": "2026-10-08T07:27:44.208804+00:00",
+    "searchBypassImplemented": false,
+    "observations": [
+      {
+        "mediaId": "159",
+        "season": 1,
+        "episode": 2,
+        "nativeLeafCount": 246,
+        "reloadSupportedLeaves": 246,
+        "leavesWithReloadData": 0,
+        "leavesWithArticleReference": 0
+      },
+      {
+        "mediaId": "26041",
+        "season": null,
+        "episode": null,
+        "nativeLeafCount": 18,
+        "reloadSupportedLeaves": 18,
+        "leavesWithReloadData": 0,
+        "leavesWithArticleReference": 0
+      }
+    ],
+    "sourceEvidence": [
+      "app/src/main/java/app/movia/android/domain/playback/DomainPlaybackResolver.kt:reloadStreamCandidateWithBackend uses force-refresh discovery",
+      "backend/runtime/provider_contract.py:_stream_row hashes article.item_id into identity and does not publish article_ref/content_ref",
+      "backend/runtime/hdrezka_provider_adapter.py:resolve_source accepts actual ProviderSearchResult.item_id"
+    ],
+    "limitation": "API observations do not prove all provider paths lack reload references or that known articles are currently reachable. Never reconstruct/guess an article URL from a hash."
+  },
+  "resource-observation": {
+    "at": "2026-10-08T07:28:57.849145+00:00",
+    "samples": [
+      {
+        "at": "2026-10-08T07:28:57.849175+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [
+          "TOTAL PSS:   205683            TOTAL RSS:   253048       TOTAL SWAP PSS:    74988"
+        ],
+        "totalPssKb": 205683,
+        "totalRssKb": 253048,
+        "cpuReadExitCode": 0,
+        "appCpuLines": [
+          "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+        ]
+      },
+      {
+        "at": "2026-10-08T07:29:15.951635+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [
+          "TOTAL PSS:   172029            TOTAL RSS:   220472       TOTAL SWAP PSS:    74701"
+        ],
+        "totalPssKb": 172029,
+        "totalRssKb": 220472,
+        "cpuReadExitCode": 0,
+        "appCpuLines": [
+          "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+        ]
+      },
+      {
+        "at": "2026-10-08T07:29:34.275497+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [],
+        "cpuReadExitCode": 0,
+        "appCpuLines": []
+      },
+      {
+        "at": "2026-10-08T07:29:51.360309+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [],
+        "cpuReadExitCode": 0,
+        "appCpuLines": []
+      },
+      {
+        "at": "2026-10-08T07:30:09.287943+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [],
+        "cpuReadExitCode": 0,
+        "appCpuLines": []
+      },
+      {
+        "at": "2026-10-08T07:30:27.039922+00:00",
+        "memoryReadExitCode": 0,
+        "memoryTotals": [
+          "TOTAL PSS:   189214            TOTAL RSS:   238052       TOTAL SWAP PSS:    74313"
+        ],
+        "totalPssKb": 189214,
+        "totalRssKb": 238052,
+        "cpuReadExitCode": 0,
+        "appCpuLines": [
+          "25% 24138/app.movia.android: 21% user + 4.2% kernel / faults: 232953 minor 1092 major"
+        ]
+      }
+    ],
+    "limitations": "Concurrent mass-audit observations only. No cold/warm comparative benchmark, no CPU peak/queue/cancellation gate, no <=5s claim."
+  }
+}

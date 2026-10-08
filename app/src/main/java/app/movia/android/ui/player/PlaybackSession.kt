@@ -2,6 +2,8 @@
 
 package app.movia.android.ui.player
 
+import app.movia.android.domain.playback.PlaybackDataSourceScope
+import app.movia.android.domain.playback.PlaybackLoadEvidence
 import android.content.Context
 import android.net.Uri
 import android.os.Looper
@@ -208,12 +210,17 @@ class DynamicHeaderDataSourceFactory(
     )
 }
 
-class DynamicHeaderDataSource(
+internal class DynamicHeaderDataSource(
     private val context: Context,
     private val requestProfile: StreamRequestProfile,
+    private val loadEvidence: PlaybackLoadEvidence? = null,
 ) : DataSource {
     private var delegate: DataSource? = null
     private val listeners = mutableListOf<TransferListener>()
+    private var loadPhase = "OTHER"
+    private var loadStartedMs = 0L
+    private var transferredBytes = 0L
+    private var hasOpenAttempt = false
 
     /** Compatibility constructor for callers that only have a default UA. */
     constructor(context: Context, userAgent: String) : this(
@@ -227,6 +234,15 @@ class DynamicHeaderDataSource(
     }
 
     override fun open(dataSpec: DataSpec): Long {
+        loadStartedMs = SystemClock.elapsedRealtime()
+        transferredBytes = 0L
+        hasOpenAttempt = true
+        val path = dataSpec.uri.path.orEmpty().lowercase()
+        loadPhase = when {
+            path.endsWith(".m3u8") || path.endsWith(".mpd") -> "MANIFEST_SUFFIX"
+            path.endsWith(".ts") || path.endsWith(".m4s") -> "SEGMENT_SUFFIX"
+            else -> "OTHER"
+        }
         fun openFreshDelegate(): Long {
             val headers = requestProfile.headersFor(dataSpec.uri.toString()).toMutableMap()
             if (headers.none { it.key.equals("accept", ignoreCase = true) }) {
@@ -254,12 +270,31 @@ class DynamicHeaderDataSource(
                 runCatching { delegate?.close() }
                 delegate = null
             },
-            open = ::openFreshDelegate,
+            open = {
+                try {
+                    openFreshDelegate().also {
+                        loadEvidence?.record("OPEN", loadPhase, SystemClock.elapsedRealtime() - loadStartedMs)
+                    }
+                } catch (error: Exception) {
+                    recordLoadError(error)
+                    throw error
+                }
+            },
         )
     }
 
-    override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
-        delegate?.read(buffer, offset, length) ?: -1
+    private fun recordLoadError(error: Exception) {
+        val status = (error as? androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException)?.responseCode
+        loadEvidence?.record("ERROR", loadPhase, SystemClock.elapsedRealtime() - loadStartedMs,
+            errorClass = error.javaClass.simpleName, httpStatus = status)
+    }
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int = try {
+        (delegate?.read(buffer, offset, length) ?: -1).also { if (it > 0) transferredBytes += it }
+    } catch (error: Exception) {
+        recordLoadError(error)
+        throw error
+    }
 
     override fun getUri(): Uri? = delegate?.uri
 
@@ -267,8 +302,14 @@ class DynamicHeaderDataSource(
         delegate?.responseHeaders ?: emptyMap()
 
     override fun close() {
-        delegate?.close()
-        delegate = null
+        try { delegate?.close() } finally {
+            delegate = null
+            if (hasOpenAttempt) {
+                loadEvidence?.record("CLOSE", loadPhase, SystemClock.elapsedRealtime() - loadStartedMs,
+                    transferred = transferredBytes)
+                hasOpenAttempt = false
+            }
+        }
     }
 }
 
@@ -327,6 +368,8 @@ class PlaybackSession(context: Context) {
         frameProbe = if (enabled) PlaybackFrameProbe(player) else null
     }
     private val decoderFeedbackGate = DecoderFeedbackGate()
+    private var preparationLoadEvidence = PlaybackLoadEvidence()
+    internal fun sourceLoadEvidence(): Map<String, Any> = preparationLoadEvidence.snapshot()
     private var requestStartedMs = 0L
     var readyLatencyMs: Long? = null
         private set
@@ -372,7 +415,7 @@ class PlaybackSession(context: Context) {
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (isPlaying) {
-                    watchdogJob?.cancel()
+                    if (decoderFeedbackGate.hasRenderedFrame()) watchdogJob?.cancel()
                     stallWatchdogJob?.cancel()
                 }
                 publishSnapshot()
@@ -391,7 +434,7 @@ class PlaybackSession(context: Context) {
                             return
                         }
                         if (readyLatencyMs == null && requestStartedMs > 0L) readyLatencyMs = SystemClock.elapsedRealtime() - requestStartedMs
-                        watchdogJob?.cancel()
+                        if (decoderFeedbackGate.hasRenderedFrame()) watchdogJob?.cancel()
                         stallWatchdogJob?.cancel()
                     }
                     Player.STATE_BUFFERING -> {
@@ -413,6 +456,11 @@ class PlaybackSession(context: Context) {
             }
 
             override fun onRenderedFirstFrame() {
+                if (activeConsumedUri == null || player.currentMediaItem?.localConfiguration?.uri?.toString() != activeConsumedUri) return
+                decoderFeedbackGate.onRenderedFrame()
+                // A real frame supersedes a reload still waiting on provider I/O.
+                recoveryJob?.cancel()
+                watchdogJob?.cancel()
                 activeCandidate?.let { current ->
                     val decoded = current.withLocalDecodedMeasurement(
                         player.videoFormat?.height ?: 0,
@@ -435,8 +483,11 @@ class PlaybackSession(context: Context) {
                 desiredPlayWhenReady = playWhenReady
                 if (!playWhenReady) {
                     stallWatchdogJob?.cancel()
-                } else if (player.playbackState == Player.STATE_BUFFERING) {
-                    startStallWatchdog(playbackGeneration)
+                } else {
+                    if (decoderFeedbackGate.shouldRecoverStartup(true) && watchdogJob?.isActive != true) {
+                        activeCandidate?.let { startWatchdog(it, player.currentPosition.coerceAtLeast(0L), playbackGeneration) }
+                    }
+                    if (player.playbackState == Player.STATE_BUFFERING) startStallWatchdog(playbackGeneration)
                 }
                 publishSnapshot()
             }
@@ -477,9 +528,9 @@ class PlaybackSession(context: Context) {
         if (quality.equals("Auto", true) || tracks.video.any { it.height == wantedHeight }) {
             userSelectedAutoQuality = quality.equals("Auto", true)
             requestedVideoQuality = if (quality.equals("Auto", true)) "Auto" else quality
-            playbackRequest = playbackRequest?.copy(requestedQuality = requestedVideoQuality)
+            playbackRequest = playbackRequest?.let { StreamSettingsSelection.withPreparedQuality(it, requestedVideoQuality, activeCandidate?.stableStreamId) }
             _state.value = _state.value.copy(activeStreamSelection =
-                (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedQuality = requestedVideoQuality, fallbackReason = null))
+                (_state.value.activeStreamSelection ?: ActiveStreamSelection()).copy(requestedQuality = requestedVideoQuality, requestedStreamId = playbackRequest?.requestedStreamId, fallbackReason = null))
             applyUserTrackPreferences(player.currentTracks)
             publishSnapshot()
             return true
@@ -663,7 +714,7 @@ class PlaybackSession(context: Context) {
 
 
     /** Report actual failed attempts; cancellation and user stop never enter this path. */
-    private fun recordNativeFailure(candidate: StreamCandidate, failureClass: StreamFailureClass) {
+    private fun recordNativeFailure(candidate: StreamCandidate, failureClass: StreamFailureClass, observedAtMs: Long) {
         val request = playbackRequest ?: return
         if (isOffline) return
         val sourceId = candidate.sourceId?.takeIf { it.isNotBlank() }
@@ -672,7 +723,7 @@ class PlaybackSession(context: Context) {
             candidate.seasonNumber == request.seasonNumber && candidate.episodeNumber == request.episodeNumber
         if (!nativeVariant && sourceId == null) return
         val observation = org.json.JSONObject().put("reason", failureClass.name)
-            .put("observedAt", System.currentTimeMillis() / 1000.0)
+            .put("observedAt", observedAtMs / 1000.0)
         val endpoint = if (nativeVariant) "native-variant-failure" else "media3-failure"
         val payload = if (nativeVariant) {
             val preparedScope = nativeFeedbackScope(candidate)
@@ -823,9 +874,9 @@ class PlaybackSession(context: Context) {
         publishCandidateOptions()
     }
 
-    private fun recordFailure(candidate: StreamCandidate?, failureClass: StreamFailureClass) {
+    private fun recordFailure(candidate: StreamCandidate?, failureClass: StreamFailureClass, observedAtMs: Long = System.currentTimeMillis()) {
         candidate ?: return
-        recordNativeFailure(candidate, failureClass)
+        recordNativeFailure(candidate, failureClass, observedAtMs)
         if (problemTracker.shouldMarkProblem(candidate, failureClass)) {
             markProblem(candidate)
         }
@@ -983,9 +1034,9 @@ class PlaybackSession(context: Context) {
             delay(STARTUP_WATCHDOG_MS)
             if (!isActive || !isCurrentGeneration(generation)) return@launch
             if (activeCandidate?.stableStreamId != candidateId) return@launch
-            if (player.playbackState != Player.STATE_READY && !player.isPlaying) {
+            if (decoderFeedbackGate.shouldRecoverStartup(desiredPlayWhenReady)) {
                 Log.w(TAG, "Startup watchdog fired for candidate id=$candidateId")
-                handleCandidateFailure("STARTUP_TIMEOUT", resumePositionMs, generation)
+                handleCandidateFailure("DECODER_STARTUP_TIMEOUT", resumePositionMs, generation)
             }
         }
     }
@@ -1050,10 +1101,15 @@ class PlaybackSession(context: Context) {
         stallWatchdogJob?.cancel()
         activeCandidate = candidate
         activeConsumedUri = uri
-        dataSourceFactory.setOfflineFactory(if (candidate.provider == "offline") {
+        val offlineFactory = if (candidate.provider == "offline") {
             OfflineMediaStore.playbackFactory(appContext, MediaRef(request.mediaId, request.seasonNumber, request.episodeNumber))
-        } else null)
-        dataSourceFactory.setRequestProfile(StreamRequestProfile.from(candidate, uri))
+        } else null
+        val evidence = PlaybackLoadEvidence()
+        preparationLoadEvidence = evidence
+        val dataSourceScope = PlaybackDataSourceScope(
+            StreamRequestProfile.from(candidate, uri), offlineFactory?.let { it::createDataSource },
+        ) { profile -> DynamicHeaderDataSource(appContext, profile, evidence) }
+        val scopedFactory = DataSource.Factory { dataSourceScope.create() }
         val previousSwitchState = _state.value.switchState
         val preparationState = when (previousSwitchState) {
             PlaybackSwitchState.RECOVERING -> PlaybackSwitchState.RECOVERING
@@ -1083,9 +1139,11 @@ class PlaybackSession(context: Context) {
             player.stop()
             player.clearMediaItems()
             clearCandidateTrackOverrides()
-            player.setMediaItem(buildMediaItem(request, candidate, uri))
+            val source = DefaultMediaSourceFactory(scopedFactory, extractorsFactory)
+                .createMediaSource(buildMediaItem(request, candidate, uri))
+            // Bind profile, offline factory and start position before any loader is created.
+            player.setMediaSource(source, resumePositionMs.coerceAtLeast(0L))
             player.prepare()
-            if (resumePositionMs > 0L) player.seekTo(resumePositionMs)
             // Preparing another URL must preserve the user's pause intent.
             // New media starts set this intent before discovery; pause/play
             // can change it while a web source is still being resolved.
@@ -1155,11 +1213,14 @@ class PlaybackSession(context: Context) {
         resumePositionMs: Long,
         generation: Long,
         failureClass: StreamFailureClass,
+        observedAtMs: Long,
     ) {
         if (!isCurrentGeneration(generation)) return
+        val failedPreparation = decoderFeedbackGate.attemptId()
+        val failedFrameVersion = decoderFeedbackGate.renderedFrameVersion()
         val failed = activeCandidate
         if (recoveryBudget.isExhausted(SystemClock.elapsedRealtime())) {
-            recordFailure(failed, failureClass)
+            recordFailure(failed, failureClass, observedAtMs)
             failPlayback("EXHAUSTED_$reason")
             return
         }
@@ -1179,7 +1240,7 @@ class PlaybackSession(context: Context) {
             (failed.reloadSupported || !failed.reloadData.isNullOrBlank())
         ) {
             if (!recoveryBudget.tryAcquire(SystemClock.elapsedRealtime())) {
-                recordFailure(failed, failureClass)
+                recordFailure(failed, failureClass, observedAtMs)
                 failPlayback("EXHAUSTED_$reason")
                 return
             }
@@ -1189,7 +1250,9 @@ class PlaybackSession(context: Context) {
                     LegacyPlaybackResolver.refresh(appContext, failed, refreshRequest)
                 } else DomainPlaybackResolver.reloadStreamCandidate(failed, refreshRequest)
             }
-            if (isCurrentGeneration(generation) && refreshed != null) {
+            if (!isCurrentGeneration(generation) ||
+                !decoderFeedbackGate.recoveryIsCurrent(failedPreparation, failedFrameVersion)) return
+            if (refreshed != null) {
                 replaceCandidate(failed, refreshed)
                 activeCandidate = refreshed
                 // Resolving/preparing a locator is not decoded playback evidence.
@@ -1211,7 +1274,7 @@ class PlaybackSession(context: Context) {
 
         // Reload was unavailable or failed. Only now apply the original failure
         // to the problem memory, matching the verified Zona ordering.
-        recordFailure(failed, failureClass)
+        recordFailure(failed, failureClass, observedAtMs)
 
         val currentRequest = playbackRequest
         if (currentRequest == null || !isCurrentGeneration(generation)) {
@@ -1247,11 +1310,13 @@ class PlaybackSession(context: Context) {
     ) {
         if (!isCurrentGeneration(generation) || recoveryJob?.isActive == true) return
         stallWatchdogJob?.cancel()
+        val observedAtMs = System.currentTimeMillis()
         recoveryJob = scope.launch {
             try {
-                recoverFromFailure(reason, resumePositionMs, generation, failureClass)
+                recoverFromFailure(reason, resumePositionMs, generation, failureClass, observedAtMs)
             } finally {
-                recoveryJob = null
+                // A cancelled older job must not erase a newer recovery owner.
+                if (recoveryJob === kotlinx.coroutines.currentCoroutineContext()[Job]) recoveryJob = null
             }
         }
     }

@@ -1,0 +1,94 @@
+........................................./data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d54b80>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d55120>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d55300>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d555d0>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/runtime/catalog_localization.py:40: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d556c0>
+  return any(char not in _RUSSIAN_CYRILLIC for char in _CYRILLIC_BLOCK_RE.findall(title))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.....................................................................................Collaps identity rejected media_id=77 reason=title_mismatch
+Collaps identity rejected media_id=77 reason=year_mismatch
+.................2026-10-08 09:02:55,887 - INFO - Torrent VariantTree persistence rewrite ID=77 input=2 leaves=1
+.2026-10-08 09:02:55,896 - INFO - Torrent VariantTree persistence rewrite ID=77 input=1 leaves=1
+................................................................................................................../data/data/com.termux/files/usr/lib/python3.14/tempfile.py:598: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d6f790>
+  def opener(*args):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/tempfile.py:598: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d6fc40>
+  def opener(*args):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......HDRezka content duration mismatch media_id=42 actual=60 expected=10140
+.HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+......HDRezka content duration mismatch media_id=159 actual=60 expected=2880.0
+....................../data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:254: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66d6fc40>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...............................................................................................[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[DEBUG] Collaps balancer error: provider timeout
+[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+...[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+.[INFO] Collaps provider is in bounded reliability cooldown; using fallback branch
+[DEBUG] Zona balancer branch disabled: ProviderContract owns Zona discovery
+.[WARNING] [Balancer] Нет доступных потоков: status=UNKNOWN provider_errors=0 title=Example year=2024
+...2026-10-08 09:03:09,612 - INFO - Provider apibay skipped during reliability cooldown
+..../data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e132e0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e133d0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e135b0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e134c0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e136a0>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/home/.cache/movia-architecture-20261002/repo/backend/tests/test_scoped_playback_card.py:14: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e13790>
+  rows=[dict(source="Fixture",url="[redacted-locator]"%i,season=1,episode=i,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..........................<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e13790>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e134c0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e135b0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e133d0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e136a0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<string>:2: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e132e0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:254: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e13970>
+  _iterencode = c_make_encoder(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................../data/data/com.termux/files/usr/lib/python3.14/threading.py:307: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e109a0>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/threading.py:307: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6e66e13c40>
+  self._waiters = _deque()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..............................Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+Torrent bound identity mismatch media_id=77
+.................................................................................../data/data/com.termux/files/usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+Zona identity rejected media_id=77 reason=title_mismatch
+Zona identity rejected media_id=77 reason=year_mismatch
+....
+----------------------------------------------------------------------
+Ran 561 tests in 23.843s
+
+OK
+Torrent resolve error or timeout: 
+[INFO] [Zona contract] title lookup status=NO_RESULTS suggestions=0 refs=0 streams=0 errors=0

@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-08T07:17:22.561079+00:00",
+  "installSuccess": true,
+  "versionCode": 335,
+  "versionName": "0.0.1",
+  "builtSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "installedSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "coldHeadlessLaunch": true,
+  "uiAttached": false,
+  "crashLines": [],
+  "dataPreserved": true,
+  "phoneBindingPassed": true,
+  "launch": "Starting service: Intent { cmp=app.movia.android/.agent.AgentAuditService }",
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 336,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  }
+}

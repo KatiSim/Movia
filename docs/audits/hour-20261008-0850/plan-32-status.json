@@ -1,0 +1,162 @@
+[
+  {
+    "block": 1,
+    "status": "Карта существует; обновлена общими пробелами",
+    "evidenceOrRemaining": "ARCHITECTURE_RU.md и прежние provider/contract audits"
+  },
+  {
+    "block": 2,
+    "status": "Частично",
+    "evidenceOrRemaining": "Registry/VariantTree работают; legacy-compatible balancer и wrappers ещё остаются"
+  },
+  {
+    "block": 3,
+    "status": "Реализовано, проверено в текущем объёме",
+    "evidenceOrRemaining": "Измерение и reload не меняют logical ID; scope-regрессии URL/headers/tracks/S/E"
+  },
+  {
+    "block": 4,
+    "status": "Реализовано ранее; аудит продолжен",
+    "evidenceOrRemaining": "Scoped late callbacks и очереди; четыре незавершённых результата S/T доведены до terminal"
+  },
+  {
+    "block": 5,
+    "status": "Частично; потеря outcome исправлена",
+    "evidenceOrRemaining": "Ошибки и незавершённые futures доходят до native catalog boundary; нижние старые transport functions и content матрица ещё требуют проверки"
+  },
+  {
+    "block": 6,
+    "status": "Реализован общий выбор по доказательствам",
+    "evidenceOrRemaining": "Ранжирование предыдущего часа + фактическое сохранение новых измерений"
+  },
+  {
+    "block": 7,
+    "status": "Доработано системно",
+    "evidenceOrRemaining": "Профиль DataSource привязан к MediaSource; atomic resume; decoder-frame startup watchdog; поздний reload отменяется после кадра и защищён epoch; original failure timestamp сохраняется. Полная segment/resume матрица остаётся."
+  },
+  {
+    "block": 8,
+    "status": "Доработано; полная матрица остаётся",
+    "evidenceOrRemaining": "Свежий decoder proof проверен отдельно от bytes/open. LoadEvidence не является доказательством качества."
+  },
+  {
+    "block": 9,
+    "status": "Частично",
+    "evidenceOrRemaining": "Точные S/E проверяются; специальные выпуски и все переходы не завершены"
+  },
+  {
+    "block": 10,
+    "status": "Частично",
+    "evidenceOrRemaining": "Реальные дорожки отделены от provider voice; полная проверка subtitles/direct-track mapping остаётся"
+  },
+  {
+    "block": 11,
+    "status": "Частично",
+    "evidenceOrRemaining": "Нет выдуманных torrent озвучек; расширенная live audio metadata matrix остаётся"
+  },
+  {
+    "block": 12,
+    "status": "Частично",
+    "evidenceOrRemaining": "Native torrent decode/seek/audio и test-owned cleanup проверялись; вся матрица файлов/отмены не закрыта"
+  },
+  {
+    "block": 13,
+    "status": "Нативная реализация есть, активный перенос неполон",
+    "evidenceOrRemaining": "Zona gate выключен; старые wrappers ещё требуют удаления по зависимостям"
+  },
+  {
+    "block": 14,
+    "status": "Не закрыт",
+    "evidenceOrRemaining": "Нужен свежий живой playback; старые пустые source refs не считаются успехом"
+  },
+  {
+    "block": 15,
+    "status": "Adapter/ProviderContract есть",
+    "evidenceOrRemaining": "Collaps gate не включён без живого успеха"
+  },
+  {
+    "block": 16,
+    "status": "Не закрыт",
+    "evidenceOrRemaining": "Live голоса/качество/series/позиция и отсутствие двойного discovery не подтверждены полностью"
+  },
+  {
+    "block": 17,
+    "status": "Есть прежнее исследование, не закрыт",
+    "evidenceOrRemaining": "Filmix search contract/Octopus decoder были заблокированы; актуальная native live проверка остаётся"
+  },
+  {
+    "block": 18,
+    "status": "Не закрыт",
+    "evidenceOrRemaining": "Kinoplay прежний live handshake без refs не выполнялся; Alloha/VideoCDN references требуют проверки"
+  },
+  {
+    "block": 19,
+    "status": "Доработано системно",
+    "evidenceOrRemaining": "Manual quality и Auto принимают identity фактически подготовленного leaf. Результаты live matrix сохранены без засчитывания fallback как точного переключения."
+  },
+  {
+    "block": 20,
+    "status": "Базовый сценарий пройден",
+    "evidenceOrRemaining": "Результат текущей APK в offline_smoke.json; multi-track/torrent-file/resume/cancel остаются."
+  },
+  {
+    "block": 21,
+    "status": "Частично",
+    "evidenceOrRemaining": "LoadEvidence bounded 32; profile snapshot immutable; recovery guarded. CPU/RAM, inner provider queues и <=5s остаются."
+  },
+  {
+    "block": 22,
+    "status": "Не закрыт",
+    "evidenceOrRemaining": "Удалять совместимые wrappers после доказанного функционального соответствия"
+  },
+  {
+    "block": 23,
+    "status": "Пройден для checkpoint",
+    "evidenceOrRemaining": "319 Android unit, 561 backend; APK build; instrumentation compiled, not executed."
+  },
+  {
+    "block": 24,
+    "status": "Свежие S/T IDs и baseline уже сохранены",
+    "evidenceOrRemaining": "Новой тысячи в этом часе не создавалось; это продолжение прежних выборок"
+  },
+  {
+    "block": 25,
+    "status": "Инвентаризация/enrichment закончены, разбор неполон",
+    "evidenceOrRemaining": "S/T имеют terminal результаты; ошибки discovery ещё нельзя полностью отделить от внешней недоступности"
+  },
+  {
+    "block": 26,
+    "status": "Вторая независимая инвентаризация есть",
+    "evidenceOrRemaining": "T 1000 независимых IDs; это не 1000 decoder запусков"
+  },
+  {
+    "block": 27,
+    "status": "В работе",
+    "evidenceOrRemaining": "277/500 накопленного журнала; APK метрики разделены."
+  },
+  {
+    "block": 28,
+    "status": "В работе",
+    "evidenceOrRemaining": "Новые карточки продолжаются из сохранённого состояния; прежние failure/timeouts не считаются исправленными без повторной проверки."
+  },
+  {
+    "block": 29,
+    "status": "Не завершён",
+    "evidenceOrRemaining": "500-card gate и transport switching matrix ещё открыты."
+  },
+  {
+    "block": 30,
+    "status": "Не закрыт",
+    "evidenceOrRemaining": "Общие причины исправлены, все реальные неудачные проверки сохранены."
+  },
+  {
+    "block": 31,
+    "status": "APK часа проверена",
+    "evidenceOrRemaining": "Install/SHA/cold headless/backend parity/user data; не финал проекта."
+  },
+  {
+    "block": 32,
+    "status": "Checkpoint часа",
+    "evidenceOrRemaining": "Архитектура/проверки/rollback опубликованы, projectComplete=false."
+  }
+]

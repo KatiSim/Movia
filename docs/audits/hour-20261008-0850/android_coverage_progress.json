@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-08T07:44:00.290991+00:00",
+  "target": 500,
+  "attemptedUniqueCards": 277,
+  "resolvedUniqueCards": 73,
+  "cardsWithPlaybackOperation": 215,
+  "unresolvedCards": 204,
+  "discoveryUnconfirmedCards": 0,
+  "discoveryErrorCards": 62,
+  "latestOutcomes": {
+    "DECODED_FALLBACK": 35,
+    "PLAYBACK_TIMEOUT": 126,
+    "PLAYER_FAILED": 16,
+    "DECODED_NATIVE": 38,
+    "DISCOVERY_ERROR": 62
+  },
+  "allAttemptOutcomes": {
+    "DECODED_FALLBACK": 35,
+    "PLAYBACK_TIMEOUT": 126,
+    "PLAYER_FAILED": 16,
+    "DECODED_NATIVE": 38,
+    "INTERRUPTED_FOR_INSTALL": 4,
+    "NO_NATIVE_AT_INITIAL_READ": 101,
+    "NO_NATIVE_TERMINAL": 62,
+    "DISCOVERY_ERROR": 62
+  },
+  "decodedNativeCards": 38,
+  "decodedFallbackCards": 35,
+  "identityErrors": 0,
+  "buildShas": [
+    "1a2b06c49d0adfdac834a7a453bbde8326a02c65a2e6c5c2ed89bd5a1f3593c2",
+    "30242dbac563ce4a1ac26e86aa655ce18fb23b03f3c4d0114b2e56da64c5fb84",
+    "5547032b19daf5349719b683004c5f30d430d66ed959f124452a9961189e32df",
+    "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+    "e3cf73e4de136e63ee4dd597302e222d40b21111d9e54aa275e33021bbc15fa2",
+    "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6"
+  ],
+  "concurrentDiscoveryAudit": true,
+  "finalForThisRun": true,
+  "checked500Cards": false,
+  "gate500Definition": "500 latest outcomes resolved as decoded playback or explicit terminal absence; discovery/player/harness errors and timeouts remain unresolved. Full transport matrix is a separate gate.",
+  "gate500Complete": false
+}

@@ -1,0 +1,219 @@
+{
+  "at": "2026-10-08T07:44:33.999319+00:00",
+  "installedApkSha256": "ecc032ab6347e69819854fdbc88775a3aa0246db1ca1b9941ca5fcdb21d756b6",
+  "cases": [
+    {
+      "mediaId": "41858",
+      "season": null,
+      "episode": null,
+      "requestedStreamId": "provider-item:v2:07c89cf7c84b49cfea803332:453735343b0da5847d346c58",
+      "action": {
+        "httpStatus": null,
+        "code": null,
+        "status": "accepted",
+        "error": null,
+        "operationId": "operation-b4f8e8ce-7314-4542-b506-8880046e4dc6"
+      },
+      "beforeManualChoice": {
+        "seconds": 28.86,
+        "mediaId": "41858",
+        "season": null,
+        "episode": null,
+        "state": "READY",
+        "playing": true,
+        "height": 622,
+        "positionMs": 372,
+        "frames": 10,
+        "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:07c89cf7c84b49cfea803332:453735343b0da5847d346c58",
+          "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "activeQuality": "622p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka",
+          "fallbackReason": "BUFFERING_TIMEOUT"
+        },
+        "candidateQuality": "622p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true
+      },
+      "actualFallbackObserved": true,
+      "afterAuto": {
+        "seconds": 1.72,
+        "mediaId": "41858",
+        "season": null,
+        "episode": null,
+        "state": "READY",
+        "playing": true,
+        "height": 622,
+        "positionMs": 30379,
+        "frames": 22,
+        "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "requestedQuality": "Auto",
+          "requestedVoice": "Auto",
+          "activeQuality": "622p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka"
+        },
+        "candidateQuality": "622p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true
+      },
+      "autoAction": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "autoPassed": true,
+      "afterExistingQuality": {
+        "seconds": 0.12,
+        "mediaId": "41858",
+        "season": null,
+        "episode": null,
+        "state": "READY",
+        "playing": true,
+        "height": 622,
+        "positionMs": 30656,
+        "frames": 29,
+        "activeId": "provider-item:v2:6642c18d3bd251f207932ef3",
+        "selection": {
+          "requestedStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "activeStreamId": "provider-item:v2:6642c18d3bd251f207932ef3",
+          "requestedQuality": "622p",
+          "requestedVoice": "Auto",
+          "activeQuality": "622p",
+          "activeVoice": "Оригинал (+субтитры)",
+          "source": "HDRezka"
+        },
+        "candidateQuality": "622p",
+        "sourceIdPresent": true,
+        "localDecoded": "true",
+        "referenceRuntimeLoaded": false,
+        "passed": true
+      },
+      "qualityAction": {
+        "httpStatus": null,
+        "code": null,
+        "status": "completed",
+        "error": null,
+        "operationId": null
+      },
+      "existingQualityPassed": true,
+      "passed": true,
+      "sourceLoadEvidence": {
+        "opens": 7,
+        "errors": 0,
+        "closedRequestBytes": 3012064,
+        "events": [
+          {
+            "event": "OPEN",
+            "phase": "MANIFEST_SUFFIX",
+            "elapsedMs": 641,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "MANIFEST_SUFFIX",
+            "elapsedMs": 797,
+            "bytes": 48568
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 112,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 348,
+            "bytes": 650104
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 128,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 266,
+            "bytes": 695224
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 112,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 634,
+            "bytes": 194256
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 266,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 515,
+            "bytes": 120696
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 130,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 347,
+            "bytes": 463608
+          },
+          {
+            "event": "OPEN",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 147,
+            "bytes": 0
+          },
+          {
+            "event": "CLOSE",
+            "phase": "SEGMENT_SUFFIX",
+            "elapsedMs": 428,
+            "bytes": 839608
+          }
+        ],
+        "maxEvents": 32,
+        "classification": "Filename suffix only; OPEN/bytes are not decoder evidence"
+      }
+    }
+  ],
+  "criterion": "Observe actual fallback, then Auto and existing decoded height must adopt prepared leaf and preserve exact identity/voice/position. Does not prove a different-quality transition.",
+  "initialCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "countsPreserved": true,
+  "passed": true
+}

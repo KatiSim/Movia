@@ -10,6 +10,13 @@ import app.movia.android.domain.playback.StreamRanker
  * be used to resolve studio names such as LostFilm or Кубик в Кубе.
  */
 internal object StreamSettingsSelection {
+    /** A new manual track choice adopts the prepared leaf after automatic fallback. */
+    fun withPreparedQuality(request: app.movia.android.domain.playback.PlaybackRequest, quality: String,
+        preparedStreamId: String?): app.movia.android.domain.playback.PlaybackRequest = request.copy(
+            requestedQuality = quality,
+            requestedStreamId = preparedStreamId?.takeIf { it.isNotBlank() } ?: request.requestedStreamId,
+        )
+
     /** A selected row owns its quality; voice-only switches retain the user's request. */
     fun requestedQualityForSwitch(stream: StreamOption, currentQuality: String, explicitVariant: Boolean): String {
         if (!explicitVariant) return currentQuality

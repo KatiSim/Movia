@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-08T07:38:13.522376+00:00",
+  "health": 200,
+  "runtimeParity": {
+    "catalog_stream_service.py": true,
+    "media_content_probe.py": true,
+    "native_variant_feedback.py": true,
+    "playback_availability_index.py": true,
+    "source_playback_evidence.py": true,
+    "streamer.py": true,
+    "discovery_queue.py": true,
+    "discovery_outcome.py": true,
+    "provider_discovery.py": true
+  },
+  "services": {
+    "movia-media-parser": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-media-parser: (pid 28141) 35114s; run: log: (pid 6330) 228320s"
+    },
+    "movia-stream-enricher": {
+      "exitCode": 0,
+      "status": "run: /data/data/com.termux/files/usr/var/service/movia-stream-enricher: (pid 28151) 35113s"
+    }
+  }
+}

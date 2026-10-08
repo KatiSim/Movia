@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-08T06:52:18.088167+00:00",
+  "requestedAt": "2026-10-08T06:50:53Z",
+  "hourEnd": "2026-10-08T07:50:53Z",
+  "baseCheckpoint": 3442,
+  "baseCommit": "b192f5664ff758a1f5f2c1cc6e9b90f94d6542b8",
+  "installedSha256": "7592ab9e479a6dcd8f15a7f6eea8f521ef6f118b6c9c1febfe0aae9ddad23ddb",
+  "app": {
+    "package": "app.movia.android",
+    "version": "0.0.1",
+    "versionCode": 335,
+    "foreground": false,
+    "processAlive": true,
+    "processUptimeMs": 815,
+    "uiAttached": false,
+    "screen": "HEADLESS"
+  },
+  "playback": {
+    "status": "IDLE",
+    "switchState": "IDLE",
+    "playing": false,
+    "playWhenReady": false,
+    "mediaId": "",
+    "title": "",
+    "positionMs": 0,
+    "durationMs": 0,
+    "bufferedMs": 0,
+    "mediaItemId": "",
+    "fullscreen": false,
+    "pip": false
+  },
+  "libraryCounts": {
+    "favorites": 12,
+    "watchLater": 0,
+    "history": 8,
+    "downloads": 0,
+    "recentSearches": 3
+  },
+  "unrelatedChangedFiles": [],
+  "backendHealth": {
+    "status": "ok",
+    "service": "movia-p2p-streamer-on-demand",
+    "host": "127.0.0.1",
+    "port": 8888,
+    "cloudMode": false,
+    "p2pEnabled": true,
+    "security": "isolated-localhost"
+  }
+}

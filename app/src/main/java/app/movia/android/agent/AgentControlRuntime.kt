@@ -375,6 +375,7 @@ object AgentControlRuntime {
         var actualPlayWhenReady = false
         var actualPlaybackSpeed = 1f
         var playbackSuppressionReason = 0
+        var sourceLoadEvidence: Map<String, Any> = emptyMap()
         var playerErrorCode: String? = null
         var playerErrorCause: String? = null
         var selectedAudioLabel: String? = null
@@ -385,6 +386,7 @@ object AgentControlRuntime {
         // player-owned fields through the existing main-thread bridge.
         if (session != null) {
             runOnMain {
+                sourceLoadEvidence = session.sourceLoadEvidence()
                 val player = session.player
                 val mediaItem = player.currentMediaItem
                 val uri = mediaItem?.localConfiguration?.uri
@@ -426,6 +428,7 @@ object AgentControlRuntime {
 
         return JSONObject().apply {
             put("schemaVersion", MOVIA_AGENT_SCHEMA_VERSION)
+            put("sourceLoadEvidence", JSONObject(sourceLoadEvidence))
             put("legacyEngine", app.movia.android.domain.legacy.LegacyPlaybackResolver.diagnostics())
             put("snapshot", stateRepository?.snapshotJson() ?: JSONObject())
             put("media3", JSONObject().apply {
