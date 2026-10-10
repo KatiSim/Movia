@@ -279,6 +279,8 @@ def query_open_balancer_stream(
     attempted only while its bounded reliability circuit allows a call; outcome
     metadata is attached to returned streams for the shared backend/Android ranker.
     """
+    collaps_status = "PROVIDER_COOLDOWN"
+    collaps_errors = 0
     if should_call("collaps"):
         started = time.monotonic()
         collaps_streams: List[Dict[str, Any]] = []
@@ -295,12 +297,15 @@ def query_open_balancer_stream(
             )
             collaps_diag = get_last_collaps_diagnostics()
             collaps_status = str(collaps_diag.get("status") or ("OK" if collaps_streams else "NO_RESULTS"))
+            collaps_errors = max(0, int(collaps_diag.get("error_count") or 0))
         except Exception as exc:
             collaps_status = "PROVIDER_ERROR"
+            collaps_errors = 1
             logger.debug("Collaps balancer error: %s", exc)
         latency_ms = (time.monotonic() - started) * 1000.0
         state = observe("collaps", collaps_status, latency_ms=latency_ms)
         if collaps_streams:
+            _set_resolution_diagnostics("OK", collaps_errors)
             annotated = annotate_streams(collaps_streams, "collaps")
             logger.info(
                 "Collaps resolved %d direct streams for '%s' reliability=%.3f",
@@ -312,9 +317,13 @@ def query_open_balancer_stream(
 
     if not allow_zona_provider:
         logger.debug("Zona balancer branch disabled: ProviderContract owns Zona discovery")
+        _set_resolution_diagnostics(collaps_status, collaps_errors)
         return []
     if not should_call("zona"):
         logger.info("Zona provider is in bounded reliability cooldown")
+        _set_resolution_diagnostics(
+            collaps_status if collaps_status in {"PROVIDER_ERROR", "NETWORK_ERROR", "PROVIDER_TIMEOUT"}
+            else "PROVIDER_COOLDOWN", collaps_errors)
         return []
 
     started = time.monotonic()
@@ -338,7 +347,17 @@ def query_open_balancer_stream(
         logger.debug("Zona balancer error: %s", exc)
         zona_streams = []
         zona_status = "PROVIDER_ERROR"
+        zona_diag = {"status": zona_status, "error_count": 1}
     observe("zona", zona_status, latency_ms=(time.monotonic() - started) * 1000.0)
+    zona_errors = max(0, int(zona_diag.get("error_count") or 0))
+    if zona_streams:
+        _set_resolution_diagnostics("OK", collaps_errors + zona_errors)
+    elif collaps_status in {"PROVIDER_ERROR", "NETWORK_ERROR", "PROVIDER_TIMEOUT"} and zona_status == "NO_RESULTS":
+        _set_resolution_diagnostics(collaps_status, max(1, collaps_errors) + zona_errors)
+    elif collaps_status == "PROVIDER_COOLDOWN" and zona_status == "NO_RESULTS":
+        _set_resolution_diagnostics("PROVIDER_COOLDOWN", 0)
+    else:
+        _set_resolution_diagnostics(zona_status, collaps_errors + zona_errors)
     return annotate_streams(zona_streams, "zona") if zona_streams else []
 
 
@@ -353,6 +372,8 @@ def resolve_balancer(
 ) -> Optional[Dict[str, Any]]:
     """Resolves best direct balancer stream for content_filler dispatcher."""
     try:
+        # Thread-local values must never leak across tasks in the same pool.
+        _set_resolution_diagnostics("UNKNOWN", 0)
         streams = query_open_balancer_stream(
             title=title,
             tmdb_id=tmdb_id,
@@ -367,7 +388,10 @@ def resolve_balancer(
         )
         diagnostics = get_last_resolution_diagnostics()
         if not streams:
-            logger.warning(
+            if diagnostics.get("status") == "UNKNOWN":
+                _set_resolution_diagnostics("NO_RESULTS", 0)
+                diagnostics = get_last_resolution_diagnostics()
+            logger.info(
                 "[Balancer] Нет доступных потоков: status=%s provider_errors=%s title=%s year=%s",
                 diagnostics.get("status"),
                 diagnostics.get("error_count"),

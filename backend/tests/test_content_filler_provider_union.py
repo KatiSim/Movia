@@ -83,7 +83,8 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
                     'MOVIA_BACKGROUND_TORRENT_LOOKUP': '1',
                     'MOVIA_CLOUD_MODE': '0',
                 }, clear=False), \
-                patch.object(filler._FILL_PROVIDER_EXECUTOR, 'submit', side_effect=[provider_future, balancer_future]), \
+                patch.object(filler._FILL_PROVIDER_EXECUTOR, 'submit', return_value=provider_future), \
+                patch.object(filler._FILL_BALANCER_EXECUTOR, 'submit', return_value=balancer_future), \
                 patch.object(filler._FILL_TORRENT_EXECUTOR, 'submit', return_value=torrent_future) as torrent_submit, \
                 patch.object(filler, 'wait', return_value=({provider_future}, {balancer_future})) as wait_call, \
                 patch.object(filler, 'filter_streams_for_content', side_effect=lambda rows, _: rows), \
@@ -99,6 +100,39 @@ class ContentFillerProviderUnionTests(unittest.TestCase):
         torrent_submit.assert_called_once()
         wait_call.assert_called_once()
         self.assertTrue(balancer_future.cancelled())
+
+    def test_balancer_status_is_read_on_its_own_thread(self):
+        import balancer_integration
+        from threading import get_ident
+        executed = []
+        def worker(**_request):
+            executed.append(get_ident())
+            balancer_integration._set_resolution_diagnostics('PROVIDER_TIMEOUT', 2)
+            return None
+        with patch.object(filler, 'resolve_balancer', side_effect=worker):
+            result = filler._FILL_BALANCER_EXECUTOR.submit(
+                filler._resolve_balancer_with_diagnostics, title='Example').result(timeout=3)
+        self.assertIsNone(result[0])
+        self.assertEqual('PROVIDER_TIMEOUT', result[1]['status'])
+        self.assertEqual(2, result[1]['error_count'])
+        self.assertNotEqual(get_ident(), executed[0])
+
+    def test_provider_timeout_is_not_mislabeled_as_no_source_or_network_error(self):
+        provider_future = Future()
+        provider_future.set_result(ProviderDiscoveryOutcome([], 'PROVIDER_TIMEOUT', (), 0))
+        balancer_future = Future()
+        balancer_future.set_result((None, {'status': 'NO_RESULTS', 'error_count': 0}))
+        with patch.dict('os.environ', {'MOVIA_BACKGROUND_BULK':'1',
+                                     'MOVIA_BACKGROUND_TORRENT_LOOKUP':'0'}, clear=False), \
+                patch.object(filler._FILL_PROVIDER_EXECUTOR, 'submit', return_value=provider_future), \
+                patch.object(filler._FILL_BALANCER_EXECUTOR, 'submit', return_value=balancer_future), \
+                patch.object(filler, 'wait', return_value=({provider_future, balancer_future}, set())), \
+                patch.object(filler, 'filter_streams_for_content', return_value=[]):
+            result=filler._process_row(self.row(),1,1)
+        self.assertEqual('provider_timeout', result['status'])
+        self.assertEqual(1, result['provider_timeouts'])
+        self.assertEqual(0, result['provider_errors'])
+        self.assertEqual('PROVIDER_TIMEOUT', result['provider_status'])
 
     def test_filler_persists_clean_provider_and_balancer_union(self):
         filmix = self.stream('Filmix', 'Dub', '1080p', 'filmix')

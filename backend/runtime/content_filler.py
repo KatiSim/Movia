@@ -66,7 +66,10 @@ def _background_direct_provider_budget_seconds() -> float:
     return min(8.0, max(0.05, value))
 
 
+# Independent bounded pools: six active movie workers submit one request to
+# each pool. A slow balancer must not consume provider registry slots.
 _FILL_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-provider")
+_FILL_BALANCER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-balancer")
 _FILL_TORRENT_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-torrent")
 
 logger = logging.getLogger("content_filler")
@@ -158,6 +161,7 @@ def _new_state() -> Dict[str, Any]:
         "invalid_result_total": 0,
         "persist_failure_total": 0,
         "provider_error_total": 0,
+        "provider_timeout_total": 0,
         "retry_after": {},
         "failure_streaks": {},
         "last_pass_completed_at": None,
@@ -304,6 +308,7 @@ def load_state() -> Dict[str, Any]:
         "invalid_result_total",
         "persist_failure_total",
         "provider_error_total",
+        "provider_timeout_total",
     ):
         state[key] = _as_int(state.get(key))
 
@@ -368,13 +373,16 @@ def _record_retry_outcome(
         streaks.pop(key, None)
         schedule[key] = int(now + RECENT_NO_SOURCE_RETRY_SECONDS)
         return
-    if status == "provider_error":
+    if status in {"provider_error", "provider_timeout"}:
         failures = max(1, _as_int(streaks.get(key), 0) + 1)
         streaks[key] = failures
         delay = min(
             PROVIDER_ERROR_RETRY_MAX_SECONDS,
             PROVIDER_ERROR_RETRY_BASE_SECONDS * (2 ** min(failures - 1, 8)),
         )
+    elif status == "provider_deferred":
+        streaks.pop(key, None)
+        delay = PROVIDER_ERROR_RETRY_BASE_SECONDS
     elif status == "no_source":
         streaks.pop(key, None)
         delay = NO_SOURCE_RETRY_SECONDS
@@ -544,6 +552,13 @@ def _rewrite_torrent_rows_for_persistence(
         return streams
 
 
+def _resolve_balancer_with_diagnostics(**request):
+    """Read thread-local balancer diagnostics on the SAME worker as resolver."""
+    streams = resolve_balancer(**request)
+    diagnostics = get_last_resolution_diagnostics()
+    return streams, dict(diagnostics)
+
+
 def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     """Resolve and persist one row; the caller commits the durable cursor."""
     content_id = _as_int(row["id"])
@@ -569,6 +584,10 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
 
     found_stream: Optional[Dict[str, Any]] = None
     row_provider_errors = 0
+    row_provider_timeouts = 0
+    row_provider_deferred = 0
+    provider_status = "NOT_ATTEMPTED"
+    balancer_status = "NOT_ATTEMPTED"
     persisted_ok = False
 
     cloud_mode = os.environ.get("MOVIA_CLOUD_MODE", "0") == "1"
@@ -590,8 +609,8 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         media_id=str(content_id),
         media_type=str(row["media_type"] or category),
     )
-    balancer_future = _FILL_PROVIDER_EXECUTOR.submit(
-        resolve_balancer,
+    balancer_future = _FILL_BALANCER_EXECUTOR.submit(
+        _resolve_balancer_with_diagnostics,
         title=search_title,
         year=year,
         tmdb_id=tmdb_id,
@@ -619,27 +638,45 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     if provider_future in done:
         try:
             provider_outcome = provider_future.result()
+            provider_status = str(provider_outcome.status or "UNKNOWN")
             resolved_streams.extend(provider_outcome.streams)
             row_provider_errors += _as_int(provider_outcome.error_count)
+            if provider_status == "PROVIDER_TIMEOUT":
+                row_provider_timeouts += 1
+            elif provider_status == "PROVIDER_COOLDOWN":
+                row_provider_deferred += 1
+            elif provider_status == "PROVIDER_ERROR" and not provider_outcome.error_count:
+                row_provider_errors += 1
         except Exception as exc:
+            provider_status = "PROVIDER_ERROR"
             row_provider_errors += 1
             logger.debug("Provider registry error for %s: %s", title, exc)
     else:
-        row_provider_errors += 1
+        provider_status = "BUDGET_TIMEOUT"
+        row_provider_timeouts += 1
         provider_future.cancel()
         logger.debug("Provider registry budget exceeded for %s", title)
 
     if balancer_future in done:
         try:
-            balancer_result = balancer_future.result()
-            diagnostics = get_last_resolution_diagnostics()
-            row_provider_errors += _as_int(diagnostics.get("error_count"))
+            balancer_result, diagnostics = balancer_future.result()
+            balancer_status = str(diagnostics.get("status") or "UNKNOWN")
+            diagnostics_errors = _as_int(diagnostics.get("error_count"))
+            row_provider_errors += diagnostics_errors
+            if balancer_status == "PROVIDER_TIMEOUT":
+                row_provider_timeouts += 1
+            elif balancer_status == "PROVIDER_COOLDOWN":
+                row_provider_deferred += 1
+            elif balancer_status in {"PROVIDER_ERROR", "NETWORK_ERROR", "RATE_LIMIT", "INVALID_RESPONSE", "DB_ERROR"} and not diagnostics_errors:
+                row_provider_errors += 1
             resolved_streams.extend(_candidate_streams(balancer_result))
         except Exception as exc:
+            balancer_status = "PROVIDER_ERROR"
             row_provider_errors += 1
             logger.debug("Balancer error for %s: %s", title, exc)
     else:
-        row_provider_errors += 1
+        balancer_status = "BUDGET_TIMEOUT"
+        row_provider_timeouts += 1
         balancer_future.cancel()
         logger.debug("Balancer budget exceeded for %s", title)
 
@@ -746,6 +783,10 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         status = "rejected_by_identity"
     elif row_provider_errors:
         status = "provider_error"
+    elif row_provider_timeouts:
+        status = "provider_timeout"
+    elif row_provider_deferred:
+        status = "provider_deferred"
     elif year >= datetime.now(timezone.utc).year - 1:
         status = "no_source_recent"
     else:
@@ -760,6 +801,10 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         "invalid_result": status == "rejected_by_identity",
         "persist_failure": status == "persistence_error",
         "provider_errors": row_provider_errors,
+        "provider_timeouts": row_provider_timeouts,
+        "provider_deferred": row_provider_deferred,
+        "provider_status": provider_status,
+        "balancer_status": balancer_status,
         "coverage_complete": bool(coverage.complete) if coverage is not None else False,
         "coverage_voices": int(coverage.voices) if coverage is not None else 0,
         "coverage_qualities": int(coverage.qualities) if coverage is not None else 0,
@@ -824,7 +869,10 @@ def fill_content(
     invalid_results = 0
     persist_failures = 0
     provider_errors = 0
+    provider_timeouts = 0
     status_counts = Counter()
+    provider_status_counts = Counter()
+    balancer_status_counts = Counter()
     started = time.monotonic()
 
     configured_workers = _as_int(
@@ -889,6 +937,9 @@ def fill_content(
                 invalid_results += int(bool(result.get("invalid_result")))
                 persist_failures += int(bool(result.get("persist_failure")))
                 provider_errors += _as_int(result.get("provider_errors"))
+                provider_timeouts += _as_int(result.get("provider_timeouts"))
+                provider_status_counts[str(result.get("provider_status") or "UNKNOWN")] += 1
+                balancer_status_counts[str(result.get("balancer_status") or "UNKNOWN")] += 1
                 status = str(result.get("status") or "provider_error")
                 status_counts[status] += 1
                 _record_retry_outcome(state, content_id, status)
@@ -916,6 +967,9 @@ def fill_content(
                 state["provider_error_total"] = _as_int(
                     state.get("provider_error_total")
                 ) + _as_int(result.get("provider_errors"))
+                state["provider_timeout_total"] = _as_int(
+                    state.get("provider_timeout_total")
+                ) + _as_int(result.get("provider_timeouts"))
 
                 if processed % 10 == 0 or processed == total:
                     save_state(state)
@@ -936,6 +990,8 @@ def fill_content(
         provider_errors,
         elapsed,
     )
+    logger.info("Provider diagnostics: registry=%s balancer=%s timeouts=%s",
+                dict(provider_status_counts), dict(balancer_status_counts), provider_timeouts)
     save_state(state)
     return {
         "processed": processed,
@@ -946,6 +1002,9 @@ def fill_content(
         "persist_failures": persist_failures,
         "provider_errors": provider_errors,
         "status_counts": dict(status_counts),
+        "provider_status_counts": dict(provider_status_counts),
+        "balancer_status_counts": dict(balancer_status_counts),
+        "provider_timeouts": provider_timeouts,
         "pass_completed": False,
     }
 

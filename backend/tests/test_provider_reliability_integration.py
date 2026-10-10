@@ -128,6 +128,29 @@ class ProviderReliabilityIntegrationTests(unittest.TestCase):
         self.assertEqual([], rows)
         zona_query.assert_not_called()
 
+    def test_balancer_does_not_reuse_previous_thread_local_failure(self):
+        balancer_integration._set_resolution_diagnostics('PROVIDER_ERROR', 99)
+        with patch.object(balancer_integration, 'query_open_balancer_stream', return_value=[]):
+            self.assertIsNone(balancer_integration.resolve_balancer('Example',year=2024))
+        self.assertEqual({'status':'NO_RESULTS','error_count':0},
+                         balancer_integration.get_last_resolution_diagnostics())
+
+    def test_all_cooldown_is_not_a_proven_no_source(self):
+        with patch.object(balancer_integration, 'should_call', return_value=False), \
+                patch.object(balancer_integration, 'query_zona_api') as zona:
+            streams = balancer_integration.query_open_balancer_stream('Example',year=2024)
+        self.assertEqual([], streams)
+        self.assertEqual('PROVIDER_COOLDOWN', balancer_integration.get_last_resolution_diagnostics()['status'])
+        zona.assert_not_called()
+
+    def test_collaps_failure_is_visible_when_zona_owned_by_registry(self):
+        with patch.object(balancer_integration, 'should_call', return_value=True), \
+                patch('collaps_provider.resolve_collaps', return_value=[]), \
+                patch('collaps_provider.get_last_collaps_diagnostics', return_value={'status':'PROVIDER_ERROR','error_count':2}):
+            streams=balancer_integration.query_open_balancer_stream('Example',year=2024,allow_zona_provider=False)
+        self.assertEqual([], streams)
+        self.assertEqual({'status':'PROVIDER_ERROR','error_count':2}, balancer_integration.get_last_resolution_diagnostics())
+
     def test_legacy_zona_balancer_branch_remains_available_while_contract_is_disabled(self):
         zona_row = {
             "source": "Zona", "url": "https://cdn.example/zona.m3u8",

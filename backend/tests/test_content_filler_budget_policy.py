@@ -30,6 +30,20 @@ class ContentFillerBudgetPolicyTests(unittest.TestCase):
             c._record_retry_outcome(state, 7, "provider_error", now)
         self.assertEqual(state["retry_after"]["7"], now + 24 * 60 * 60)
 
+    def test_timeout_is_retryable_and_distinct_from_no_source(self):
+        state = {'retry_after': {}, 'failure_streaks': {}}
+        now = 1_000_000
+        c._record_retry_outcome(state, 42, 'provider_timeout', now)
+        self.assertEqual(now + 2 * 60 * 60, state['retry_after']['42'])
+        c._record_retry_outcome(state, 42, 'provider_timeout', now)
+        self.assertEqual(now + 4 * 60 * 60, state['retry_after']['42'])
+
+    def test_circuit_cooldown_not_negative_cached_as_no_source(self):
+        state = {'retry_after': {}, 'failure_streaks': {}}
+        now=1_000_000
+        c._record_retry_outcome(state, 7, 'provider_deferred', now)
+        self.assertEqual(now + 2*60*60, state['retry_after']['7'])
+
     def test_no_source_and_identity_have_long_negative_cache(self):
         state = {"retry_after": {}, "failure_streaks": {}}
         now = 2_000_000

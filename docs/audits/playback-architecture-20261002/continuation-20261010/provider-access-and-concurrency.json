@@ -1,0 +1,61 @@
+{
+  "prior_checkpoint": {
+    "seq": 3448,
+    "commit": "7c516f16d62b038110844745d3f62bc03702f0e2"
+  },
+  "verified_root_cause": {
+    "hdrezka_search_status": "HTTP 403",
+    "real_adapter_result": "ACCESS_DENIED",
+    "access_health_before": 0,
+    "access_health_after": 1,
+    "provider_403_is_not_no_match": true
+  },
+  "fixes": [
+    "isolated background provider and balancer pools of six each",
+    "balancer diagnostics read in executor thread and reset per request",
+    "separate provider-timeout, provider-error, provider-cooldown, no-match retry semantics",
+    "HDRezka external access denials are ACCESS_DENIED and count toward per-provider cooldown",
+    "saved HDRezka identity-bound article remains eligible without new search even in discovery cooldown",
+    "three consecutive access-denials trip bounded circuit",
+    "provider registry status counters recorded per background pass"
+  ],
+  "observed_background_pass": {
+    "date_local": "2026-10-10",
+    "selection": 30,
+    "persisted": 8,
+    "identity_rejections": 4,
+    "registry_statuses": {
+      "PROVIDER_ERROR": 30
+    },
+    "balancer_statuses": {
+      "BUDGET_TIMEOUT": 11,
+      "PROVIDER_COOLDOWN": 19
+    },
+    "provider_timeouts": 11,
+    "elapsed_seconds": 132.84,
+    "note": "Observed before HDRezka access-circuit deployment; performance cannot be causally compared across different titles/network conditions"
+  },
+  "coverage": {
+    "canonical_saved_movies_prior": 27871,
+    "canonical_saved_movies_current": 27879,
+    "saved_candidates_new": 8,
+    "proven_live_streams_new": null,
+    "redirects": 137
+  },
+  "qa": {
+    "backend_tests_passed": 612,
+    "backend_tests_failed": 0,
+    "sqlite_quick_check": "ok",
+    "api_health_status": 200,
+    "live_deployment": true,
+    "parser_restart": "success",
+    "http_403_live_test": "ACCESS_DENIED"
+  },
+  "constraints": [
+    "No access-control bypass",
+    "No synthetic streams",
+    "Live HTTP coverage remains low",
+    "Existing unrelated uncommitted worktree changes intentionally preserved",
+    "Further live playback success requires device first-frame feedback"
+  ]
+}

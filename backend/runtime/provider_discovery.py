@@ -29,6 +29,7 @@ from zona_provider_adapter import ZonaProviderAdapter
 from zona_mobi_provider_adapter import ZonaMobiProviderAdapter
 from provider_contract import ProviderRequest, flatten_variant_tree
 from stream_validation import sanitize_streams
+from provider_reliability import observe, should_call
 
 
 TextFetcher = Callable[[str, Dict[str, str]], Tuple[Optional[str], Optional[str]]]
@@ -100,7 +101,7 @@ def _finish_discovery(attempted, collected_streams, terminal_statuses, error_cou
                                         "OK", tuple(attempted), error_count)
     if not attempted:
         return ProviderDiscoveryOutcome([], "PROVIDER_DISABLED")
-    priority = ("AMBIGUOUS", "PLAYBACK_DECODER_REQUIRED", "PROVIDER_ERROR",
+    priority = ("ACCESS_DENIED", "PROVIDER_COOLDOWN", "RATE_LIMIT", "AMBIGUOUS", "PLAYBACK_DECODER_REQUIRED", "PROVIDER_ERROR",
                 "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
     status = next((value for value in priority if value in terminal_statuses),
                   terminal_statuses[-1] if terminal_statuses else "NO_RESULTS")
@@ -175,10 +176,20 @@ def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: s
             media_type="tv" if is_series else "movie",
         )
         adapter = HDRezkaProviderAdapter()
-        results, search_error = adapter.search(request, aliases=(original_title,))
+        if not should_call("hdrezka"):
+            results, search_error = [], "PROVIDER_COOLDOWN"
+        else:
+            results, search_error = adapter.search(request, aliases=(original_title,))
         if search_error:
-            error_count += 1
-            terminal_statuses.append("PROVIDER_ERROR")
+            if search_error == "PROVIDER_COOLDOWN":
+                terminal_statuses.append("PROVIDER_COOLDOWN")
+            else:
+                error_count += 1
+                terminal_statuses.append(
+                    "ACCESS_DENIED" if str(search_error).startswith(("HTTP_ERROR:403", "HTTP_ERROR:401"))
+                    else "RATE_LIMIT" if str(search_error).startswith("HTTP_ERROR:429")
+                    else "PROVIDER_ERROR"
+                )
         elif len(results) > 1:
             terminal_statuses.append("AMBIGUOUS")
         elif not results:
@@ -200,7 +211,10 @@ def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: s
         error_count += 1
         terminal_statuses.append("PROVIDER_ERROR")
 
-    return _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+    outcome = _finish_discovery(attempted, collected_streams, terminal_statuses, error_count)
+    if outcome.status != "PROVIDER_COOLDOWN":
+        observe("hdrezka", outcome.status)
+    return outcome
 
 def _discover_collaps(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
     season: Optional[int] = None, episode: Optional[int] = None,
@@ -564,6 +578,6 @@ def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **
         return ProviderDiscoveryOutcome(sanitize_streams(rows, require_source=True), "OK", tuple(providers), errors, tuple(pending))
     if pending:
         return ProviderDiscoveryOutcome([], "PROVIDER_TIMEOUT", tuple(providers), errors, tuple(pending))
-    priority = ("INVALID_REQUEST", "AMBIGUOUS", "EXACT_EPISODE_REQUIRED", "PROVIDER_ERROR", "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
+    priority = ("INVALID_REQUEST", "ACCESS_DENIED", "RATE_LIMIT", "PROVIDER_COOLDOWN", "AMBIGUOUS", "EXACT_EPISODE_REQUIRED", "PROVIDER_ERROR", "UNSUPPORTED_SERIES", "NO_RESULTS", "NO_MATCH")
     status = next((x for x in priority if x in statuses), statuses[-1] if statuses else "NO_RESULTS")
     return ProviderDiscoveryOutcome([], status, tuple(providers), errors)
