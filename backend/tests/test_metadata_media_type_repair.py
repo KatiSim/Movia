@@ -82,8 +82,27 @@ class MetadataMediaTypeRepairTests(unittest.TestCase):
         fixed=self.conn.execute('SELECT media_type,seasons_count,episodes_count,metadata_source FROM movies WHERE id=1').fetchone()
         self.assertEqual(('tv',2,20,'tmdb_detail'),tuple(fixed))
 
-    def test_correction_refuses_row_with_existing_streams(self):
-        row=self.row(streams=json.dumps([{'url':'https://media.example/x.mp4'}]))
-        self.assertIsNone(metadata_repair.apply_media_type_correction(self.conn,row,detail()))
+    def test_correction_redirects_stream_bearing_wrong_row_when_canonical_duplicate_exists(self):
+        self.conn.execute("INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,localized_ru_title,normalized_ru_title,poster_url,streams) VALUES(1,77,'movie','Сериал','Series',2020,'Сериал','сериал','x',?)",(json.dumps([{'url':'https://legacy.example/x.mp4'}]),))
+        self.conn.execute("INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,localized_ru_title,normalized_ru_title,poster_url,streams) VALUES(2,77,'tv','Сериал','Series',2020,'Сериал','сериал','x',?)",(json.dumps([{'url':'https://canonical.example/ep.m3u8'}]),))
+        self.conn.commit()
+        row=self.row(streams=json.dumps([{'url':'https://legacy.example/x.mp4'}]))
+        canonical=metadata_repair.apply_media_type_correction(self.conn,row,detail())
+        self.conn.commit(); self.assertEqual(2,canonical)
+        self.assertEqual('2',self.conn.execute("SELECT value FROM catalog_meta WHERE key='catalog_redirect:1'").fetchone()[0])
+        self.assertEqual('tmdb_wrong_media_type',self.conn.execute('SELECT metadata_source FROM movies WHERE id=1').fetchone()[0])
+        self.assertEqual('https://legacy.example/x.mp4',json.loads(self.conn.execute('SELECT streams FROM movies WHERE id=1').fetchone()[0])[0]['url'])
+        self.assertEqual('https://canonical.example/ep.m3u8',json.loads(self.conn.execute('SELECT streams FROM movies WHERE id=2').fetchone()[0])[0]['url'])
+
+    def test_correction_creates_canonical_row_for_stream_bearing_wrong_type_without_duplicate(self):
+        self.conn.execute("INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,localized_ru_title,normalized_ru_title,poster_url,streams) VALUES(1,77,'movie','Сериал','Series',2020,'Сериал','сериал','x',?)",(json.dumps([{'url':'https://legacy.example/x.mp4'}]),))
+        self.conn.commit()
+        row=self.row(streams=json.dumps([{'url':'https://legacy.example/x.mp4'}]))
+        canonical=metadata_repair.apply_media_type_correction(self.conn,row,detail())
+        self.conn.commit(); self.assertNotEqual(1,canonical)
+        fixed=self.conn.execute('SELECT media_type,seasons_count,episodes_count,streams FROM movies WHERE id=?',(canonical,)).fetchone()
+        self.assertEqual('tv',fixed['media_type']); self.assertEqual(2,fixed['seasons_count']); self.assertEqual(20,fixed['episodes_count']); self.assertEqual([],json.loads(fixed['streams']))
+        self.assertEqual(str(canonical),self.conn.execute("SELECT value FROM catalog_meta WHERE key='catalog_redirect:1'").fetchone()[0])
+        self.assertEqual('https://legacy.example/x.mp4',json.loads(self.conn.execute('SELECT streams FROM movies WHERE id=1').fetchone()[0])[0]['url'])
 
 if __name__=='__main__': unittest.main()

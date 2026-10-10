@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-10",
+  "action": "systemic_catalog_media_type_diagnostics_and_priority_repair",
+  "findings": {
+    "previousPriorityCandidates": 98,
+    "verifiedStreamBearingSample": {
+      "checked": 20,
+      "confirmedWrongMediaType": 20
+    },
+    "topAmbiguousSample": {
+      "checked": 50,
+      "validMovies": 49,
+      "confirmedWrongMediaType": 1
+    },
+    "tmdbNotFoundBeforePriority": 87,
+    "fullSweepStateBefore": 3368,
+    "fullSweepStateAfter": 4342
+  },
+  "systemicRepair": {
+    "priorityMode": true,
+    "exactDuplicatePriorityCompleted": true,
+    "redirectsBefore": 33,
+    "redirectsAfterExactPriority": 131,
+    "streamBearingWithoutCanonicalHandled": 6,
+    "redirectsFinal": 137,
+    "wrongTypeHiddenFinal": 137,
+    "wrongTypeWithStreamsReviewFinal": 0,
+    "databaseIntegrity": "ok",
+    "backendHealth": 200,
+    "fullBackendTests": "599/599 PASS"
+  },
+  "guarantees": [
+    "TMDB current namespace must be absent before opposite namespace is considered",
+    "opposite namespace must match title/original title and year",
+    "existing canonical opposite-type rows are preserved",
+    "legacy stream rows are never copied to a new canonical card",
+    "legacy media IDs redirect to canonical cards",
+    "stream-bearing wrong-type rows without canonical card create a clean canonical card and preserve legacy streams on hidden row"
+  ],
+  "examples": [
+    {
+      "oldId": 10766,
+      "newId": 2587568,
+      "title": "Кунг-фу панда: Лапки судьбы",
+      "seasons": 2,
+      "episodes": 26
+    },
+    {
+      "oldId": 29194,
+      "newId": 2587569,
+      "title": "Эйс Вентура",
+      "seasons": 3,
+      "episodes": 41
+    },
+    {
+      "oldId": 18183,
+      "newId": 2587567,
+      "title": "Барбоскины",
+      "seasons": 17,
+      "episodes": 287
+    }
+  ]
+}

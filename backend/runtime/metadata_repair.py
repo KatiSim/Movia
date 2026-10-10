@@ -169,9 +169,6 @@ def apply_media_type_correction(
         streams = json.loads(row.get("streams") or "[]")
     except (TypeError, ValueError):
         streams = []
-    if isinstance(streams, list) and streams:
-        # Never silently rebind an existing playback identity.
-        return None
 
     existing = conn.execute(
         "SELECT id FROM movies WHERE media_type=? AND tmdb_id=? AND id!=?",
@@ -180,6 +177,28 @@ def apply_media_type_correction(
     now = _now()
     if existing:
         canonical_id = int(existing[0])
+        apply_authoritative_metadata(conn, canonical_id, data)
+        _record_redirect(conn, old_id, canonical_id)
+        conn.execute(
+            "UPDATE movies SET localized_ru_title='', normalized_ru_title='', "
+            "metadata_source='tmdb_wrong_media_type', metadata_updated_at=?, updated_at=? WHERE id=?",
+            (now, now, old_id),
+        )
+        return canonical_id
+
+    if isinstance(streams, list) and streams:
+        # Preserve the old playback rows untouched. Create a clean canonical card
+        # in the authoritative namespace, then redirect the legacy mediaId to it.
+        cur = conn.execute(
+            "INSERT INTO movies(tmdb_id,media_type,title,original_title,year,category,streams) "
+            "VALUES(?,?,?,?,?,?, '[]')",
+            (
+                tmdb_id, new_type, str(data.get("title") or data.get("original_title") or "Без названия"),
+                str(data.get("original_title") or ""), int(data.get("year") or 0),
+                str(data.get("category") or ("tv_series" if new_type == "tv" else "movies")),
+            ),
+        )
+        canonical_id = int(cur.lastrowid)
         apply_authoritative_metadata(conn, canonical_id, data)
         _record_redirect(conn, old_id, canonical_id)
         conn.execute(
@@ -225,6 +244,10 @@ def main() -> int:
         "--audit-media-type", action="store_true",
         help="Resumable exact movie/tv namespace audit over streamless catalog rows",
     )
+    ap.add_argument(
+        "--audit-media-type-priority", action="store_true",
+        help="Prioritize exact local movie/tv duplicates, including rows that already have streams",
+    )
     args = ap.parse_args()
 
     if os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1":
@@ -251,11 +274,23 @@ def main() -> int:
             f"SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies WHERE id IN ({placeholders}) ORDER BY id", ids
         ).fetchall()]
     else:
-        last_id = _load_state(state_path) if args.resume else 0
-        if args.audit_media_type:
+        last_id = 0 if args.audit_media_type_priority else (_load_state(state_path) if args.resume else 0)
+        if args.audit_media_type_priority:
+            # Fast systemic pass over locally suspicious cross-namespace duplicates.
+            # TMDb remains authoritative: the local duplicate only prioritizes the
+            # row; _fetch still requires current namespace missing and opposite
+            # namespace exact title/year identity before any correction.
+            sql = (
+                "SELECT m.id,m.tmdb_id,m.media_type,m.title,m.original_title,m.year,m.streams FROM movies m "
+                "WHERE m.id>? AND m.tmdb_id>0 AND m.media_type IN ('movie','tv') "
+                "AND ((m.metadata_source='tmdb_not_found' "
+                "AND (m.metadata_updated_at='' OR julianday(m.metadata_updated_at) < julianday('now','-1 day'))) "
+                "OR m.metadata_source='tmdb_wrong_media_type_with_streams') "
+                "ORDER BY m.id"
+            )
+        elif args.audit_media_type:
             # Audit every streamless identity eventually, independent of normal
-            # metadata freshness. Existing stream-bearing rows are deliberately
-            # excluded because automatic type rebinding must never move playback.
+            # metadata freshness.
             sql = (
                 "SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies "
                 "WHERE id>? AND tmdb_id>0 AND media_type IN ('movie','tv') "
@@ -284,9 +319,10 @@ def main() -> int:
         "selected": len(rows), "workers": max(1, min(args.workers, 12)),
         "resume_from": _load_state(state_path) if args.resume else 0,
         "audit_media_type": bool(args.audit_media_type),
+        "audit_media_type_priority": bool(args.audit_media_type_priority),
     }))
     if not rows:
-        if args.resume and state_path.exists():
+        if args.resume and not args.audit_media_type_priority and state_path.exists():
             # One complete id sweep is finished. Reset the cursor so the next
             # service pass can revisit rows that have become stale or were
             # inserted with a lower id by a restore/import.
@@ -335,7 +371,7 @@ def main() -> int:
             if index % 25 == 0 or index == len(rows):
                 bump_revision(conn)
                 conn.commit()
-                if not args.ids:
+                if not args.ids and not args.audit_media_type_priority:
                     _save_state(last_seen, repaired=repaired, failed=failed, media_type_corrected=media_type_corrected, path=state_path)
                 print(json.dumps({
                     "processed": index,
