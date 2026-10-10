@@ -6,13 +6,30 @@ class SourcePlaybackEvidenceTest(unittest.TestCase):
     def source(self, **changes):
         return dict(sourceId="src:one", verificationStatus="VERIFIED",
             verificationMethod="MEDIA3_SUCCESS", healthScore=1,
-            consecutiveFailures=0, startupLatencyMs=1200, expiresAt=None, **changes)
+            consecutiveFailures=0, startupLatencyMs=1200, expiresAt=None, lastSuccessAt=95, **changes)
 
     def test_decoded_success_exposes_latency_and_quality_evidence_separately(self):
         result=source_runtime_evidence(self.source(), 100)
         self.assertTrue(result["decodedPlayback"])
         self.assertEqual(1200, result["startupLatencyMs"])
         self.assertNotIn("quality", result)
+
+    def test_stale_decoder_is_history_not_startup_priority(self):
+        source=self.source(); source["lastSuccessAt"]=100
+        now=100 + 48*60*60 + 1
+        result=source_runtime_evidence(source,now)
+        self.assertTrue(result["decodedPlayback"])
+        self.assertFalse(result["startupEvidenceFresh"])
+        self.assertIsNone(result["startupLatencyMs"])
+        self.assertEqual("VERIFIED",result["verificationStatus"])
+
+    def test_decoder_freshness_boundary_and_future_clock(self):
+        base=self.source(); base["lastSuccessAt"]=100
+        self.assertTrue(source_runtime_evidence(base,100+48*60*60)["startupEvidenceFresh"])
+        self.assertFalse(source_runtime_evidence(base,99)["startupEvidenceFresh"])
+        base["lastSuccessAt"]=None
+        self.assertFalse(source_runtime_evidence(base,100)["startupEvidenceFresh"])
+        self.assertTrue(source_runtime_evidence(self.source(),100)["startupEvidenceFresh"])
 
     def test_manifest_only_is_not_decoder_success(self):
         source=self.source();source["verificationMethod"]="HLS_MANIFEST"

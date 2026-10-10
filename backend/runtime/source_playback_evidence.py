@@ -3,6 +3,9 @@ import math
 import re
 import time
 
+# Heuristic for ranking only, never a source deletion/negative-cache TTL.
+RECENT_DECODER_EVIDENCE_SECONDS = 48 * 60 * 60
+
 def finite_number(value, default=None):
     try:
         number = float(value)
@@ -24,6 +27,12 @@ def source_runtime_evidence(source, now, expiry_margin=15):
             status = "EXPIRED"
     method = str(source.get("verificationMethod") or "NONE").upper()
     decoded = status == "VERIFIED" and method == "MEDIA3_SUCCESS"
+    last_success = finite_number(source.get("lastSuccessAt"))
+    # A frame rendered days ago is historical truth, not evidence that the
+    # same signed CDN locator should win the next startup race. Keep the
+    # historical status without granting stale requests a ranking boost.
+    recent_decoder = (decoded and last_success is not None
+                      and 0 <= now - last_success <= RECENT_DECODER_EVIDENCE_SECONDS)
     health = finite_number(source.get("healthScore"), 0.5)
     failures = max(0, int(finite_number(source.get("consecutiveFailures"), 0)))
     startup = finite_number(source.get("startupLatencyMs"))
@@ -32,12 +41,13 @@ def source_runtime_evidence(source, now, expiry_margin=15):
         "verificationStatus": status,
         "verificationMethod": method,
         "decodedPlayback": decoded,
+        "startupEvidenceFresh": recent_decoder,
         "lastSuccessAt": source.get("lastSuccessAt"),
         "lastFailureAt": source.get("lastFailureAt"),
         "lastCheckedAt": source.get("lastCheckedAt"),
         "healthScore": min(1.0, max(0.0, health)),
         "consecutiveFailures": failures,
-        "startupLatencyMs": max(0, startup) if decoded and startup is not None else None,
+        "startupLatencyMs": max(0, startup) if recent_decoder and startup is not None else None,
         "expiresAt": expiry,
     }
 

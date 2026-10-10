@@ -1391,6 +1391,11 @@ object AgentControlRuntime {
             ?: return error("NO_ACTIVE_MEDIA", "No active media", true)
         if (!state.hasMedia) return error("NO_ACTIVE_MEDIA", "No active media", true)
         val content = DemoCatalogRepository.findById(state.mediaId)
+            ?: runBlocking(Dispatchers.IO) {
+                // An episode may be playable even if its full card was evicted
+                // from the bounded catalog cache. Resolve by the same strict ID.
+                DemoCatalogRepository.findPlaybackById(state.mediaId)
+            }
             ?: return error("MEDIA_NOT_FOUND", "Current media metadata unavailable", true)
         var season = state.seasonNumber ?: 1
         var episode = state.episodeNumber ?: 1

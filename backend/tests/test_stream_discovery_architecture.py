@@ -137,7 +137,7 @@ class DiscoveryPersistenceTest(unittest.TestCase):
                     'locatorHash':hashlib.sha256(source['url'].encode()).hexdigest(),
                     'requestProfileHash':__import__('native_variant_feedback').feedback_fingerprints(source)['native_feedback_profile_hash'],
                     'verificationStatus':'VERIFIED','verificationMethod':'MEDIA3_SUCCESS',
-                    'healthScore':.98,'startupLatencyMs':2345,'consecutiveFailures':0,
+                    'healthScore':.98,'startupLatencyMs':2345,'lastSuccessAt':time.time(),'consecutiveFailures':0,
                     'actualQuality':'576p','actualQualities':['576p'],'expiresAt':None}]}
         with patch.object(streamer,'PLAYBACK_SOURCE_TRUTH_INDEX',Index()):
             row=streamer._annotate_streams_with_source_truth(self.card,[source],None,None)[0]

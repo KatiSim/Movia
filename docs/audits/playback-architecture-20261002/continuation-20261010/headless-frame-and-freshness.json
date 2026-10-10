@@ -1,0 +1,49 @@
+{
+  "checkpoint_from": {
+    "seq": 3451,
+    "commit": "12412279a09da11abb20e6d33141553dd98c6d4e"
+  },
+  "diagnostic_findings": [
+    "Headless control lacked a render surface; ready/position evidence is not decoded first-frame evidence.",
+    "Physical selected audio and quality must be observed from Media3 track groups, not advertised provider labels or Auto quality.",
+    "Hidden catalog entry 615281 has localized_ru_title empty; /api/movie/615281 intentionally 404 while /playback returns 200. Restored visibility parity without bypassing policy.",
+    "Historical first-frame success on an old signed HLS locator is not evidence of present startup availability; Android episode 159/S1E1 experienced ERROR_CODE_IO_BAD_HTTP_STATUS during controlled on-device retry.",
+    "Installed APK replacement was blocked by HyperOS package manager permission and rish install exited 255; Android cache fallback is source-only, not deployed."
+  ],
+  "source_fixes": {
+    "acceptance": "Headless probe surface enabled and always detached; real Media3 audio/quality selection; independent visible random catalog vs historical decoded-control and adjacent-series control; dependent checks marked blocked but still fail release; stable exact visibility policy verified by regression.",
+    "android": "An active series evicted from cache can resolve its exact ID via /api/movie/{id}/playback when advancing episode; hidden full details remain hidden; build compiled but installation not confirmed.",
+    "source_truth": "Historical decoded playback remains true in audit; startup ranking boost and measured latency require successful first frame no older than 48h. This is a ranking heuristic, not deletion or proof of new playback; shipped in two live backend files."
+  },
+  "measurement": {
+    "CURRENT_PREVIOUS_ANDROID_ACCEPTANCE": "14/29 PASS (3451), not directly comparable to expanded 32-check acceptance",
+    "TARGET_ANDROID_ACCEPTANCE": "strict 100%",
+    "ACTUAL_LATEST_FIXED_VISIBLE_SAMPLE": "24/32 PASS; release_gate FAIL",
+    "DELTA_NOTE": "Old and new suites have different sample policy/check counts, so direct quality percentage change is not meaningful",
+    "physical_control_first_frame_ms": 992,
+    "physical_uk_audio_switch": "PASS",
+    "physical_en_audio_switch": "PASS",
+    "physical_quality_switch": "PASS",
+    "remaining_android_fails": [
+      "random visible movie operation timeout (>10s)",
+      "series historical adjacent-pair initial episode operation timeout (>10s)"
+    ],
+    "backend_unit_tests_passed": 620,
+    "backend_unit_tests_failed": 0,
+    "acceptance_unit_tests_passed": 8,
+    "acceptance_unit_tests_failed": 0,
+    "gradle_assemble_debug": "SUCCESS (3m39s before final source change)",
+    "gradle_compile_debug_kotlin": "SUCCESS (4m2s after final source change)",
+    "apk_install": "BLOCKED: package manager denied/reported code 255, no installed binary change",
+    "live_api_http": 200,
+    "db_quick_check": "ok",
+    "saved_movie_cards": 27906
+  },
+  "safe_scope": [
+    "Only 8 source/test files staged. Two previously dirty files streamer.py and test_stream_discovery_architecture.py were staged as synthetic index blobs containing only this turn's targeted lines, unrelated worktree changes preserved.",
+    "No bypass of Android installation policy or content access limits.",
+    "No fabricated playback evidence, no foreign content identity reuse.",
+    "All historical first-frame success remains in audit, never silently removed."
+  ],
+  "followup": "Need authorized Android package installation for latest Kotlin build, real first-frame tests of target movies and adjacent episodes after resolving stale external HLS; random catalog availability still incomplete and release gate FAIL."
+}

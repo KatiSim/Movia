@@ -52,6 +52,49 @@ class AcceptanceEvidenceTests(unittest.TestCase):
         self.assertEqual(response,payload)
         action.assert_called_once()
 
+    def test_verified_adjacent_episodes_are_required_for_series_control(self):
+        with tempfile.TemporaryDirectory() as temp:
+            db=Path(temp)/'episodes.db'
+            with sqlite3.connect(db) as c:
+                c.executescript("""CREATE TABLE playback_availability(media_key TEXT,media_id TEXT,media_kind TEXT,
+                  season_number INTEGER,episode_number INTEGER,availability_status TEXT,last_success_at REAL);
+                  CREATE TABLE playback_sources(media_key TEXT,verification_method TEXT,last_success_at REAL,source_type TEXT);""")
+                for episode in (1,2):
+                    key=f'series:159:s001:e{episode:04d}'
+                    c.execute('INSERT INTO playback_availability VALUES(?,?,?,?,?,?,?)',
+                              (key,'159','EPISODE',1,episode,'VERIFIED',999_900.0))
+                    c.execute('INSERT INTO playback_sources VALUES(?,?,?,?)',
+                              (key,'MEDIA3_SUCCESS',999_900.0,'HLS'))
+                c.execute('INSERT INTO playback_availability VALUES(?,?,?,?,?,?,?)',
+                          ('series:160:s001:e0001','160','EPISODE',1,1,'VERIFIED',999_900))
+            with patch.object(a,'SOURCE_TRUTH_DB',db):
+                self.assertEqual([('159',1,1)],a.select_verified_episode_pairs(now=1_000_000))
+                with sqlite3.connect(db) as c:
+                    c.execute('UPDATE playback_sources SET verification_method=? WHERE media_key=?',
+                              ('MANIFEST','series:159:s001:e0002'))
+                self.assertEqual([],a.select_verified_episode_pairs(now=1_000_000))
+
+    def test_catalog_sample_visibility_policy_matches_backend(self):
+        import runpy
+        project_root = Path(__file__).resolve().parent.parent
+        policy = runpy.run_path(str(project_root / 'backend/runtime/catalog_sql.py'))
+        self.assertEqual(' '.join(policy['USER_VISIBLE_SQL'].split()),
+                         ' '.join(a.USER_VISIBLE_SQL.split()))
+
+    def test_headless_frame_probe_always_gets_detached(self):
+        runner=a.Runner.__new__(a.Runner)
+        runner.checks=[]; runner.verbose=False; runner.samples={};runner.sample_seed=11
+        runner.sample_selection=lambda: None
+        runner.backend=lambda: None
+        runner.android=lambda: None
+        runner.first_frame_control=lambda: None
+        runner.series=lambda: None
+        with patch.object(a,'action',return_value=(200,{'status':'completed'},'')) as agent, \
+             patch.object(a,'reset_player'):
+            summary=runner.run()
+        self.assertEqual(0,summary['total'])
+        agent.assert_called_with('player.probeSurface',{'enabled':False})
+
     def test_strict_gate_never_converts_blocked_to_pass(self):
         runner=a.Runner.__new__(a.Runner)
         runner.verbose=False

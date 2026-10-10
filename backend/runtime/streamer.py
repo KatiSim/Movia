@@ -482,7 +482,9 @@ def _annotate_streams_with_source_truth(
             meta.update({
                 "playback_verification_status": evidence["verificationStatus"],
                 "playback_verification_method": evidence["verificationMethod"],
-                "playback_decoded": evidence["decodedPlayback"],
+                # Only recent decoded evidence is eligible to bias startup.
+                # sourceTruth.decodedPlayback retains historical audit truth.
+                "playback_decoded": evidence["startupEvidenceFresh"],
             })
             item["transport_metadata"] = meta
         facts = verified_by_fingerprint.get((provider, locator_hash, profile_hash))

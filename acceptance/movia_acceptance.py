@@ -37,6 +37,11 @@ SOURCE_TRUTH_DB = Path(os.environ.get(
     "MOVIA_SOURCE_TRUTH_DB", str(CATALOG_DB.parent / "stream_cache/playback_availability_v1.db")
 ))
 CONTROL_SUCCESS_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
+# Must match backend/runtime/catalog_sql.py USER_VISIBLE_SQL. Testing hidden
+# catalog rows as user-visible coverage would invent false product failures.
+USER_VISIBLE_SQL = ("tmdb_id > 0 AND media_type IN ('movie','tv') "
+                    "AND COALESCE(localized_ru_title, '') != '' "
+                    "AND poster_url IS NOT NULL AND poster_url != ''")
 
 
 def playback_failure_cause(*, operation_ok: bool, operation_detail: str = "",
@@ -81,15 +86,47 @@ def select_recent_first_frame_movies(*, now: Optional[float] = None) -> List[str
     try:
         with sqlite3.connect(str(SOURCE_TRUTH_DB)) as conn:
             return [str(r[0]) for r in conn.execute("""
-                SELECT DISTINCT a.media_id FROM playback_availability a
+                SELECT a.media_id FROM playback_availability a
                 JOIN playback_sources s ON s.media_key=a.media_key
                 WHERE a.media_kind='MOVIE' AND a.availability_status='VERIFIED'
                   AND s.verification_method='MEDIA3_SUCCESS'
                   AND s.last_success_at >= ?
                   AND s.source_type IN ('HLS','MP4')
                   AND (s.expires_at IS NULL OR s.expires_at > ?)
-                ORDER BY a.media_id
+                GROUP BY a.media_id
+                ORDER BY MAX(s.last_success_at) DESC, a.media_id
             """, (cutoff, observation_time + 300.0))]
+    except (sqlite3.Error, OSError):
+        return []
+
+
+def select_verified_episode_pairs(*, now: Optional[float] = None) -> List[Tuple[str, int, int]]:
+    """Paired episode proof chooses a player control, not universal TV coverage."""
+    if not SOURCE_TRUTH_DB.is_file():
+        return []
+    observed = time.time() if now is None else now
+    cutoff = observed - 14 * 24 * 60 * 60
+    try:
+        with sqlite3.connect(str(SOURCE_TRUTH_DB)) as conn:
+            return [(str(media_id), int(season), int(episode))
+                    for media_id, season, episode in conn.execute("""
+                SELECT a.media_id,a.season_number,a.episode_number
+                FROM playback_availability a
+                JOIN playback_availability b
+                  ON b.media_kind='EPISODE' AND a.media_id=b.media_id
+                 AND b.season_number=a.season_number
+                 AND b.episode_number=a.episode_number+1
+                WHERE a.media_kind='EPISODE'
+                  AND a.availability_status='VERIFIED' AND b.availability_status='VERIFIED'
+                  AND a.last_success_at>=? AND b.last_success_at>=?
+                  AND EXISTS (SELECT 1 FROM playback_sources s WHERE s.media_key=a.media_key
+                     AND s.verification_method='MEDIA3_SUCCESS' AND s.last_success_at>=?
+                     AND s.source_type IN ('HLS','MP4'))
+                  AND EXISTS (SELECT 1 FROM playback_sources s WHERE s.media_key=b.media_key
+                     AND s.verification_method='MEDIA3_SUCCESS' AND s.last_success_at>=?
+                     AND s.source_type IN ('HLS','MP4'))
+                ORDER BY b.last_success_at DESC, a.media_id
+            """, (cutoff, cutoff, cutoff, cutoff))]
     except (sqlite3.Error, OSError):
         return []
 
@@ -113,13 +150,13 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
     with sqlite3.connect(str(CATALOG_DB)) as conn:
         conn.row_factory = sqlite3.Row
         movies = conn.execute(
-            "SELECT id, title FROM movies WHERE media_type='movie' AND title != '' ORDER BY id"
+            f"SELECT id, title FROM movies WHERE {USER_VISIBLE_SQL} AND media_type='movie' AND title != '' ORDER BY id"
         ).fetchall()
         audio_movies = conn.execute(
-            """
+            f"""
             SELECT m.id, m.title
             FROM movies m
-            WHERE m.media_type='movie' AND m.title != ''
+            WHERE {USER_VISIBLE_SQL} AND m.media_type='movie' AND m.title != ''
               AND json_valid(COALESCE(m.streams, '[]')) = 1
               AND EXISTS (
                 SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
@@ -142,10 +179,10 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
             """
         ).fetchall()
         quality_movies = conn.execute(
-            """
+            f"""
             SELECT m.id, m.title
             FROM movies m
-            WHERE m.media_type='movie' AND m.title != ''
+            WHERE {USER_VISIBLE_SQL} AND m.media_type='movie' AND m.title != ''
               AND json_valid(COALESCE(m.streams, '[]')) = 1
               AND EXISTS (
                 SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
@@ -160,10 +197,10 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
             """
         ).fetchall()
         series_rows = conn.execute(
-            """
+            f"""
             SELECT m.id, m.title, m.season_episode_counts, m.streams
             FROM movies m
-            WHERE m.media_type='tv' AND m.title != '' AND m.seasons_count > 0
+            WHERE {USER_VISIBLE_SQL} AND m.media_type='tv' AND m.title != '' AND m.seasons_count > 0
               AND json_valid(COALESCE(m.streams, '[]')) = 1
               AND EXISTS (
                 SELECT 1 FROM json_each(COALESCE(m.streams, '[]')) j
@@ -180,12 +217,22 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
     # unfiltered movie as a coverage probe rather than claiming it is playable.
     proven_ids = set(select_recent_first_frame_movies())
     proven_movies = [row for row in movies if str(row["id"]) in proven_ids]
-    proven_row = rng.choice(proven_movies) if proven_movies else None
+    proven_by_id = {str(row["id"]): row for row in proven_movies}
+    proven_row = next((proven_by_id[mid] for mid in select_recent_first_frame_movies()
+                       if mid in proven_by_id), None)
+    # Keep the independent seeded random coverage samples unchanged compared
+    # with previous acceptance versions; only the control identity changes.
+    if proven_movies:
+        rng.choice(proven_movies)
     random_movie_row = rng.choice(movies)
     audio_row = rng.choice(audio_movies) if audio_movies else None
     quality_pool = [r for r in quality_movies if str(r["id"]) != str(audio_row["id"]) ] if audio_row else list(quality_movies)
     quality_row = rng.choice(quality_pool or quality_movies) if quality_movies else None
     series_row = rng.choice(series_rows) if series_rows else None
+    series_by_id = {str(row["id"]): row for row in series_rows}
+    verified_pair = next(((series_by_id[mid], season, episode)
+                          for mid,season,episode in select_verified_episode_pairs()
+                          if mid in series_by_id), None)
 
     targets: Dict[str, Dict[str, Any]] = {
         "randomMovie": _target(random_movie_row),
@@ -196,6 +243,10 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
         targets["audioMovie"] = _target(audio_row)
     if quality_row is not None:
         targets["qualityMovie"] = _target(quality_row)
+    if verified_pair is not None:
+        proven_series, proven_season, proven_episode = verified_pair
+        targets["seriesControl"] = dict(_target(proven_series),
+                                         season=proven_season, episode=proven_episode)
     if series_row is not None:
         series_target = _target(series_row)
         counts: List[int] = []
@@ -397,10 +448,15 @@ class Runner:
     def run(self) -> Dict[str, Any]:
         self.sample_selection()
         self.backend()
-        self.android()
-        self.first_frame_control()
-        self.series()
-        reset_player()
+        try:
+            self.android()
+            self.first_frame_control()
+            self.series()
+        finally:
+            reset_player()
+            # The headless diagnostic surface consumes decoder resources. It
+            # must never survive the acceptance run into normal app operation.
+            action("player.probeSurface", {"enabled": False})
         total = len(self.checks)
         passed = sum(1 for c in self.checks if c["passed"])
         failed = total - passed
@@ -433,6 +489,7 @@ class Runner:
             ("qualityMovie", "multi-quality movie sample selected"),
             ("series", "series sample selected"),
             ("firstFrameControl", "previous Media3 first-frame sample selected"),
+            ("seriesControl", "previous adjacent Media3 episode pair selected"),
         ):
             self.record(
                 "SAMPLE",
@@ -472,6 +529,15 @@ class Runner:
             wake_android_app(); time.sleep(1.0); status, payload, err = agent_http("/health")
         self.record("ANDROID", "agent/app process", status == 200 and isinstance(payload, dict) and payload.get("processAlive") is True, err if status != 200 else "")
 
+        # Media3 cannot render first-frame evidence without a video surface.
+        # Headless agent tests enable Movia's existing diagnostic frame probe.
+        probe_status, probe_payload, probe_error = action("player.probeSurface", {"enabled": True})
+        probe_ok = (probe_status == 200 and isinstance(probe_payload, dict)
+                    and probe_payload.get("status") == "completed")
+        self.record("CONTROL", "headless decoder output connected", probe_ok,
+                    probe_error or ("frame probe enabled" if probe_ok else "probe unavailable"),
+                    domain="CONTROL")
+
         status, payload, err = action("catalog.query", {"limit": 1})
         self.record("ANDROID", "backend connection", status == 200 and isinstance(payload, dict) and payload.get("status") == "completed", err if status != 200 else "")
 
@@ -501,6 +567,7 @@ class Runner:
             cause = playback_failure_cause(operation_ok=ok, operation_detail=detail,
                                            diagnostics_payload=d)
             is_coverage_failure = cause == "NO_SOURCE"
+            downstream_block = cause if not ok else ""
             self.record("ANDROID", "random movie playback", ok,
                         detail or f"mediaId={random_movie['mediaId']}",
                         domain="COVERAGE" if ok or is_coverage_failure else "PLAYER",
@@ -515,11 +582,11 @@ class Runner:
             ready = ok and isinstance(m3, dict) and (str(m3.get("playbackState") or "").upper() == "READY" or m3.get("playbackStateCode") == 3)
             self.record("ANDROID", "random movie Media3 READY", ready,
                         "" if ready else "Media3 did not report READY",
-                        blocked_by="NO_SOURCE" if is_coverage_failure else "")
+                        blocked_by=downstream_block)
             timeline_ok = wait_for_position_advance(seconds=3.0) if ready else False
             self.record("ANDROID", "random movie advancing timeline", timeline_ok,
                         "" if timeline_ok else "timeline did not advance",
-                        blocked_by="NO_SOURCE" if is_coverage_failure else "")
+                        blocked_by=downstream_block)
         reset_player()
 
         # Capability-selected multilingual sample. The title changes with the seed.
@@ -539,16 +606,17 @@ class Runner:
             )
             self.record("ANDROID", "multilingual probe playback", audio_started, audio_detail or f"mediaId={audio_movie['mediaId']}")
 
-        media_streams = audio_media.get("streams") if isinstance(audio_media, dict) else []
+        # Release labels are provider claims, not physical Media3 track facts.
+        # Identify languages from the actual extractor track groups instead.
+        options = streams_payload() if audio_started else None
         language_targets: Dict[str, str] = {}
-        if isinstance(media_streams, list):
-            for item in media_streams:
-                if not isinstance(item, dict):
-                    continue
-                lang = str(item.get("language") or "").lower()
-                voice = str(item.get("voice") or "")
-                if lang in {"uk", "en"} and voice and lang not in language_targets:
-                    language_targets[lang] = voice
+        for track in (options.get("audioTracks") or []) if isinstance(options, dict) else []:
+            if not isinstance(track, dict):
+                continue
+            lang = str(track.get("language") or "").lower().split("-")[0]
+            label = str(track.get("voice") or track.get("id") or "")
+            if lang in {"uk", "en"} and label and lang not in language_targets:
+                language_targets[lang] = label
 
         for lang, check_name in (("uk", "physical Ukrainian audio"), ("en", "physical Original/English audio")):
             target = language_targets.get(lang)
@@ -566,10 +634,18 @@ class Runner:
                 {"voice": target, "persist": False},
                 timeout=4.0,
             )
-            vd = diagnostics()
-            vm3 = vd.get("media3") if isinstance(vd, dict) else None
-            actual_language = str(vm3.get("selectedAudioLanguage") or "").lower() if isinstance(vm3, dict) else ""
-            actual_label = str(vm3.get("selectedAudioLabel") or "") if isinstance(vm3, dict) else ""
+            actual_language = ""
+            actual_label = ""
+            if v_ok:
+                deadline = time.monotonic() + 3.0
+                while time.monotonic() < deadline:
+                    vd = diagnostics()
+                    vm3 = vd.get("media3") if isinstance(vd, dict) else None
+                    actual_language = str(vm3.get("selectedAudioLanguage") or "").lower() if isinstance(vm3, dict) else ""
+                    actual_label = str(vm3.get("selectedAudioLabel") or "") if isinstance(vm3, dict) else ""
+                    if actual_language.startswith(lang):
+                        break
+                    time.sleep(0.2)
             self.record(
                 "ANDROID", check_name, v_ok and actual_language.startswith(lang),
                 v_detail or f"requestedVoice={target}, selectedAudioLabel={actual_label}, selectedAudioLanguage={actual_language}",
@@ -587,12 +663,20 @@ class Runner:
         )
         sp = streams_payload() if q_start else None
         qualities: List[str] = []
-        if isinstance(sp, dict):
+        # Extractor-measured physical resolutions take precedence over labels
+        # advertised by a provider. "Auto" is not a concrete quality switch.
+        physical_video = sp.get("videoTracks") or [] if isinstance(sp, dict) else []
+        if isinstance(physical_video, list):
+            for track in physical_video:
+                if isinstance(track, dict) and track.get("quality"):
+                    qualities.append(str(track["quality"]))
+        if not qualities and isinstance(sp, dict):
             for group in sp.get("qualities") or []:
                 if isinstance(group, dict) and group.get("quality"):
                     qualities.append(str(group["quality"]))
         active_quality = str(sp.get("activeQuality") or "") if isinstance(sp, dict) else ""
-        alternatives = [q for q in qualities if q.lower() != active_quality.lower()]
+        alternatives = list(dict.fromkeys(q for q in qualities
+                        if q.lower() not in {active_quality.lower(), "auto", "не указано"}))
         if not q_start:
             self.record("ANDROID", "switch quality", False, f"quality probe playback failed: {q_start_detail}")
         elif not alternatives:
@@ -600,9 +684,22 @@ class Runner:
         else:
             target = alternatives[0]
             q_ok, q_detail, _ = accepted_operation("player.selectQuality", {"quality": target, "persist": False}, timeout=3.0)
-            after = streams_payload()
-            actual = str(after.get("activeQuality") or "") if isinstance(after, dict) else ""
-            self.record("ANDROID", "switch quality", q_ok and actual.lower() == target.lower(), q_detail or f"requested={target}, active={actual}")
+            actual = ""
+            selected = False
+            if q_ok:
+                deadline = time.monotonic() + 3.0
+                while time.monotonic() < deadline:
+                    after = streams_payload()
+                    actual = str(after.get("activeQuality") or "") if isinstance(after, dict) else ""
+                    tracks = after.get("videoTracks") or [] if isinstance(after, dict) else []
+                    selected = any(isinstance(track, dict) and track.get("selected") is True
+                                   and str(track.get("quality") or "").lower() == target.lower()
+                                   for track in tracks)
+                    if selected and actual.lower() == target.lower():
+                        break
+                    time.sleep(0.2)
+            self.record("ANDROID", "switch quality", q_ok and selected and actual.lower() == target.lower(),
+                        q_detail or f"requested={target}, active={actual}, physicalTrackSelected={selected}")
 
     def first_frame_control(self) -> None:
         """Independently evaluate a previously Media3-decoded movie.
@@ -657,7 +754,17 @@ class Runner:
 
     def series(self) -> None:
         reset_player()
-        target = self.samples.get("series")
+        random_target = self.samples.get("series")
+        if random_target is not None:
+            rs, rp, re = action("media.details", {"mediaId": random_target["mediaId"]})
+            random_found = rs == 200 and isinstance(rp, dict) and isinstance(rp.get("media"), dict)
+            self.record("SERIES", "random series catalog coverage", random_found,
+                        "" if random_found else re or "random TV card not available in Android",
+                        domain="COVERAGE", cause="CATALOG_MISSING" if not random_found else "")
+        else:
+            self.record("SERIES", "random series catalog coverage", False,
+                        "no sampled TV entry", domain="COVERAGE", cause="CATALOG_MISSING")
+        target = self.samples.get("seriesControl") or random_target
         if target is None:
             for name in ("season metadata", "start sampled episode", "startup <= 10s", "progress persistence / resume", "next episode"):
                 self.record("SERIES", name, False, self.sample_error or "series sample unavailable")
@@ -690,16 +797,25 @@ class Runner:
         d = diagnostics()
         snap = d.get("snapshot", {}).get("playback", {}) if isinstance(d, dict) else {}
         ep_ready = ok and snap.get("season") == season and snap.get("episode") == episode and snap.get("status") == "READY"
-        self.record("SERIES", "start sampled episode", ep_ready, detail or f"state={snap.get('status')}, S={snap.get('season')}, E={snap.get('episode')}")
+        failure_cause = playback_failure_cause(operation_ok=ok,
+                         operation_detail=detail, diagnostics_payload=d)
+        no_source = failure_cause == "NO_SOURCE"
+        self.record("SERIES", "start sampled episode", ep_ready,
+                    detail or f"state={snap.get('status')}, S={snap.get('season')}, E={snap.get('episode')}",
+                    domain="COVERAGE" if no_source else "PLAYER",
+                    cause=failure_cause if not ep_ready else "")
         self.record(
             "SERIES", "startup <= 10s", ep_ready and startup_elapsed <= STARTUP_LIMIT_SECONDS,
             f"elapsedSeconds={startup_elapsed:.2f}, limit={STARTUP_LIMIT_SECONDS:.2f}",
+            blocked_by="STARTUP_FAILED" if not ep_ready else "",
         )
 
         if not ep_ready:
-            blocked = "blocked: sampled episode did not reach READY within startup budget"
-            self.record("SERIES", "progress persistence / resume", False, blocked)
-            self.record("SERIES", "next episode", False, blocked)
+            blocked = "sampled episode did not reach READY"
+            self.record("SERIES", "progress persistence / resume", False, blocked,
+                        blocked_by="STARTUP_FAILED")
+            self.record("SERIES", "next episode", False, blocked,
+                        blocked_by="STARTUP_FAILED")
             return
 
         action("player.seek", {"positionMs": 90_000})
