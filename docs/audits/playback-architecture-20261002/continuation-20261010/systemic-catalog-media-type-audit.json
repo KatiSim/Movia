@@ -1,0 +1,54 @@
+{
+  "action": "systemic_catalog_media_type_audit",
+  "date": "2026-10-10",
+  "behavior": {
+    "manualIdsRequired": false,
+    "auditMode": "--audit-media-type",
+    "separateResumeState": "metadata_type_repair_state.json",
+    "scope": "all streamless movie/tv rows with tmdb_id",
+    "identityBarrier": "current/opposite TMDB namespace must match title/original_title and year",
+    "streamBearingRowsAutoRebound": false,
+    "backgroundOrder": [
+      "media-type audit",
+      "stream enrichment",
+      "manifest verification"
+    ]
+  },
+  "qa": {
+    "focusedTests": "11/11 PASS",
+    "fullBackendTests": "598/598 PASS",
+    "databaseIntegrity": "ok"
+  },
+  "live": {
+    "initialAudit": {
+      "selected": 100,
+      "correctedMediaType": 6,
+      "failed": 1,
+      "cursorAfter": 598
+    },
+    "automaticServiceBatch": {
+      "cursorBefore": 598,
+      "cursorAfter": 656
+    },
+    "acceleratedSystemBatch": {
+      "selected": 500,
+      "correctedMediaType": 2,
+      "failed": 1,
+      "cursorBefore": 656,
+      "cursorAfter": 2573
+    },
+    "subsequentAutomaticCursor": 2648,
+    "automaticCorrectionsObserved": 8,
+    "redirectsCurrent": 32,
+    "hiddenWrongTypeRowsCurrent": 32,
+    "eligibleStreamlessForAudit": 66195,
+    "mode": "wifi",
+    "parser": "RUNNING",
+    "enricher": "RUNNING",
+    "health": 200
+  },
+  "backups": [
+    "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/active-parser-backup-20261010-systemic-media-type-audit",
+    "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/catalog-before-systemic-media-type-audit-20261010.db"
+  ]
+}

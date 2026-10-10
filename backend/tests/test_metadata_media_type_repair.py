@@ -46,6 +46,17 @@ class MetadataMediaTypeRepairTests(unittest.TestCase):
         self.assertEqual(1,row_id); self.assertEqual('wrong_media_type',error); self.assertEqual('tv',data['media_type'])
         client.get_movie_details.assert_called_once_with(77); client.get_tv_details.assert_called_once_with(77)
 
+    def test_fetch_ignores_numeric_collision_and_uses_matching_opposite_namespace(self):
+        client=unittest.mock.Mock()
+        client.get_movie_details.return_value=detail(
+            media_type='movie', title='Другой фильм', original='Other Movie', year=2020
+        )
+        client.get_tv_details.return_value=detail(media_type='tv')
+        with patch.object(metadata_repair,'_client',return_value=client):
+            _,data,error=metadata_repair._fetch(self.row())
+        self.assertEqual('wrong_media_type',error)
+        self.assertEqual('tv',data['media_type'])
+
     def test_fetch_rejects_opposite_namespace_when_identity_does_not_match(self):
         client=unittest.mock.Mock(); client.get_movie_details.return_value=None
         client.get_tv_details.return_value=detail(title='Другое', original='Other', year=2020)

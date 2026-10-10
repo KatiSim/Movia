@@ -24,6 +24,7 @@ from background_network_budget import background_bulk_allowed
 DIR = DATA_DIR
 DB_PATH = DIR / "catalog.db"
 STATE_PATH = DIR / "metadata_repair_state.json"
+TYPE_AUDIT_STATE_PATH = DIR / "metadata_type_repair_state.json"
 
 _thread_local = threading.local()
 
@@ -66,7 +67,11 @@ def _fetch(row: dict[str, Any]) -> tuple[int, dict[str, Any] | None, str | None]
         if data:
             if int(data.get("tmdb_id") or 0) != tmdb_id or str(data.get("media_type")) != media_type:
                 return int(row["id"]), None, "identity_mismatch"
-            return int(row["id"]), data, None
+            if _detail_matches_row(row, data):
+                return int(row["id"]), data, None
+            # A numeric TMDb id may exist in both namespaces. If the current
+            # namespace resolves to a different work, continue to the opposite
+            # namespace instead of overwriting the catalog with that collision.
 
         # TMDb movie and TV ids live in separate namespaces. Legacy imports can
         # therefore carry the right numeric id under the wrong media_type. Only
@@ -75,7 +80,7 @@ def _fetch(row: dict[str, Any]) -> tuple[int, dict[str, Any] | None, str | None]
         opposite = client.get_movie_details(tmdb_id) if media_type == "tv" else client.get_tv_details(tmdb_id)
         if opposite and _detail_matches_row(row, opposite):
             return int(row["id"]), opposite, "wrong_media_type"
-        return int(row["id"]), None, "tmdb_not_found"
+        return int(row["id"]), None, "identity_mismatch" if data else "tmdb_not_found"
     except Exception as exc:  # pragma: no cover - operational reporting
         return int(row["id"]), None, f"{type(exc).__name__}:{exc}"
 
@@ -189,15 +194,18 @@ def apply_media_type_correction(
     return old_id
 
 
-def _load_state() -> int:
+def _load_state(path: Path = STATE_PATH) -> int:
     try:
-        return max(0, int(json.loads(STATE_PATH.read_text()).get("last_id") or 0))
+        return max(0, int(json.loads(path.read_text()).get("last_id") or 0))
     except Exception:
         return 0
 
 
-def _save_state(last_id: int, *, repaired: int, failed: int, media_type_corrected: int = 0) -> None:
-    STATE_PATH.write_text(json.dumps({
+def _save_state(
+    last_id: int, *, repaired: int, failed: int, media_type_corrected: int = 0,
+    path: Path = STATE_PATH,
+) -> None:
+    path.write_text(json.dumps({
         "last_id": int(last_id),
         "repaired": int(repaired),
         "failed": int(failed),
@@ -213,6 +221,10 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--reset-state", action="store_true")
+    ap.add_argument(
+        "--audit-media-type", action="store_true",
+        help="Resumable exact movie/tv namespace audit over streamless catalog rows",
+    )
     args = ap.parse_args()
 
     if os.environ.get("MOVIA_BACKGROUND_BULK", "0") == "1":
@@ -222,8 +234,9 @@ def main() -> int:
             return 0
 
     ensure_schema(DB_PATH)
-    if args.reset_state and STATE_PATH.exists():
-        STATE_PATH.unlink()
+    state_path = TYPE_AUDIT_STATE_PATH if args.audit_media_type else STATE_PATH
+    if args.reset_state and state_path.exists():
+        state_path.unlink()
 
     conn = sqlite3.connect(str(DB_PATH), timeout=30.0)
     conn.row_factory = sqlite3.Row
@@ -238,31 +251,47 @@ def main() -> int:
             f"SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies WHERE id IN ({placeholders}) ORDER BY id", ids
         ).fetchall()]
     else:
-        last_id = _load_state() if args.resume else 0
-        sql = (
-            "SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies "
-            "WHERE id>? AND tmdb_id>0 AND media_type IN ('movie','tv') "
-            "AND ((metadata_source='tmdb_detail' AND (metadata_updated_at='' "
-            "OR julianday(metadata_updated_at) < julianday('now','-30 days'))) "
-            "OR (metadata_source='tmdb_not_found' AND (metadata_updated_at='' "
-            "OR julianday(metadata_updated_at) < julianday('now','-7 days'))) "
-            "OR metadata_source NOT IN ('tmdb_detail','tmdb_not_found','tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams')) "
-            "ORDER BY id"
-        )
+        last_id = _load_state(state_path) if args.resume else 0
+        if args.audit_media_type:
+            # Audit every streamless identity eventually, independent of normal
+            # metadata freshness. Existing stream-bearing rows are deliberately
+            # excluded because automatic type rebinding must never move playback.
+            sql = (
+                "SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies "
+                "WHERE id>? AND tmdb_id>0 AND media_type IN ('movie','tv') "
+                "AND (streams IS NULL OR streams='' OR streams='[]') "
+                "AND metadata_source NOT IN ('tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams') "
+                "ORDER BY id"
+            )
+        else:
+            sql = (
+                "SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies "
+                "WHERE id>? AND tmdb_id>0 AND media_type IN ('movie','tv') "
+                "AND ((metadata_source='tmdb_detail' AND (metadata_updated_at='' "
+                "OR julianday(metadata_updated_at) < julianday('now','-30 days'))) "
+                "OR (metadata_source='tmdb_not_found' AND (metadata_updated_at='' "
+                "OR julianday(metadata_updated_at) < julianday('now','-7 days'))) "
+                "OR metadata_source NOT IN ('tmdb_detail','tmdb_not_found','tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams')) "
+                "ORDER BY id"
+            )
         params: list[Any] = [last_id]
         if args.limit and args.limit > 0:
             sql += " LIMIT ?"
             params.append(int(args.limit))
         rows = [dict(x) for x in conn.execute(sql, params).fetchall()]
 
-    print(json.dumps({"selected": len(rows), "workers": max(1, min(args.workers, 12)), "resume_from": _load_state() if args.resume else 0}))
+    print(json.dumps({
+        "selected": len(rows), "workers": max(1, min(args.workers, 12)),
+        "resume_from": _load_state(state_path) if args.resume else 0,
+        "audit_media_type": bool(args.audit_media_type),
+    }))
     if not rows:
-        if args.resume and STATE_PATH.exists():
+        if args.resume and state_path.exists():
             # One complete id sweep is finished. Reset the cursor so the next
             # service pass can revisit rows that have become stale or were
             # inserted with a lower id by a restore/import.
-            STATE_PATH.unlink()
-            print(json.dumps({"cycle_complete": True, "cursor_reset": True}))
+            state_path.unlink()
+            print(json.dumps({"cycle_complete": True, "cursor_reset": True, "audit_media_type": bool(args.audit_media_type)}))
         return 0
 
     repaired = failed = media_type_corrected = 0
@@ -307,7 +336,7 @@ def main() -> int:
                 bump_revision(conn)
                 conn.commit()
                 if not args.ids:
-                    _save_state(last_seen, repaired=repaired, failed=failed, media_type_corrected=media_type_corrected)
+                    _save_state(last_seen, repaired=repaired, failed=failed, media_type_corrected=media_type_corrected, path=state_path)
                 print(json.dumps({
                     "processed": index,
                     "selected": len(rows),
