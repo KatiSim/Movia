@@ -1,0 +1,46 @@
+{
+  "baseline": {
+    "raw_movies": 62816,
+    "raw_movies_with_saved_streams": 27904,
+    "canonical_movies": 62679,
+    "canonical_movies_with_saved_streams": 27860,
+    "legacy_redirects": 137
+  },
+  "source_truth": {
+    "indexed_media": 1693,
+    "verified_media": 401,
+    "indexed_sources": 39096
+  },
+  "before_selection": {
+    "total": 30,
+    "movie": 20,
+    "tv": 10,
+    "already_saved_streams": 20,
+    "saved_without_refresh_need": 20
+  },
+  "after_selection": {
+    "total": 30,
+    "movie": 30,
+    "tv": 0,
+    "already_saved_streams": 0,
+    "saved_without_refresh_need": 0
+  },
+  "changes": [
+    "Exclude generic TV from movie background jobs",
+    "Exclude redirected wrong-type cards",
+    "Avoid stale-age rediscovery of magnet-only saved results",
+    "Refresh old direct HTTP streams including mixed direct/magnet rows"
+  ],
+  "validation": {
+    "backend_tests_passed": 603,
+    "backend_tests_failed": 0,
+    "sqlite_quick_check": "ok",
+    "backend_health_http": 200,
+    "live_module_installed": true,
+    "background_service_restarted": false
+  },
+  "limitations": [
+    "Saved candidates do not establish successful Media3 first frame",
+    "Background worker will load new module on its next content_filler process start"
+  ]
+}

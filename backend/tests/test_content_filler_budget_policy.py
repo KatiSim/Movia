@@ -76,7 +76,7 @@ class ContentFillerBudgetPolicyTests(unittest.TestCase):
             id INTEGER PRIMARY KEY, tmdb_id INTEGER, media_type TEXT, title TEXT,
             original_title TEXT, year INTEGER, category TEXT, rating REAL,
             vote_count INTEGER, streams TEXT, playback_url TEXT, link_verified INTEGER,
-            link_updated_at TEXT
+            link_updated_at TEXT, metadata_source TEXT DEFAULT ''
         )""")
         current_year = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).year
         complete=[]
@@ -94,12 +94,12 @@ class ContentFillerBudgetPolicyTests(unittest.TestCase):
         # coverage were ignored. The incomplete card must still be selected.
         for index in range(11):
             db.execute(
-                "INSERT INTO movies VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (100+index,index,"movie",f"Complete {index}",f"Complete {index}",current_year,
                  "movies",9.0,10000-index,__import__("json").dumps(complete),"https://media.example/x",1,"2000-01-01"),
             )
         db.execute(
-            "INSERT INTO movies VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (999,999,"movie","Incomplete","Incomplete",current_year,"movies",8.0,1,
              __import__("json").dumps(incomplete),"https://media.example/only.m3u8",1,"2000-01-01"),
         )
@@ -115,22 +115,22 @@ class ContentFillerBudgetPolicyTests(unittest.TestCase):
             id INTEGER PRIMARY KEY, tmdb_id INTEGER, media_type TEXT, title TEXT,
             original_title TEXT, year INTEGER, category TEXT, rating REAL,
             vote_count INTEGER, streams TEXT, playback_url TEXT, link_verified INTEGER,
-            link_updated_at TEXT
+            link_updated_at TEXT, metadata_source TEXT DEFAULT ''
         )""")
         current_year = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).year
         for index in range(1, 26):
             db.execute(
-                "INSERT INTO movies VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (10_000+index, index, "movie", f"Recent {index}", f"Recent {index}",
                  current_year, "movies", 5.0, index, "[]", "", 0, ""),
             )
         db.execute(
-            "INSERT INTO movies VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (500, 500, "movie", "Popular Old", "Popular Old", current_year-5,
              "movies", 9.0, 999999, "[]", "", 0, ""),
         )
         db.execute(
-            "INSERT INTO movies VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO movies(id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (1, 1, "movie", "Backfill", "Backfill", current_year-20,
              "movies", 1.0, 0, "[]", "", 0, ""),
         )

@@ -392,22 +392,28 @@ def _fetch_rows(db: Any, last_id: int, state: Optional[Dict[str, Any]] = None) -
     # New releases get a reserved budget on every pass; the remaining budget advances old coverage.
     # Never read the whole catalog into RAM just to slice it afterwards.
     columns="id,tmdb_id,media_type,title,original_title,year,category,rating,vote_count,streams,playback_url,link_verified,link_updated_at"
-    needs="(COALESCE(playback_url,'')='' OR COALESCE(streams,'') IN ('','[]') OR COALESCE(link_verified,0)=0 OR COALESCE(link_updated_at,'')<?)"
+    # Generic TV cards cannot supply an exact episode; the dedicated episode
+    # discovery path handles them. Do not spend background movie slots on TV.
+    # Only refresh persisted direct HTTP streams by age. Magnet-only rows must
+    # not be recycled every 30 minutes: P2P locators have no HTTP expiry.
+    direct_hint = "(COALESCE(playback_url,'') LIKE 'http%' OR instr(streams, '\"url\": \"http')>0 OR instr(streams, '\"url\":\"http')>0)"
+    needs=("(COALESCE(playback_url,'')='' OR COALESCE(streams,'') IN ('','[]') "
+           "OR COALESCE(link_verified,0)=0 OR (COALESCE(link_updated_at,'')<? AND " + direct_hint + "))")
     now_epoch=time.time();cutoff=datetime.fromtimestamp(now_epoch-1800,timezone.utc).isoformat()
     recent_year=datetime.now(timezone.utc).year-1
     recent=db.execute(
-        "SELECT "+columns+" FROM movies WHERE year>=? AND "+needs+
+        "SELECT "+columns+" FROM movies WHERE media_type='movie' AND COALESCE(metadata_source,'') NOT IN ('tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams') AND year>=? AND "+needs+
         " ORDER BY COALESCE(vote_count,0) DESC, COALESCE(rating,0) DESC, id DESC LIMIT 300",
         (recent_year,cutoff),
     ).fetchall()
     popular_older=db.execute(
-        "SELECT "+columns+" FROM movies WHERE COALESCE(year,0)<? AND "+needs+
+        "SELECT "+columns+" FROM movies WHERE media_type='movie' AND COALESCE(metadata_source,'') NOT IN ('tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams') AND COALESCE(year,0)<? AND "+needs+
         " ORDER BY COALESCE(vote_count,0) DESC, COALESCE(rating,0) DESC, id DESC LIMIT 300",
         (recent_year,cutoff),
     ).fetchall()
     cursor=_as_int((state or {}).get("cloud_backfill_id"))
     older=db.execute(
-        "SELECT "+columns+" FROM movies WHERE id>? AND COALESCE(year,0)<? AND "+needs+
+        "SELECT "+columns+" FROM movies WHERE media_type='movie' AND COALESCE(metadata_source,'') NOT IN ('tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams') AND id>? AND COALESCE(year,0)<? AND "+needs+
         " ORDER BY id ASC LIMIT 300",
         (cursor,recent_year,cutoff),
     ).fetchall()
@@ -419,14 +425,21 @@ def _fetch_rows(db: Any, last_id: int, state: Optional[Dict[str, Any]] = None) -
         except (TypeError, ValueError, json.JSONDecodeError):
             raw = []
         coverage = variant_coverage(raw, media_type=str(row["media_type"] or "movie"))
-        # Generic TV card rows cannot prove episode identity. Keep them behind
-        # movie enrichment until the episode-specific background queue exists.
         if coverage.requires_episode_identity:
             return 2
         # Variant counts are audit statistics, never a reason to stop discovery.
         return coverage.streams
     def due(rows):
-        eligible=[row for row in rows if not state or _retry_due(state,_as_int(row["id"]),now_epoch)]
+        eligible=[]
+        for row in rows:
+            if state and not _retry_due(state,_as_int(row["id"]),now_epoch):
+                continue
+            has_saved = str(row["streams"] or "") not in ("", "[]", "null")
+            has_primary = bool(str(row["playback_url"] or "").strip())
+            if has_saved and has_primary and _as_int(row["link_verified"]) == 1:
+                if not _catalog_streams_need_refresh(row, now_epoch=now_epoch):
+                    continue
+            eligible.append(row)
         return sorted(eligible, key=coverage_priority)
     selected=[];seen=set()
     def take(rows,limit):
