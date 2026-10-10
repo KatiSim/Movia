@@ -1,0 +1,87 @@
+{
+  "action": "catalog_wrong_media_type_repair",
+  "date": "2026-10-10",
+  "code": {
+    "behavior": [
+      "legitimate movie identity is checked before any retype",
+      "stream-bearing rows are not automatically retyped",
+      "wrong streamless movie row with existing canonical TV row is hidden and redirected",
+      "wrong streamless movie row without canonical duplicate is retyped in-place and enriched from authoritative TMDB detail"
+    ],
+    "focusedTests": "19/19 PASS",
+    "fullBackendTests": "590/590 PASS"
+  },
+  "liveRepair": {
+    "selected": 40,
+    "changed": 35,
+    "redirected": 24,
+    "retypedInPlace": 11,
+    "errors": 0,
+    "databaseIntegrity": "ok",
+    "backup": "/data/data/com.termux/files/home/.cache/movia-architecture-20261002/catalog-before-media-type-repair-20261010.db"
+  },
+  "examples": [
+    {
+      "id": 31200,
+      "title": "Нaзад в будущее",
+      "before": "movie",
+      "after": "tv",
+      "seasons": 2,
+      "episodes": 27
+    },
+    {
+      "id": 3014,
+      "title": "Бэтмен: Крестоносец в плаще",
+      "redirect": 218661,
+      "seasons": 2,
+      "episodes": 20
+    },
+    {
+      "id": 9297,
+      "title": "Форсаж: Шпионские гонки",
+      "redirect": 252241,
+      "seasons": 6,
+      "episodes": 52
+    }
+  ],
+  "streamRecovery": {
+    "testedRealMovies": 9,
+    "resolvedAndPersisted": 8,
+    "examples": [
+      {
+        "id": 640,
+        "title": "Чудо",
+        "streams": 3,
+        "provider": "Collaps",
+        "android": "READY"
+      },
+      {
+        "id": 12254,
+        "title": "Расплата",
+        "streams": 4,
+        "provider": "Collaps"
+      },
+      {
+        "id": 28012,
+        "title": "Покемон: Детектив Пикачу",
+        "streams": 4,
+        "provider": "Collaps"
+      },
+      {
+        "id": 4813,
+        "title": "Меню",
+        "streams": 8,
+        "provider": "Collaps"
+      }
+    ]
+  },
+  "current": {
+    "parser": "RUNNING",
+    "enricher": "RUNNING",
+    "health": 200,
+    "movieCardsWithStreams": 27898,
+    "movieCardsWithoutStreams": 34831,
+    "movieCoveragePct": 44.47,
+    "remainingStreamlessAmbiguousCandidates": 7202
+  }
+}

@@ -626,6 +626,64 @@ def _normalized_identity(value: str) -> str:
     return re.sub(r"[^0-9a-zа-яё]+", "", (value or "").lower())
 
 
+def _catalog_redirect_key(row_id: int) -> str:
+    return f"catalog_redirect:{int(row_id)}"
+
+
+def _record_catalog_redirect(conn: sqlite3.Connection, old_id: int, new_id: int) -> None:
+    if int(old_id) == int(new_id):
+        return
+    conn.execute(
+        "INSERT INTO catalog_meta(key,value) VALUES (?,?) "
+        "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+        (_catalog_redirect_key(old_id), str(int(new_id))),
+    )
+
+
+def _resolve_catalog_redirect(conn: sqlite3.Connection, row_id: int) -> int:
+    current = int(row_id)
+    seen: set[int] = set()
+    for _ in range(4):
+        if current in seen:
+            return int(row_id)
+        seen.add(current)
+        try:
+            row = conn.execute(
+                "SELECT value FROM catalog_meta WHERE key=?",
+                (_catalog_redirect_key(current),),
+            ).fetchone()
+        except sqlite3.OperationalError:
+            # Legacy/read-only test databases may predate catalog_meta.
+            return current
+        if not row:
+            return current
+        try:
+            target = int(row[0])
+        except (TypeError, ValueError, OverflowError):
+            return current
+        if target <= 0 or target == current:
+            return current
+        current = target
+    return current
+
+
+def _detail_matches_row(row: sqlite3.Row, detail: Dict[str, Any]) -> bool:
+    current_names = {
+        _normalized_identity(str(row["title"] or "")),
+        _normalized_identity(str(row["original_title"] or "")),
+    }
+    detail_names = {
+        _normalized_identity(str(detail.get("title") or "")),
+        _normalized_identity(str(detail.get("original_title") or "")),
+    }
+    current_names.discard(""); detail_names.discard("")
+    if not current_names.intersection(detail_names):
+        return False
+    current_year = int(row["year"] or 0)
+    detail_year = int(detail.get("year") or 0)
+    return not (current_year and detail_year and abs(current_year - detail_year) > 1)
+
+
 def _repair_media_type_if_ambiguous(conn: sqlite3.Connection, row: sqlite3.Row) -> sqlite3.Row:
     if str(row["media_type"] or "").lower() != "movie":
         return row
@@ -633,25 +691,55 @@ def _repair_media_type_if_ambiguous(conn: sqlite3.Connection, row: sqlite3.Row) 
         return row
     if int(row["seasons_count"] or 0) > 0:
         return row
+    raw_streams = parse_json_safely(row["streams"], [])
+    if isinstance(raw_streams, list) and raw_streams:
+        # Never rewrite a persisted playback identity automatically.
+        return row
     tmdb_id = int(row["tmdb_id"] or 0)
     if tmdb_id <= 0:
         return row
+
+    # Keep a legitimate movie even if the same numeric TMDb id also exists in
+    # the TV namespace. A type repair is allowed only when the current movie
+    # identity is absent/mismatched and the TV identity matches exactly.
+    movie = tmdb.get_movie_details(tmdb_id)
+    if movie and _detail_matches_row(row, movie):
+        return row
     tv = tmdb.get_tv_details(tmdb_id)
-    if not tv:
+    if not tv or not _detail_matches_row(row, tv):
         return row
-    current_names = {_normalized_identity(str(row["title"] or "")), _normalized_identity(str(row["original_title"] or ""))}
-    tv_names = {_normalized_identity(str(tv.get("title") or "")), _normalized_identity(str(tv.get("original_title") or ""))}
-    current_names.discard(""); tv_names.discard("")
-    if not current_names.intersection(tv_names):
-        return row
-    current_year = int(row["year"] or 0)
-    tv_year = int(tv.get("year") or 0)
-    if current_year and tv_year and abs(current_year - tv_year) > 1:
-        return row
-    existing_tv = conn.execute("SELECT id FROM movies WHERE media_type='tv' AND tmdb_id=? AND id!=?", (tmdb_id, int(row["id"]))).fetchone()
+
+    existing_tv = conn.execute(
+        "SELECT * FROM movies WHERE media_type='tv' AND tmdb_id=? AND id!=?",
+        (tmdb_id, int(row["id"])),
+    ).fetchone()
+    now = datetime.now(timezone.utc).isoformat()
     if existing_tv:
-        conn.execute("DELETE FROM movies WHERE id=?", (int(existing_tv["id"]),))
+        # The correct TV card stays canonical. Hide the bad movie duplicate and
+        # preserve old saved IDs through catalog_meta redirect. Never discard the
+        # richer canonical row or its streams.
+        _record_catalog_redirect(conn, int(row["id"]), int(existing_tv["id"]))
+        conn.execute(
+            "UPDATE movies SET localized_ru_title='', normalized_ru_title='', "
+            "metadata_source='tmdb_wrong_media_type', metadata_updated_at=?, updated_at=? "
+            "WHERE id=?",
+            (now, now, int(row["id"])),
+        )
+        conn.execute(
+            "UPDATE catalog_meta SET value=CAST(value AS INTEGER)+1 WHERE key='catalog_revision'"
+        )
+        conn.commit()
+        return conn.execute(
+            "SELECT * FROM movies WHERE id=?", (int(existing_tv["id"]),)
+        ).fetchone()
+
+    # No canonical TV row exists yet: preserve this mediaId and repair it in place.
     conn.execute("UPDATE movies SET media_type='tv' WHERE id=?", (int(row["id"]),))
+    from metadata_repair import apply_authoritative_metadata
+    apply_authoritative_metadata(conn, int(row["id"]), tv)
+    conn.execute(
+        "UPDATE catalog_meta SET value=CAST(value AS INTEGER)+1 WHERE key='catalog_revision'"
+    )
     conn.commit()
     return conn.execute("SELECT * FROM movies WHERE id=?", (int(row["id"]),)).fetchone()
 
@@ -924,7 +1012,8 @@ def _lookup_movie_row(conn: sqlite3.Connection, movie_id: str) -> Optional[sqlit
     query_id = movie_id.replace("m_", "").strip()
     row = None
     if query_id.isdigit():
-        cur.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (int(query_id),))
+        resolved_id = _resolve_catalog_redirect(conn, int(query_id))
+        cur.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (resolved_id,))
         row = cur.fetchone()
     if row is None and query_id.isdigit():
         external_rows = cur.execute(
@@ -956,7 +1045,8 @@ def get_movie_playback_card_scoped(movie_id: str, season=None, episode=None) -> 
         return None
     internal_id = int(value.removeprefix("m_"))
     with closing(get_db()) as conn, conn:
-        row = conn.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (internal_id,)).fetchone()
+        resolved_id = _resolve_catalog_redirect(conn, internal_id)
+        row = conn.execute("SELECT * FROM movies WHERE id=? LIMIT 1", (resolved_id,)).fetchone()
         if row is None:
             return None
         # Feed visibility/localization is independent from playing an exact,
