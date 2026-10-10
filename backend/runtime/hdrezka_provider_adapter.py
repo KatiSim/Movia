@@ -8,6 +8,7 @@ composition, logging and candidate metadata are owned by Movia.
 """
 from __future__ import annotations
 import logging,re,json
+from dataclasses import asdict
 from threading import BoundedSemaphore
 from concurrent.futures import ThreadPoolExecutor,wait
 from media_content_probe import catalog_duration_seconds,duration_matches,measure_mp4,measure_hls_content
@@ -137,6 +138,66 @@ class HDRezkaProviderAdapter:
         rows=list(found.values())
         logger.info('HDRezka exact search media_id=%s aliases=%s matches=%s error=%s',request.media_id,len(accepted),len(rows),error)
         return rows,error
+    def saved_source(self, row, request):
+        """Accept only persisted discovery provenance for this exact request."""
+        data = row.get("reload_data")
+        if data is None:
+            # Older native leaves persisted the actual fetched article in
+            # Referer. This is observed transport provenance, never a hash guess.
+            meta = row.get("transport_metadata") or {}
+            identity = (str(row.get("catalog_media_id") or ""), row.get("canonical_title"),
+                        row.get("canonical_year"), row.get("canonical_media_type"),
+                        row.get("season"), row.get("episode"), row.get("is_trailer"))
+            wanted = (request.media_id, request.title, request.year, request.media_type,
+                      request.season, request.episode, request.is_trailer)
+            if identity != wanted or meta.get("hdrezka_native_transport") is not True:
+                return None
+            if request.is_series_request and meta.get("hdrezka_episode_verified") is not True:
+                return None
+            refs = [v for k,v in (row.get("headers") or {}).items() if str(k).casefold() == "referer"]
+            if len(refs) != 1 or not isinstance(refs[0], str):
+                return None
+            try:
+                path = urlparse(refs[0]).path.strip("/").removesuffix(".html")
+            except ValueError:
+                return None
+            data = {"version":1,"provider_id":DEF.provider_id,
+                    "request":{k:v for k,v in asdict(request).items() if v is not None},
+                    "article_ref":refs[0],"item_id":path,
+                    "title":request.title,"year":request.year,"content_ref":path}
+        if not isinstance(data, dict) or data.get("version") != 1:
+            return None
+        if data.get("provider_id") != DEF.provider_id or data.get("request") != {k:v for k,v in asdict(request).items() if v is not None}:
+            return None
+        ref = data.get("article_ref")
+        item = data.get("item_id")
+        if not isinstance(ref, str) or not isinstance(item, str):
+            return None
+        try:
+            parsed = urlparse(ref)
+        except ValueError:
+            return None
+        if parsed.scheme not in {"http", "https"} or parsed.hostname not in {"rezka.ag", "hdrezka.ag", "hdrzk.org"}:
+            return None
+        if parsed.query or parsed.fragment or parsed.username or parsed.password:
+            return None
+        if parsed.path.strip("/").removesuffix(".html") != item:
+            return None
+        if not re.fullmatch(r"(?:films|series)/[a-z0-9/_-]+/\d+[-a-z0-9_]*", item):
+            return None
+        if item.startswith("series/") != (request.media_type == "tv"):
+            return None
+        if row.get("provider_id") != DEF.provider_id:
+            return None
+        return ProviderSearchResult(DEF, item, data.get("title") or request.title,
+                                    data.get("year"), ref, data.get("content_ref") or item)
+
+    def reload_source(self, row, request):
+        source = self.saved_source(row, request)
+        if source is None:
+            return None, None, "HDREZKA_RELOAD_IDENTITY_MISMATCH"
+        return self.resolve_source(source, request)
+
     def deferred_source(self, source:ProviderSearchResult, request:ProviderRequest):
         article = ProviderArticle(DEF, source.item_id, source.title, source.year,
                                   source.article_ref, source.content_ref)
@@ -146,7 +207,7 @@ class HDRezkaProviderAdapter:
         return root, article, None
 
     def resolve_source(self,source:ProviderSearchResult,request:ProviderRequest):
-        streams,error=_resolve_hdrezka({'downloadLinkKey':source.item_id},fetch_text=_get,fetch_text_with_headers=_get_headers,fetch_post_form_text=_post,request_user_agent=HDREZKA_DEFAULT_USER_AGENT,season=request.season,episode=request.episode)
+        streams,error=_resolve_hdrezka({'downloadLinkKey':source.item_id,'article_ref':source.article_ref},fetch_text=_get,fetch_text_with_headers=_get_headers,fetch_post_form_text=_post,request_user_agent=HDREZKA_DEFAULT_USER_AGENT,season=request.season,episode=request.episode)
         if not streams:
             logger.info('HDRezka VariantTree no result media_id=%s error=%s',request.media_id,error)
             return None,None,error or 'HDREZKA_NO_RESULTS'
@@ -233,7 +294,7 @@ class HDRezkaProviderAdapter:
                 "fallback", canonical_stream_locator(url, 2), voice.casefold(),
                 str(row.get('advertised_quality') or row.get('quality') or '').casefold(),
             ], ensure_ascii=False, separators=(",", ":"))
-            leaf=VariantStream(url=url,stream_key=key,voice=voice,quality=quality,season=request.season,episode=request.episode,headers=dict(row.get('headers') or {}),user_agent=str(row.get('user_agent') or HDREZKA_DEFAULT_USER_AGENT),subtitles=tuple(dict(x) for x in (row.get('subtitle_list') or row.get('subtitles') or []) if isinstance(x,dict)),audio_track_index=row.get('audio_track_index'),transport=str(row.get('transport') or ('hls' if '.m3u8' in url else 'direct')),reload_supported=True,transport_metadata={**dict(row.get('transport_metadata') or {}),**({'expected_episode_duration_ms':int(episode_runtime*1000)} if episode_runtime else {}),**({"measured_duration_ms":int(measured["duration"]*1000),**({"measured_height":measured['height']} if measured.get('height') else {})} if measured else {})})
+            leaf=VariantStream(url=url,stream_key=key,voice=voice,quality=quality,season=request.season,episode=request.episode,headers=dict(row.get('headers') or {}),user_agent=str(row.get('user_agent') or HDREZKA_DEFAULT_USER_AGENT),subtitles=tuple(dict(x) for x in (row.get('subtitle_list') or row.get('subtitles') or []) if isinstance(x,dict)),audio_track_index=row.get('audio_track_index'),transport=str(row.get('transport') or ('hls' if '.m3u8' in url else 'direct')),reload_supported=True,reload_data={'version':1,'provider_id':DEF.provider_id,'request':{k:v for k,v in asdict(request).items() if v is not None},'item_id':source.item_id,'title':source.title,'year':source.year,'article_ref':source.article_ref,'content_ref':source.content_ref},transport_metadata={**dict(row.get('transport_metadata') or {}),**({'expected_episode_duration_ms':int(episode_runtime*1000)} if episode_runtime else {}),**({"measured_duration_ms":int(measured["duration"]*1000),**({"measured_height":measured['height']} if measured.get('height') else {})} if measured else {})})
             groups.setdefault(voice,[]).append(leaf)
         voices=tuple(VariantFolder(voice=v,season=request.season,episode=request.episode,children=tuple(ls)) for v,ls in groups.items() if ls)
         if not voices:return None,None,'HDREZKA_NO_PLAYABLE_LEAVES'

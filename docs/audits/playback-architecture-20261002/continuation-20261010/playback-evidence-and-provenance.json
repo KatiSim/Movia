@@ -1,0 +1,83 @@
+{
+  "checkpoint_from": {
+    "seq": 3450,
+    "commit": "647352a72edcda64a4fb27d71481553001eba179"
+  },
+  "task": "Implement two-pass evidence-based playback diagnosis plus exact-provenance source refresh",
+  "diagnostic_findings": [
+    "Unfiltered random movie selection can produce NO_SOURCE; readiness/timeline checks must be marked BLOCKED rather than independent decoder failures.",
+    "Some audio/quality selection controls return synchronous status=completed; previously acceptance demanded asynchronous operationId and falsely failed.",
+    "Previously Media3-successful direct movie sample provides historical evidence, not guaranteed present playback.",
+    "Episode media.details may fail MEDIA_NOT_FOUND; do not run/attribute downstream player checks.",
+    "HDRezka adapter already had strict saved article provenance, but content_filler did not pass known_sources; direct search endpoint was ACCESS_DENIED."
+  ],
+  "changes": {
+    "acceptance": "Seed-reproducible random coverage and separate recent first-frame control; typed cause and blockedBy metadata; coverage/player/metadata/backend metrics; sync completed agent action support; first-frame/READY/timeline checks; strict release gate unchanged.",
+    "provenance": "Exact row ID+year+title+kind+provider article verification; deduplicate to one seed/article; use known_sources and force_refresh to bypass stale search cache only with saved provenance; article transport uses original observed ref; no URL guessing or access bypass.",
+    "checkpoint_dependency": "Includes related previously uncommitted provider_discovery, hdrezka_provider_adapter, hdrezka_transport and provenance tests as reproducible source dependencies."
+  },
+  "qa": {
+    "backend_regression": {
+      "passed": 618,
+      "failed": 0
+    },
+    "acceptance_unit_tests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "android_release_acceptance_fixed_seed_v1": {
+      "passed": 13,
+      "total": 29,
+      "release_gate": "FAIL"
+    },
+    "android_release_acceptance_fixed_seed_v2": {
+      "passed": 14,
+      "total": 29,
+      "release_gate": "FAIL"
+    },
+    "android_evidence_v2": {
+      "coverage": {
+        "passed": 1,
+        "failed": 1
+      },
+      "player": {
+        "passed": 4,
+        "failed": 9,
+        "blocked": 3
+      },
+      "metadata": {
+        "passed": 0,
+        "failed": 2
+      },
+      "backend": {
+        "passed": 4,
+        "failed": 0
+      },
+      "control_sample_selection": {
+        "passed": 5,
+        "failed": 0
+      }
+    },
+    "android_random_sample_note": "A 29-check release run is not comparable to the older 24-check acceptance; v1/v2 use the same seed but live network and data remain variable.",
+    "live_api_status": 200,
+    "sqlite_quick_check": "ok",
+    "live_backend_file_deployed": true,
+    "background_service_restarted": true
+  },
+  "production_snapshot": {
+    "catalog_movie_saved_source_cards": 27897,
+    "source_truth_recent_direct_first_frame_control_candidates": 54,
+    "saved_hdrezka_scan_rows": 1004,
+    "exact_article_renewal_movie_rows": 228,
+    "previous_saved_snapshot": 27891,
+    "note": "+6 persisted movie-card delta is incidental concurrent enrichment, not proven causal playback improvement"
+  },
+  "safety_limits": [
+    "No guarantee that provider is accessible after article refresh",
+    "No fabricated stream URLs or title guessing",
+    "First-frame not established on the new historical control in Android run (operation timeout)",
+    "No Kotlin/app binary modification; acceptance script and background worker only",
+    "Unrelated uncommitted UI/runtime changes excluded from checkpoint"
+  ],
+  "next": "Investigate actual Media3 first frame failures on historical HLS/MP4 controls, missing validated physical audio tracks, next-episode source identity, and response-lag after synchronous quality selection; verify publication counts using first-frame rather than saved candidates."
+}

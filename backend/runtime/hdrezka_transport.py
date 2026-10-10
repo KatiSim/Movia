@@ -240,8 +240,28 @@ def resolve_hdrezka(source, *, fetch_text, fetch_post_form_text,
     headers = {}
     cookies = ""
     last_error = "HDREZKA_PAGE_UNAVAILABLE"
+    routes = []
+    reference = source.get("article_ref")
+    if isinstance(reference, str) and reference.startswith(("http://", "https://")):
+        try:
+            parsed = urlparse(reference)
+            valid = (parsed.hostname in {"rezka.ag", "hdrezka.ag", "hdrzk.org"}
+                     and parsed.port in {None, 80, 443}
+                     and not parsed.username and not parsed.password
+                     and not parsed.query and not parsed.fragment
+                     and parsed.path.strip("/").removesuffix(".html") == path)
+        except ValueError:
+            valid = False
+        if not valid:
+            return [], "HDREZKA_ARTICLE_REFERENCE_MISMATCH"
+        routes.append((reference, "rezka.ag" if parsed.hostname == "hdrzk.org" else None))
     for origin, host in ARTICLE_ROUTES:
-        url = origin + "/" + quote(path, safe="/-._~") + ".html"
+        route = (origin + "/" + quote(path, safe="/-._~") + ".html", host)
+        if route not in routes:
+            routes.append(route)
+    # Start at the observed full article URL. Known public routes remain
+    # alternatives for the same proven path; no new title search is involved.
+    for url, host in routes:
         request_headers = {"User-Agent": ua, "Accept-Encoding": "gzip"}
         if host:
             request_headers["Host"] = host

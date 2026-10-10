@@ -150,7 +150,7 @@ def _discover_zona_mobi(*, title: str, year: int = 0, media_id: str, media_type:
 
 def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: str = "movie",
     season: Optional[int] = None, episode: Optional[int] = None,
-    original_title: Optional[str] = None, fetch_text: Optional[TextFetcher] = None,
+    original_title: Optional[str] = None, known_sources=(), fetch_text: Optional[TextFetcher] = None,
     fetch_post_form_text: Optional[PostFormFetcher] = None) -> ProviderDiscoveryOutcome:
     clean_title = str(title or "").strip()
     if not clean_title or not str(media_id or "").strip():
@@ -176,7 +176,18 @@ def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: s
             media_type="tv" if is_series else "movie",
         )
         adapter = HDRezkaProviderAdapter()
-        if not should_call("hdrezka"):
+        saved = {}
+        for row in known_sources:
+            if not isinstance(row, dict):
+                continue
+            source = adapter.saved_source(row, request)
+            if source is not None:
+                saved[source.item_id] = source
+        # A persisted exact article survives search endpoint outages. Refresh all
+        # proven articles without searching or inferring a path from logical IDs.
+        if saved:
+            results, search_error = list(saved.values()), None
+        elif not should_call("hdrezka"):
             results, search_error = [], "PROVIDER_COOLDOWN"
         else:
             results, search_error = adapter.search(request, aliases=(original_title,))
@@ -190,23 +201,26 @@ def _discover_hdrezka(*, title: str, year: int = 0, media_id: str, media_type: s
                     else "RATE_LIMIT" if str(search_error).startswith("HTTP_ERROR:429")
                     else "PROVIDER_ERROR"
                 )
-        elif len(results) > 1:
+        elif len(results) > 1 and not saved:
             terminal_statuses.append("AMBIGUOUS")
         elif not results:
             terminal_statuses.append("NO_MATCH")
         else:
-            tree, article, resolve_error = adapter.deferred_source(results[0], request)
-            if resolve_error or tree is None or article is None:
-                error_count += 1
-                terminal_statuses.append("PROVIDER_ERROR")
-            else:
-                rows = sanitize_streams(
-                    flatten_variant_tree(article, tree, request), require_source=True
-                )
-                if rows:
-                    collected_streams.extend(rows)
-                else:
-                    terminal_statuses.append("NO_RESULTS")
+            for selected in results:
+                try:
+                    tree, article, resolve_error = adapter.deferred_source(selected, request)
+                    if resolve_error or tree is None or article is None:
+                        raise ValueError(resolve_error or "PROVIDER_ERROR")
+                    rows = sanitize_streams(
+                        flatten_variant_tree(article, tree, request), require_source=True
+                    )
+                    if rows:
+                        collected_streams.extend(rows)
+                    else:
+                        terminal_statuses.append("NO_RESULTS")
+                except Exception:
+                    error_count += 1
+                    terminal_statuses.append("PROVIDER_ERROR")
     except Exception:
         error_count += 1
         terminal_statuses.append("PROVIDER_ERROR")
@@ -469,7 +483,7 @@ if len({entry.flag for entry in PROVIDER_REGISTRY}) != len(PROVIDER_REGISTRY):
     raise ValueError("DUPLICATE_PROVIDER_REGISTRATION")
 
 
-def _discover_provider_streams(*, enabled_flags: frozenset[str], **request) -> ProviderDiscoveryOutcome:
+def _discover_provider_streams(*, enabled_flags: frozenset[str], known_sources=(), **request) -> ProviderDiscoveryOutcome:
     if not str(request.get("title") or "").strip() or not str(request.get("media_id") or "").strip():
         return ProviderDiscoveryOutcome([], "INVALID_REQUEST", error_count=1)
     rows, attempted, statuses, errors = [], [], [], 0
@@ -478,7 +492,7 @@ def _discover_provider_streams(*, enabled_flags: frozenset[str], **request) -> P
             continue
         attempted.append(registration.name)
         try:
-            outcome = registration.discover(**request)
+            outcome = registration.discover(**request, **({"known_sources": known_sources} if registration.name == "hdrezka" else {}))
             rows.extend(outcome.streams)
             statuses.append(outcome.status)
             errors += outcome.error_count
@@ -509,7 +523,7 @@ def _cache_completed(key, future):
         pass
 
 
-def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **request) -> ProviderDiscoveryOutcome:
+def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, force_refresh=False, **request) -> ProviderDiscoveryOutcome:
     """Run enabled providers independently; publish the union within one budget.
 
     A slow provider cannot hide the completed leaves of another provider.
@@ -531,7 +545,7 @@ def discover_provider_streams(*, budget_seconds=3.7, on_provider_result=None, **
     futures, cached = [], []
     # A completed late task remains available to the next exact-identity poll.
     # Callables used for deterministic transport tests bypass this live cache.
-    use_cache = not request.get("fetch_text") and not request.get("fetch_post_form_text")
+    use_cache = not force_refresh and not request.get("fetch_text") and not request.get("fetch_post_form_text")
     identity = tuple(str(request.get(k) or "") for k in
                      ("media_id", "title", "year", "media_type", "season", "episode", "original_title"))
     for flag in enabled:

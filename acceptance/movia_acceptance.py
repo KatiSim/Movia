@@ -15,6 +15,7 @@ import urllib.parse
 import urllib.request
 import uuid
 from pathlib import Path
+from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple
 
 CONFIG_DIR = Path(os.environ.get("MOVIA_CONFIG_DIR", str(Path.home() / ".config/movia-agent")))
@@ -32,6 +33,65 @@ CATALOG_DB = Path(os.environ.get(
     str(Path.home() / "projects/media-parser/catalog.db"),
 ))
 RANDOM_PROBE_TIMEOUT_SECONDS = min(STARTUP_LIMIT_SECONDS, 10.0)
+SOURCE_TRUTH_DB = Path(os.environ.get(
+    "MOVIA_SOURCE_TRUTH_DB", str(CATALOG_DB.parent / "stream_cache/playback_availability_v1.db")
+))
+CONTROL_SUCCESS_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
+
+
+def playback_failure_cause(*, operation_ok: bool, operation_detail: str = "",
+                           diagnostics_payload: Optional[Dict[str, Any]] = None) -> str:
+    """Classify the observed failure; never infer a decoder error from missing content."""
+    if operation_ok:
+        return "OK"
+    d = diagnostics_payload if isinstance(diagnostics_payload, dict) else {}
+    selection = d.get("streamSelection") or {}
+    reason = str(selection.get("fallbackReason") or "").upper()
+    detail = operation_detail.upper()
+    if "NO_SOURCE" in reason:
+        return "NO_SOURCE"
+    if "RESOLVER_ERROR" in reason:
+        return "RESOLVER_ERROR"
+    if "TIMEOUT" in detail:
+        return "OPERATION_TIMEOUT"
+    return "PLAYBACK_FAILED"
+
+
+def evidence_metrics(checks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Disjoint coverage/player indicators; blocked checks never count as player failures."""
+    out = {}
+    for domain in ("COVERAGE", "PLAYER", "BACKEND", "CONTROL", "METADATA"):
+        selected = [c for c in checks if c.get("domain") == domain]
+        evaluated = [c for c in selected if c.get("status") != "BLOCKED"]
+        passed = sum(c["passed"] for c in evaluated)
+        out[domain.lower()] = {
+            "total": len(selected), "evaluated": len(evaluated),
+            "passed": passed, "failed": len(evaluated) - passed,
+            "blocked": len(selected) - len(evaluated),
+        }
+    return out
+
+
+def select_recent_first_frame_movies(*, now: Optional[float] = None) -> List[str]:
+    """Historical Media3 first-frame evidence, not a promise of current availability."""
+    if not SOURCE_TRUTH_DB.is_file():
+        return []
+    observation_time = time.time() if now is None else now
+    cutoff = observation_time - CONTROL_SUCCESS_MAX_AGE_SECONDS
+    try:
+        with sqlite3.connect(str(SOURCE_TRUTH_DB)) as conn:
+            return [str(r[0]) for r in conn.execute("""
+                SELECT DISTINCT a.media_id FROM playback_availability a
+                JOIN playback_sources s ON s.media_key=a.media_key
+                WHERE a.media_kind='MOVIE' AND a.availability_status='VERIFIED'
+                  AND s.verification_method='MEDIA3_SUCCESS'
+                  AND s.last_success_at >= ?
+                  AND s.source_type IN ('HLS','MP4')
+                  AND (s.expires_at IS NULL OR s.expires_at > ?)
+                ORDER BY a.media_id
+            """, (cutoff, observation_time + 300.0))]
+    except (sqlite3.Error, OSError):
+        return []
 
 
 def resolve_sample_seed() -> int:
@@ -116,6 +176,11 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
     if not movies:
         raise RuntimeError("catalog contains no movies")
 
+    # Select a separate historically decoded Media3 control. Keep the random
+    # unfiltered movie as a coverage probe rather than claiming it is playable.
+    proven_ids = set(select_recent_first_frame_movies())
+    proven_movies = [row for row in movies if str(row["id"]) in proven_ids]
+    proven_row = rng.choice(proven_movies) if proven_movies else None
     random_movie_row = rng.choice(movies)
     audio_row = rng.choice(audio_movies) if audio_movies else None
     quality_pool = [r for r in quality_movies if str(r["id"]) != str(audio_row["id"]) ] if audio_row else list(quality_movies)
@@ -125,6 +190,8 @@ def select_catalog_targets(seed: int) -> Dict[str, Dict[str, Any]]:
     targets: Dict[str, Dict[str, Any]] = {
         "randomMovie": _target(random_movie_row),
     }
+    if proven_row is not None:
+        targets["firstFrameControl"] = _target(proven_row)
     if audio_row is not None:
         targets["audioMovie"] = _target(audio_row)
     if quality_row is not None:
@@ -248,8 +315,13 @@ def poll(operation_id: str, timeout: float = OP_TIMEOUT) -> Tuple[str, Optional[
 
 def accepted_operation(name: str, args: Optional[Dict[str, Any]] = None, timeout: float = OP_TIMEOUT) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
     status, payload, err = action(name, args)
+    if status == 200 and isinstance(payload, dict) and payload.get("status") == "completed":
+        # Track/audio/quality selectors are synchronous agent actions, unlike
+        # media.play. Requiring an operationId falsely fails successful switches.
+        return True, "", payload
     if status != 200 or not isinstance(payload, dict) or payload.get("status") != "accepted":
-        return False, err or f"action {name} status={status}", None
+        code = str(payload.get("code") or "") if isinstance(payload, dict) else ""
+        return False, err or f"action {name} status={status}, code={code}", None
     op_id = payload.get("operationId")
     if not op_id:
         return False, "operationId missing", None
@@ -305,8 +377,17 @@ class Runner:
             self.samples: Dict[str, Dict[str, Any]] = {}
             self.sample_error = str(exc)
 
-    def record(self, category: str, name: str, passed: bool, detail: str = "") -> None:
-        item = {"category": category, "name": name, "passed": bool(passed)}
+    def record(self, category: str, name: str, passed: bool, detail: str = "",
+               *, domain: str = "", blocked_by: str = "", cause: str = "") -> None:
+        classified = domain or ("BACKEND" if category == "BACKEND" else
+                                "CONTROL" if category == "SAMPLE" else "PLAYER")
+        item = {"category": category, "name": name, "passed": bool(passed),
+                "domain": classified, "status": "BLOCKED" if blocked_by else
+                ("PASS" if passed else "FAIL")}
+        if blocked_by:
+            item["blockedBy"] = blocked_by
+        if cause:
+            item["cause"] = cause
         if detail:
             item["detail"] = detail
         self.checks.append(item)
@@ -317,6 +398,7 @@ class Runner:
         self.sample_selection()
         self.backend()
         self.android()
+        self.first_frame_control()
         self.series()
         reset_player()
         total = len(self.checks)
@@ -336,6 +418,11 @@ class Runner:
             "samples": self.samples,
             "errors": [f"{c['category']}: {c['name']}: {c.get('detail','failed')}" for c in self.checks if not c["passed"]],
             "checks": self.checks,
+            "evidence_domains": evidence_metrics(self.checks),
+            "root_cause_counts": dict(Counter(
+                str(c.get("blockedBy") or c.get("cause") or "FAILED")
+                for c in self.checks if not c["passed"] and c.get("status") != "BLOCKED"
+            )),
         }
 
 
@@ -345,6 +432,7 @@ class Runner:
             ("audioMovie", "multilingual movie sample selected"),
             ("qualityMovie", "multi-quality movie sample selected"),
             ("series", "series sample selected"),
+            ("firstFrameControl", "previous Media3 first-frame sample selected"),
         ):
             self.record(
                 "SAMPLE",
@@ -409,19 +497,29 @@ class Runner:
                 timeout=RANDOM_PROBE_TIMEOUT_SECONDS,
             )
             elapsed = time.monotonic() - started_at
-            self.record("ANDROID", "random movie playback", ok, detail or f"mediaId={random_movie['mediaId']}")
+            d = diagnostics()
+            cause = playback_failure_cause(operation_ok=ok, operation_detail=detail,
+                                           diagnostics_payload=d)
+            is_coverage_failure = cause == "NO_SOURCE"
+            self.record("ANDROID", "random movie playback", ok,
+                        detail or f"mediaId={random_movie['mediaId']}",
+                        domain="COVERAGE" if ok or is_coverage_failure else "PLAYER",
+                        cause=cause if not ok else "")
             self.record(
-                "ANDROID",
-                "random movie startup <= 10s",
+                "ANDROID", "random movie startup <= 10s",
                 ok and elapsed <= STARTUP_LIMIT_SECONDS,
                 f"mediaId={random_movie['mediaId']}, elapsedSeconds={elapsed:.2f}, limit={STARTUP_LIMIT_SECONDS:.2f}",
+                blocked_by="NO_SOURCE" if is_coverage_failure else "",
             )
-            d = diagnostics()
             m3 = d.get("media3") if isinstance(d, dict) else None
             ready = ok and isinstance(m3, dict) and (str(m3.get("playbackState") or "").upper() == "READY" or m3.get("playbackStateCode") == 3)
-            self.record("ANDROID", "random movie Media3 READY", ready, "" if ready else "Media3 did not report READY")
+            self.record("ANDROID", "random movie Media3 READY", ready,
+                        "" if ready else "Media3 did not report READY",
+                        blocked_by="NO_SOURCE" if is_coverage_failure else "")
             timeline_ok = wait_for_position_advance(seconds=3.0) if ready else False
-            self.record("ANDROID", "random movie advancing timeline", timeline_ok, "" if timeline_ok else "timeline did not advance")
+            self.record("ANDROID", "random movie advancing timeline", timeline_ok,
+                        "" if timeline_ok else "timeline did not advance",
+                        blocked_by="NO_SOURCE" if is_coverage_failure else "")
         reset_player()
 
         # Capability-selected multilingual sample. The title changes with the seed.
@@ -455,7 +553,13 @@ class Runner:
         for lang, check_name in (("uk", "physical Ukrainian audio"), ("en", "physical Original/English audio")):
             target = language_targets.get(lang)
             if not audio_started or not target:
-                self.record("ANDROID", check_name, False, f"no playable {lang} release voice exposed")
+                missing = not target
+                self.record("ANDROID", check_name, False,
+                            f"no verified physical {lang} track exposed" if missing else
+                            "playback did not start",
+                            domain="METADATA" if missing else "PLAYER",
+                            cause="PHYSICAL_TRACK_NOT_EXPOSED" if missing else "",
+                            blocked_by="STARTUP_FAILED" if not audio_started else "")
                 continue
             v_ok, v_detail, _ = accepted_operation(
                 "player.selectVoice",
@@ -500,6 +604,57 @@ class Runner:
             actual = str(after.get("activeQuality") or "") if isinstance(after, dict) else ""
             self.record("ANDROID", "switch quality", q_ok and actual.lower() == target.lower(), q_detail or f"requested={target}, active={actual}")
 
+    def first_frame_control(self) -> None:
+        """Independently evaluate a previously Media3-decoded movie.
+
+        Historical first frame selects the control but is never credited as a
+        new successful startup. Only current Media3 evidence counts.
+        """
+        reset_player()
+        control = self.samples.get("firstFrameControl")
+        checks = ("historical control playback", "historical control Media3 READY",
+                  "historical control rendered first frame", "historical control advancing timeline")
+        if control is None:
+            for name in checks:
+                self.record("CONTROL", name, False, "no recent native Media3 success sample",
+                            domain="PLAYER", blocked_by="NO_VERIFIED_CONTROL")
+            return
+        ok, detail, _ = accepted_operation(
+            "media.play", {"mediaId": control["mediaId"], "title": control["title"],
+                           "resume": False, "persist": False},
+            timeout=STARTUP_LIMIT_SECONDS,
+        )
+        observed = diagnostics()
+        cause = playback_failure_cause(operation_ok=ok, operation_detail=detail,
+                                       diagnostics_payload=observed)
+        blocked = "NO_SOURCE" if cause == "NO_SOURCE" else ""
+        self.record("CONTROL", checks[0], ok, detail or f"mediaId={control['mediaId']}",
+                    domain="COVERAGE" if blocked else "PLAYER",
+                    cause=cause if not ok else "")
+        m3 = observed.get("media3") if isinstance(observed, dict) else None
+        ready = bool(ok and isinstance(m3, dict) and
+                     str(m3.get("playbackState") or "").upper() == "READY")
+        self.record("CONTROL", checks[1], ready, "Media3 READY observed" if ready else
+                    "Media3 READY absent", domain="PLAYER", blocked_by=blocked)
+        frame = None
+        if ready:
+            deadline = time.monotonic() + 2.0
+            while time.monotonic() < deadline:
+                options = streams_payload()
+                value = options.get("firstFrameLatencyMs") if isinstance(options, dict) else None
+                if isinstance(value, (float, int)) and 0 <= value < 120_000:
+                    frame = int(value)
+                    break
+                time.sleep(0.25)
+        self.record("CONTROL", checks[2], frame is not None,
+                    f"firstFrameLatencyMs={frame}" if frame is not None else "first frame not observed",
+                    domain="PLAYER", blocked_by=blocked)
+        timeline = wait_for_position_advance(seconds=2.5) if ready else False
+        self.record("CONTROL", checks[3], timeline,
+                    "timeline advanced" if timeline else "timeline did not advance",
+                    domain="PLAYER", blocked_by=blocked)
+        reset_player()
+
     def series(self) -> None:
         reset_player()
         target = self.samples.get("series")
@@ -513,7 +668,17 @@ class Runner:
         media = payload.get("media") if isinstance(payload, dict) else None
         counts = media.get("seasonEpisodeCounts") if isinstance(media, dict) else None
         season_ok = status == 200 and isinstance(counts, list) and len(counts) >= season
-        self.record("SERIES", "season metadata", season_ok, "" if season_ok else (err or "seasonEpisodeCounts missing"))
+        self.record("SERIES", "season metadata", season_ok,
+                    "" if season_ok else (err or "seasonEpisodeCounts missing"),
+                    domain="COVERAGE", cause="CATALOG_MISSING" if not season_ok else "")
+        if not season_ok:
+            # The agent cannot play a series that it does not recognize. This
+            # measures a catalog identity gap, not four independent Media3 bugs.
+            for name in ("start sampled episode", "startup <= 10s",
+                         "progress persistence / resume", "next episode"):
+                self.record("SERIES", name, False, "blocked by missing season metadata",
+                            domain="PLAYER", blocked_by="CATALOG_MISSING")
+            return
 
         started_at = time.monotonic()
         ok, detail, _ = accepted_operation(
@@ -564,7 +729,13 @@ class Runner:
         nd = diagnostics()
         ns = nd.get("snapshot", {}).get("playback", {}) if isinstance(nd, dict) else {}
         next_ok = n_ok and ns.get("season") == expected_season and ns.get("episode") == expected_episode and ns.get("status") == "READY"
-        self.record("SERIES", "next episode", next_ok, n_detail or f"state={ns.get('status')}, S={ns.get('season')}, E={ns.get('episode')}")
+        next_cause = playback_failure_cause(operation_ok=next_ok,
+                                            operation_detail=n_detail,
+                                            diagnostics_payload=nd)
+        self.record("SERIES", "next episode", next_ok,
+                    n_detail or f"state={ns.get('status')}, S={ns.get('season')}, E={ns.get('episode')}",
+                    domain="COVERAGE" if next_cause == "NO_SOURCE" else "PLAYER",
+                    cause=next_cause if not next_ok else "")
 
 
 def main() -> int:

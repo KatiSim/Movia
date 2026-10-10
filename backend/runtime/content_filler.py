@@ -574,6 +574,45 @@ def _rewrite_torrent_rows_for_persistence(
         return streams
 
 
+def _saved_hdrezka_refresh_sources(row: Any, *, request_title: str) -> List[Dict[str, Any]]:
+    """Use only an exact, previously observed provider article for renewal.
+
+    The HDRezka adapter validates media ID, year, title, kind and article host;
+    neither a plain URL nor a guessed article path can authorize a refresh.
+    One seed per unique article avoids sending hundreds of renditions again.
+    """
+    try:
+        raw = json.loads(row["streams"] or "[]")
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return []
+    if not isinstance(raw, list):
+        return []
+    from hdrezka_provider_adapter import HDRezkaProviderAdapter
+    from provider_contract import ProviderRequest
+    adapter = HDRezkaProviderAdapter()
+    request = ProviderRequest(
+        media_id=str(row["id"]), title=request_title,
+        year=_as_int(row["year"]) or None, media_type="movie",
+    )
+    results: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for candidate in raw:
+        if not isinstance(candidate, dict):
+            continue
+        if str(candidate.get("provider") or candidate.get("source") or "").casefold() != "hdrezka":
+            continue
+        if not str(candidate.get("url") or "").startswith(("https://", "http://")):
+            continue
+        source = adapter.saved_source(candidate, request)
+        if source is None or source.item_id in seen:
+            continue
+        seen.add(source.item_id)
+        results.append(candidate)
+        if len(results) == 8:
+            break
+    return results
+
+
 def _resolve_balancer_with_diagnostics(**request):
     """Read thread-local balancer diagnostics on the SAME worker as resolver."""
     streams = resolve_balancer(**request)
@@ -623,9 +662,12 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         and os.environ.get("MOVIA_BACKGROUND_TORRENT_LOOKUP", "0") == "1"
     )
     should_resolve_torrent = not background_bulk or allow_background_torrent
+    known_hdrezka_sources = _saved_hdrezka_refresh_sources(row, request_title=search_title)
 
     provider_future = _FILL_PROVIDER_EXECUTOR.submit(
         discover_provider_streams,
+        known_sources=known_hdrezka_sources,
+        force_refresh=bool(known_hdrezka_sources),
         title=search_title,
         original_title=original_title,
         year=year,
