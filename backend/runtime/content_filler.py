@@ -15,11 +15,12 @@ import logging
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError, wait
 from collections import Counter
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from threading import BoundedSemaphore
 from typing import Any, Dict, List, Optional
 
 DIR = DATA_DIR
@@ -56,6 +57,19 @@ COMPLETE_COVERAGE_REFRESH_SECONDS = 24 * 60 * 60
 IDENTITY_RETRY_SECONDS = 30 * 24 * 60 * 60
 PERSISTENCE_RETRY_SECONDS = 60 * 60
 BACKGROUND_DIRECT_PROVIDER_BUDGET_SECONDS = 4.0
+# Absolute budget measured from torrent submission, not after direct search.
+BACKGROUND_TORRENT_BUDGET_SECONDS = 16.0
+MAX_INFLIGHT_BACKGROUND_TORRENTS = 12
+
+
+def _background_torrent_budget_seconds() -> float:
+    try:
+        value = float(os.environ.get(
+            "MOVIA_BACKGROUND_TORRENT_BUDGET_SECONDS", BACKGROUND_TORRENT_BUDGET_SECONDS
+        ))
+    except (TypeError, ValueError):
+        value = BACKGROUND_TORRENT_BUDGET_SECONDS
+    return min(30.0, max(4.0, value))
 
 
 def _background_direct_provider_budget_seconds() -> float:
@@ -71,6 +85,14 @@ def _background_direct_provider_budget_seconds() -> float:
 _FILL_PROVIDER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-provider")
 _FILL_BALANCER_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-balancer")
 _FILL_TORRENT_EXECUTOR = ThreadPoolExecutor(max_workers=6, thread_name_prefix="movia-fill-torrent")
+# A cancelled network Future may already be running. Cap running + queued work
+# so subsequent batches cannot grow an unbounded queue behind slow providers.
+_FILL_BACKGROUND_TORRENT_SLOTS = BoundedSemaphore(MAX_INFLIGHT_BACKGROUND_TORRENTS)
+
+
+def _release_background_torrent_slot(_future):
+    _FILL_BACKGROUND_TORRENT_SLOTS.release()
+
 
 logger = logging.getLogger("content_filler")
 logger.setLevel(logging.INFO)
@@ -586,6 +608,7 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     row_provider_errors = 0
     row_provider_timeouts = 0
     row_provider_deferred = 0
+    torrent_status = "NOT_REQUESTED"
     provider_status = "NOT_ATTEMPTED"
     balancer_status = "NOT_ATTEMPTED"
     persisted_ok = False
@@ -620,13 +643,28 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         media_type=category,
     )
     torrent_future = None
+    torrent_started_at = time.monotonic()
     if should_resolve_torrent:
-        torrent_future = _FILL_TORRENT_EXECUTOR.submit(
-            resolve_torrent,
-            title=search_title,
-            year=year,
-            category=category,
-        )
+        acquired = not background_bulk or _FILL_BACKGROUND_TORRENT_SLOTS.acquire(blocking=False)
+        if not acquired:
+            torrent_status = "CAPACITY_DEFERRED"
+            row_provider_deferred += 1
+        else:
+            try:
+                torrent_future = _FILL_TORRENT_EXECUTOR.submit(
+                    resolve_torrent,
+                    title=search_title,
+                    year=year,
+                    category=category,
+                )
+                torrent_status = "STARTED"
+                if background_bulk:
+                    torrent_future.add_done_callback(_release_background_torrent_slot)
+            except Exception:
+                if background_bulk:
+                    _FILL_BACKGROUND_TORRENT_SLOTS.release()
+                torrent_status = "SUBMIT_ERROR"
+                row_provider_errors += 1
 
     resolved_streams: List[Dict[str, Any]] = []
     direct_futures = {provider_future, balancer_future}
@@ -687,16 +725,25 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
     for future in pending:
         future.cancel()
 
-    # Torrent providers are an additive family, not a last-resort replacement.
-    # The torrent task starts at the same time as direct discovery so the
-    # four-second direct-provider budget overlaps useful P2P work instead of
-    # delaying it. A dedicated executor prevents stuck direct-provider workers
-    # from starving torrent resolution.
+    # The P2P budget includes concurrent direct discovery. In background mode
+    # a slow torrent cannot block the durable cursor indefinitely. Cancelling a
+    # running Future does not abort its network calls; the capacity semaphore
+    # prevents orphaned requests from creating unbounded executor queues.
     if torrent_future is not None:
         try:
-            torrent_result = torrent_future.result()
-            resolved_streams.extend(_candidate_streams(torrent_result))
+            remaining = max(0.0, _background_torrent_budget_seconds() - (
+                time.monotonic() - torrent_started_at
+            )) if background_bulk else None
+            torrent_result = torrent_future.result(timeout=remaining)
+            torrent_candidates = _candidate_streams(torrent_result)
+            torrent_status = "OK" if torrent_candidates else "NO_RESULTS"
+            resolved_streams.extend(torrent_candidates)
+        except FutureTimeoutError:
+            torrent_status = "BUDGET_TIMEOUT"
+            row_provider_timeouts += 1
+            torrent_future.cancel()
         except Exception as exc:
+            torrent_status = "PROVIDER_ERROR"
             row_provider_errors += 1
             logger.debug("Torrent error for %s: %s", title, exc)
 
@@ -805,6 +852,7 @@ def _process_row(row: Any, index: int, total: int) -> Dict[str, Any]:
         "provider_deferred": row_provider_deferred,
         "provider_status": provider_status,
         "balancer_status": balancer_status,
+        "torrent_status": torrent_status,
         "coverage_complete": bool(coverage.complete) if coverage is not None else False,
         "coverage_voices": int(coverage.voices) if coverage is not None else 0,
         "coverage_qualities": int(coverage.qualities) if coverage is not None else 0,
@@ -873,6 +921,7 @@ def fill_content(
     status_counts = Counter()
     provider_status_counts = Counter()
     balancer_status_counts = Counter()
+    torrent_status_counts = Counter()
     started = time.monotonic()
 
     configured_workers = _as_int(
@@ -940,6 +989,7 @@ def fill_content(
                 provider_timeouts += _as_int(result.get("provider_timeouts"))
                 provider_status_counts[str(result.get("provider_status") or "UNKNOWN")] += 1
                 balancer_status_counts[str(result.get("balancer_status") or "UNKNOWN")] += 1
+                torrent_status_counts[str(result.get("torrent_status") or "UNKNOWN")] += 1
                 status = str(result.get("status") or "provider_error")
                 status_counts[status] += 1
                 _record_retry_outcome(state, content_id, status)
@@ -990,8 +1040,9 @@ def fill_content(
         provider_errors,
         elapsed,
     )
-    logger.info("Provider diagnostics: registry=%s balancer=%s timeouts=%s",
-                dict(provider_status_counts), dict(balancer_status_counts), provider_timeouts)
+    logger.info("Provider diagnostics: registry=%s balancer=%s torrent=%s timeouts=%s",
+                dict(provider_status_counts), dict(balancer_status_counts),
+                dict(torrent_status_counts), provider_timeouts)
     save_state(state)
     return {
         "processed": processed,
@@ -1004,6 +1055,7 @@ def fill_content(
         "status_counts": dict(status_counts),
         "provider_status_counts": dict(provider_status_counts),
         "balancer_status_counts": dict(balancer_status_counts),
+        "torrent_status_counts": dict(torrent_status_counts),
         "provider_timeouts": provider_timeouts,
         "pass_completed": False,
     }

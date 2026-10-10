@@ -1,0 +1,60 @@
+{
+  "previous_checkpoint": {
+    "seq": 3449,
+    "commit": "456b161d4fa88d71571fec861664be20a75ce95a"
+  },
+  "diagnosis": {
+    "unbounded_wait": "content_filler._process_row used torrent_future.result() with no timeout",
+    "risk": "single stalled P2P request could block a worker/cursor and saturate futures across batches",
+    "prior_running_pass_seconds": 132.84,
+    "prior_running_pass_processed": 30,
+    "note": "previous 132.84 second duration is observational and not a same-sample speed benchmark"
+  },
+  "corrections": {
+    "background_torrent_deadline_seconds": 16,
+    "configurable_range_seconds": [
+      4,
+      30
+    ],
+    "max_inflight_or_queued_background_torrents": 12,
+    "max_torrent_workers": 6,
+    "timeout_includes_direct_provider_overlap": true,
+    "cancelled_running_futures_do_not_release_slot_until_done": true,
+    "on_demand_resolver_behavior_unchanged": true,
+    "new_statuses": [
+      "OK",
+      "NO_RESULTS",
+      "BUDGET_TIMEOUT",
+      "CAPACITY_DEFERRED"
+    ],
+    "timeout_never_negative_cached_as_no_source": true
+  },
+  "qa": {
+    "backend_suite_passed": 615,
+    "backend_suite_failed": 0,
+    "live_boundary_tests_passed": 3,
+    "live_file_sha256": "64aeb936d95211811c566c54dee15741def88c4aeaab52d8105d7c037a8cda74",
+    "production_file_deployed": true,
+    "api_http_status": 200,
+    "sqlite_quick_check": "ok"
+  },
+  "production_snapshot": {
+    "canonical_saved_movies": 27885,
+    "previous_snapshot_saved_movies": 27879,
+    "count_delta": 6,
+    "delta_note": "background worker started before this deployment; delta cannot be attributed to new timeout implementation",
+    "canonical_redirects": 137,
+    "source_truth_tracked_cards": 1718,
+    "source_truth_status_verified": 401,
+    "source_truth_recorded_last_success": 168,
+    "source_truth_coverage_note": "partial index; VERIFIED and last_success metadata do not prove universal first-frame success"
+  },
+  "safety_limits": [
+    "Only background P2P lookup is bounded; request-driven on-demand playback is unchanged",
+    "Python running Future cancellation is cooperative; bound prevents queue growth, not forced network termination",
+    "Service worker running during atomic file swap retains old in-memory module until next invocation",
+    "No synthetic source locators and no bypass of provider access controls",
+    "Unrelated existing uncommitted changes not staged"
+  ],
+  "next": "Observe first completed background pass whose process started after deployment; validate torrent_status_counts, duration, and no unintended drop in source additions; inspect first-frame verification evidence."
+}
