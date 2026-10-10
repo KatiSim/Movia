@@ -1,0 +1,48 @@
+{
+  "action": "systemic_metadata_media_type_repair",
+  "date": "2026-10-10",
+  "implementation": {
+    "currentTmdbNamespaceCheckedFirst": true,
+    "oppositeNamespaceCheckedOnlyWhenCurrentMissing": true,
+    "exactTitleOrOriginalTitleAndYearBarrier": true,
+    "rowsWithStreamsNeverAutoRebound": true,
+    "existingCanonicalTargetPreserved": true,
+    "legacyIdRedirected": true,
+    "hiddenWrongRowsExcludedFromFutureSweeps": true,
+    "resumableCursor": true
+  },
+  "automaticService": {
+    "service": "movia-metadata-enricher",
+    "before": "DOWN ~44h",
+    "after": "RUNNING",
+    "oldCursor": 2288257,
+    "pendingBelowOldCursor": 70556,
+    "cursorReset": true,
+    "currentCursor": 302,
+    "wifiBatchLimit": 200,
+    "mobileBatchLimit": 10,
+    "wifiWorkers": 4,
+    "mobileWorkers": 1,
+    "sourceTemplateCommit": "17e60253d9b9c27077f65dbfc62a12f737571312"
+  },
+  "validation": {
+    "focusedTests": "8/8 PASS",
+    "fullBackendTests": "595/595 PASS",
+    "manualSystemicBatchSelected": 200,
+    "manualSystemicBatchRepaired": 200,
+    "manualSystemicBatchFailed": 0,
+    "databaseQuickCheck": "ok",
+    "health": 200
+  },
+  "currentCatalog": {
+    "pendingMetadata": 72867,
+    "redirects": 24,
+    "hiddenWrongTypeRows": 24,
+    "wrongTypeRowsWithStreamsFlagged": 0
+  },
+  "services": {
+    "metadataEnricher": "RUNNING",
+    "parser": "RUNNING",
+    "streamEnricher": "RUNNING"
+  }
+}

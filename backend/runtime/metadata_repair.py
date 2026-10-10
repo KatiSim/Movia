@@ -40,18 +40,42 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _identity_text(value: Any) -> str:
+    return normalize_ru_text(value).replace(" ", "")
+
+
+def _detail_matches_row(row: dict[str, Any], data: dict[str, Any]) -> bool:
+    current = {_identity_text(row.get("title")), _identity_text(row.get("original_title"))}
+    actual = {_identity_text(data.get("title")), _identity_text(data.get("original_title"))}
+    current.discard(""); actual.discard("")
+    if not current.intersection(actual):
+        return False
+    current_year = int(row.get("year") or 0)
+    actual_year = int(data.get("year") or 0)
+    return not (current_year and actual_year and abs(current_year - actual_year) > 1)
+
+
 def _fetch(row: dict[str, Any]) -> tuple[int, dict[str, Any] | None, str | None]:
     try:
         tmdb_id = int(row["tmdb_id"] or 0)
         media_type = str(row["media_type"] or "").lower()
         if tmdb_id <= 0 or media_type not in {"movie", "tv"}:
             return int(row["id"]), None, "invalid_identity"
-        data = _client().get_tv_details(tmdb_id) if media_type == "tv" else _client().get_movie_details(tmdb_id)
-        if not data:
-            return int(row["id"]), None, "tmdb_not_found"
-        if int(data.get("tmdb_id") or 0) != tmdb_id or str(data.get("media_type")) != media_type:
-            return int(row["id"]), None, "identity_mismatch"
-        return int(row["id"]), data, None
+        client = _client()
+        data = client.get_tv_details(tmdb_id) if media_type == "tv" else client.get_movie_details(tmdb_id)
+        if data:
+            if int(data.get("tmdb_id") or 0) != tmdb_id or str(data.get("media_type")) != media_type:
+                return int(row["id"]), None, "identity_mismatch"
+            return int(row["id"]), data, None
+
+        # TMDb movie and TV ids live in separate namespaces. Legacy imports can
+        # therefore carry the right numeric id under the wrong media_type. Only
+        # accept an opposite-namespace repair when title/original-title and year
+        # match exactly enough to prove the same work.
+        opposite = client.get_movie_details(tmdb_id) if media_type == "tv" else client.get_tv_details(tmdb_id)
+        if opposite and _detail_matches_row(row, opposite):
+            return int(row["id"]), opposite, "wrong_media_type"
+        return int(row["id"]), None, "tmdb_not_found"
     except Exception as exc:  # pragma: no cover - operational reporting
         return int(row["id"]), None, f"{type(exc).__name__}:{exc}"
 
@@ -119,6 +143,52 @@ def apply_authoritative_metadata(conn: sqlite3.Connection, row_id: int, data: di
         conn.execute("UPDATE movies SET age_rating=?, age_rating_source=?, age_rating_jurisdiction=? WHERE id=? AND media_type=? AND tmdb_id=?", (data.get('age_rating'),data.get('age_rating_source'),data.get('age_rating_jurisdiction'),int(row_id),str(data.get('media_type')),int(data.get('tmdb_id') or 0)))
 
 
+def _record_redirect(conn: sqlite3.Connection, old_id: int, new_id: int) -> None:
+    conn.execute(
+        "INSERT INTO catalog_meta(key,value) VALUES (?,?) "
+        "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+        (f"catalog_redirect:{int(old_id)}", str(int(new_id))),
+    )
+
+
+def apply_media_type_correction(
+    conn: sqlite3.Connection, row: dict[str, Any], data: dict[str, Any]
+) -> int | None:
+    old_id = int(row["id"])
+    old_type = str(row.get("media_type") or "").lower()
+    new_type = str(data.get("media_type") or "").lower()
+    tmdb_id = int(row.get("tmdb_id") or 0)
+    if old_type not in {"movie", "tv"} or new_type not in {"movie", "tv"} or old_type == new_type:
+        return None
+    try:
+        streams = json.loads(row.get("streams") or "[]")
+    except (TypeError, ValueError):
+        streams = []
+    if isinstance(streams, list) and streams:
+        # Never silently rebind an existing playback identity.
+        return None
+
+    existing = conn.execute(
+        "SELECT id FROM movies WHERE media_type=? AND tmdb_id=? AND id!=?",
+        (new_type, tmdb_id, old_id),
+    ).fetchone()
+    now = _now()
+    if existing:
+        canonical_id = int(existing[0])
+        apply_authoritative_metadata(conn, canonical_id, data)
+        _record_redirect(conn, old_id, canonical_id)
+        conn.execute(
+            "UPDATE movies SET localized_ru_title='', normalized_ru_title='', "
+            "metadata_source='tmdb_wrong_media_type', metadata_updated_at=?, updated_at=? WHERE id=?",
+            (now, now, old_id),
+        )
+        return canonical_id
+
+    conn.execute("UPDATE movies SET media_type=? WHERE id=?", (new_type, old_id))
+    apply_authoritative_metadata(conn, old_id, data)
+    return old_id
+
+
 def _load_state() -> int:
     try:
         return max(0, int(json.loads(STATE_PATH.read_text()).get("last_id") or 0))
@@ -126,11 +196,12 @@ def _load_state() -> int:
         return 0
 
 
-def _save_state(last_id: int, *, repaired: int, failed: int) -> None:
+def _save_state(last_id: int, *, repaired: int, failed: int, media_type_corrected: int = 0) -> None:
     STATE_PATH.write_text(json.dumps({
         "last_id": int(last_id),
         "repaired": int(repaired),
         "failed": int(failed),
+        "media_type_corrected": int(media_type_corrected),
         "updated_at": _now(),
     }, ensure_ascii=False, indent=2))
 
@@ -164,18 +235,18 @@ def main() -> int:
             return 2
         placeholders = ",".join("?" for _ in ids)
         rows = [dict(x) for x in conn.execute(
-            f"SELECT id,tmdb_id,media_type FROM movies WHERE id IN ({placeholders}) ORDER BY id", ids
+            f"SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies WHERE id IN ({placeholders}) ORDER BY id", ids
         ).fetchall()]
     else:
         last_id = _load_state() if args.resume else 0
         sql = (
-            "SELECT id,tmdb_id,media_type FROM movies "
+            "SELECT id,tmdb_id,media_type,title,original_title,year,streams FROM movies "
             "WHERE id>? AND tmdb_id>0 AND media_type IN ('movie','tv') "
             "AND ((metadata_source='tmdb_detail' AND (metadata_updated_at='' "
             "OR julianday(metadata_updated_at) < julianday('now','-30 days'))) "
             "OR (metadata_source='tmdb_not_found' AND (metadata_updated_at='' "
             "OR julianday(metadata_updated_at) < julianday('now','-7 days'))) "
-            "OR metadata_source NOT IN ('tmdb_detail','tmdb_not_found')) "
+            "OR metadata_source NOT IN ('tmdb_detail','tmdb_not_found','tmdb_wrong_media_type','tmdb_wrong_media_type_with_streams')) "
             "ORDER BY id"
         )
         params: list[Any] = [last_id]
@@ -194,7 +265,7 @@ def main() -> int:
             print(json.dumps({"cycle_complete": True, "cursor_reset": True}))
         return 0
 
-    repaired = failed = 0
+    repaired = failed = media_type_corrected = 0
     last_seen = 0
     errors: dict[str, int] = {}
     workers = max(1, min(int(args.workers), 12))
@@ -205,8 +276,23 @@ def main() -> int:
             row_id, data, error = future.result()
             last_seen = max(last_seen, int(row_id))
             if data is not None:
-                apply_authoritative_metadata(conn, row_id, data)
-                repaired += 1
+                if error == "wrong_media_type":
+                    canonical_id = apply_media_type_correction(conn, row, data)
+                    if canonical_id is not None:
+                        repaired += 1
+                        media_type_corrected += 1
+                    else:
+                        failed += 1
+                        errors["wrong_media_type_with_streams"] = errors.get("wrong_media_type_with_streams", 0) + 1
+                        now = _now()
+                        conn.execute(
+                            "UPDATE movies SET metadata_source='tmdb_wrong_media_type_with_streams', "
+                            "metadata_updated_at=?, updated_at=? WHERE id=?",
+                            (now, now, int(row_id)),
+                        )
+                else:
+                    apply_authoritative_metadata(conn, row_id, data)
+                    repaired += 1
             else:
                 failed += 1
                 errors[error or "unknown"] = errors.get(error or "unknown", 0) + 1
@@ -221,16 +307,17 @@ def main() -> int:
                 bump_revision(conn)
                 conn.commit()
                 if not args.ids:
-                    _save_state(last_seen, repaired=repaired, failed=failed)
+                    _save_state(last_seen, repaired=repaired, failed=failed, media_type_corrected=media_type_corrected)
                 print(json.dumps({
                     "processed": index,
                     "selected": len(rows),
                     "repaired": repaired,
                     "failed": failed,
+                    "media_type_corrected": media_type_corrected,
                     "last_id": last_seen,
                 }))
 
-    print(json.dumps({"repaired": repaired, "failed": failed, "errors": errors}, ensure_ascii=False))
+    print(json.dumps({"repaired": repaired, "failed": failed, "media_type_corrected": media_type_corrected, "errors": errors}, ensure_ascii=False))
     print("integrity=", conn.execute("PRAGMA integrity_check").fetchone()[0])
     conn.close()
     return 0 if repaired > 0 or failed == 0 else 1
